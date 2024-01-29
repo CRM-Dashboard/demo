@@ -1,0 +1,12 @@
+.ellipsis-container {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.ellipsis-text:hover {
+  white-space: normal;
+  word-wrap: break-word;
+}

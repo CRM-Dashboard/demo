@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/27e68f94-3b0c-493a-8a04-e5464f462028/resourceGroups/appsvc_linux_centralus_basic/providers/Microsoft.Web/sites/GeraCRMDashboard",
+  "appService.deploySubpath": "."
+}

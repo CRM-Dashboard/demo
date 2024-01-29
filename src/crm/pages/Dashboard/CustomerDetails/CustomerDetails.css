@@ -1,0 +1,25 @@
+.circular-img {
+  width: 5.5em;
+  height: 5.5em;
+  border-radius: 50%;
+  border: none;
+  overflow: hidden;
+}
+
+.circular-donut {
+  width: 8em;
+  height: 7em;
+  border: none;
+  overflow: hidden;
+}
+
+.circular-img-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.detailsSubTitle {
+  font-size: x-large;
+  font-weight: bold;
+}

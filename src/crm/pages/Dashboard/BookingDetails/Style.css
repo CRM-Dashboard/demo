@@ -1,0 +1,21 @@
+tr {
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background-color: #d6eeee;
+}
+
+th,
+td {
+  text-align: center;
+}
+
+.mainTitle {
+  background-color: #6050dc;
+  color: white;
+}
+
+.subTitle {
+  background-color: #b0c4de;
+}

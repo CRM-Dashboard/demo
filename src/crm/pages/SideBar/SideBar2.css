@@ -1,0 +1,160 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: auto;
+  height: 100vh; /* If Height is 100% It will remove extra scroll bar on pages and also show dashboard data 80% */
+}
+main {
+  padding: 10px;
+}
+
+.title {
+  font-size: 3rem;
+  display: grid;
+  place-items: center;
+}
+
+.content-container {
+  background-color: var(--second-bg);
+  flex: 1;
+  margin-top: 2.5em;
+  height: "fit-content";
+  overflow-y: auto;
+}
+
+.menus {
+  background-color: var(--main-bg);
+}
+
+.sidebar {
+  background-color: var(--main-bg);
+  color: white;
+}
+
+.top_section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 10px;
+}
+.logo {
+  font-size: 1em;
+  line-height: 0;
+  margin: -1em;
+}
+.bars {
+  width: 30px;
+  background-color: var(--main-bg);
+}
+.hide {
+  display: none;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  height: 30px;
+  padding: 10px;
+}
+.search input {
+  border: none;
+  margin-left: 10px;
+  border-radius: 5px;
+  background: rgb(238, 238, 238);
+
+  color: white;
+}
+
+.routes {
+  display: flex;
+  /* overflow-y: scroll;
+  height: 100vh; */
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: "3em";
+}
+.link {
+  display: flex;
+  color: var(--second-color);
+  gap: 10px;
+  padding: 5px 10px;
+  border-right: 4px solid transparent;
+  transition: 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+.link:hover {
+  border-right: 4px solid white;
+  background: var(--second-color);
+  transition: 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  color: white;
+}
+.active {
+  border-right: 4px solid white;
+  background: var(--second-color);
+  color: white;
+}
+.link_text {
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.menu {
+  display: flex;
+  color: white;
+
+  padding: 5px 10px;
+  border-right: 4px solid transparent;
+  transition: 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);
+  justify-content: space-between;
+}
+.menu_item {
+  display: flex;
+  gap: 10px;
+}
+.menu_container {
+  display: flex;
+  flex-direction: column;
+}
+.menu_container .link {
+  padding-left: 20px;
+  border-bottom: #fff 0.5px solid;
+}
+
+.toolbarBgColor {
+  background-color: var(--second-color);
+}
+
+.logo-container {
+  width: "2.2em";
+  height: "0.6em";
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.circular-image {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  overflow: hidden;
+}
+
+.circular-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

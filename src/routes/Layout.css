@@ -1,0 +1,12 @@
+.layout {
+  color: var(--txt-color);
+}
+
+.layout__content {
+  background-color: var(--second-bg);
+}
+
+.layout__content-main {
+  padding: 5px;
+  overflow: hidden;
+}

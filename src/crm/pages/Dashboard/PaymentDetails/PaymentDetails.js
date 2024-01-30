@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, IconButton, Button } from "@mui/material";
+import { Box, IconButton, Button, Grid } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -52,7 +52,7 @@ export default function PaymentDetails() {
     {
       options: {
         customHeadRender: (rowIndex) => (
-          <div className="pl-4">
+          <Grid sx={{ paddingLeft: "1.3em" }}>
             <LabelWithCheckbox
               value={arrForMail?.length === response?.length}
               disable={
@@ -75,7 +75,7 @@ export default function PaymentDetails() {
                 });
               }}
             />
-          </div>
+          </Grid>
         ),
         customBodyRenderLite: (rowIndex) =>
           tableData.length > 0 && [

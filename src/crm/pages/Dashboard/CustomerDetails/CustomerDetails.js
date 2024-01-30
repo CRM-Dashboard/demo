@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
+import { Grid } from "@mui/material";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import AgingGraph from "./AgingGraph";
 import Graph from "./Graph";
@@ -479,17 +480,14 @@ export default function CustomerDetails() {
             </div>
           </div>
         </div>
-        <div
-          className="d-flex"
-          style={{ height: "9.3em", paddingTop: "0.5em" }}
-        >
-          <div className="w-50">
+        <Grid style={{ height: "9.3em", paddingTop: "0.5em", display: "flex" }}>
+          <Grid sx={{ width: "50%" }}>
             <AgingGraph />
-          </div>
-          <div className="w-50 h-100">
+          </Grid>
+          <Grid sx={{ width: "50%", height: "100%" }}>
             <Graph />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
       </>
     ) : (
       <CircularScreenLoader />

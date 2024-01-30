@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Button, Typography, TextField } from "@mui/material";
+import { Button, Typography, TextField, Grid } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -46,54 +46,79 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <div
-        style={{
+    <Grid>
+      <Grid
+        container
+        sx={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: "7em",
+          paddingTop: "5.5em",
         }}
-        className="container-fluid"
       >
-        <div className="row" style={{ width: "55%" }}>
-          <div className="col-xl-7 col-lg-7 col-md-7 col-12">
+        <Grid sx={{ width: "55%", border: "none" }} container>
+          <Grid
+            sx={{
+              border: "1px solid #d5d6d8",
+              "&.MuiGrid-item": {
+                padding: "1.5em",
+                paddingRight: "0.5em",
+              },
+              "&.MuiGrid-root": {
+                border: "none",
+              },
+            }}
+            item
+            xl={7}
+            lg={7}
+            md={7}
+          >
             <img
               style={{ width: "100%", height: "95.6%" }}
               src={require("./../../../assets/CRM_login.jpg")}
             ></img>
-          </div>
-          <div
-            className="col-xl-5 col-lg-5 col-md-5 col-12"
-            style={{
+          </Grid>
+          <Grid
+            item
+            xl={5}
+            lg={5}
+            md={5}
+            sx={{
+              marginTop: "1.5em",
               width: "100%",
               height: "80%",
               background: "#fff",
               border: "1px solid #d5d6d8",
+              "&.MuiGrid-item": {
+                paddingBottom: "0",
+              },
+              "&.MuiGrid-root": {
+                paddingBottom: "0",
+              },
             }}
           >
-            <div
-              style={{
+            <Grid
+              sx={{
                 justifyContent: "center",
                 display: "flex",
                 margin: "0",
                 paddingTop: "1em",
+                width: "100%",
               }}
-              className=" w-100 row"
             >
               <img
-                style={{ width: "50%", paddingTop: "13%" }}
+                style={{ width: "50%", paddingTop: "5%" }}
                 src={require("./../../../assets/gera_logo.jpg")}
               ></img>
-            </div>
-            <div
+            </Grid>
+            <Grid
               style={{
                 justifyContent: "center",
                 display: "flex",
                 margin: "0",
+                width: "100%",
               }}
-              className=" w-100 row"
             >
               <Typography
                 sx={{
@@ -109,24 +134,27 @@ export default function LoginPage() {
                 {" "}
                 CRM Login
               </Typography>
-            </div>
-            <div
-              className="row w-100 d-flex noMargin"
+            </Grid>
+            <Grid
               style={{
+                width: "100%",
+                display: "flex",
                 flexDirection: "column",
                 flexWrap: "NoWrap",
                 paddingTop: "1.5em",
                 paddingLeft: "1em",
+                paddingRight: "1em",
               }}
             >
-              <div className="pt-1 px-3 row">
-                <div
-                  style={{
+              <Grid sx={{ paddingTop: "1em" }}>
+                <Grid
+                  sx={{
                     display: "flex",
                     position: "relative",
                     flexWrap: "wrap",
                     alignItems: "stretch",
                     width: "100%",
+                    marginRight: "1em",
                   }}
                 >
                   <TextField
@@ -146,21 +174,22 @@ export default function LoginPage() {
                     }}
                     fullWidth
                   />
-                </div>
-              </div>
-            </div>
-            <div
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid
               className="row w-100 d-flex noMargin"
               style={{
                 flexDirection: "column",
                 flexWrap: "NoWrap",
                 paddingTop: "1.5em",
                 paddingLeft: "1em",
+                paddingRight: "1em",
               }}
             >
-              <div className="pt-1 px-3 row">
-                <div
-                  style={{
+              <Grid style={{ paddingTop: "1em" }}>
+                <Grid
+                  sx={{
                     display: "flex",
                     position: "relative",
                     flexWrap: "wrap",
@@ -186,23 +215,24 @@ export default function LoginPage() {
                     }}
                     fullWidth
                   />
-                </div>
-              </div>
-            </div>
+                </Grid>
+              </Grid>
+            </Grid>
             {error && (
-              <div
-                className="row w-100 d-flex noMargin"
+              <Grid
                 style={{
+                  width: "100%",
+                  display: "flex",
                   justifyContent: "center",
                   paddingTop: "1.5em",
                   color: "Red",
                 }}
               >
                 <Typography>{error}</Typography>
-              </div>
+              </Grid>
             )}
-            <div
-              style={{
+            <Grid
+              sx={{
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "row",
@@ -229,10 +259,10 @@ export default function LoginPage() {
               >
                 Login
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
   );
 }

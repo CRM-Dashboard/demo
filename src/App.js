@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./theme";
 
-function App() {
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";
+import { SnackbarProvider } from "material-ui-snackbar-provider";
+import { ErrorBoundary } from "react-error-boundary";
+import { appTheme } from "./theme";
+
+import CustomSnackbar from "./crm/components/snackbar/CustomSnackbar";
+import ErrorCallback from "./routes/ErrorFallback";
+import Content from "./routes";
+
+const style = {
+  autoHideDuration: 5000,
+  anchorOrigin: { vertical: "top", horizontal: "center" },
+};
+
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={appTheme}>
+        <SnackbarProvider
+          SnackbarComponent={CustomSnackbar}
+          SnackbarProps={style}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <ErrorBoundary FallbackComponent={ErrorCallback}>
+            <CssBaseline />
+            <Content />
+          </ErrorBoundary>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }
-
-export default App;

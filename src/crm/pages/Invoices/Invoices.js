@@ -52,7 +52,7 @@ export default function Invoices() {
     {
       options: {
         customHeadRender: (rowIndex) => (
-          <div className="pl-4">
+          <Grid sx={{ paddingLeft: "1.3em" }}>
             <LabelWithCheckbox
               value={arrForMail?.length === response?.length}
               disable={
@@ -72,7 +72,7 @@ export default function Invoices() {
                 });
               }}
             />
-          </div>
+          </Grid>
         ),
         customBodyRenderLite: (rowIndex) =>
           tableData.length > 0 && [

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
-import { Box, IconButton, Button } from "@mui/material";
+import { Box, IconButton, Button, Grid } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import CrmModal from "../../../components/crmModal/CrmModal";
@@ -50,7 +50,7 @@ export default function InvoiceTable() {
     {
       options: {
         customHeadRender: (rowIndex) => (
-          <div className="pl-4">
+          <Grid sx={{ paddingLeft: "1.3em" }}>
             <LabelWithCheckbox
               value={arrForMail?.length === response?.length}
               disable={
@@ -70,7 +70,7 @@ export default function InvoiceTable() {
                 });
               }}
             />
-          </div>
+          </Grid>
         ),
         customBodyRenderLite: (rowIndex) =>
           tableData.length > 0 && [

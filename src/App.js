@@ -1,5 +1,6 @@
 import React from "react";
 import "./theme";
+import "./crm/utils/GlobalCss.css";
 
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider, StyledEngineProvider } from "@mui/material/styles";

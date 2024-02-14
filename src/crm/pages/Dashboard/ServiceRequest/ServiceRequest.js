@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import Table from "mui-datatables";
+import { Grid } from "@mui/material";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
@@ -485,16 +486,18 @@ export default function ServiceRequest() {
       statusCounts &&
       Object.keys(percentages)?.length > 0 &&
       Object.keys(statusCounts)?.length > 0 ? (
-        <div className="col-12 ">
-          <div
-            style={{
+        <Grid>
+          <Grid
+            container
+            spacing={4}
+            sx={{
               display: "flex",
               justifyContent: "space-between",
               paddingBottom: "2em",
               paddingTop: "2em",
             }}
           >
-            <div className="col-3">
+            <Grid item xs={2} sm={3} md={3}>
               <StatusCard
                 icon={
                   <Chart
@@ -507,8 +510,8 @@ export default function ServiceRequest() {
                 count={statusCounts?.Open ? statusCounts?.Open : 0}
                 title="Open Requests"
               />
-            </div>
-            <div className="col-3">
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
               <StatusCard
                 icon={
                   <Chart
@@ -525,8 +528,8 @@ export default function ServiceRequest() {
                 }
                 title="Completed Requests"
               />
-            </div>
-            <div className="col-3">
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
               <StatusCard
                 icon={
                   <Chart
@@ -543,8 +546,8 @@ export default function ServiceRequest() {
                 }
                 title="Pending Requests"
               />
-            </div>
-            <div className="col-3">
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
               <StatusCard
                 icon={
                   <Chart
@@ -561,57 +564,53 @@ export default function ServiceRequest() {
                 }
                 title="In Process Requests"
               />
-            </div>
-          </div>
-          <div className="col-12 pl-0">
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "centre",
-                alignItems: "center",
-                alignContent: "center",
-                paddingBottom: "2em",
-                paddingLeft: "-1em",
-              }}
-            >
-              <div className="col-3">
-                <StatusCard
-                  icon={
-                    <Chart
-                      options={circleNeedAttention.options}
-                      series={circleNeedAttention.series}
-                      type="radialBar"
-                      height={120}
-                    />
-                  }
-                  count={
-                    statusCounts?.Needs_Attention
-                      ? statusCounts?.Needs_Attention
-                      : 0
-                  }
-                  title="Need Attention Requests"
-                />
-              </div>
-              <div className="col-3">
-                <StatusCard
-                  icon={
-                    <Chart
-                      options={circleClosed.options}
-                      series={circleClosed.series}
-                      type="radialBar"
-                      height={120}
-                    />
-                  }
-                  count={statusCounts?.Closed ? statusCounts?.Closed : 0}
-                  title="Closed Requests"
-                />
-              </div>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
+          <Grid
+            container
+            spacing={4}
+            sx={{
+              display: "flex",
+              paddingBottom: "2em",
+            }}
+          >
+            <Grid item xs={2} sm={3} md={3}>
+              <StatusCard
+                icon={
+                  <Chart
+                    options={circleNeedAttention.options}
+                    series={circleNeedAttention.series}
+                    type="radialBar"
+                    height={120}
+                  />
+                }
+                count={
+                  statusCounts?.Needs_Attention
+                    ? statusCounts?.Needs_Attention
+                    : 0
+                }
+                title="Need Attention Requests"
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <StatusCard
+                icon={
+                  <Chart
+                    options={circleClosed.options}
+                    series={circleClosed.series}
+                    type="radialBar"
+                    height={120}
+                  />
+                }
+                count={statusCounts?.Closed ? statusCounts?.Closed : 0}
+                title="Closed Requests"
+              />
+            </Grid>
+          </Grid>
           <ThemeProvider theme={() => getMuiTheme()}>
             <Table data={tableData} columns={columns} options={options}></Table>
           </ThemeProvider>
-        </div>
+        </Grid>
       ) : (
         <CircularScreenLoader />
       )}

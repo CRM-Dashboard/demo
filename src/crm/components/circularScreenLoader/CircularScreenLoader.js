@@ -20,7 +20,7 @@ function CircularScreenLoader({ isModal, style }) {
           style || {
             position: "absolute",
             top: "50%",
-            left: isModal ? "50%" : "60%",
+            left: isModal ? "50%" : "50%",
             transform: "translate(-50%,-50%)",
           }
         }

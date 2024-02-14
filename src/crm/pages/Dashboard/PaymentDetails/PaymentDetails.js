@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, IconButton, Button, Grid } from "@mui/material";
+import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -184,7 +184,9 @@ export default function PaymentDetails() {
       })
       .then((data) => {
         if (data) {
-          snackbar.showSuccess("Sent Mail(s) Successfully!");
+          snackbar.showSuccess(
+            <Typography> Sent Mail(s) Successfully!</Typography>
+          );
         }
       })
       .catch((error) => {

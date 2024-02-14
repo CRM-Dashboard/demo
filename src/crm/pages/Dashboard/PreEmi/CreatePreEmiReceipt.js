@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   forwardRef,
@@ -7,10 +8,10 @@ import React, {
 } from "react";
 import dayjs from "dayjs";
 import * as yup from "yup";
+import moment from "moment";
 import { useFormik } from "formik";
-import { Grid, Box, Typography } from "@mui/material";
-import LinearProgress from "@mui/material/LinearProgress";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
@@ -20,9 +21,12 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   const [files, setFiles] = useState([]);
   const [schemeStart, setSchemeStart] = useState(null);
   const [schemeEnd, setSchemeEnd] = useState(null);
+  const [soDetails, setSoDetails] = useState("");
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const projectId = reducerData.dashboard.project.projectId;
+  const custData = reducerData.searchBar.accountStatement;
   const snackbar = UseCustomSnackbar();
 
   useEffect(() => {
@@ -32,8 +36,9 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
         .then((data) => {
           console.log("Bookig Data@@@@@@@@@@@", data[0].vbeln);
           if (data[0].vbeln) {
+            setSoDetails(data);
             if (
-              data[0].schemeStart == "0000-00-00" ||
+              data[0].schemeStart === "0000-00-00" ||
               data[0].schemeEnd === "0000-00-00"
             ) {
               props.setopenCreateForm(false);
@@ -58,41 +63,52 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
 
   const saveReceipt = () => {
     const entryData = {
-      schemeStart: formik.values.schemeStart,
-      schemeEnd: formik.values.schemeEnd,
-      repayType: formik.values.repayType,
-      month: formik.values.month,
+      vbeln: OrderId,
+      pmt_req_typ: formik.values.repayType,
+      werks: projectId,
+      building: soDetails[0].building,
+      unit: soDetails[0].flatno,
+      proj_name: soDetails[0].project,
+      cust_name: custData.CustomerName,
       amount: formik.values.amount,
-      onBehalf: formik.values.onBehalf,
-      onBehalfPan: formik.values.onBehalfPan,
-      remarks: formik.values.remarks,
+      remark: formik.values.remarks,
+      onbehalf: formik.values.onBehalf,
+      panno: formik.values.onBehalfPan,
+      spmon: moment(formik.values.month).format("YYYYMM"),
     };
-    console.log("######entryData", entryData);
+    console.log("######entryData,errors", entryData, formik.errors);
 
-    // fetch(`/sap/bc/react/crm/receipt_create?sap-client=250`, {
-    //   method: "POST",
-    //   body: JSON.stringify(entryData),
-    //   headers: {
-    //     Accept: "application/json",
-    //     Origin: "http://115.124.113.252:8000/",
-    //     Referer: "http://115.124.113.252:8000/",
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     if (data) {
-    //       snackbar.showSuccess("Payment details created successfully!");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     if (error) {
-    //       snackbar.showError(
-    //         "Error while creating payment details. Please try again!"
-    //       );
-    //     }
-    //   });
+    if (Object.keys(formik.errors).length === 0) {
+      fetch(`/sap/bc/react/crm/repay_create?sap-client=250`, {
+        method: "POST",
+        body: JSON.stringify(entryData),
+        headers: {
+          Accept: "application/json",
+          Origin: "http://115.124.113.252:8000/",
+          Referer: "http://115.124.113.252:8000/",
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            snackbar.showSuccess(
+              "Pre EMI/ Rental receipt created successfully!"
+            );
+            props.setopenCreateForm(false);
+            props.getTableData();
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            snackbar.showError(
+              "Error while creating Pre EMI/ Rental receipt. Please try again!"
+            );
+            props.setopenCreateForm(false);
+          }
+        });
+    }
   };
 
   useImperativeHandle(ref, () => ({
@@ -239,13 +255,25 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
+              select
               id="repayType"
               name="repayType"
               label="Repay Type"
               value={formik.values.repayType}
               onChange={formik.handleChange}
+              error={Boolean(formik.errors.repayType)}
+              helperText={formik.errors.repayType}
               required
-            />
+            >
+              <MenuItem> {"Select Repay Type"} </MenuItem>
+
+              <MenuItem value={1} key="Pre EMI">
+                Pre EMI
+              </MenuItem>
+              <MenuItem value={2} key="Rental Assurance">
+                Rental Assurance
+              </MenuItem>
+            </InputField>
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <CrmDatePicker
@@ -310,7 +338,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
         </Grid>
         <br />
 
-        {
+        {/* {
           <input
             type="file"
             onChange={(event) => {
@@ -329,7 +357,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               );
             })}
           </Grid>
-        }
+        } */}
       </Box>
     </formik>
   );

@@ -104,7 +104,11 @@ function CustomTabLayout({
   };
 
   function renderButtonTabs(id) {
-    return tabPanels.slice(10, tabPanels.length)[id].component;
+    return (
+      <Typography>
+        {tabPanels.slice(10, tabPanels.length)[id].component}
+      </Typography>
+    );
   }
 
   return (
@@ -128,11 +132,16 @@ function CustomTabLayout({
           {tabPanels.length > 10
             ? tabPanels
                 .slice(0, 10)
-                .map((item) => <ErpTab label={item.label} {...a11yProps(0)} />)
+                .map((item) => (
+                  <ErpTab
+                    label={<Typography>{item.label}</Typography>}
+                    {...a11yProps(0)}
+                  />
+                ))
             : tabPanels.map((item) => (
                 <ErpTab
                   disabled={item?.disabled}
-                  label={item.label}
+                  label={<Typography>{item.label}</Typography>}
                   {...a11yProps(0)}
                 />
               ))}
@@ -165,7 +174,7 @@ function CustomTabLayout({
                   onClick={(event) => handleMenuItemClick(event, index + 10)}
                   disabled={item?.disabled}
                 >
-                  {item.label}
+                  <Typography> {item.label} </Typography>
                 </MenuItem>
               ))}
             </Menu>

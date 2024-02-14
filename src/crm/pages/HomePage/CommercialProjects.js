@@ -42,6 +42,8 @@ export default function CommercialProjects() {
       return require("./../../../assets/Gera's Planet of Joy.jpg");
     } else if (pr === "Gera's Imperium Gateway") {
       return require("./../../../assets/Gera's Imperium Gateway.jpg");
+    } else if (pr === "Gera's Island of Joy") {
+      return require("./../../../assets/island_of_joy.jpg");
     }
   };
 

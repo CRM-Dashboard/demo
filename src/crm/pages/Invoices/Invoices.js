@@ -5,7 +5,7 @@ import Table from "mui-datatables";
 import PDFViewer from "./../../components/pdfViewer/PdfViewer";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
-import { Box, IconButton, Button, Grid } from "@mui/material";
+import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -186,7 +186,9 @@ export default function Invoices() {
       })
       .then((data) => {
         if (data) {
-          snackbar.showSuccess("Sent Mail(s) Successfully!");
+          snackbar.showSuccess(
+            <Typography> Sent Mail(s) Successfully!</Typography>
+          );
           setArrForMail([]);
         }
       })

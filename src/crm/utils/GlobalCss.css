@@ -46,7 +46,7 @@
 }
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: "Futura, Arial, sans-serif";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: 0.7px;
@@ -77,9 +77,26 @@ input {
   outline: 0;
 }
 
-input:focus {
-  border: 2px solid var(--main-color);
+label {
+  font-family: "Futura, Arial, sans-serif";
 }
+
+.MuiTablePagination-selectLabel,
+.MuiTableCell-root,
+.MuiButton-root,
+.MuiOutlinedInput-root,
+.MUIDataTableHeadCell-data {
+  font-family: "Futura, Arial, sans-serif";
+  font: 16px;
+}
+
+.MuiTypography-root {
+  font-family: "Futura, Arial, sans-serif";
+}
+
+/* input:focus {
+  border: 2px solid var(--main-color);
+} */
 
 .page-header {
   margin-bottom: 40px;

@@ -86,7 +86,7 @@ export default function ActivityDetails() {
             }}
             value="Done"
           >
-            Done
+            <Typography>Done </Typography>
           </MenuItem>
           <MenuItem
             style={{
@@ -98,7 +98,7 @@ export default function ActivityDetails() {
             }}
             value="Pending"
           >
-            Pending
+            <Typography> Pending </Typography>
           </MenuItem>
           <MenuItem
             style={{
@@ -110,7 +110,7 @@ export default function ActivityDetails() {
             }}
             value="In Process"
           >
-            In Process
+            <Typography>In Process</Typography>
           </MenuItem>
         </Select>
       </div>
@@ -159,7 +159,7 @@ export default function ActivityDetails() {
             }}
             value="meet"
           >
-            Meeting
+            <Typography>Meeting</Typography>
           </MenuItem>
           <MenuItem
             style={{
@@ -171,7 +171,7 @@ export default function ActivityDetails() {
             }}
             value="phone"
           >
-            Phone Call
+            <Typography>Phone Call</Typography>
           </MenuItem>
           <MenuItem
             style={{
@@ -183,7 +183,7 @@ export default function ActivityDetails() {
             }}
             value="onLine"
           >
-            Online Meeting
+            <Typography>Online Meeting</Typography>
           </MenuItem>
         </Select>
       </Grid>

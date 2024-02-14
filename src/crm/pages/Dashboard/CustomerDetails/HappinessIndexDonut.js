@@ -1,18 +1,32 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import GaugeChart from "react-gauge-chart";
-import { Typography } from "@mui/material";
+import { Typography, Grid } from "@mui/material";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
+import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import Chart from "react-apexcharts";
 import "./CustomerDetails.css";
 
-const HappinessIndexDonut = () => {
+const HappinessIndexDonut = ({
+  circleUp,
+  customerDetails,
+  searchValueAvailable,
+}) => {
   const [custData, setCustData] = useState([]);
   const [happyIndex, setHappyIndex] = useState("");
   const [showSentimentalAnalysis, setShowSentimentalAnalysis] = useState(false);
+  // const [emotionalPercentage, setEmotionPercentages] = useState({
+  //   anger: 0,
+  //   fear: 0,
+  //   joy: 0,
+  //   neutral: 0,
+  //   sadness: 0,
+  //   surprise: 0,
+  // });
   const [emotionAverages, setEmotionAverages] = useState({
     anger: 0,
     fear: 0,
@@ -126,6 +140,10 @@ const HappinessIndexDonut = () => {
     }
 
     const averagePercentage = sum / customerData.length;
+    console.log(
+      "averagePercentage.toFixed(2)#########",
+      averagePercentage.toFixed(2)
+    );
     setHappyIndex(averagePercentage.toFixed(2));
     dispatch(dashboardActions.setShowHappinessMeter(true));
   };
@@ -156,17 +174,12 @@ const HappinessIndexDonut = () => {
       chart: {
         type: "donut",
       },
-      legend: {
-        show: false,
-      },
       responsive: [
         {
+          breakpoint: 480,
           options: {
             chart: {
-              type: "donut",
-            },
-            legend: {
-              position: "bottom",
+              width: 400,
             },
           },
         },
@@ -182,35 +195,84 @@ const HappinessIndexDonut = () => {
         happyIndex > 0 &&
         emotionAverages && (
           <>
-            <div className="col-2 circular-img-container ">
-              <Typography style={{ color: mode }}>
+            <Grid
+              item
+              xs={2}
+              sm={2}
+              md={2}
+              sx={{
+                marginRight: "1em",
+                marginBottom: "2em",
+                "&.MuiGrid-item": {
+                  paddingTop: "0em",
+                  paddingLeft: "0em",
+                },
+              }}
+            >
+              <Grid
+                className=" circular-img-container"
+                style={{ paddingTop: "1em" }}
+              >
+                <Typography style={{ color: mode }}>Happiness Meter</Typography>
+                {happyIndex > 0 && (
+                  <GaugeChart
+                    className="circular-donut pt-4"
+                    colors={["red", "green"]}
+                    nrOfLevels={20}
+                    arcPadding={0.02}
+                    arcWidth={0.3}
+                    textColor="#666"
+                    needleColor="#333"
+                    width="10"
+                    percent={happyIndex / 100}
+                    style={{ height: "100px", width: "70%" }}
+                  />
+                )}
+              </Grid>
+              <Grid sx={{ marginTop: "2em" }}>
+                <StatusCard
+                  icon={
+                    <Chart
+                      options={circleUp.options}
+                      series={circleUp.series}
+                      type="radialBar"
+                      height={110}
+                    />
+                  }
+                  count={
+                    searchValueAvailable
+                      ? "₹" + customerDetails.PossessionBalance
+                      : "₹" + customerDetails?.UpcomingAmount + "Cr"
+                  }
+                  title="Balance till possession (Unbilled)"
+                />
+              </Grid>
+            </Grid>
+            <Grid
+              item
+              xs={2}
+              sm={2}
+              md={2}
+              sx={{
+                marginRight: "1em",
+                marginBottom: "2em",
+                "&.MuiGrid-item": {
+                  paddingTop: "1em",
+                  paddingLeft: "0em",
+                },
+              }}
+            >
+              <Typography style={{ color: mode, marginLeft: "2em" }}>
                 Sentiment Analysis{" "}
               </Typography>
               <Chart
                 className="circular-donut"
                 options={ChartOptions.options}
                 series={ChartOptions.series}
-                style={{ height: "310px", width: "210px" }}
+                style={{ height: "700px", width: "350px" }}
                 type="donut"
               />
-            </div>
-            <div className=" col-2 circular-img-container">
-              <Typography style={{ color: mode }}>Happiness Meter</Typography>
-              {happyIndex > 0 && (
-                <GaugeChart
-                  className="circular-donut pt-4"
-                  colors={["red", "green"]}
-                  nrOfLevels={20}
-                  arcPadding={0.02}
-                  arcWidth={0.3}
-                  textColor="#666"
-                  needleColor="#333"
-                  width="10"
-                  percent={happyIndex / 100}
-                  style={{ height: "200px", width: "100%" }}
-                />
-              )}
-            </div>
+            </Grid>
           </>
         )}
     </>

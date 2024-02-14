@@ -1,0 +1,33 @@
+.battery {
+  width: 80px; /* Adjust width as needed */
+  height: 40px; /* Adjust height as needed */
+  background-color: #f0f0f0; /* Battery body color */
+  border: 2px solid #999; /* Battery outline color */
+  border-radius: 5px;
+  position: relative;
+}
+
+.battery::before,
+.battery::after {
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.battery::before {
+  width: 10px; /* Adjust width of battery terminals */
+  height: 10px; /* Adjust height of battery terminals */
+  background-color: #999; /* Terminal color */
+  top: 50%;
+  left: -12px; /* Position of left terminal */
+  border-radius: 50%;
+}
+
+.battery::after {
+  width: 10px; /* Adjust width of battery terminals */
+  height: 10px; /* Adjust height of battery terminals */
+  background-color: #999; /* Terminal color */
+  top: 50%;
+  right: -12px; /* Position of right terminal */
+  border-radius: 50%;
+}

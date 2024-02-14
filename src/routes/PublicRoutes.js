@@ -127,10 +127,26 @@ export default function getPublicRoutes(params) {
           },
         },
       },
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            fontFamily: "Futura, Arial, sans-serif",
+          },
+        },
+      },
     },
     spacing: [0, 4, 8, 16, 32, 40, 48, 56, 64, 72],
     typography: {
-      fontFamily: "Futura",
+      components: {
+        MuiTypography: {
+          styleOverrides: {
+            root: {
+              fontFamily: "Futura, Arial, sans-serif",
+            },
+          },
+        },
+      },
+      fontFamily: "Futura, Arial, sans-serif",
       fontWeightRegular: 400,
       fontWeightLight: 300,
       fontWeightMedium: 500,

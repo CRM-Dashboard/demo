@@ -10,10 +10,11 @@
   z-index: 1;
   transition: color 0.5s ease 0s;
   margin-bottom: 5px;
+  margin-right: 1em;
 }
 
 .status-card__icon {
-  width: 35%;
+  width: 42%;
   height: 100%;
   display: flex;
   align-items: center;

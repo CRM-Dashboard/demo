@@ -6,9 +6,19 @@ tr:hover {
   background-color: #d6eeee;
 }
 
-th,
-td {
+th {
+  margin: "0em";
+}
+
+tr,
+th {
   text-align: center;
+}
+
+td {
+  padding-left: 2em;
+  text-align: left;
+  font-size: 14px;
 }
 
 .mainTitle {
@@ -17,5 +27,6 @@ td {
 }
 
 .subTitle {
+  text-align: left;
   background-color: #b0c4de;
 }

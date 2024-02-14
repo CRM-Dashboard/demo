@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
-import { Box, IconButton, Button, Grid } from "@mui/material";
+import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import CrmModal from "../../../components/crmModal/CrmModal";
@@ -183,7 +183,9 @@ export default function InvoiceTable() {
       })
       .then((data) => {
         if (data) {
-          snackbar.showSuccess("Sent Mail(s) Successfully!");
+          snackbar.showSuccess(
+            <Typography> Sent Mail(s) Successfully!</Typography>
+          );
           setArrForMail([]);
         }
       })

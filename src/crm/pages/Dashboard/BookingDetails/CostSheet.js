@@ -1,17 +1,10 @@
 /* eslint-disable no-unreachable */
-import React, { useState } from "react";
-import TableMuiTheme from "./../../../utils/TableMuiTheme";
-import { useSelector } from "react-redux/es/hooks/useSelector";
-import { Grid } from "@mui/material";
+import React from "react";
 import "./Style.css";
+import { Grid } from "@mui/material";
 import { Typography } from "@mui/material";
 
 export default function CostSheet({ costInfo }) {
-  const [tableData, setTableData] = useState([]);
-
-  const reducerData = useSelector((state) => state);
-  const getMuiTheme = TableMuiTheme.getMuiTheme(reducerData);
-
   // const validationSchema = Yup.object().shape({
   //   baseRate: Yup.number().required("Required"),
   //   baseValue: Yup.number().required("Required"),
@@ -111,19 +104,38 @@ export default function CostSheet({ costInfo }) {
           >
             <table style={{ width: "100%" }}>
               <tr className="mainTitle">
-                <th>Data</th>
+                <th colSpan={2}>Order/ Booking Summary </th>
               </tr>
+
               <tr>
-                <td>Aishwarya Bingewar</td>
+                <td>{costInfo.maktx ? costInfo.maktx : "--"}</td>
+                <td>{costInfo.unitValue}</td>
               </tr>
+
               <tr>
-                <td> --------- </td>
+                <td>{costInfo.maktxPrk ? costInfo.maktxPrk : "--"}</td>
+                <td>{costInfo.car}</td>
               </tr>
+
               <tr>
-                <td> --------- </td>
+                <td>{costInfo.maktxAdmin ? costInfo.maktxAdmin : "--"}</td>
+                <td>{costInfo.adminValue}</td>
               </tr>
+
               <tr>
-                <td> --------- </td>
+                <td>{costInfo.maktxEv ? costInfo.maktxEv : "--"}</td>
+                <td style={{ marginRight: "0" }}>{costInfo.evValue}</td>
+              </tr>
+
+              <tr>
+                <td></td>
+                <td>
+                  <label style={{ fontWeight: "bold", marginLeft: "-3em" }}>
+                    {" "}
+                    Total :{" "}
+                  </label>{" "}
+                  {costInfo.allIncVal}
+                </td>
               </tr>
             </table>
           </Grid>
@@ -140,13 +152,12 @@ export default function CostSheet({ costInfo }) {
           >
             <table style={{ width: "100%" }}>
               <tr className="mainTitle">
-                <th>Data</th>
+                <th>Consideration / Agreement Value</th>
               </tr>
               <tr>
                 <th style={{ height: "6.2em" }}>
                   <Typography style={{ fontWeight: "Bold", fontSize: "20px" }}>
-                    {" "}
-                    $ 1,20,000
+                    {costInfo.cvVal}
                   </Typography>
                 </th>
               </tr>
@@ -155,56 +166,134 @@ export default function CostSheet({ costInfo }) {
         </Grid>
       </div>
       <hr class="solid" style={{ margin: "2em", color: "black" }}></hr>
-      <div style={{ paddingLeft: "2em", paddingRight: "2em" }}>
+      <Grid style={{ paddingLeft: "2em", paddingRight: "2em" }}>
         <table style={{ width: "100%" }}>
           <tr className="mainTitle">
-            <th>Firstname</th>
-            <th>Lastname</th>
-            <th>Age</th>
-          </tr>
-          <tr className="subTitle">
-            <th>Personal Info</th>
-            <th></th>
-            <th></th>
-          </tr>
-          <tr>
-            <td>Jill</td>
-            <td>Smith</td>
-            <td>50</td>
-          </tr>
-          <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
-          </tr>
-          <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
+            <th colSpan={2}>Sales Order/ Booking Details</th>
           </tr>
 
-          <tr className="subTitle">
-            <th>Personal Info</th>
-            <th></th>
-            <th></th>
+          <tr>
+            <th colSpan={2} className="subTitle">
+              {costInfo.maktx}
+            </th>
           </tr>
           <tr>
-            <td>Jill</td>
-            <td>Smith</td>
-            <td>50</td>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Base Value </Grid>
+            </td>
+            <td>
+              <Grid> {costInfo.baseVal} </Grid>
+            </td>
           </tr>
           <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> MESB Value </Grid>
+            </td>
+            <td>
+              <Grid> {costInfo.mseb} </Grid>
+            </td>
+          </tr>
+          <tr> </tr>
+          <td>
+            <Grid sx={{ fontWeight: "bold" }}> PMC/PMRDA/PCMC Charges</Grid>
+          </td>
+          <td>
+            <Grid> {costInfo.pmc}</Grid>{" "}
+          </td>
+          <tr>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Club Charges</Grid>
+            </td>
+            <td>
+              {" "}
+              <Grid> {costInfo.club} </Grid>{" "}
+            </td>
           </tr>
           <tr>
-            <td>Eve</td>
-            <td>Jackson</td>
-            <td>94</td>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Exclusive Club Charges</Grid>
+            </td>
+            <td>
+              <Grid> {costInfo.exclub} </Grid>{" "}
+            </td>
           </tr>
+          <tr>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Provision Charges </Grid>
+            </td>
+            <td>
+              <Grid> {costInfo.provision} </Grid>{" "}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Garden Charges </Grid>
+            </td>
+            <td>
+              <Grid> {costInfo.garden}</Grid>{" "}
+            </td>
+          </tr>
+
+          <tr>
+            <th colSpan={7} className="subTitle">
+              {costInfo.maktxPrk}
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <Grid sx={{ fontWeight: "bold" }}> Car Parking Charges </Grid>
+            </td>
+            <td>
+              {" "}
+              <Grid> {costInfo.car} </Grid>
+            </td>
+          </tr>
+
+          {costInfo.maktxAdmin && (
+            <>
+              <tr>
+                <th colSpan={7} className="subTitle">
+                  {costInfo.maktxAdmin}
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  <Grid sx={{ fontWeight: "bold" }}> Admin charges </Grid>
+                  <Grid> {costInfo.admin} </Grid>
+                </td>
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+              </tr>
+            </>
+          )}
+
+          {costInfo.maktxEv && (
+            <>
+              <tr>
+                <th colSpan={7} className="subTitle">
+                  {costInfo.maktxAdmin}
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  <Grid sx={{ fontWeight: "bold" }}> Ev charging point </Grid>
+                  <Grid> {costInfo.evpOth} </Grid>
+                </td>
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+                <td />
+              </tr>{" "}
+            </>
+          )}
         </table>
-      </div>
+      </Grid>
     </div>
   );
 }

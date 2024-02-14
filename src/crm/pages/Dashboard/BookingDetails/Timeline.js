@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import {
   VerticalTimeline,
@@ -196,6 +197,7 @@ const Timeline = () => {
       >
         Booking Details
       </Typography>
+
       {shouldShowTimeLine ? (
         <VerticalTimeline lineColor={lineColor}>
           {events?.map((event, index) => (
@@ -268,6 +270,7 @@ const Timeline = () => {
           </button>
         </div>
       )}
+
       <CrmModal
         maxWidth="md"
         show={openForm}

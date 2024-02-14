@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Menu, MenuItem } from "@mui/material";
+import { MenuItem, Menu, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Logout from "@mui/icons-material/Logout";
 import { ListItemIcon, Avatar } from "@mui/material";
@@ -9,11 +9,11 @@ import Settings from "@mui/icons-material/SettingsRounded";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import loginAction from "../../pages/Login/LoginReducer/LoginAction";
 import resetReducerAction from "../../../reducer/resetReducerAction";
+import "./Style.css";
 
 export default function DashboardOptions({
   anchor,
   open,
-  handleClose,
   setOpenSideBar,
   setAnchor,
 }) {
@@ -22,7 +22,10 @@ export default function DashboardOptions({
   const dispatch = useDispatch();
 
   return (
-    <div style={{ backgroundColor: "#000000" }} className="toolbarBgColor">
+    <div
+      style={{ backgroundColor: "#000000", position: "relative" }}
+      className="toolbarBgColor"
+    >
       <Menu
         anchorEl={anchor}
         id="account-menu"
@@ -31,17 +34,28 @@ export default function DashboardOptions({
         onClose={() => {
           setAnchor(null);
         }}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
+        MenuListProps={{
+          "aria-labelledby": "settings-button",
         }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
         sx={{
           top: "3.2em",
-          left: "86em",
+          left: "82em",
+          position: "absolute",
+          ".dashboardOptionMenu": {
+            top: "3.2em",
+            left: "86em",
+          },
+          "@media screen and (man-width: 1396px)": {
+            ".dashboardOptionMenu": {
+              left: "80em",
+            },
+          },
           "& .MuiAvatar-root": {
             width: 22,
             height: 22,
-            ml: -0.5,
+            ml: -0.4,
             mr: 0,
           },
           "& .MuiList-root": {
@@ -58,13 +72,12 @@ export default function DashboardOptions({
             ),
           },
         }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
       >
         <MenuItem>
           <ListItemIcon>
             <Avatar fontSize="small" />
           </ListItemIcon>
-          Profile
+          <Typography> Profile</Typography>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -75,7 +88,7 @@ export default function DashboardOptions({
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
-          Settings
+          <Typography> Settings </Typography>
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -88,7 +101,7 @@ export default function DashboardOptions({
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
-          Logout
+          <Typography> Logout </Typography>
         </MenuItem>
       </Menu>
     </div>

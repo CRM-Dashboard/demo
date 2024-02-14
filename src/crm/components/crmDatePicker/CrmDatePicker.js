@@ -42,6 +42,14 @@ function CrmDatePicker(props) {
               "& .MuiInputBase-root": {
                 height: 45,
               },
+              "& .MuiInputLabel-root": {
+                color: "gray",
+              },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "gray",
+                },
+              },
             },
             required: props.isRequired,
           },

@@ -27,7 +27,9 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
       })
       .then((data) => {
         if (data) {
-          snackbar.showSuccess("Sent Mail Successfully!");
+          snackbar.showSuccess(
+            <Typography> Sent Mail(s) Successfully!</Typography>
+          );
           setMailId("");
           setOpenModal(false);
         }

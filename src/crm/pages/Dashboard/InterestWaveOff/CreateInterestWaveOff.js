@@ -84,18 +84,18 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
-              id="reason"
-              name="reason"
-              label="reason"
-              value={formik.values.reason}
+              id="interestWaivedOff"
+              name="interestWaivedOff"
+              label="Interest Waived Off"
+              value={formik.values.interestWaivedOff}
               onChange={formik.handleChange}
             />
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
-              id="interestDueAmt"
-              name="interestDueAmt"
-              label="Interest Due Amount"
+              id="waiverRequested"
+              name="waiverRequested"
+              label="Waiver Requested"
               value={formik.values.interestDueAmt}
               onChange={formik.handleChange}
             />
@@ -114,10 +114,10 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
-              id="waiverAmt"
-              name="waiverAmt"
-              label="Waiver Amount"
-              value={formik.values.waiverAmt}
+              id="interestDueAmt"
+              name="interestDueAmt"
+              label="Interest Due Amount"
+              value={formik.values.interestDueAmt}
               onChange={formik.handleChange}
             />
           </Grid>
@@ -126,19 +126,19 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
-              id="interestDueAmt"
-              name="interestDueAmt"
-              label="Interest Due Amount"
-              value={formik.values.interestDueAmt}
+              id="waiverAmt"
+              name="waiverAmt"
+              label="Waiver Amount"
+              value={formik.values.waiverAmt}
               onChange={formik.handleChange}
             />
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
-              id="interestWaivedOff"
-              name="interestWaivedOff"
-              label="Interest Waived Off"
-              value={formik.values.interestWaivedOff}
+              id="reason"
+              name="reason"
+              label="Reason"
+              value={formik.values.reason}
               onChange={formik.handleChange}
             />
           </Grid>

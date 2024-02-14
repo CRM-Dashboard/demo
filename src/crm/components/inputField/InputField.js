@@ -43,8 +43,11 @@ function InputField(props) {
         },
         "& .MuiOutlinedInput-root": {
           "& fieldset": {
-            borderColor: "#00000087",
+            borderColor: "gray",
           },
+        },
+        "& .MuiInputLabel-root": {
+          color: "gray",
         },
       }}
       error={error}

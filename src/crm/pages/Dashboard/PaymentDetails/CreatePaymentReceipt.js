@@ -90,7 +90,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
     initialValues: {
       paymentTowards: "",
       paymentMode: "",
-      dateOfInstrument: new Date(),
+      dateOfInstrument: "",
       chequeNumber: "",
       paymentAmount: "",
       bankName: "",

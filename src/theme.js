@@ -18,7 +18,6 @@ export const colors = {
 
 export const appTheme = createTheme({
   typography: {
-    fontFamily: "Futura",
     button: {
       textTransform: "none",
     },

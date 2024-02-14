@@ -46,14 +46,15 @@ function Graph() {
     colorSet: "colorSet2",
     title: {
       text: "Collection Trend",
-      fontFamily: "Futura",
+      fontFamily: "Futura, Arial, sans-serif",
     },
     axisY: {
       title: "Y-axis Title",
       minimum: -100000000,
     },
     backgroundColor:
-      reducerData.ThemeReducer.mode === "theme-mode-light"
+      reducerData.ThemeReducer.mode === "theme-mode-light" ||
+      reducerData.ThemeReducer.mode === "null"
         ? "#f0f0f0"
         : "#202020",
 

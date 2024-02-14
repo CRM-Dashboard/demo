@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import searchbarActions from "./SearchBarReducer/SearchBarActions";
 import dashboardAction from "./../Dashboard/DashboardReducer.js/DashboardActions";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import "./SearchBar.css";
 
 export default function SearchBar() {
@@ -98,7 +98,10 @@ export default function SearchBar() {
                   className="search-result"
                   onClick={() => handleClick(result)}
                 >
-                  {result.name + "  -  " + result.unit}
+                  <Typography>
+                    {" "}
+                    {result.name + "  -  " + result.unit}{" "}
+                  </Typography>
                 </div>
               );
             })}

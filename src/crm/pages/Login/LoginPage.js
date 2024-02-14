@@ -123,7 +123,7 @@ export default function LoginPage() {
               <Typography
                 sx={{
                   fontSize: "1.5em",
-                  fontFamily: "Futura-medium",
+                  fontFamily: "Futura, Arial, sans-serif",
                   color: "#4a4e63",
                   opacity: "0.8",
                   paddingTop: "0.2em",
@@ -165,7 +165,7 @@ export default function LoginPage() {
                     // helperText="Please enter your name"
                     id="filled-basic"
                     value={userName}
-                    label="UserName"
+                    label="Username"
                     variant="filled"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {

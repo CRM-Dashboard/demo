@@ -7,19 +7,40 @@
 }
 
 .circular-donut {
-  width: 8em;
-  height: 7em;
+  /* width: 8em;
+  height: 7em; */
   border: none;
   overflow: hidden;
 }
 
 .circular-img-container {
+  background-color: var(--main-bg);
+  box-shadow: var(--box-shadow);
   display: flex;
   align-items: center;
   flex-direction: column;
+  justify-content: center;
+  box-shadow: var(--box-shadow);
+  width: 8em;
+  border-radius: 0.2em;
+  border-radius: var(--border-radius);
+  margin-top: 1em;
+  height: 7em;
+  width: 13.5em;
+  margin-right: 2em;
 }
 
 .detailsSubTitle {
   font-size: x-large;
   font-weight: bold;
+}
+
+.cardSubTitle {
+  font-size: small;
+  margin-left: 1em;
+}
+
+.subValue {
+  margin-left: 2em;
+  font-size: small;
 }

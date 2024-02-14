@@ -38,8 +38,7 @@ import CallHistory from "../CallHistory/CallHistory";
 import Activities from "../Activity/Activities";
 import { useEffect } from "react";
 import DashboardOptions from "./DashboardOptions";
-
-//TODO : Notification, mail, comments
+import { Grid } from "@mui/material";
 
 const routes = [
   {
@@ -243,7 +242,15 @@ const SideBar2 = () => {
 
   return (
     <>
-      <div className="main-container">
+      <Grid
+        //Refer main-conainer class
+        sx={{
+          display: "flex",
+          flex: "1",
+          overflow: "auto",
+          height: "100vh",
+        }}
+      >
         <AppBar position="fixed" open={isOpen}>
           <Toolbar className="toolbarBgColor">
             <IconButton
@@ -339,6 +346,7 @@ const SideBar2 = () => {
             <IconButton
               color="inherit"
               size="large"
+              id="settings-button"
               onClick={(e) => {
                 setAnchor(e.currentTarget);
               }}
@@ -410,9 +418,9 @@ const SideBar2 = () => {
                   key={index}
                   className="link"
                   activeclassname="active"
+                  // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
-                    className="icon"
                     onClick={() => {
                       if (route.path === "/dashboard") {
                         setShouldShowCustomerList(!shouldShowCustomerList);
@@ -471,11 +479,11 @@ const SideBar2 = () => {
           </Box>
         </div>
 
-        <div style={{ display: "flex" }}>
+        <Grid sx={{ justifyContent: "flex-end", alignItems: "flex-end" }}>
           {showMenus()}
           {showPrintMenus()}
           {showMailMenus()}
-        </div>
+        </Grid>
 
         <Drawer
           anchor={"right"}
@@ -494,7 +502,7 @@ const SideBar2 = () => {
             </div>{" "}
           </Box>
         </Drawer>
-      </div>
+      </Grid>
     </>
   );
 };

@@ -298,7 +298,7 @@ export default function CustomerDetails() {
             name: {
               show: false,
               color: "#888",
-              fontSize: "13px",
+              fontSize: "10px",
             },
             value: {
               offsetY: -1,
@@ -325,166 +325,190 @@ export default function CustomerDetails() {
       circlePaid.options &&
       projectId ? (
       <>
-        <div className="col-12" style={{ height: "11.5em" }}>
+        <div style={{ height: "12em" }}>
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
+              cursor: "",
+              marginTop: "2em",
+              marginLeft: "2em",
+              "&.MuiGrid-item": {
+                paddingTop: "0em",
+                paddingLeft: "0em",
+              },
             }}
           >
-            <div className="col-2 circular-img-container">
-              <label
-                className="detailsTitle"
-                style={{ color: mode, paddingBottom: "0.7em" }}
+            <Grid container spacing={4}>
+              <Grid
+                item
+                xs={2}
+                sm={2}
+                md={2}
+                sx={{
+                  marginRight: "1em",
+                  marginBottom: "2em",
+                  "&.MuiGrid-item": {
+                    paddingTop: "0em",
+                    paddingLeft: "0em",
+                  },
+                }}
               >
-                {OrderId ? "Booking Details" : "Number Of Bookings"}
-              </label>
-              <img
-                alt="Bookings"
-                src={require("../../../../assets/bookingsImg.jpg")}
-                className="circular-img"
-                style={
-                  OrderId ? { cursor: "pointer" } : { cursor: "context-menu" }
-                }
-                onClick={() => {
-                  if (OrderId) {
-                    dispatch(
-                      dashboardActions.setShouldShowTimeLine(
-                        !reducerData.dashboard.shouldShowTimeLine
-                      )
-                    );
+                <Grid
+                  className="circular-img-container"
+                  style={
+                    OrderId ? { cursor: "pointer" } : { cursor: "context-menu" }
                   }
-                }}
-              ></img>
-              <label className="detailsSubTitle" style={{ color: mode }}>
-                {searchValueAvailable ? 1 : customerDetails?.NoOfBookings}
-              </label>
-            </div>
-            <div className="col-2 circular-img-container">
-              <label className="detailsTitle" style={{ color: mode }}>
-                Applicants Details
-              </label>
-              <img
-                alt="Customer"
-                src={require("../../../../assets/customersImg.jpg")}
-                className="circular-img"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  dispatch(
-                    dashboardActions.setShouldShowCustDetails(
-                      !reducerData.dashboard.shouldShowCustData
-                    )
-                  );
-                }}
-              />
-              <label className="detailsSubTitle" style={{ color: mode }}>
-                {searchValueAvailable
-                  ? numberOfCust
-                  : customerDetails?.NoOfCustomers}
-              </label>
-            </div>
-            <div className="col-2 circular-img-container">
-              <label className="detailsTitle" style={{ color: mode }}>
-                Consideration Amount
-              </label>
-              <img
-                alt="considerationAmnt"
-                src={require("../../../../assets/cv_image.jpg")}
-                className="circular-img"
-              />
-              <label className="detailsSubTitle" style={{ color: mode }}>
-                {searchValueAvailable
-                  ? customerDetails.AgreementValue
-                  : "₹" + customerDetails?.ConsiderationAmount + " Cr"}
-              </label>
-            </div>
+                  onClick={() => {
+                    if (OrderId) {
+                      dispatch(
+                        dashboardActions.setShouldShowTimeLine(
+                          !reducerData.dashboard.shouldShowTimeLine
+                        )
+                      );
+                    }
+                  }}
+                >
+                  <label
+                    className="detailsTitle"
+                    style={{ color: mode, paddingBottom: "0.7em" }}
+                  >
+                    {OrderId ? "Booking Details" : "Number Of Bookings"}
+                  </label>
 
-            <HappinessIndexDonut />
+                  <label className="detailsSubTitle" style={{ color: mode }}>
+                    {searchValueAvailable ? 1 : customerDetails?.NoOfBookings}
+                  </label>
+                </Grid>
+                <Grid sx={{ marginTop: "2em" }}>
+                  <StatusCard
+                    icon={
+                      <Chart
+                        options={circleInvoice.options}
+                        series={circleInvoice.series}
+                        type="radialBar"
+                        height={110}
+                      />
+                    }
+                    count={
+                      searchValueAvailable
+                        ? "₹" + customerDetails.DueAmount
+                        : "₹" + customerDetails?.InvoiceAmount + "Cr"
+                    }
+                    title="Invoiced Amount"
+                  />
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                xs={2}
+                sm={2}
+                md={2}
+                sx={{
+                  marginRight: "1em",
+                  marginBottom: "2em",
+                  "&.MuiGrid-item": {
+                    paddingTop: "0em",
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <Grid className="circular-img-container">
+                  <label className="detailsTitle" style={{ color: mode }}>
+                    Applicants Details
+                  </label>
+
+                  <label className="detailsSubTitle" style={{ color: mode }}>
+                    {searchValueAvailable
+                      ? numberOfCust
+                      : customerDetails?.NoOfCustomers}
+                  </label>
+                </Grid>
+
+                <Grid sx={{ marginTop: "2em" }}>
+                  <StatusCard
+                    icon={
+                      <Chart
+                        options={circlePaid.options}
+                        series={circlePaid.series}
+                        type="radialBar"
+                        height={110}
+                      />
+                    }
+                    count={
+                      searchValueAvailable
+                        ? "₹" + getPaidAmt().toLocaleString()
+                        : "₹" + customerDetails?.PaidAmount + "Cr"
+                    }
+                    title="Paid Amount"
+                  />
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                xs={2}
+                sm={2}
+                md={2}
+                sx={{
+                  marginRight: "1em",
+                  marginBottom: "2em",
+                  "&.MuiGrid-item": {
+                    paddingTop: "0em",
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <Grid className=" circular-img-container">
+                  <label className="detailsTitle" style={{ color: mode }}>
+                    Consideration Amount
+                  </label>
+
+                  <label className="detailsSubTitle" style={{ color: mode }}>
+                    {searchValueAvailable
+                      ? customerDetails.AgreementValue
+                      : "₹" + customerDetails?.ConsiderationAmount + " Cr"}
+                  </label>
+                </Grid>
+                <Grid sx={{ marginTop: "2em" }}>
+                  <StatusCard
+                    icon={
+                      <Chart
+                        options={circleOut.options}
+                        series={circleOut.series}
+                        type="radialBar"
+                        height={110}
+                      />
+                    }
+                    count={
+                      searchValueAvailable
+                        ? "₹" + customerDetails.BalanceAmount
+                        : "₹" + customerDetails?.BalanceAmount + "Cr"
+                    }
+                    title="Outstanding Amount"
+                  />
+                </Grid>
+              </Grid>
+
+              <HappinessIndexDonut
+                circleUp={circleUp}
+                customerDetails={customerDetails}
+                searchValueAvailable={searchValueAvailable}
+              />
+            </Grid>
           </div>
         </div>
-        <div className="col-12">
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <div className="col-3">
-              <StatusCard
-                icon={
-                  <Chart
-                    options={circleInvoice.options}
-                    series={circleInvoice.series}
-                    type="radialBar"
-                    height={120}
-                  />
-                }
-                count={
-                  searchValueAvailable
-                    ? "₹" + customerDetails.DueAmount
-                    : "₹" + customerDetails?.InvoiceAmount + "Cr"
-                }
-                title="Invoiced Amount"
-              />
-            </div>
-            <div className="col-3">
-              <StatusCard
-                icon={
-                  <Chart
-                    options={circlePaid.options}
-                    series={circlePaid.series}
-                    type="radialBar"
-                    height={120}
-                  />
-                }
-                count={
-                  searchValueAvailable
-                    ? "₹" + getPaidAmt().toLocaleString()
-                    : "₹" + customerDetails?.PaidAmount + "Cr"
-                }
-                title="Paid Amount"
-              />
-            </div>
 
-            <div className="col-3">
-              <StatusCard
-                icon={
-                  <Chart
-                    options={circleOut.options}
-                    series={circleOut.series}
-                    type="radialBar"
-                    height={120}
-                  />
-                }
-                count={
-                  searchValueAvailable
-                    ? "₹" + customerDetails.BalanceAmount
-                    : "₹" + customerDetails?.BalanceAmount + "Cr"
-                }
-                title="Outstanding Amount"
-              />
-            </div>
-
-            <div className="col-3">
-              <StatusCard
-                icon={
-                  <Chart
-                    options={circleUp.options}
-                    series={circleUp.series}
-                    type="radialBar"
-                    height={120}
-                  />
-                }
-                count={
-                  searchValueAvailable
-                    ? "₹" + customerDetails.PossessionBalance
-                    : "₹" + customerDetails?.UpcomingAmount + "Cr"
-                }
-                title="Balance till possession (Unbilled)"
-              />
-            </div>
-          </div>
-        </div>
-        <Grid style={{ height: "9.3em", paddingTop: "0.5em", display: "flex" }}>
+        <Grid
+          style={{
+            height: "9.3em",
+            paddingTop: "0.10em",
+            display: "flex",
+            marginTop: "3em",
+          }}
+        >
           <Grid sx={{ width: "50%" }}>
             <AgingGraph />
           </Grid>
-          <Grid sx={{ width: "50%", height: "100%" }}>
+          <Grid sx={{ width: "50%" }}>
             <Graph />
           </Grid>
         </Grid>

@@ -1,10 +1,29 @@
-import React, { useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
-import { Grid, Typography, Input, Avatar } from "@mui/material";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import { Grid, Typography, Avatar } from "@mui/material";
 
 export default function UnitDetails({ unitDetails }) {
+  const [unitData, setUnitData] = useState("");
+
+  const reducerData = useSelector((state) => state);
+  const OrderId = reducerData?.searchBar?.orderId;
+
+  useEffect(() => {
+    if (OrderId) {
+      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data[0].vbeln) {
+            setUnitData(data[0]);
+          }
+        });
+    }
+  }, [OrderId]);
+
   const validationSchema = Yup.object().shape({
     projectName: Yup.string().required("Required"),
     property: Yup.string().required("Required"),
@@ -23,7 +42,7 @@ export default function UnitDetails({ unitDetails }) {
 
   const formik = useFormik({
     initialValues: {
-      projectName: unitDetails?.project ? unitDetails?.project : "",
+      projectName: unitData?.project ? unitData?.project : "",
       property: unitDetails?.class ? unitDetails?.class : "",
       building: unitDetails?.building ? unitDetails?.building : "",
       floorNumber: unitDetails?.floor ? unitDetails?.floor : "",
@@ -49,12 +68,8 @@ export default function UnitDetails({ unitDetails }) {
     paddinTop: "1em",
     width: "10em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+  const dataStyle = { width: "20em", "font-size": 14 };
   const gridStyle = { display: "flex", marginLeft: "-1em" };
-
-  useEffect(() => {
-    console.log("######unitDetails", unitDetails);
-  }, []);
 
   return (
     <>
@@ -78,201 +93,132 @@ export default function UnitDetails({ unitDetails }) {
         container
         columnSpacing={{ xs: 1, sm: 2, md: 3 }}
         sx={{
+          "&.MuiGrid-root": { marginLeft: "-2em" },
+          marginleft: "3em",
+          marginRight: "10em",
           paddingLeft: "3em",
-          paddingBottom: "4em",
+          paddingTop: "1em",
+          paddingBottom: "1em",
         }}
       >
-        {/* <Grid container spacing={4} sx={gridStyle}>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Project Name: </Typography>
-            <Input
-              id="projectName"
-              name="projectName"
-              style={dataStyle}
-              value={formik?.values?.projectName}
-              onChange={formik.handleChange}
-            />
+        <Grid
+          sx={{
+            border: "1px solid #AFAAA0",
+            boxShadow: "10px 10px 5px lightblue",
+            backgroundColor: "#FFFFFF",
+            borderRadius: "1em",
+            padding: "1em",
+          }}
+        >
+          <Grid container spacing={4}>
+            <Grid item xs={4} sm={3} md={3}>
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Project Name: </Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.projectName}
+                  </Typography>
+                </div>
+              </div>
+
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Property:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.property}
+                  </Typography>
+                </div>
+              </div>
+
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Building:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {" "}
+                    {formik?.values?.building}{" "}
+                  </Typography>
+                </div>
+              </div>
+
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>
+                    Flat / Unit Number:{" "}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.flatNumber}
+                  </Typography>
+                </div>
+              </div>
+            </Grid>
           </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Property:</Typography>
-            <Input
-              id="property"
-              name="property"
-              style={dataStyle}
-              value={formik?.values?.property}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Building:</Typography>
-            <Input
-              id="building"
-              name="building"
-              style={dataStyle}
-              value={formik?.values?.building}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Floor Number:</Typography>
-            <Input
-              id="floorNumber"
-              name="floorNumber"
-              style={dataStyle}
-              value={formik?.values?.floorNumber}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-        </Grid>
-        <br />
 
-        <Grid container spacing={4} sx={gridStyle}>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Flat / Unit Number:</Typography>
-            <Input
-              id="flatNumber"
-              name="flatNumber"
-              style={dataStyle}
-              value={formik?.values?.flatNumber}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Configuration:</Typography>
-            <Input
-              id="propertyType"
-              name="propertyType"
-              style={dataStyle}
-              value={formik?.values?.propertyType}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Saleable Area:</Typography>
-            <Input
-              id="saleableArea"
-              name="saleableArea"
-              style={dataStyle}
-              value={formik?.values?.saleableArea}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Carpet Area:</Typography>
-            <Input
-              id="carpetArea"
-              name="carpetArea"
-              style={dataStyle}
-              value={formik?.values?.carpetArea}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-        </Grid>
-        <br />
+          <Grid container spacing={4}>
+            <Grid item xs={4} sm={3} md={3}>
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Configuration:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.propertyType}
+                  </Typography>
+                </div>
+              </div>
 
-        <Grid container spacing={4} sx={gridStyle}>
-          <Grid item xs={4} sm={3} md={3}>
-            <Typography style={titleStyle}>Rera Carpet Area:</Typography>
-            <Input
-              id="reraCarpetArea"
-              name="reraCarpetArea"
-              style={dataStyle}
-              value={formik?.values?.reraCarpetArea}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-        </Grid> */}
+              <div className="d-flex mb-1" style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Floor Number:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {" "}
+                    {formik?.values?.floorNumber}{" "}
+                  </Typography>
+                </div>
+              </div>
 
-        <Grid container spacing={4} sx={gridStyle}>
-          <Grid item xs={4} sm={3} md={3}>
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Project Name: </Typography>
+              <div className="d-flex mb-1" style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Saleable Area:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.saleableArea}
+                  </Typography>
+                </div>
               </div>
-              <div>
-                <Typography style={{ width: "15em" }}>
-                  {formik?.values?.projectName}
-                </Typography>
-              </div>
-            </div>
 
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Property:</Typography>
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Carpet Area:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.carpetArea}
+                  </Typography>
+                </div>
               </div>
-              <div>
-                <Typography>{formik?.values?.property}</Typography>
-              </div>
-            </div>
 
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Building:</Typography>
+              <div style={gridStyle}>
+                <div className="mr-3">
+                  <Typography style={titleStyle}>Rera Carpet Area:</Typography>
+                </div>
+                <div>
+                  <Typography style={dataStyle}>
+                    {formik?.values?.reraCarpetArea}
+                  </Typography>
+                </div>
               </div>
-              <div>
-                <Typography> {formik?.values?.building} </Typography>
-              </div>
-            </div>
-
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Flat / Unit Number: </Typography>
-              </div>
-              <div>
-                <Typography style={{ width: "15em" }}>
-                  {formik?.values?.flatNumber}
-                </Typography>
-              </div>
-            </div>
-          </Grid>
-        </Grid>
-
-        <Grid container spacing={4} sx={gridStyle}>
-          <Grid item xs={4} sm={3} md={3}>
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Configuration:</Typography>
-              </div>
-              <div>
-                <Typography>{formik?.values?.propertyType}</Typography>
-              </div>
-            </div>
-
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Floor Number:</Typography>
-              </div>
-              <div>
-                <Typography> {formik?.values?.floorNumber} </Typography>
-              </div>
-            </div>
-
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Saleable Area:</Typography>
-              </div>
-              <div>
-                <Typography>{formik?.values?.saleableArea}</Typography>
-              </div>
-            </div>
-
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Carpet Area:</Typography>
-              </div>
-              <div>
-                <Typography>{formik?.values?.carpetArea}</Typography>
-              </div>
-            </div>
-
-            <div className="d-flex mb-1">
-              <div className="mr-3">
-                <Typography style={titleStyle}>Rera Carpet Area:</Typography>
-              </div>
-              <div>
-                <Typography>{formik?.values?.reraCarpetArea}</Typography>
-              </div>
-            </div>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

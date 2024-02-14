@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import { Button } from "@mui/material";
@@ -152,7 +153,7 @@ export default function PreEmi() {
           console.log("Bookig Data@@@@@@@@@@@", data[0].vbeln);
           if (data[0].vbeln) {
             if (
-              data[0].schemeStart == "0000-00-00" ||
+              data[0].schemeStart === "0000-00-00" ||
               data[0].schemeEnd === "0000-00-00"
             ) {
               snackbar.showError(
@@ -256,14 +257,19 @@ export default function PreEmi() {
     return modifiedResponse;
   };
 
+  const getTableData = () => {
+    if (OrderId)
+      fetch(`/sap/bc/react/crm/repay?sap-client=250&vbeln=${OrderId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setTableData(modifyResponse(data));
+          }
+        });
+  };
+
   useEffect(() => {
-    fetch(`/sap/bc/react/crm/repay?sap-client=250&vbeln=${OrderId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          setTableData(modifyResponse(data));
-        }
-      });
+    getTableData();
   }, [OrderId]);
 
   // const readFileAsBase64 = (file) => {
@@ -356,7 +362,11 @@ export default function PreEmi() {
         }}
         title="Create Pre Emi / Rental Assurance"
       >
-        <CreatePreEmiReceipt setopenCreateForm={setopenCreateForm} ref={ref} />
+        <CreatePreEmiReceipt
+          setopenCreateForm={setopenCreateForm}
+          ref={ref}
+          getTableData={getTableData}
+        />
       </CrmModal>
     </div>
   );

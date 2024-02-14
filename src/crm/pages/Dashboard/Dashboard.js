@@ -14,6 +14,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CustomersList from "./CustomerInformation/CustomersList";
 import PaymentSchedule from "../Dashboard/PaymentSchedule/PaymentSchedule";
 import CancellationRequest from "./CancellationRequest/CancellationRequest";
+import UnitCustomisation from "./UnitCustomisation/UnitCustomisation";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import Timeline from "./BookingDetails/Timeline";
 
@@ -64,7 +65,6 @@ function Dashboard() {
       label: "Interest Waveoff",
       component: <InterestWaveOff />,
     },
-
     {
       label: "Service Request",
       component: <ServiceRequest />,
@@ -76,6 +76,10 @@ function Dashboard() {
     {
       label: "Cancellation Request",
       component: <CancellationRequest />,
+    },
+    {
+      label: "Unit Customisation",
+      component: <UnitCustomisation />,
     },
   ];
 

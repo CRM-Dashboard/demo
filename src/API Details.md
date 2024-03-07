@@ -1,32 +1,119 @@
-<!-- To get Project Details (Homepage):
-115.124.113.252:8000/sap/bc/react/crm/project?sap-client=250
+---------
+## Login 
+---------
+To Login User:
+sap/bc/react/crm/login?sap-client=250&sap-user=vishalj&sap-password=Aditya@123
+
+-------------
+## HomePage
+--------------
+To get Project Details:
+sap/bc/react/crm/project?sap-client=250&sap-user=vishalj&sap-password=Aditya@123
+---------------
+
+## Dashboard -> Home
+
+To get Project Details (Homepage):
+sap/bc/react/crm/project?sap-client=250
 
 To get customer details in search (Dashboard):
-115.124.113.252:8000/sap/bc/react/crm/search?sap-client=250&projectId={<from above api>}
+sap/bc/react/crm/search?sap-client=250&projectId={<from above api>}
 
 To get Card details and Main page details:
-115.124.113.252:8000/sap/bc/react/crm/summary?sap-client=250&projectId={<from above api>}
+sap/bc/react/crm/summary?sap-client=250&projectId={<from above api>}
 
 To show aging graph:
-http://115.124.113.252:8000/sap/bc/react/crm/aging?sap-client=250&projectId={<from above api>}
+sap/bc/react/crm/aging?sap-client=250&projectId={<from above api>}
+
+To Show Collection Trend:
+sap/bc/react/crm/projectf3?sap-client=250&projectId=1304&sap-user=vishalj&sap-password=Aditya@123
+
+To show Sentiment Analysis and Happiness Meter:
+sap/bc/react/crm/customer?sap-client=250&projectId=1304&sap-user=vishalj&sap-password=Aditya@123
 
 ---
 
-## Twilio:
+## Dashboard -> Payment Schedule
 
-Audio Call SID :
-SKf95624d592074e760b0b58d6fe40fdb6
+To get Payment Schedule table data:
+sap/bc/react/crm/plan?sap-client=250&vbeln=2100001649
 
-Audio Call Secret key: // Create only once
-36attJqvyem6ecbpEHgjtwtCfGLFct5o
-36attJqvyem6ecbpEHgjtwtCfGLFct5o
-36attJqvyem6ecbpEHgjtwtCfGLFct5o
+---
 
-Audio call Auth token:
-4d99fc9cf0a7c48a95fbe4312c96db0f
+## Dashboard -> Invoice Details
 
-Audio call Twilio Phone Number:
-+14243216664
+To get Invoice table data:
+sap/bc/crm/invoices?sap-client=250&vbeln=2100001649&sap-user=vishalj&sap-password=Aditya@123
+
+To send mail:
+sap/bc/react/crm/invoice_mail?sap-client=250
+
+To fetch PDF content:
+sap/bc/crm/invoice_print?sap-client=250&vbeln=3130000021&sap-user=vishalj&sap-password=Aditya@123
+
+---
+
+## Dashboard -> Payment Details
+
+To get Payment details in table:
+sap/bc/react/crm/so_receipt?sap-client=250&vbeln=2100001649&sap-user=vishalj&sap-password=Aditya@123
+
+To Create New payment receipt:
+sap/bc/react/crm/receipt_create?sap-client=250
+
+To send mail:
+sap/bc/react/crm/receipt_mail?sap-client=250
+
+To fetch PDF content:
+sap/bc/react/crm/receipt_print?sap-client=250&vbeln=2100001649&kunnr=1000005363&recpt_no=2023032065
+
+---
+
+## Dashboard -> Interest Details
+
+To get Interest Details in table:
+sap/bc/react/crm/interest?sap-client=250&vbeln=2100001649
+
+---
+
+## Dashboard -> Pre-EMI/Rental:
+
+To get Pre EMI/Rental table details:
+sap/bc/react/crm/repay?sap-client=250&vbeln=2100001649
+
+to create Pre EMI/Rental receipt:
+sap/bc/react/crm/repay_create?sap-client=250
+
+---
+
+## Dashbaord -> Interest WaiveOff :
+
+To get Interest Waive off table details:
+/sap/bc/react/crm/waiveint?sap-client=250&vbeln=${2100002235}
+
+---
+
+## Dashboard -> Service Request :
+
+To get data for table and cards:
+https://geraworld3dev.azurewebsites.net/api/query/GetByProjectTPId?ProjectTPId=1304
+
+---
+
+## Dashboard -> Email Report :
+
+To get data for table details :
+sap/bc/react/crm/maillog?sap-client=250&email=er.sumansingh@gmail.com
+
+---
+
+## Invoices :
+
+To get table Details:
+sap/bc/react/crm/so_invoices_dt?sap-client=250&werks=1304&fkdat=23/02/2024&sap-user=vishalj&sap-password=Aditya
+
+Send Mail:
+sap/bc/react/crm/invoice_mail?sap-client=250
 
 ---
 
@@ -40,4 +127,4 @@ API Key: 3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150
 
 API Token:fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149
 
-KYC docs are pending... -->
+KYC docs are pending...

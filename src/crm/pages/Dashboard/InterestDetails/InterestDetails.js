@@ -214,7 +214,7 @@ export default function InterestDetails() {
   }, [OrderId]);
 
   return (
-    <div>
+    <div style={{ marginTop: "1em" }}>
       <ThemeProvider theme={() => getMuiTheme()}>
         <Table data={tableData} columns={columns} options={options}></Table>
       </ThemeProvider>

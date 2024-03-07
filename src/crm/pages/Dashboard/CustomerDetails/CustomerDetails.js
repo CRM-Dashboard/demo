@@ -502,7 +502,7 @@ export default function CustomerDetails() {
             height: "9.3em",
             paddingTop: "0.10em",
             display: "flex",
-            marginTop: "3em",
+            marginTop: "5em",
           }}
         >
           <Grid sx={{ width: "50%" }}>

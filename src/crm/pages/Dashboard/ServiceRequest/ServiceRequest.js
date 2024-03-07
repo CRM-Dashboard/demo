@@ -486,7 +486,7 @@ export default function ServiceRequest() {
       statusCounts &&
       Object.keys(percentages)?.length > 0 &&
       Object.keys(statusCounts)?.length > 0 ? (
-        <Grid>
+        <Grid style={{ marginTop: "1em" }}>
           <Grid
             container
             spacing={4}

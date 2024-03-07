@@ -4,8 +4,6 @@ import CustomTabLayout from "../../components/tabs/CustomTabLayout";
 import CustomerDetails from "./CustomerDetails/CustomerDetails";
 import InvoiceTable from "../Dashboard/InvoiceDetails/InvoiceTable";
 import PaymentDetails from "../Dashboard/PaymentDetails/PaymentDetails";
-import ServiceRequest from "../Dashboard/ServiceRequest/ServiceRequest";
-import EmailReport from "./EmailReport/EmailReport";
 import InterestDetails from "../Dashboard/InterestDetails/InterestDetails";
 import PreEmi from "./PreEmi/PreEmi";
 import CashBack from "./CashBack/CashBack";
@@ -64,14 +62,6 @@ function Dashboard() {
     {
       label: "Interest Waveoff",
       component: <InterestWaveOff />,
-    },
-    {
-      label: "Service Request",
-      component: <ServiceRequest />,
-    },
-    {
-      label: "Email Report",
-      component: <EmailReport />,
     },
     {
       label: "Cancellation Request",

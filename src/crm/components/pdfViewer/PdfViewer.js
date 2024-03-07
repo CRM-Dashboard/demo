@@ -1,11 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
+import { useSpring, animated } from "react-spring";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 const PDFViewer = ({ url }) => {
   const [pdfData, setPdfData] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const fade = useSpring({ from: { opacity: 0 }, to: { opacity: 4 } });
 
   useEffect(() => {
     const apiUrl = url;
@@ -42,7 +45,7 @@ const PDFViewer = ({ url }) => {
     };
   }, [pdfData]);
   return (
-    <div>
+    <animated.div style={fade}>
       {!loading ? (
         <CircularScreenLoader isModal />
       ) : pdfUrl ? (
@@ -50,7 +53,7 @@ const PDFViewer = ({ url }) => {
       ) : (
         ""
       )}
-    </div>
+    </animated.div>
   );
 };
 

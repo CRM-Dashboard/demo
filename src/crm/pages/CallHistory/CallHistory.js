@@ -78,18 +78,7 @@ export default function CallHistory() {
   const getTableData = () => {
     setIsLoading(true);
 
-    const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
-    const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
-    const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
-    fetch(
-      `https://cors-anywhere.herokuapp.com/https://api.exotel.com/v1/Accounts/gera62/Calls.json`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Basic ${basicAuthToken}`,
-        },
-      }
-    )
+    fetch("http://localhost:5000/api/exotel/calls")
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -99,53 +88,15 @@ export default function CallHistory() {
         } else {
           setIsLoading(false);
         }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
       });
   };
 
   useEffect(() => {
     getTableData();
   }, []);
-
-  // useEffect(() => {
-  //   if (response.length > 0) {
-  //     const fetchTranscription = async () => {
-  //       try {
-  //         // Create a SpeechClient
-  //         const client = new SpeechClient();
-
-  //         // Configure the request
-  //         const audio = {
-  //           uri: response[1].RecordingUrl,
-  //         };
-
-  //         const config = {
-  //           encoding: "MP3",
-  //           sampleRateHertz: 44100,
-  //           languageCode: "en-US",
-  //         };
-
-  //         const request = {
-  //           audio,
-  //           config,
-  //         };
-
-  //         // Detect speech in the audio file
-  //         const [response] = await client.recognize(request);
-
-  //         // Extract and set the transcription
-  //         const transcription = response.results
-  //           .map((result) => result.alternatives[0].transcript)
-  //           .join(" ");
-
-  //         setTranscript(transcription);
-  //       } catch (error) {
-  //         console.error("Error fetching transcription:", error);
-  //       }
-  //     };
-
-  //     fetchTranscription();
-  //   }
-  // }, [response]);
 
   const options = {
     selectableRows: "none",

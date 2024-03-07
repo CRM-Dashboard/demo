@@ -6,7 +6,7 @@ import {
   DialogContentText,
   DialogActions,
 } from "@mui/material";
-
+import { useSpring, animated } from "react-spring";
 import PropTypes from "prop-types";
 import styled from "@mui/material/styles/styled";
 import Button from "@mui/material/Button";
@@ -19,6 +19,11 @@ function CrmModal(props) {
     fontSize: "1.25rem",
     borderBottom: "1px solid #E0E0E0",
   }));
+
+  const fade = useSpring({
+    from: { opacity: props.show ? 1 : 0 },
+    to: { opacity: 1 },
+  });
 
   //   const primaryButtonIcon = useMemo(() => {
   //     if (modalAction.icon) {
@@ -51,7 +56,7 @@ function CrmModal(props) {
   //   }, [modalAction.savingText, props.savingText]);
 
   return (
-    <div>
+    <animated.div style={fade}>
       <Dialog
         fullWidth
         maxWidth={props.maxWidth}
@@ -109,7 +114,7 @@ function CrmModal(props) {
           )}
         </DialogActions>
       </Dialog>
-    </div>
+    </animated.div>
   );
 }
 

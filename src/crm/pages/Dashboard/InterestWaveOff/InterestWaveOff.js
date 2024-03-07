@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import { Button } from "@mui/material";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -13,6 +13,7 @@ export default function InterestWaveOff() {
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const ref = useRef(null);
 
   const getMuiTheme = () =>
     createTheme({
@@ -163,82 +164,98 @@ export default function InterestWaveOff() {
 
   const columns = [
     {
+      name: "Request Number",
+      label: "Request Number",
+    },
+    {
+      name: "Created On",
+      label: "Created On",
+    },
+    {
+      name: "Created By",
+      label: "Created By",
+    },
+    {
       name: "Reason",
       label: "Reason",
     },
     {
-      name: "Amount",
-      label: "Amount",
+      name: "Interest Amount",
+      label: "Interest Amount",
     },
     {
-      name: "Previously Waived",
-      label: "Previously Waived",
+      name: "Interest Waived",
+      label: "Interest Waived",
     },
     {
-      name: "Balance",
-      label: "Balance",
+      name: "Interest Balance",
+      label: "Interest Balance",
     },
     {
-      name: "Waive Amount",
-      label: "Waive Amount",
+      name: "Waived Amount",
+      label: "Waived Amount",
     },
     {
       name: "Remark",
       label: "Remark",
-    },
-    {
-      name: "Status",
-      label: "Status",
-      //   options: {
-      //     customBodyRender: (value) => {
-      //       const cellStyle = {
-      //         fontWeight: "bold",
-      //         color:
-      //           value === "Invoiced"
-      //             ? "#0E9E07" //green
-      //             : value === "Mlstn Not Completed"
-      //             ? "#FFD800" //yellow
-      //             : "red", //red
-      //       };
-
-      //       return <div style={cellStyle}>{value}</div>;
-      //     },
-      //   },
     },
   ];
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
+        item?.reqno,
+        item?.erdat,
+        item?.ernam,
         item?.reasonTxt,
         item?.intAmt,
         item?.intWaived,
         item?.intBalance,
         item?.waiveAmt,
         item?.remark,
-        item?.status,
       ];
     });
     return modifiedResponse;
   };
 
-  useEffect(() => {
-    fetch(`/sap/bc/react/crm/waiveint?sap-client=250&vbeln=${OrderId}`)
+  const getTableData = () => {
+    fetch(`/sap/bc/react/crm/waiveint?sap-client=250&vbeln=${OrderId}`, {
+      //2100002235
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Origin: "http://115.124.113.252:8000/",
+        Referer: "http://115.124.113.252:8000/",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
+          console.log("#data", data);
           setTableData(modifyResponse(data));
         }
       });
+  };
+
+  useEffect(() => {
+    getTableData();
   }, [OrderId]);
 
+  const saveReceiptDetails = () => {
+    if (ref.current) {
+      ref.current.saveReceipt();
+    }
+  };
+
   return (
-    <div>
+    <div style={{ marginTop: "1em" }}>
       <ThemeProvider theme={() => getMuiTheme()}>
         <Table data={tableData} columns={columns} options={options}></Table>
       </ThemeProvider>
       <CrmModal
-        maxWidth="md"
+        maxWidth="sm"
         show={openCreateForm}
         handleShow={() => {
           setopenCreateForm(false);
@@ -248,12 +265,16 @@ export default function InterestWaveOff() {
         secondarySave={() => {
           setopenCreateForm(false);
         }}
-        // primarySave={() => {
-        //   savePayment();
-        // }}
+        primarySave={() => {
+          saveReceiptDetails();
+        }}
         title="Create Interest Waveoff Request"
       >
-        <CreateInterestWaveOff />
+        <CreateInterestWaveOff
+          ref={ref}
+          getTableData={getTableData}
+          setopenCreateForm={setopenCreateForm}
+        />
       </CrmModal>
     </div>
   );

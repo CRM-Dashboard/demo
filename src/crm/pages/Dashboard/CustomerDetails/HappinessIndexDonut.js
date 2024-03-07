@@ -188,27 +188,34 @@ const HappinessIndexDonut = ({
     },
   };
 
+  const shouldShowHappinessIndex = () => {
+    return (
+      showSentimentalAnalysis &&
+      emotionAverages &&
+      happyIndex > 0 &&
+      emotionAverages
+    );
+  };
+
   return (
     <>
-      {showSentimentalAnalysis &&
-        emotionAverages &&
-        happyIndex > 0 &&
-        emotionAverages && (
-          <>
-            <Grid
-              item
-              xs={2}
-              sm={2}
-              md={2}
-              sx={{
-                marginRight: "1em",
-                marginBottom: "2em",
-                "&.MuiGrid-item": {
-                  paddingTop: "0em",
-                  paddingLeft: "0em",
-                },
-              }}
-            >
+      {
+        <>
+          <Grid
+            item
+            xs={2}
+            sm={2}
+            md={2}
+            sx={{
+              marginRight: "1em",
+              marginBottom: "2em",
+              "&.MuiGrid-item": {
+                paddingTop: "0em",
+                paddingLeft: "0em",
+              },
+            }}
+          >
+            {shouldShowHappinessIndex() ? (
               <Grid
                 className=" circular-img-container"
                 style={{ paddingTop: "1em" }}
@@ -229,35 +236,39 @@ const HappinessIndexDonut = ({
                   />
                 )}
               </Grid>
-              <Grid sx={{ marginTop: "2em" }}>
-                <StatusCard
-                  icon={
-                    <Chart
-                      options={circleUp.options}
-                      series={circleUp.series}
-                      type="radialBar"
-                      height={110}
-                    />
-                  }
-                  count={
-                    searchValueAvailable
-                      ? "₹" + customerDetails.PossessionBalance
-                      : "₹" + customerDetails?.UpcomingAmount + "Cr"
-                  }
-                  title="Balance till possession (Unbilled)"
-                />
-              </Grid>
+            ) : (
+              <Grid style={{ paddingTop: "8em" }} />
+            )}
+            <Grid sx={{ marginTop: "2em" }}>
+              <StatusCard
+                icon={
+                  <Chart
+                    options={circleUp.options}
+                    series={circleUp.series}
+                    type="radialBar"
+                    height={110}
+                  />
+                }
+                count={
+                  searchValueAvailable
+                    ? "₹" + customerDetails.PossessionBalance
+                    : "₹" + customerDetails?.UpcomingAmount + "Cr"
+                }
+                title="Balance till possession (Unbilled)"
+              />
             </Grid>
+          </Grid>
+          {shouldShowHappinessIndex() && (
             <Grid
               item
               xs={2}
               sm={2}
               md={2}
               sx={{
-                marginRight: "1em",
-                marginBottom: "2em",
+                // marginRight: "1em",
+                // marginBottom: "2em",
                 "&.MuiGrid-item": {
-                  paddingTop: "1em",
+                  // paddingTop: "1em",
                   paddingLeft: "0em",
                 },
               }}
@@ -269,12 +280,13 @@ const HappinessIndexDonut = ({
                 className="circular-donut"
                 options={ChartOptions.options}
                 series={ChartOptions.series}
-                style={{ height: "700px", width: "350px" }}
+                style={{ width: "350px" }}
                 type="donut"
               />
             </Grid>
-          </>
-        )}
+          )}
+        </>
+      }
     </>
   );
 };

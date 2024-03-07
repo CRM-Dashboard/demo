@@ -21,6 +21,9 @@ import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
 import PhoneBookIcon from "@mui/icons-material/InterpreterMode";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import CustomerDetails from "../Dashboard/CustomerDetails/CustomerDetails";
 import dashboardActions from "./../Dashboard/DashboardReducer.js/DashboardActions";
 import searchbarActions from "./../SearchBar/SearchBarReducer/SearchBarActions";
@@ -29,6 +32,7 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import Invoices from "../Invoices/Invoices";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
+import Sidebar2Menus from "./SideBar2Menus";
 import PrintOptions from "./PrintOptions";
 import MailOptions from "./MailOptions";
 import { useDispatch } from "react-redux";
@@ -39,6 +43,8 @@ import Activities from "../Activity/Activities";
 import { useEffect } from "react";
 import DashboardOptions from "./DashboardOptions";
 import { Grid } from "@mui/material";
+import EmailReport from "../Dashboard/EmailReport/EmailReport";
+import ServiceRequest from "../Dashboard/ServiceRequest/ServiceRequest";
 
 const routes = [
   {
@@ -47,28 +53,25 @@ const routes = [
     name: "Dashboard",
     icon: <DashboardOutlinedIcon />,
   },
-  // {
-  //   path: "/crm/analytics",
-  //   name: "Analytics",
-  //   icon: <FaHome />,
-  //   subRoutes: [
-  //     {
-  //       path: "/f1",
-  //       name: "F1 ",
-  //       icon: <FaHome />,
-  //     },
-  //     {
-  //       path: "/f2",
-  //       name: "F2",
-  //       icon: <FaHome />,
-  //     },
-  //     {
-  //       path: "/f3",
-  //       name: "F3",
-  //       icon: <FaHome />,
-  //     },
-  //   ],
-  // },
+  {
+    path: "/Reports",
+    name: "Reports",
+    icon: <SummarizeIcon />,
+    subRoutes: [
+      {
+        path: "/emailReport",
+        to: "/crm/emailReport",
+        name: "Email Report",
+        icon: <MailOutlineIcon />,
+      },
+      {
+        path: "/serviceRequest",
+        to: "/crm/serviceRequest",
+        name: "Service Request",
+        icon: <ManageAccountsIcon />,
+      },
+    ],
+  },
   {
     path: "/callHistory",
     to: "/crm/callHistory",
@@ -127,31 +130,63 @@ const SideBar2 = () => {
 
   const initiateOutgoingCall = async () => {
     if (customerMobileNumber !== "") {
-      const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
-      const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
+      // const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
+      // const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
       // const subdomain = "@api.exotel.com";
       // const sid = "gera62";
       // const dataString = "From=9623361900&To=7769952626&CallerId=095-138-86363";
       // const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
       // const corsProxyUrl = "https://cors-proxy.htmldriven.com/";
 
+      // const responseBody = await response.json();
+      // -----------------------------------------------------------------------------------------
+      // const requestBody = {
+      //   From: "09623361900", // parsePhoneNumberFromString("09623361900", "IN").format("E.164"),
+      //   To: customerMobileNumber,
+      //   CallerId: "095-138-86363",
+      //   Record: true,
+      // };
+
+      // fetch("http://localhost:5000/api/exotel/make-call", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(requestBody),
+      // })
+      //   .then((response) => response.json())
+      //   .then((response) => {
+      //     console.log("connect api####", response);
+      //     if (response) {
+      //       snackbar.showSuccess(
+      //         "Connecting to...",
+      //         maskPhoneNumber(customerMobileNumber)
+      //       );
+      //     } else {
+      //       throw new Error(
+      //         `Error: ${response.status} - ${response.statusText}`
+      //       );
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error(
+      //       "There was a problem with the fetch operation:",
+      //       error
+      //     );
+      //   });
+      // const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
+
       const formData = new FormData();
-      formData.append("From", "09623361900");
+      formData.append("From", "9623361900");
       formData.append("To", customerMobileNumber);
       formData.append("CallerId", "095-138-86363");
       formData.append("Record", "true");
 
-      const apiUrl =
-        "https://cors-anywhere.herokuapp.com/https://api.exotel.com/v1/Accounts/gera62/Calls/connect.json";
-
-      const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
+      const apiUrl = "http://localhost:5000/api/exotel/make-call";
 
       try {
         const response = await fetch(apiUrl, {
           method: "POST",
-          headers: {
-            Authorization: `Basic ${basicAuthToken}`,
-          },
           body: formData,
         });
 
@@ -160,7 +195,6 @@ const SideBar2 = () => {
         } else {
           snackbar.showSuccess("Connecting to..." + customerMobileNumber);
         }
-        // const responseBody = await response.json();
       } catch (error) {
         snackbar.showError("Error while connecting. Please try again!");
       }
@@ -401,16 +435,17 @@ const SideBar2 = () => {
 
           <section className="routes">
             {routes.map((route, index) => {
-              // if (route.subRoutes) {
-              //   return (
-              //     <Sidebar2Menus
-              //       setIsOpen={setIsOpen}
-              //       route={route}
-              //       showAnimation={showAnimation}
-              //       isOpen={isOpen}
-              //     />
-              //   );
-              // }
+              if (route.subRoutes) {
+                return (
+                  <Sidebar2Menus
+                    color={color}
+                    setIsOpen={setIsOpen}
+                    route={route}
+                    showAnimation={showAnimation}
+                    isOpen={isOpen}
+                  />
+                );
+              }
 
               return (
                 <NavLink
@@ -460,8 +495,8 @@ const SideBar2 = () => {
         <div className="content-container">
           <Box
             sx={{
-              pl: 4,
-              pr: 4,
+              paddingLeft: "1em",
+              paddingRight: "1em",
               marginTop: "2em",
               // height: "100%",
             }}
@@ -474,6 +509,8 @@ const SideBar2 = () => {
                 <Route path="callHistory" element={<CallHistory />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="activities" element={<Activities />} />
+                <Route path="emailReport" element={<EmailReport />} />
+                <Route path="serviceRequest" element={<ServiceRequest />} />
               </Route>
             </Routes>
           </Box>

@@ -191,11 +191,14 @@ export default function EmailReport() {
             setIsLoading(false);
           }
         });
+    } else {
+      setTableData([]);
+      setIsLoading(false);
     }
   }, [OrderId]);
 
   return !isLoading ? (
-    <div>
+    <div style={{ marginTop: "5em" }}>
       <ThemeProvider theme={() => getMuiTheme()}>
         <Table data={tableData} columns={columns} options={options}></Table>
       </ThemeProvider>

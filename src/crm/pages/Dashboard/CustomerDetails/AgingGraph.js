@@ -83,7 +83,7 @@ export default function AgingBar() {
       color: ["#6ab04c", "#2980b9"],
       title: {
         text: "Outstanding Ageing",
-        fontFamily: "Futura, Arial, sans-serif",
+        fontFamily: "Futura, sans-serif",
         align: "left",
         color: "white",
       },

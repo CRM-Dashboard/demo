@@ -46,7 +46,7 @@ function Graph() {
     colorSet: "colorSet2",
     title: {
       text: "Collection Trend",
-      fontFamily: "Futura, Arial, sans-serif",
+      fontFamily: "Futura, sans-serif ",
     },
     axisY: {
       title: "Y-axis Title",

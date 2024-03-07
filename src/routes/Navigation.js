@@ -1,15 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
-import {
-  Route,
-  Routes,
-  BrowserRouter as Router,
-  Navigate,
-} from "react-router-dom";
+import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import HomePage from "../crm/pages/HomePage/HomePage";
 import Dashboard from "../crm/pages/Dashboard/Dashboard";
 import CallHistory from "../crm/pages/CallHistory/CallHistory";
 import CustomerDetails from "../crm/pages/Dashboard/CustomerDetails/CustomerDetails";
+import EmailReport from "../crm/pages/Dashboard/EmailReport/EmailReport";
+import ServiceRequest from "../crm/pages/Dashboard/ServiceRequest/ServiceRequest";
 import Layout from "./Layout";
 import ThemeAction from "../crm/pages/ThemeOptions/ThemeAction";
 import { useSelector, useDispatch } from "react-redux";
@@ -57,6 +54,8 @@ export default function Navigation() {
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="callHistory" element={<CallHistory />} />
                   <Route path="invoices" element={<Invoices />} />
+                  <Route path="emailReport" element={<EmailReport />} />
+                  <Route path="serviceRequest" element={<ServiceRequest />} />
                 </Route>
               </Routes>
             </div>

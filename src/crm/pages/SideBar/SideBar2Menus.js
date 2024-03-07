@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 // import { FaAngleDown } from "react-icons/fa";
+import "./SideBar2.css";
 import FaAngleDown from "@mui/icons-material/KeyboardArrowDownSharp";
 import { NavLink } from "react-router-dom";
 
@@ -36,8 +38,11 @@ const menuItemAnimation = {
   }),
 };
 
-const Sidebar2Menus = ({ route, showAnimation, isOpen, setIsOpen }) => {
+const Sidebar2Menus = ({ color, route, showAnimation, isOpen, setIsOpen }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     setIsOpen(true);
@@ -50,9 +55,15 @@ const Sidebar2Menus = ({ route, showAnimation, isOpen, setIsOpen }) => {
   }, [isOpen]);
   return (
     <>
-      <div className="menu" onClick={toggleMenu}>
+      <div
+        className="menu"
+        style={{ padding: "0.4em 0.4em 0.8em", cursor: "pointer" }}
+        onClick={toggleMenu}
+      >
         <div className="menu_item">
-          <div className="icon">{route.icon}</div>
+          <div className="icon" style={{ cursor: "pointer" }}>
+            {route.icon}
+          </div>
           <AnimatePresence>
             {isOpen && (
               <motion.div
@@ -92,8 +103,14 @@ const Sidebar2Menus = ({ route, showAnimation, isOpen, setIsOpen }) => {
           >
             {route.subRoutes.map((subRoute, i) => (
               <motion.div variants={menuItemAnimation} key={i} custom={i}>
-                <NavLink to={subRoute.path} className="link">
-                  <div className="icon">{subRoute.icon}</div>
+                <NavLink to={`/crm/crm${subRoute.path}`} className="link">
+                  <div
+                    className="icon"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/crm/crm${subRoute.path}`)}
+                  >
+                    {subRoute.icon}
+                  </div>
                   <motion.div className="link_text">{subRoute.name}</motion.div>
                 </NavLink>
               </motion.div>

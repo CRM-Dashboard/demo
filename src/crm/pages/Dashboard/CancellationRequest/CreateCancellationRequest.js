@@ -326,10 +326,10 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 <FormControlLabel
                   control={
                     <Radio
-                      // checked={formik.values.isUrban === true}
-                      onChange={() => {
-                        formik.resetForm();
-                        formik.setFieldValue("isUrban", true);
+                      checked={formik.values.gst === "0"}
+                      value="0"
+                      onClick={(e) => {
+                        formik.setFieldValue("gst", e.target.value);
                       }}
                     />
                   }
@@ -339,10 +339,11 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 <FormControlLabel
                   control={
                     <Radio
-                      // checked={formik.values.isUrban === true}
-                      onChange={() => {
-                        formik.resetForm();
-                        formik.setFieldValue("isUrban", true);
+                      checked={formik.values.gst === "12"}
+                      value="12"
+                      onClick={(e) => {
+                        // formik.resetForm();
+                        formik.setFieldValue("gst", e.target.value);
                       }}
                     />
                   }
@@ -440,6 +441,9 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
               }}
               size="md"
               variant="contained"
+              onClick={() => {
+                savePaymentDetails();
+              }}
             >
               {" "}
               Create{" "}

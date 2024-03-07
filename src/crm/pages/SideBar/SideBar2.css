@@ -23,7 +23,9 @@ main {
 .content-container {
   background-color: var(--second-bg);
   flex: 1;
-  margin-top: 2.5em;
+  top: 2em;
+  /* margin-top: 2.5em; */
+  position: relative;
   height: "fit-content";
   overflow-y: auto;
 }
@@ -102,12 +104,12 @@ main {
 .link_text {
   white-space: nowrap;
   font-size: 15px;
+  cursor: pointer;
 }
 
 .menu {
   display: flex;
-  color: white;
-
+  color: var(--second-color);
   padding: 5px 10px;
   border-right: 4px solid transparent;
   transition: 0.2s cubic-bezier(0.6, -0.28, 0.735, 0.045);

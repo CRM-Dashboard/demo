@@ -60,45 +60,68 @@ export default function CustomersList() {
   useEffect(() => {
     const initiateOutgoingCall = async () => {
       if (customerMobileNumber !== "") {
-        const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
-        const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
+        // const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
+        // const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
         // const subdomain = "@api.exotel.com";
         // const sid = "gera62";
         // const dataString = "From=9623361900&To=7769952626&CallerId=095-138-86363";
+        // const formData = new FormData();
+        // formData.append("From", "09623361900");
+        // formData.append("To", customerMobileNumber);
+        // formData.append("CallerId", "095-138-86363");
+        // formData.append("Record", "true");
+        // const apiUrl =
+        //   "https://cors-anywhere.herokuapp.com/https://api.exotel.com/v1/Accounts/gera62/Calls/connect.json";
+        // const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
+        // const corsProxyUrl = "https://cors-proxy.htmldriven.com/";
+        // const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
+
+        // const response = await fetch(apiUrl, {
+        //   method: "POST",
+        //   headers: {
+        //     Authorization: `Basic ${basicAuthToken}`,
+        //   },
+        //   body: formData,
+        // });
+        // if (!response.ok) {
+        //   throw new Error(
+        //     `Error: ${response.status} - ${response.statusText}`
+        //   );
+        // } else {
+        //   snackbar.showSuccess(
+        //     "Connecting to...",
+        //     maskPhoneNumber(customerContactNumber)
+        //   );
+        // }
+        // const responseBody = await response.json();
+
         const formData = new FormData();
-        formData.append("From", "09623361900");
+        formData.append("From", "9623361900");
         formData.append("To", customerMobileNumber);
         formData.append("CallerId", "095-138-86363");
         formData.append("Record", "true");
-        const apiUrl =
-          "https://cors-anywhere.herokuapp.com/https://api.exotel.com/v1/Accounts/gera62/Calls/connect.json";
-        // const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
-        // const corsProxyUrl = "https://cors-proxy.htmldriven.com/";
-        const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
+
+        const apiUrl = "http://localhost:5000/api/exotel/make-call";
+
         try {
           const response = await fetch(apiUrl, {
             method: "POST",
-            headers: {
-              Authorization: `Basic ${basicAuthToken}`,
-            },
             body: formData,
           });
+
           if (!response.ok) {
             throw new Error(
               `Error: ${response.status} - ${response.statusText}`
             );
           } else {
-            snackbar.showSuccess(
-              "Connecting to...",
-              maskPhoneNumber(customerContactNumber)
-            );
+            snackbar.showSuccess("Connecting to..." + customerMobileNumber);
           }
-          // const responseBody = await response.json();
         } catch (error) {
           snackbar.showError("Error while connecting. Please try again!");
         }
       }
     };
+
     initiateOutgoingCall();
   }, [customerMobileNumber]);
 

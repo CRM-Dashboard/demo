@@ -54,7 +54,7 @@ export default function LoginPage() {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          paddingTop: "5.5em",
+          paddingTop: "6.5em",
         }}
       >
         <Grid sx={{ width: "55%", border: "none" }} container>
@@ -75,7 +75,7 @@ export default function LoginPage() {
             md={7}
           >
             <img
-              style={{ width: "100%", height: "95.6%" }}
+              style={{ width: "100%", height: "80%" }}
               src={require("./../../../assets/CRM_login.jpg")}
             ></img>
           </Grid>
@@ -123,7 +123,7 @@ export default function LoginPage() {
               <Typography
                 sx={{
                   fontSize: "1.5em",
-                  fontFamily: "Futura, Arial, sans-serif",
+                  fontFamily: "Futura, sans-serif",
                   color: "#4a4e63",
                   opacity: "0.8",
                   paddingTop: "0.2em",

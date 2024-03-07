@@ -11,6 +11,7 @@ import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import PDFViewer from "./../../../components/pdfViewer/PdfViewer";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import TableMuiTheme from "./../../../utils/TableMuiTheme";
+import { animated, useSpring } from "react-spring";
 
 export default function InvoiceTable() {
   const [tableData, setTableData] = useState([]);
@@ -25,6 +26,37 @@ export default function InvoiceTable() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const getMuiTheme = TableMuiTheme.getMuiTheme(reducerData);
+
+  const ExternalComponent = (props) => {
+    return (
+      <CrmModal
+        maxWidth="xxl"
+        show={openModal}
+        handleShow={() => {
+          setOpenModal(false);
+        }}
+        SecondaryBtnText="Close"
+        secondarySave={() => {
+          setOpenModal(false);
+        }}
+      >
+        <PDFViewer url={url}></PDFViewer>
+      </CrmModal>
+    );
+  };
+
+  const styles = useSpring({
+    from: {
+      opacity: 0,
+      y: "6%",
+    },
+    to: {
+      opacity: 1,
+      y: "0%",
+    },
+  });
+
+  const AnimatedDialog = animated(ExternalComponent);
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
@@ -198,6 +230,7 @@ export default function InvoiceTable() {
 
   const options = {
     selectableRows: "none",
+    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
@@ -223,24 +256,12 @@ export default function InvoiceTable() {
   return (
     <Box>
       {!isLoading ? (
-        <>
+        <div style={{ marginTop: "1em" }}>
           <ThemeProvider theme={() => getMuiTheme}>
             <Table data={tableData} columns={columns} options={options}></Table>
           </ThemeProvider>
-          <CrmModal
-            maxWidth="xxl"
-            show={openModal}
-            handleShow={() => {
-              setOpenModal(false);
-            }}
-            SecondaryBtnText="Close"
-            secondarySave={() => {
-              setOpenModal(false);
-            }}
-          >
-            <PDFViewer url={url}></PDFViewer>
-          </CrmModal>
-        </>
+          <AnimatedDialog style={styles} />
+        </div>
       ) : (
         <CircularScreenLoader />
       )}

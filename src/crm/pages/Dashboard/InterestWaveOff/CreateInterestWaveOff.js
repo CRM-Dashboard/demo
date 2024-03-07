@@ -1,50 +1,118 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+  useState,
+} from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
-import { Grid, Box, Typography } from "@mui/material";
+import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 const CreateInterestWaveOff = forwardRef((props, ref) => {
-  // const reducerData = useSelector((state) => state);
-  // const orderId = reducerData.searchBar.orderId;
-  // const snackbar = UseCustomSnackbar();
+  const [fieldData, setFieldData] = useState({});
+  const [rsnToApprove, setRsnToApprove] = useState({});
+  const [rsnToReject, setReasonToReject] = useState({});
+  const [detailsTSend, setDetailsToSend] = useState([]);
+  const [reasons, setReasons] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const reducerData = useSelector((state) => state);
+  const customerName = reducerData?.searchBar?.accountStatement?.CustomerName;
+  const orderId = reducerData.searchBar.orderId;
+  const snackbar = UseCustomSnackbar();
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/sap/bc/react/crm/waiveint_create?sap-client=250&vbeln=${orderId}`, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data[0]) {
+          console.log("data####", data[0]?.reqdata[0]);
+          setFieldData(data[0]?.reqdata[0]);
+          setLoading(false);
+          const Data = data[0]?.reqdata[0];
+          const apprReason = Object.keys(Data)
+            .filter((key) => key.includes("arsn"))
+            .map((key) => Data[key]);
+          setRsnToApprove(apprReason);
+          const rejectReason = Object.keys(Data)
+            .filter((key) => key.includes("rrsn"))
+            .map((key) => Data[key]);
+          setReasonToReject(rejectReason);
+          console.log("filteredDataArray########", rejectReason);
+          setReasons(data[0].rsndata);
+        }
+      });
+    fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${orderId}`) //2100002235
+      .then((response) => response.json())
+      .then((data) => {
+        if (data[0].vbeln) {
+          setDetailsToSend(data[0]);
+        }
+      });
+  }, []);
 
   const saveReceipt = () => {
     const entryData = {
-      reason: formik.values.reason,
-      interestDueAmt: formik.values.interestDueAmt,
-      interestWaivedOff: formik.values.interestWaivedOff,
-      waiverRequested: formik.values.waiverRequested,
-      balanceInterest: formik.values.balanceInterest,
-      waiverAmt: formik.values.waiverAmt,
-      remarks: formik.values.remarks,
+      vbeln: detailsTSend.vbeln,
+      werks: detailsTSend.werks,
+      building: detailsTSend.building,
+      flatno: detailsTSend.flatno,
+      project: detailsTSend.project,
+      customer: customerName,
+      cv_val: detailsTSend.cvVal,
+      pmt_unit: detailsTSend.pmtUnit,
+      bal_unit: detailsTSend.balUnit,
+      int_amt: fieldData?.intAmt,
+      int_bal: fieldData?.intBalance,
+      int_waived: fieldData.intWaived,
+      waive_rsn: formik.values.reason,
+      waive_amt: formik.values.waiverAmt,
+      matnr: detailsTSend.matnr,
+      maktx: detailsTSend.maktx,
+      remark: formik.values.remarks,
+      arsn1: fieldData.arsn1,
+      arsn2: fieldData.arsn2,
+      arsn3: fieldData.arsn3,
+      arsn4: fieldData.arsn4,
+      rrsn1: fieldData.rrsn1,
+      rrsn2: fieldData.rrsn2,
+      rrsn3: fieldData.rrsn3,
+      rrsn4: fieldData.rrsn4,
     };
+    console.log("######detailsTSend", detailsTSend);
     console.log("######entryData", entryData);
 
-    // fetch(`/sap/bc/react/crm/receipt_create?sap-client=250`, {
-    //   method: "POST",
-    //   body: JSON.stringify(entryData),
-    //   headers: {
-    //     Accept: "application/json",
-    //     Origin: "http://115.124.113.252:8000/",
-    //     Referer: "http://115.124.113.252:8000/",
-    //     "Content-Type": "application/json",
-    //   },
-    //   credentials: "include",
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     if (data) {
-    //       snackbar.showSuccess("Payment details created successfully!");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     if (error) {
-    //       snackbar.showError(
-    //         "Error while creating payment details. Please try again!"
-    //       );
-    //     }
-    //   });
+    fetch(`/sap/bc/react/crm/waiveint_create?sap-client=250`, {
+      method: "POST",
+      body: JSON.stringify(entryData),
+      headers: {
+        Accept: "application/json",
+        Origin: "http://115.124.113.252:8000/",
+        Referer: "http://115.124.113.252:8000/",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess("Interest waived off created successfully!");
+          props.setopenCreateForm(false);
+          props.getTableData();
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError("Error while creating. Please try again!");
+        }
+      });
   };
 
   useImperativeHandle(ref, () => ({
@@ -68,7 +136,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       interestWaivedOff: 0,
       waiverRequested: 0,
       balanceInterest: 0,
-      waiverAmt: 0,
+      waiverAmt: "",
       remarks: "",
     },
     validationSchema,
@@ -78,53 +146,51 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     },
   });
 
-  return (
+  return !loading && reasons ? (
     <formik>
       <Box sx={{ paddingTop: "1.5em" }}>
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
+              id="interestDueAmt"
+              name="interestDueAmt"
+              label="Interest Due Amount"
+              value={fieldData?.intAmt}
+            />
+          </Grid>
+
+          <Grid item xs={4} sm={6} md={6}>
+            <InputField
               id="interestWaivedOff"
               name="interestWaivedOff"
               label="Interest Waived Off"
-              value={formik.values.interestWaivedOff}
-              onChange={formik.handleChange}
+              value={fieldData.intWaived}
             />
           </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
               id="waiverRequested"
               name="waiverRequested"
               label="Waiver Requested"
-              value={formik.values.interestDueAmt}
-              onChange={formik.handleChange}
+              value={fieldData?.waiveReqed}
             />
           </Grid>
-        </Grid>
-        <br />
-        <Grid container spacing={4}>
+
           <Grid item xs={4} sm={6} md={6}>
             <InputField
               id="balanceInterest"
               name="balanceInterest"
               label="Balance Interest"
-              value={formik.values.balanceInterest}
-              onChange={formik.handleChange}
-            />
-          </Grid>
-          <Grid item xs={4} sm={6} md={6}>
-            <InputField
-              id="interestDueAmt"
-              name="interestDueAmt"
-              label="Interest Due Amount"
-              value={formik.values.interestDueAmt}
-              onChange={formik.handleChange}
+              value={fieldData?.intBalance}
             />
           </Grid>
         </Grid>
         <br />
         <Grid container spacing={4}>
-          <Grid item xs={4} sm={6} md={6}>
+          <Grid item xs={8} sm={12} md={12}>
             <InputField
               id="waiverAmt"
               name="waiverAmt"
@@ -133,33 +199,91 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
               onChange={formik.handleChange}
             />
           </Grid>
-          <Grid item xs={4} sm={6} md={6}>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={8} sm={12} md={12}>
             <InputField
+              select
               id="reason"
               name="reason"
               label="Reason"
               value={formik.values.reason}
               onChange={formik.handleChange}
-            />
+            >
+              <MenuItem value=""> Select Reason </MenuItem>
+              {reasons?.map((rsn, index) => {
+                return (
+                  <MenuItem value={rsn.waiveRsn} key={index}>
+                    {" "}
+                    {rsn.ddtext}
+                  </MenuItem>
+                );
+              })}
+            </InputField>
           </Grid>
         </Grid>
         <br />
 
-        <Grid container spacing={8}>
-          <Grid item xs={6} sm={8} md={8}>
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={3} md={3}>
             <Typography style={{ fontSize: "0.8em" }}>Remarks</Typography>
             <textarea
               id="remarks"
               name="remarks"
               label="Remarks"
-              style={{ width: "53em" }}
+              style={{ width: "40em", height: "3.2em" }}
               value={formik.values.remarks}
               onChange={formik.handleChange}
             />
           </Grid>
         </Grid>
+        <br />
+        <Typography>System Suggestion : </Typography>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={4} sm={6} md={6}>
+            <Grid>
+              <Typography>Reasons to Approve :</Typography>
+            </Grid>
+            {rsnToApprove.map((rsns, index) => (
+              <>
+                <div style={{ color: "green" }}>
+                  {rsns ? (
+                    <>
+                      <div key={index}>
+                        <Typography> - {rsns}</Typography>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </>
+            ))}
+          </Grid>
+
+          <Grid item xs={4} sm={6} md={6}>
+            <Typography>Reasons to Reject :</Typography>
+
+            {rsnToReject.map((rsns, index) => (
+              <>
+                <div style={{ color: "red" }}>
+                  {rsns ? (
+                    <>
+                      <div key={index}>
+                        <Typography> - {rsns}</Typography>
+                        <br />
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </>
+            ))}
+          </Grid>
+        </Grid>
       </Box>
     </formik>
+  ) : (
+    <CircularScreenLoader isModal={true} />
   );
 });
 

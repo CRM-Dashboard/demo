@@ -202,6 +202,7 @@ export default function PaymentDetails() {
 
   const options = {
     selectableRows: "none",
+    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
@@ -377,7 +378,7 @@ export default function PaymentDetails() {
   return (
     <Box sx={{ top: "30%" }}>
       {!isLoading ? (
-        <>
+        <div style={{ marginTop: "1em" }}>
           <ThemeProvider theme={getMuiTheme}>
             <Table
               data={tableData}
@@ -427,7 +428,7 @@ export default function PaymentDetails() {
               ref={ref}
             />
           </CrmModal>
-        </>
+        </div>
       ) : (
         <CircularScreenLoader />
       )}

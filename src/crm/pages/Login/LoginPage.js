@@ -19,17 +19,15 @@ export default function LoginPage() {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("password", password);
-
     const apiUrl = "/api/login";
-    // const apiUrl = `http://115.124.113.252:8000/sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`;
 
     fetch(apiUrl, {
       method: "POST",
       body: formData,
     })
-      // .then((response) => response.json())
+      .then((response) => response.json())
       .then((data) => {
-        if (data.status === 200) {
+        if (data) {
           snackbar.showSuccess("Logged in successfully!");
           navigate("./home");
           dispatch(loginActions.setPassword(password));

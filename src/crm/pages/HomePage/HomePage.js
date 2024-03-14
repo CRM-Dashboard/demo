@@ -29,9 +29,13 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    fetch(
-      `http://115.124.113.252:8000/sap/bc/react/crm/project?sap-client=250&sap-user=${userName}&sap-password=${passWord}`
-    )
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch("/api/project", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data?.ProjectList?.length) {

@@ -16,6 +16,8 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
   const snackbar = UseCustomSnackbar();
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const savePaymentDetails = () => {
     const entryData = {
@@ -30,20 +32,16 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
       city: formik.values.bankCity,
       remark: formik.values.remarks,
     };
-    console.log("##########errors", formik.errors);
-    console.log("props##########", props);
 
     if (Object.keys(formik.errors).length === 0) {
-      fetch(`/sap/bc/react/crm/receipt_create?sap-client=250`, {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(entryData));
+
+      fetch("/api/dashboard/paymentDetails/receipt_create", {
         method: "POST",
-        body: JSON.stringify(entryData),
-        headers: {
-          Accept: "application/json",
-          Origin: "http://115.124.113.252:8000/",
-          Referer: "http://115.124.113.252:8000/",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
+        body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
@@ -54,7 +52,6 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
           }
         })
         .catch((error) => {
-          console.log("error#######", error);
           if (error) {
             snackbar.showError(
               "Error while creating payment details. Please try again!"

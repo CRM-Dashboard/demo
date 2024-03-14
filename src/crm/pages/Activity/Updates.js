@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { Button, Avatar, Typography } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import { Button, Avatar, Typography } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+// import EmailDetails from "./EmailDetails";
+// import AuthProvider from "./AuthProvider";
 
 const HtmlToText = ({ html }) => {
   const createMarkup = (html) => {
@@ -17,13 +19,15 @@ const HtmlToText = ({ html }) => {
   };
 
   return (
-    <div>
-      {/* Use dangerouslySetInnerHTML to render HTML content */}
-      <div dangerouslySetInnerHTML={createMarkup(html)} />
+    <>
+      <div>
+        {/* Use dangerouslySetInnerHTML to render HTML content */}
+        <div dangerouslySetInnerHTML={createMarkup(html)} />
 
-      {/* Display text content without HTML tags */}
-      <p>{sanitizeHtml(html)}</p>
-    </div>
+        {/* Display text content without HTML tags */}
+        <p>{sanitizeHtml(html)}</p>
+      </div>
+    </>
   );
 };
 
@@ -48,7 +52,7 @@ export default class Updates extends Component {
         ["link", "image"],
         ["clean"],
       ],
-    }),
+    })(
       (this.formats = [
         "header",
         "bold",
@@ -61,7 +65,8 @@ export default class Updates extends Component {
         "indent",
         "link",
         "image",
-      ]);
+      ])
+    );
   }
 
   handleChange(value) {
@@ -143,6 +148,11 @@ export default class Updates extends Component {
           <br />
           Text: {<HtmlToText html={this.state.text} />}
         </>
+        {/* <AuthProvider>
+          <div>
+            <EmailDetails />
+          </div>
+        </AuthProvider> */}
       </div>
     );
   }

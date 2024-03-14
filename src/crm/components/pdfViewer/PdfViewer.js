@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSpring, animated } from "react-spring";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
-const PDFViewer = ({ url }) => {
+const PDFViewer = ({ url, formdata }) => {
   const [pdfData, setPdfData] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ const PDFViewer = ({ url }) => {
 
   useEffect(() => {
     const apiUrl = url;
-    fetch(apiUrl)
+    fetch(apiUrl, formdata)
       .then((response) => response.json())
       .then(async (data) => {
         setLoading(true);

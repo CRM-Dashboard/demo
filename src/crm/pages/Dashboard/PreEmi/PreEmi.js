@@ -17,6 +17,8 @@ export default function PreEmi() {
   const [openCreateForm, setopenCreateForm] = useState(false);
 
   const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const OrderId = reducerData.searchBar.orderId;
   const snackbar = UseCustomSnackbar();
   const ref = useRef(null);
@@ -147,10 +149,14 @@ export default function PreEmi() {
 
   const handleCreateBtnClick = () => {
     if (OrderId) {
-      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`)
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      fetch("/api/dashboard/so", { method: "POST", body: formData })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Bookig Data@@@@@@@@@@@", data[0].vbeln);
           if (data[0].vbeln) {
             if (
               data[0].schemeStart === "0000-00-00" ||
@@ -258,14 +264,20 @@ export default function PreEmi() {
   };
 
   const getTableData = () => {
-    if (OrderId)
-      fetch(`/sap/bc/react/crm/repay?sap-client=250&vbeln=${OrderId}`)
+    if (OrderId) {
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      fetch(`/api/dashboard/preEmi/repay`, { method: "POST", body: formData })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
             setTableData(modifyResponse(data));
           }
         });
+    }
   };
 
   useEffect(() => {

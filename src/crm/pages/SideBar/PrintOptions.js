@@ -25,12 +25,17 @@ export default function PrintOptions({ docAnchor, openDoc, setDocAnchor }) {
   useEffect(() => {
     if (orderId && printOptionId) {
       setLoading(true);
-      fetch(
-        `http://115.124.113.252:8000/sap/bc/react/crm/print?sap-client=250&vbeln=${orderId}&form=${printOptionId}&sap-user=${userName}&sap-password=${passWord}`,
-        {
-          method: "GET",
-        }
-      )
+
+      const formData = new FormData();
+      formData.append("orderId", orderId);
+      formData.append("printOptionId", printOptionId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      fetch("/api/topBar/print", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then(async (data) => {
           if (data.PrintData === "") {

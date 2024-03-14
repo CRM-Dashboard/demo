@@ -77,9 +77,14 @@ export default function CustomerDetails() {
     }
 
     if (projectId !== "undefined") {
-      fetch(
-        `/sap/bc/react/crm/customer?sap-client=250&projectId=${projectId}&sap-user=${userName}&sap-password=${passWord}`
-      )
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("projectId", projectId);
+      fetch(`/api/dashboard/customer`, {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
@@ -412,7 +417,17 @@ export default function CustomerDetails() {
                   },
                 }}
               >
-                <Grid className="circular-img-container">
+                <Grid
+                  className="circular-img-container"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    dispatch(
+                      dashboardActions.setShouldShowCustDetails(
+                        !reducerData.dashboard.shouldShowCustData
+                      )
+                    );
+                  }}
+                >
                   <label className="detailsTitle" style={{ color: mode }}>
                     Applicants Details
                   </label>

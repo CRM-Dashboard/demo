@@ -26,15 +26,21 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const projectId = reducerData.dashboard.project.projectId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const custData = reducerData.searchBar.accountStatement;
   const snackbar = UseCustomSnackbar();
 
   useEffect(() => {
     if (OrderId) {
-      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`)
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      fetch("/api/dashboard/so", { method: "POST", body: formData })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Bookig Data@@@@@@@@@@@", data[0].vbeln);
           if (data[0].vbeln) {
             setSoDetails(data);
             if (
@@ -50,11 +56,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
             } else {
               setSchemeEnd(data[0].schemeEnd);
               setSchemeStart(data[0].schemeStart);
-              console.log(
-                "###############scheme",
-                data[0].schemeStart,
-                data[0].schemeEnd
-              );
             }
           }
         });
@@ -152,9 +153,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     // Convert the start and end range to JavaScript Date objects
     const startDate = new Date(schemeStart);
     const endDate = new Date(schemeEnd);
-    console.log("!!!!!!!!!!start", startDate);
-    console.log("!!!!!!!!!!end", endDate);
-    console.log("!!!!!!!!!!current", currentDate);
     const result = currentDate > startDate && currentDate < endDate;
 
     // Check if the currentDate is between the startDate and endDate
@@ -168,50 +166,50 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     }
   }, [formik.values.month]);
 
-  const handleFileUpload = (event) => {
-    console.log("#######event.target.files", event.target.files);
-    const files1 = event.target.files;
-    const filesArray = Array.from(files1);
-    // setFiles((prevArray) => prevArray.concat(filesArray));
-    console.log(
-      "#######event.target.filesArray",
-      files,
-      filesArray,
-      filesArray.length
-    );
-    // console.log("#######apended files", [...files, ...filesArray]);
-    setFiles([...files, ...filesArray]);
-    const finalFiles = [...files, ...filesArray];
+  // const handleFileUpload = (event) => {
+  //   console.log("#######event.target.files", event.target.files);
+  //   const files1 = event.target.files;
+  //   const filesArray = Array.from(files1);
+  //   // setFiles((prevArray) => prevArray.concat(filesArray));
+  //   console.log(
+  //     "#######event.target.filesArray",
+  //     files,
+  //     filesArray,
+  //     filesArray.length
+  //   );
+  //   // console.log("#######apended files", [...files, ...filesArray]);
+  //   setFiles([...files, ...filesArray]);
+  //   const finalFiles = [...files, ...filesArray];
 
-    console.log("#######finalFiles", finalFiles);
-    // Convert each file to base64
-    Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
-      .then((base64Array) => {
-        console.log("base64Array######", base64Array);
-        // setSelectedFile(base64Array);
-      })
-      .catch((error) => {
-        console.error("Error reading files#######:", error);
-      });
-  };
+  //   console.log("#######finalFiles", finalFiles);
+  //   // Convert each file to base64
+  //   Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
+  //     .then((base64Array) => {
+  //       console.log("base64Array######", base64Array);
+  //       // setSelectedFile(base64Array);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error reading files#######:", error);
+  //     });
+  // };
 
-  const readFileAsBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      const fileBlob = new Blob([file], { type: file.type });
+  // const readFileAsBase64 = (file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     const fileBlob = new Blob([file], { type: file.type });
 
-      reader.onload = () => {
-        const base64String = reader.result.split(",")[1];
-        resolve(base64String);
-      };
+  //     reader.onload = () => {
+  //       const base64String = reader.result.split(",")[1];
+  //       resolve(base64String);
+  //     };
 
-      reader.onerror = (error) => {
-        reject(error);
-      };
+  //     reader.onerror = (error) => {
+  //       reject(error);
+  //     };
 
-      reader.readAsDataURL(fileBlob);
-    });
-  };
+  //     reader.readAsDataURL(fileBlob);
+  //   });
+  // };
 
   return (
     <formik>

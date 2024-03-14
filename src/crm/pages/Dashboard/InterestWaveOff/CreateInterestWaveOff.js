@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -21,19 +22,26 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const customerName = reducerData?.searchBar?.accountStatement?.CustomerName;
   const orderId = reducerData.searchBar.orderId;
   const snackbar = UseCustomSnackbar();
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/sap/bc/react/crm/waiveint_create?sap-client=250&vbeln=${orderId}`, {
-      method: "GET",
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("orderId", orderId);
+
+    fetch("/api/dashboard/interestWaiveOff/get_waiveint_create", {
+      method: "POST",
+      body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
         if (data[0]) {
-          console.log("data####", data[0]?.reqdata[0]);
           setFieldData(data[0]?.reqdata[0]);
           setLoading(false);
           const Data = data[0]?.reqdata[0];
@@ -45,18 +53,17 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
             .filter((key) => key.includes("rrsn"))
             .map((key) => Data[key]);
           setReasonToReject(rejectReason);
-          console.log("filteredDataArray########", rejectReason);
           setReasons(data[0].rsndata);
         }
       });
-    fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${orderId}`) //2100002235
+    fetch("/api/dashboard/so", { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data[0].vbeln) {
           setDetailsToSend(data[0]);
         }
       });
-  }, []);
+  }, [orderId]);
 
   const saveReceipt = () => {
     const entryData = {
@@ -86,19 +93,15 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       rrsn3: fieldData.rrsn3,
       rrsn4: fieldData.rrsn4,
     };
-    console.log("######detailsTSend", detailsTSend);
-    console.log("######entryData", entryData);
 
-    fetch(`/sap/bc/react/crm/waiveint_create?sap-client=250`, {
+    const Data = new FormData();
+    Data.append("userName", userName);
+    Data.append("passWord", passWord);
+    Data.append("entryData", JSON.stringify(entryData));
+
+    fetch(`/api/dashboard/interestWaiveOff/post_waiveint_create`, {
       method: "POST",
-      body: JSON.stringify(entryData),
-      headers: {
-        Accept: "application/json",
-        Origin: "http://115.124.113.252:8000/",
-        Referer: "http://115.124.113.252:8000/",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      body: Data,
     })
       .then((response) => response.json())
       .then((data) => {

@@ -27,8 +27,6 @@ export default function CustomersList() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData?.dashboard?.project?.projectId;
-  const customerContactNumber = reducerData?.dashboard?.customerContactNo;
-
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
@@ -50,58 +48,23 @@ export default function CustomersList() {
     return modifiedResponse;
   };
 
-  const maskPhoneNumber = (number) => {
-    const maskedNumber =
-      number.substring(0, number.length - 4).replace(/\d/g, "X") +
-      number.substring(number.length - 4);
-    return maskedNumber;
-  };
+  // const maskPhoneNumber = (number) => {
+  //   const maskedNumber =
+  //     number.substring(0, number.length - 4).replace(/\d/g, "X") +
+  //     number.substring(number.length - 4);
+  //   return maskedNumber;
+  // };
 
   useEffect(() => {
     const initiateOutgoingCall = async () => {
       if (customerMobileNumber !== "") {
-        // const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
-        // const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
-        // const subdomain = "@api.exotel.com";
-        // const sid = "gera62";
-        // const dataString = "From=9623361900&To=7769952626&CallerId=095-138-86363";
-        // const formData = new FormData();
-        // formData.append("From", "09623361900");
-        // formData.append("To", customerMobileNumber);
-        // formData.append("CallerId", "095-138-86363");
-        // formData.append("Record", "true");
-        // const apiUrl =
-        //   "https://cors-anywhere.herokuapp.com/https://api.exotel.com/v1/Accounts/gera62/Calls/connect.json";
-        // const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
-        // const corsProxyUrl = "https://cors-proxy.htmldriven.com/";
-        // const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
-
-        // const response = await fetch(apiUrl, {
-        //   method: "POST",
-        //   headers: {
-        //     Authorization: `Basic ${basicAuthToken}`,
-        //   },
-        //   body: formData,
-        // });
-        // if (!response.ok) {
-        //   throw new Error(
-        //     `Error: ${response.status} - ${response.statusText}`
-        //   );
-        // } else {
-        //   snackbar.showSuccess(
-        //     "Connecting to...",
-        //     maskPhoneNumber(customerContactNumber)
-        //   );
-        // }
-        // const responseBody = await response.json();
-
         const formData = new FormData();
         formData.append("From", "9623361900");
         formData.append("To", customerMobileNumber);
         formData.append("CallerId", "095-138-86363");
         formData.append("Record", "true");
 
-        const apiUrl = "http://localhost:5000/api/exotel/make-call";
+        const apiUrl = "/api/exotel/make-call";
 
         try {
           const response = await fetch(apiUrl, {
@@ -128,9 +91,14 @@ export default function CustomersList() {
   useEffect(() => {
     setIsLoading(true);
     if (projectId) {
-      fetch(
-        `/sap/bc/react/crm/customer?sap-client=250&projectId=${projectId}&sap-user=${userName}&sap-password=${passWord}`
-      )
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("projectId", projectId);
+      fetch(`/api/dashboard/customer`, {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data) {

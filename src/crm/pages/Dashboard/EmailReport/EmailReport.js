@@ -12,6 +12,8 @@ export default function EmailReport() {
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const EmailID = reducerData?.dashboard?.customerEmailId;
 
   const getMuiTheme = () =>
@@ -181,7 +183,12 @@ export default function EmailReport() {
   useEffect(() => {
     setIsLoading(true);
     if (OrderId) {
-      fetch(`/sap/bc/react/crm/maillog?sap-client=250&email=${EmailID}`)
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("emailId", EmailID);
+
+      fetch(`/api/reports/maillog`, { method: "POST", body: formData })
         .then((response) => response.json())
         .then((data) => {
           if (data.Emails) {

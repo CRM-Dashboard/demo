@@ -3,18 +3,23 @@
 ---------
 To Login User:
 sap/bc/react/crm/login?sap-client=250&sap-user=vishalj&sap-password=Aditya@123
+latest:
+/api/login
 
 -------------
 ## HomePage
 --------------
 To get Project Details:
 sap/bc/react/crm/project?sap-client=250&sap-user=vishalj&sap-password=Aditya@123
+latest:
+/api/project
 ---------------
 
 ## Dashboard -> Home
 
 To get Project Details (Homepage):
 sap/bc/react/crm/project?sap-client=250
+latest: /api/project
 
 To get customer details in search (Dashboard):
 sap/bc/react/crm/search?sap-client=250&projectId={<from above api>}
@@ -116,6 +121,18 @@ Send Mail:
 sap/bc/react/crm/invoice_mail?sap-client=250
 
 ---
+
+## Call History :
+
+To get call history details:
+http://localhost:5000/api/exotel/calls
+latest:
+/api/exotel/calls
+
+## Click to call:
+
+latest:
+api/exotel/make-call
 
 ## Knowlarity:
 

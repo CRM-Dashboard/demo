@@ -154,9 +154,14 @@ export default function Invoices() {
     const date = dayjs(selectedDate.$d).format("DD/MM/YYYY");
     const projectId = reducerData.dashboard.project.projectId;
     setIsLoading(true);
-    fetch(
-      `/sap/bc/react/crm/so_invoices_dt?sap-client=250&werks=${projectId}&fkdat=${date}&sap-user=${userName}&sap-password=${passWord}`
-    )
+
+    const formData = new FormData();
+    formData.append("projectId", projectId);
+    formData.append("date", date);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/invoices/so_invoices_dt", { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -170,17 +175,12 @@ export default function Invoices() {
   }, [reducerData.searchBar.orderId, selectedDate]);
 
   const sendMails = () => {
-    fetch(`/sap/bc/react/crm/invoice_mail?sap-client=250`, {
-      method: "POST",
-      body: JSON.stringify(arrForMail),
-      headers: {
-        Accept: "application/json",
-        Origin: "http://115.124.113.252:8000/",
-        Referer: "http://115.124.113.252:8000/",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("mails".JSON.stringify(arrForMail));
+
+    fetch(`/api/invoices/so_invoices_mail`, { method: "POST", body: formData })
       .then((response) => {
         return response;
       })

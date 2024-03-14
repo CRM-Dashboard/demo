@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -8,6 +9,8 @@ export default function InterestDetails() {
   const [tableData, setTableData] = useState([]);
 
   const reducerData = useSelector((state) => state);
+  const userName = reducerData.LoginReducer.userName;
+  const passWord = reducerData.LoginReducer.passWord;
   const OrderId = reducerData.searchBar.orderId;
 
   const getMuiTheme = () =>
@@ -204,7 +207,11 @@ export default function InterestDetails() {
   };
 
   useEffect(() => {
-    fetch(`/sap/bc/react/crm/interest?sap-client=250&vbeln=${OrderId}`)
+    const formData = new FormData();
+    formData.append("orderId", OrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch("/api/dashboard/interest", { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

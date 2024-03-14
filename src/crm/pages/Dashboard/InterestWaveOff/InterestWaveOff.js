@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import { Button } from "@mui/material";
@@ -13,6 +14,8 @@ export default function InterestWaveOff() {
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const ref = useRef(null);
 
   const getMuiTheme = () =>
@@ -219,16 +222,14 @@ export default function InterestWaveOff() {
   };
 
   const getTableData = () => {
-    fetch(`/sap/bc/react/crm/waiveint?sap-client=250&vbeln=${OrderId}`, {
-      //2100002235
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        Origin: "http://115.124.113.252:8000/",
-        Referer: "http://115.124.113.252:8000/",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+    const formData = new FormData();
+    formData.append("orderId", OrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/dashboard/interestWaiveOff/waiveint", {
+      method: "POST",
+      body: formData,
     })
       .then((response) => response.json())
       .then((data) => {

@@ -21,6 +21,7 @@ export default function PaymentDetails() {
   const [openModal, setOpenModal] = useState(false);
   const [url, setURL] = useState("");
   const [arrForMail, setArrForMail] = useState([]);
+  const [formdata, setFormData] = useState({});
   const [openCreateForm, setopenCreateForm] = useState(false);
 
   const ref = useRef(null);
@@ -138,7 +139,15 @@ export default function PaymentDetails() {
             <PictureAsPdfIcon
               onClick={() => {
                 const details = response[dataIndex];
-                const URL = `/sap/bc/react/crm/receipt_print?sap-client=250&vbeln=${details.SalesOrderNumber}&kunnr=${details.CustomerNumber}&recpt_no=${details.ReceiptNumber}`;
+                const formData = new FormData();
+                formData.append("recpt_no", details.ReceiptNumber);
+                formData.append("kunnr", details.CustomerNumber);
+                formData.append("vbeln", details.SalesOrderNumber);
+                formData.append("userName", userName);
+                formData.append("passWord", passWord);
+
+                const URL = "/api/dashboard/paymentDetails/receipt_print";
+                setFormData({ method: "POST", body: formData });
                 setURL(URL);
                 setOpenModal(true);
               }}
@@ -152,9 +161,14 @@ export default function PaymentDetails() {
 
   const getTableData = () => {
     setIsLoading(true);
-    fetch(
-      `http://115.124.113.252:8000/sap/bc/react/crm/so_receipt?sap-client=250&vbeln=${orderId}&sap-user=${userName}&sap-password=${passWord}`
-    )
+    const formdata = new FormData();
+    formdata.append("userName", userName);
+    formdata.append("passWord", passWord);
+    formdata.append("orderId", orderId);
+    fetch("/api/dashboard/paymentDetails/so_receipt", {
+      method: "POST",
+      body: formdata,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -168,16 +182,16 @@ export default function PaymentDetails() {
   };
 
   const sendMails = () => {
-    fetch(`/sap/bc/react/crm/receipt_mail?sap-client=250`, {
+    const formData = new FormData();
+    formData.append("mailIds", JSON.stringify(arrForMail));
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    setIsLoading(true);
+
+    fetch(`/api/dashboard/paymentDetails/receipt_mail`, {
       method: "POST",
-      body: JSON.stringify(arrForMail),
-      headers: {
-        Accept: "application/json",
-        Origin: "http://115.124.113.252:8000/",
-        Referer: "http://115.124.113.252:8000/",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      body: formData,
     })
       .then((response) => {
         return response;
@@ -187,11 +201,15 @@ export default function PaymentDetails() {
           snackbar.showSuccess(
             <Typography> Sent Mail(s) Successfully!</Typography>
           );
+          setIsLoading(false);
+          setArrForMail([]);
         }
       })
       .catch((error) => {
         if (error) {
-          snackbar.showError("Error while sending mail. Please try again!");
+          snackbar.showError(
+            "Error while sending receipt mail. Please try again!"
+          );
         }
       });
   };
@@ -404,7 +422,7 @@ export default function PaymentDetails() {
               setOpenModal(false);
             }}
           >
-            <PDFViewer url={url}></PDFViewer>
+            <PDFViewer url={url} formdata={formdata}></PDFViewer>
           </CrmModal>
           <CrmModal
             maxWidth="md"

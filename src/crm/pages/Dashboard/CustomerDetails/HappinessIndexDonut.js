@@ -43,10 +43,19 @@ const HappinessIndexDonut = ({
   const mode = GlobalFunctions.getThemeBasedDatailsColour(
     reducerData.ThemeReducer.mode
   );
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const fetchData = async () => {
     if (projectId) {
-      fetch(`/sap/bc/react/crm/customer?sap-client=250&projectId=${projectId}`)
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("projectId", projectId);
+      fetch(`/api/dashboard/customer`, {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           setCustData(data);
@@ -97,7 +106,7 @@ const HappinessIndexDonut = ({
       sadness: emotionSum.sadness / emotionCount,
       surprise: emotionSum.surprise / emotionCount,
     };
-    console.log("########emotionAverages", emotionAverages);
+    console.log("emotionAverages", emotionAverages);
     setEmotionAverages(emotionAverages);
 
     dispatch(dashboardActions.setShowSentimentAnalysis(true));
@@ -105,7 +114,7 @@ const HappinessIndexDonut = ({
   };
 
   const calculateEmotionPercentages = (data) => {
-    console.log("#############data", data);
+    console.log("data", data);
     return data.map((emotionObject) => {
       const emotions = {
         anger: emotionObject.anger,
@@ -125,7 +134,7 @@ const HappinessIndexDonut = ({
       for (const emotion in emotions) {
         percentages[emotion] = ((emotions[emotion] / total) * 100).toFixed(2);
       }
-      console.log("####percentages", percentages);
+      console.log("percentages", percentages);
       // setEmotionPercentages(percentages);
       setShowSentimentalAnalysis(true);
     });
@@ -140,10 +149,7 @@ const HappinessIndexDonut = ({
     }
 
     const averagePercentage = sum / customerData.length;
-    console.log(
-      "averagePercentage.toFixed(2)#########",
-      averagePercentage.toFixed(2)
-    );
+    console.log("averagePercentage.toFixed(2)", averagePercentage.toFixed(2));
     setHappyIndex(averagePercentage.toFixed(2));
     dispatch(dashboardActions.setShowHappinessMeter(true));
   };

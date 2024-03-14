@@ -16,21 +16,20 @@ export default function LoginPage() {
   const snackbar = UseCustomSnackbar();
 
   const shouldAllowUserLogin = () => {
-    fetch(
-      ` /sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`,
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("password", password);
 
-        credentials: "omit",
-      }
-    )
-      .then((response) => response.json())
+    const apiUrl = "/api/login";
+    // const apiUrl = `http://115.124.113.252:8000/sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`;
+
+    fetch(apiUrl, {
+      method: "POST",
+      body: formData,
+    })
+      // .then((response) => response.json())
       .then((data) => {
-        if (data) {
+        if (data.status === 200) {
           snackbar.showSuccess("Logged in successfully!");
           navigate("./home");
           dispatch(loginActions.setPassword(password));
@@ -43,6 +42,34 @@ export default function LoginPage() {
           snackbar.showError("Error while Loggin in. Please try again!");
         }
       });
+
+    // fetch(
+    //   `/sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //     },
+
+    //     credentials: "omit",
+    //   }
+    // )
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     if (data) {
+    //       snackbar.showSuccess("Logged in successfully!");
+    //       navigate("./home");
+    //       dispatch(loginActions.setPassword(password));
+    //       dispatch(loginActions.setUserName(userName));
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     if (error) {
+    //       setError("Please Enter Valid Credentials!");
+    //       snackbar.showError("Error while Loggin in. Please try again!");
+    //     }
+    //   });
   };
 
   return (
@@ -75,7 +102,7 @@ export default function LoginPage() {
             md={7}
           >
             <img
-              style={{ width: "100%", height: "80%" }}
+              style={{ width: "100%", height: "%" }}
               src={require("./../../../assets/CRM_login.jpg")}
             ></img>
           </Grid>

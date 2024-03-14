@@ -45,6 +45,8 @@ import DashboardOptions from "./DashboardOptions";
 import { Grid } from "@mui/material";
 import EmailReport from "../Dashboard/EmailReport/EmailReport";
 import ServiceRequest from "../Dashboard/ServiceRequest/ServiceRequest";
+import CreateActivity from "./CreateActivity";
+import CrmModal from "../../components/crmModal/CrmModal";
 
 const routes = [
   {
@@ -98,8 +100,9 @@ const SideBar2 = () => {
   const [docAnchor, setDocAnchor] = useState(null);
   const [mailAnchor, setMailAnchor] = useState(null);
   const [openSideBar, setOpenSideBar] = useState(false);
-  const [shouldShowCustomerList, setShouldShowCustomerList] = useState(false);
+  const [openActivityModal, setOpenActivityModal] = useState(false);
   const [shouldShowTimeLine, setShouldShowTimeline] = useState(false);
+  const [shouldShowCustomerList, setShouldShowCustomerList] = useState(false);
 
   const open = Boolean(anchor);
   const openDoc = Boolean(docAnchor);
@@ -130,52 +133,6 @@ const SideBar2 = () => {
 
   const initiateOutgoingCall = async () => {
     if (customerMobileNumber !== "") {
-      // const apiKey = "3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150";
-      // const apiToken = "fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149";
-      // const subdomain = "@api.exotel.com";
-      // const sid = "gera62";
-      // const dataString = "From=9623361900&To=7769952626&CallerId=095-138-86363";
-      // const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
-      // const corsProxyUrl = "https://cors-proxy.htmldriven.com/";
-
-      // const responseBody = await response.json();
-      // -----------------------------------------------------------------------------------------
-      // const requestBody = {
-      //   From: "09623361900", // parsePhoneNumberFromString("09623361900", "IN").format("E.164"),
-      //   To: customerMobileNumber,
-      //   CallerId: "095-138-86363",
-      //   Record: true,
-      // };
-
-      // fetch("http://localhost:5000/api/exotel/make-call", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(requestBody),
-      // })
-      //   .then((response) => response.json())
-      //   .then((response) => {
-      //     console.log("connect api####", response);
-      //     if (response) {
-      //       snackbar.showSuccess(
-      //         "Connecting to...",
-      //         maskPhoneNumber(customerMobileNumber)
-      //       );
-      //     } else {
-      //       throw new Error(
-      //         `Error: ${response.status} - ${response.statusText}`
-      //       );
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error(
-      //       "There was a problem with the fetch operation:",
-      //       error
-      //     );
-      //   });
-      // const basicAuthToken = btoa(`${apiKey}:${apiToken}`);
-
       const formData = new FormData();
       formData.append("From", "9623361900");
       formData.append("To", customerMobileNumber);
@@ -370,6 +327,7 @@ const SideBar2 = () => {
                 color="inherit"
                 disabled={!customerMobileNumber}
                 onClick={() => {
+                  // setOpenActivityModal(true);
                   initiateOutgoingCall();
                 }}
               >
@@ -539,6 +497,23 @@ const SideBar2 = () => {
             </div>{" "}
           </Box>
         </Drawer>
+        <CrmModal
+          maxWidth="sm"
+          show={openActivityModal}
+          handleShow={() => {
+            setOpenActivityModal(false);
+          }}
+          primaryBtnText="Create"
+          SecondaryBtnText="Close"
+          secondarySave={() => {
+            setOpenActivityModal(false);
+          }}
+          primarySave={() => {
+            // savePayment();
+          }}
+        >
+          <CreateActivity />
+        </CrmModal>
       </Grid>
     </>
   );

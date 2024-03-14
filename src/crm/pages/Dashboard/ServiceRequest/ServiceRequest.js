@@ -455,9 +455,9 @@ export default function ServiceRequest() {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(
-      `https://geraworld3dev.azurewebsites.net/api/query/GetByProjectTPId?ProjectTPId=${projectId}`
-    )
+    const formData = new FormData();
+    formData.append("projectId", projectId);
+    fetch(`/api/reports/serviceRequest`, { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

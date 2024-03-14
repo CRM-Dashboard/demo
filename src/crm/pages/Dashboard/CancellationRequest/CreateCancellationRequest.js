@@ -1,41 +1,49 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import {
-  Grid,
-  Typography,
-  FormControlLabel,
-  Radio,
-  Button,
-} from "@mui/material";
+import { Grid, Typography, Button, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
+import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 const CreateCancellationRequest = forwardRef((props, ref) => {
   const [formData, setFormData] = useState("");
+  const [reasons, setReasons] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const getFormData = () => {
     if (orderId) {
       setLoading(true);
-      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${orderId}`)
+
+      const formData = new FormData();
+      formData.append("orderId", orderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch("/api/dashboard/cancel", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
-          console.log("Bookig Data@@@@@@@@@@@", data[0]);
-          if (data[0].vbeln) {
-            setFormData(data[0]);
+          if (data && data[0]?.reqdata) {
+            setFormData(data[0]?.reqdata[0]);
+            formik.setFieldValue(
+              "forfeitureAmount",
+              data[0]?.reqdata[0].camount
+            );
+            setReasons(data[0]?.rsndata);
             setLoading(false);
           }
         });
@@ -50,90 +58,96 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
     getFormData();
   }, []);
 
-  const savePaymentDetails = () => {
-    const entryData = {
-      bookingNumber: formik.values.bookingNumber,
-      applicationDate: formik.values.applicationDate,
-      cancellationRaisedOn: formik.values.cancellationRaisedOn,
-      customer: formik.values.customer,
-      cancellationDeedSigned: formik.values.cancellationDeedSigned,
-      project: formik.values.project,
-      cancellationDeedDate: formik.values.cancellationDeedDate,
-      unitNumber: formik.values.unitNumber,
-      handedToCrm: formik.values.handedToCrm,
-      consideration: formik.values.consideration,
-      amountPaid: formik.values.amountPaid,
-      forfeitureAmount: formik.values.forfeitureAmount,
-      cashBackAmount: formik.values.cashBackAmount,
-      gst: formik.values.gst,
-      gstAmount: formik.values.gstAmount,
-      totalForfeiture: formik.values.totalForfeiture,
-      amountToBeRefund: formik.values.amountToBeRefund,
-      cancellationReason: formik.values.cancellationReason,
-      remark: formik.values.remark,
-      rejectionReason: formik.values.rejectionReason,
-      transferSalesOrder: formik.values.transferSalesOrder,
-    };
-    console.log("##########errors", formik.errors);
-    console.log("props##########", props, entryData);
-
-    // if (Object.keys(formik.errors).length === 0) {
-    //   fetch(`/sap/bc/react/crm/receipt_create?sap-client=250`, {
-    //     method: "POST",
-    //     body: JSON.stringify(entryData),
-    //     headers: {
-    //       Accept: "application/json",
-    //       Origin: "http://115.124.113.252:8000/",
-    //       Referer: "http://115.124.113.252:8000/",
-    //       "Content-Type": "application/json",
-    //     },
-    //     credentials: "include",
-    //   })
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       if (data) {
-    //         snackbar.showSuccess("Payment details created successfully!");
-    //         props.setopenCreateForm(false);
-    //         props.getTableData();
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.log("error#######", error);
-    //       if (error) {
-    //         snackbar.showError(
-    //           "Error while creating payment details. Please try again!"
-    //         );
-    //       }
-    //     });
-    // }
+  const getReason = () => {
+    const data = reasons?.filter(
+      (rsn) => rsn.augru === formik?.values?.cancellationReason
+    );
+    return data[0]?.creason;
   };
 
-  useImperativeHandle(ref, () => ({
-    savePaymentDetails,
-  }));
+  const savePaymentDetails = () => {
+    const entryData = {
+      vbeln: formData?.vbeln,
+      werks: formData?.werks,
+      name1: formData?.name1,
+      unit: formData?.unit,
+      kunnr: formData?.kunnr,
+      kunnr_name: formData?.kunnrName,
+      consideration: formData?.consideration,
+      augru: formik?.values?.cancellationReason,
+      creason: getReason(),
+      remark: formik?.values?.remark,
+      camount: formik?.values?.forfeitureAmount,
+      tcamount: formData?.tcamount,
+      paid: formData?.paid,
+      refund: formData?.refund,
+      req_raiseby: formData?.reqRaiseby,
+      req_raiseon: formData?.reqRaiseon,
+      gjahr: formData?.gjahr,
+      spmon: formData?.spmon,
+      mon_stx: formData?.monStx,
+      mon_ltx: formData?.monLtx,
+      req_time: formData?.reqTime,
+      strategy: formData?.strategy,
+      rel_id: formData?.relId,
+      can_deed: formik?.values?.cancellationDeedSigned ? "X" : "",
+      can_deed_dt: formik?.values?.cancellationDeedDate,
+      vbeln_new: formik?.values?.transferSalesOrder,
+    };
+
+    const Data = new FormData();
+    Data.append("passWord", passWord);
+    Data.append("userName", userName);
+    Data.append("reqData", JSON.stringify(entryData));
+
+    if (!formik.values.remark) {
+      setError("Required");
+    } else {
+      setError("");
+    }
+
+    if (Object.keys(formik.errors).length === 0 && !error) {
+      fetch("/api/dashboard/cancelPost", {
+        method: "POST",
+        body: Data,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            snackbar.showSuccess("Cancellation request created successfully!");
+            formik.resetForm();
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            snackbar.showError(
+              "Error while creating cancellation request. Please try again!"
+            );
+          }
+        });
+    }
+  };
 
   const validationSchema = Yup.object().shape({
     bookingNumber: Yup.number(),
     applicationDate: Yup.date(),
     cancellationRaisedOn: Yup.date(),
     customer: Yup.string(),
-    cancellationDeedSigned: Yup.string(),
+    cancellationDeedSigned: Yup.string().required("Required"),
     project: Yup.number(),
-    cancellationDeedDate: Yup.string(),
+    cancellationDeedDate: Yup.string().required("Required"),
     unitNumber: Yup.number(),
     handedToCrm: Yup.number(),
     consideration: Yup.number(),
     amountPaid: Yup.number(),
-    forfeitureAmount: Yup.number(),
+    forfeitureAmount: Yup.number().required("Required"),
     cashBackAmount: Yup.number(),
-    gst: Yup.number(),
-    gstAmount: Yup.number(),
     totalForfeiture: Yup.number(),
     amountToBeRefund: Yup.number(),
-    cancellationReason: Yup.string(),
-    remark: Yup.string(),
+    cancellationReason: Yup.string().required("Required"),
+    remark: Yup.string().required("Required"),
     rejectionReason: Yup.string(),
-    transferSalesOrder: Yup.string(),
+    transferSalesOrder: Yup.string().required("Required"),
   });
 
   const formik = useFormik({
@@ -141,7 +155,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       bookingNumber: formData?.vbeln,
       applicationDate: formData?.appDate,
       cancellationRaisedOn: new Date(),
-      customer: "",
+      customer: formData?.kunnrName,
       cancellationDeedSigned: "",
       project: "",
       cancellationDeedDate: "",
@@ -149,11 +163,9 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       handedToCrm: "",
       consideration: "",
       amountPaid: "",
-      forfeitureAmount: "",
+      forfeitureAmount: formData?.camount,
       cashBackAmount: "",
-      gst: "",
-      gstAmount: "",
-      totalForfeiture: "",
+      totalForfeiture: formData?.tcamount,
       amountToBeRefund: "",
       cancellationReason: "",
       remark: "",
@@ -166,6 +178,17 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       savePaymentDetails(data);
     },
   });
+
+  useEffect(() => {
+    const amt1 = formik?.values?.forfeitureAmount;
+    const amt2 = formik?.values?.cashBackAmount;
+    const sum = amt1 + amt2;
+    if (formik?.values?.forfeitureAmount) {
+      formik.setFieldValue("totalForfeiture", sum);
+    }
+  }, [formik?.values?.forfeitureAmount]);
+
+  const fixedFieldStyle = { backgroundColor: "#E8E8E8" };
 
   return (
     <formik>
@@ -185,6 +208,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 name="bookingNumber"
                 label="Booking Number"
                 value={formData.vbeln}
+                style={fixedFieldStyle}
               />
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
@@ -192,7 +216,8 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 id="applicationDate"
                 name="applicationDate"
                 label="Application Date"
-                value={dayjs(formData?.appDate).format("DD-MM-YYYY")}
+                value={dayjs(formData?.appDt).format("DD-MM-YYYY")}
+                style={fixedFieldStyle}
               />
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
@@ -200,6 +225,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 id="cancellationRaisedOn"
                 name="cancellationRaisedOn"
                 label="Cancellation Raised On"
+                style={fixedFieldStyle}
                 value={dayjs(new Date()).format("DD-MM-YYYY")}
               />
             </Grid>
@@ -208,11 +234,8 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 id="customer"
                 name="customer"
                 label="Customer"
-                value={formik.values.customer}
-                error={Boolean(formik.errors.customer)}
-                helperText={formik.errors.customer}
-                onChange={formik.handleChange}
-                required
+                style={fixedFieldStyle}
+                value={formData?.kunnrName}
               />
             </Grid>
           </Grid>
@@ -220,6 +243,90 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
           <Grid container spacing={4}>
             <Grid item xs={2} sm={3} md={3}>
               <InputField
+                id="project"
+                name="project"
+                label="Project"
+                style={fixedFieldStyle}
+                value={formData?.name1}
+              />
+            </Grid>
+
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="unitNumber"
+                name="unitNumber"
+                label="Unit Number"
+                value={formData?.unit}
+                style={fixedFieldStyle}
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="handedToCrm"
+                name="handedToCrm"
+                label="Handed To CRM"
+                style={fixedFieldStyle}
+                value={dayjs(formData?.zzhtcrm).format("DD-MM-YYYY")}
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="consideration"
+                name="consideration"
+                label="Consideration"
+                style={fixedFieldStyle}
+                value={formData?.consideration}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <Grid container spacing={4}>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="amountPaid"
+                name="amountPaid"
+                label="Amount Paid"
+                value={formData?.paid}
+                style={fixedFieldStyle}
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="cashBackAmount"
+                name="cashBackAmount"
+                label="Cashback Amount"
+                style={fixedFieldStyle}
+                value={formData?.cashback}
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="totalForfeiture"
+                name="totalForfeiture"
+                label="Total Forfeiture"
+                style={fixedFieldStyle}
+                value={
+                  formik.values.totalForfeiture
+                    ? formik.values.totalForfeiture
+                    : formData?.camount
+                }
+              />
+            </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                id="amountToBeRefund"
+                name="amountToBeRefund"
+                label="Amount To Be Refund"
+                style={fixedFieldStyle}
+                value={formData?.refund}
+              />
+            </Grid>
+          </Grid>
+          <br />
+          <Grid container spacing={4}>
+            <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                select
                 id="cancellationDeedSigned"
                 name="cancellationDeedSigned"
                 label="Cancellation Deed Signed"
@@ -228,15 +335,20 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 error={Boolean(formik.errors.cancellationDeedSigned)}
                 helperText={formik.errors.cancellationDeedSigned}
                 required
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="project"
-                name="project"
-                label="Project"
-                value={formData?.project}
-              />
+              >
+                <MenuItem value="" key="0">
+                  {" "}
+                  Select Cancellation Deed Signed
+                </MenuItem>
+                <MenuItem value="Yes" key="1">
+                  {" "}
+                  Yes{" "}
+                </MenuItem>
+                <MenuItem value="No" key="2">
+                  {" "}
+                  No{" "}
+                </MenuItem>
+              </InputField>
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
               <CrmDatePicker
@@ -254,136 +366,15 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
               <InputField
-                id="unitNumber"
-                name="unitNumber"
-                label="Unit Number"
-                value={formData?.flatno}
-              />
-            </Grid>
-          </Grid>
-          <br />
-          <Grid container spacing={4}>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="handedToCrm"
-                name="handedToCrm"
-                label="Handed To CRM"
-                value={dayjs(formData?.zzhtcrm).format("DD-MM-YYYY")}
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="consideration"
-                name="consideration"
-                label="Consideration"
-                value={formData?.cvVal}
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="amountPaid"
-                name="amountPaid"
-                label="Amount Paid"
-                value={formik.values.amountPaid}
-                onChange={formik.handleChange}
-                error={Boolean(formik.errors.amountPaid)}
-                helperText={formik.errors.amountPaid}
-                required
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
                 id="forfeitureAmount"
                 name="forfeitureAmount"
                 label="Forfeiture Amount"
-                value={formik.values.forfeitureAmount}
-                onChange={formik.handleChange}
+                value={formik?.values?.forfeitureAmount}
+                onChange={(e) =>
+                  formik.setFieldValue("forfeitureAmount", e.target.value)
+                }
                 error={Boolean(formik.errors.forfeitureAmount)}
                 helperText={formik.errors.forfeitureAmount}
-                required
-              />
-            </Grid>
-          </Grid>
-          <br />
-          <Grid container spacing={4}>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="cashBackAmount"
-                name="cashBackAmount"
-                label="Cashback Amount"
-                value={formik.values.cashBackAmount}
-                error={Boolean(formik.errors.cashBackAmount)}
-                helperText={formik.errors.cashBackAmount}
-                onChange={formik.handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3} sx={{ display: "flex" }}>
-              <Grid item xs={2} sm={4} md={4}>
-                <Typography variant="subtitle1">GST %</Typography>
-              </Grid>
-              <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-                <FormControlLabel
-                  control={
-                    <Radio
-                      checked={formik.values.gst === "0"}
-                      value="0"
-                      onClick={(e) => {
-                        formik.setFieldValue("gst", e.target.value);
-                      }}
-                    />
-                  }
-                  label="0%"
-                  // disabled={}
-                />
-                <FormControlLabel
-                  control={
-                    <Radio
-                      checked={formik.values.gst === "12"}
-                      value="12"
-                      onClick={(e) => {
-                        // formik.resetForm();
-                        formik.setFieldValue("gst", e.target.value);
-                      }}
-                    />
-                  }
-                  label="12%"
-                  // disabled={}
-                />
-              </Grid>
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="gstAmount"
-                name="gstAmount"
-                label="GST Amount"
-                value={formData?.gst}
-              />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="totalForfeiture"
-                name="totalForfeiture"
-                label="Total Forfeiture"
-                value={formik.values.totalForfeiture}
-                error={Boolean(formik.errors.totalForfeiture)}
-                helperText={formik.errors.totalForfeiture}
-                onChange={formik.handleChange}
-                required
-              />
-            </Grid>
-          </Grid>
-          <br />
-          <Grid container spacing={4}>
-            <Grid item xs={2} sm={3} md={3}>
-              <InputField
-                id="amountToBeRefund"
-                name="amountToBeRefund"
-                label="Amount To Be Refund"
-                value={formik.values.amountToBeRefund}
-                onChange={formik.handleChange}
-                error={Boolean(formik.errors.amountToBeRefund)}
-                helperText={formik.errors.amountToBeRefund}
                 required
               />
             </Grid>
@@ -403,6 +394,32 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
           <br />
           <Grid container spacing={4}>
             <Grid item xs={2} sm={3} md={3}>
+              <InputField
+                select
+                id="cancellationReason"
+                name="cancellationReason"
+                label="Cancellation Reason"
+                value={formik.values.cancellationReason}
+                error={Boolean(formik.errors.cancellationReason)}
+                helperText={formik.errors.cancellationReason}
+                onChange={formik.handleChange}
+                required
+              >
+                <MenuItem value=""> Select Cancellation Reason </MenuItem>
+                {reasons?.map((rsn, index) => {
+                  return (
+                    <MenuItem value={rsn.augru} key={index}>
+                      {" "}
+                      {rsn?.creason}
+                    </MenuItem>
+                  );
+                })}
+              </InputField>
+            </Grid>
+          </Grid>
+          <br />
+          <Grid container spacing={4}>
+            <Grid item xs={2} sm={3} md={3}>
               <Typography style={{ fontSize: "0.8em" }}>Remark</Typography>
               <textarea
                 id="remark"
@@ -412,19 +429,11 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 value={formik.values.remark}
                 onChange={formik.handleChange}
               />
-            </Grid>
-            <Grid item xs={2} sm={3} md={3}>
-              <Typography style={{ fontSize: "0.8em" }}>
-                Rejection Reason
-              </Typography>
-              <textarea
-                id="rejectionReason"
-                name="rejectionReason"
-                label="Rejection Reason"
-                style={{ width: "23.7em", height: "3.2em" }}
-                value={formik.values.rejectionReason}
-                onChange={formik.handleChange}
-              />
+              {error && (
+                <Typography style={{ color: "red", fontSize: "13px" }}>
+                  {error}
+                </Typography>
+              )}
             </Grid>
           </Grid>
           <Grid sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -461,6 +470,10 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
               }}
               variant="contained"
               size="md"
+              onClick={() => {
+                formik.resetForm();
+                formik.setFieldValue("forfeitureAmount", "");
+              }}
             >
               {" "}
               Cancel{" "}

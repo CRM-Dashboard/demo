@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -9,6 +10,8 @@ export default function PaymentSchedule() {
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const getMuiTheme = () =>
     createTheme({
@@ -197,7 +200,15 @@ export default function PaymentSchedule() {
   };
 
   useEffect(() => {
-    fetch(`/sap/bc/react/crm/plan?sap-client=250&vbeln=${OrderId}`)
+    const formData = new FormData();
+    formData.append("OrderId", OrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/dashboard/paymentSchedule/plan", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

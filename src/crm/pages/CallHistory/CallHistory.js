@@ -78,7 +78,7 @@ export default function CallHistory() {
   const getTableData = () => {
     setIsLoading(true);
 
-    fetch("http://localhost:5000/api/exotel/calls")
+    fetch("/api/exotel/calls")
       .then((response) => response.json())
       .then((data) => {
         if (data) {

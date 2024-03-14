@@ -23,9 +23,14 @@ function Graph() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(
-      `http://115.124.113.252:8000/sap/bc/react/crm/projectf3?sap-client=250&projectId=${projectId}&sap-user=${userName}&sap-password=${passWord}`
-    )
+    const formData = new FormData();
+    formData.append("projectId", projectId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch("/api/dashboard/projectf3", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         setYAxisKeys(extractYKeys(data));

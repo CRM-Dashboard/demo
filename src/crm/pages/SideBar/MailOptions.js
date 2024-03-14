@@ -14,14 +14,20 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const orderId = reducerData?.searchBar?.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const sendMail = () => {
-    fetch(
-      `/sap/bc/react/crm/mail?sap-client=250&vbeln=${orderId}&mail=${mailId}`,
-      {
-        method: "POST",
-      }
-    )
+    const formData = new FormData();
+    formData.append("orderId", orderId);
+    formData.append("mailId", mailId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/topBar/mail", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => {
         return response;
       })

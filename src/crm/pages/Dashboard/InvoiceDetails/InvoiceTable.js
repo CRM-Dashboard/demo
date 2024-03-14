@@ -20,6 +20,7 @@ export default function InvoiceTable() {
   const [openModal, setOpenModal] = useState(false);
   const [url, setURL] = useState("");
   const [arrForMail, setArrForMail] = useState([]);
+  const [formdata, setFormData] = useState({});
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -40,7 +41,7 @@ export default function InvoiceTable() {
           setOpenModal(false);
         }}
       >
-        <PDFViewer url={url}></PDFViewer>
+        <PDFViewer url={url} formdata={formdata}></PDFViewer>
       </CrmModal>
     );
   };
@@ -90,7 +91,7 @@ export default function InvoiceTable() {
               }
               onClick={() => {
                 // eslint-disable-next-line array-callback-return
-                response.map((data) => {
+                response?.map((data) => {
                   if (arrForMail.length > 0) {
                     setArrForMail([]);
                   } else {
@@ -167,9 +168,12 @@ export default function InvoiceTable() {
           <IconButton color="primary" size="small">
             <PictureAsPdfIcon
               onClick={() => {
-                setURL(
-                  `/sap/bc/crm/invoice_print?sap-client=250&vbeln=${response[dataIndex].vbeln}&sap-user=${userName}&sap-password=${passWord}`
-                );
+                const formData = new FormData();
+                formData.append("orderId", response[dataIndex].vbeln);
+                formData.append("userName", userName);
+                formData.append("passWord", passWord);
+                setURL("/api/dashboard/invoice_print");
+                setFormData({ method: "POST", body: formData });
                 setOpenModal(true);
               }}
               fontSize="inherit"
@@ -183,9 +187,13 @@ export default function InvoiceTable() {
   useEffect(() => {
     const orderId = reducerData.searchBar.orderId;
     setIsLoading(true);
-    fetch(
-      `http://115.124.113.252:8000/sap/bc/crm/invoices?sap-client=250&vbeln=${orderId}&sap-user=${userName}&sap-password=${passWord}`
-    )
+
+    const formData = new FormData();
+    formData.append("OrderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/dashboard/invoices", { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -199,16 +207,14 @@ export default function InvoiceTable() {
   }, [reducerData.searchBar.orderId]);
 
   const sendMails = () => {
-    fetch(`/sap/bc/react/crm/invoice_mail?sap-client=250`, {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("mailIds", JSON.stringify(arrForMail));
+    setIsLoading(true);
+    fetch(`/api/dashboard/invoice_mail`, {
       method: "POST",
-      body: JSON.stringify(arrForMail),
-      headers: {
-        Accept: "application/json",
-        Origin: "http://115.124.113.252:8000/",
-        Referer: "http://115.124.113.252:8000/",
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      body: formData,
     })
       .then((response) => {
         return response;
@@ -218,7 +224,9 @@ export default function InvoiceTable() {
           snackbar.showSuccess(
             <Typography> Sent Mail(s) Successfully!</Typography>
           );
+          // setEnableBtn(true);
           setArrForMail([]);
+          setIsLoading(false);
         }
       })
       .catch((error) => {

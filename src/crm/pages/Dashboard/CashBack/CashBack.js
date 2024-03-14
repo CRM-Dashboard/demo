@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import { Button } from "@mui/material";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -13,6 +14,9 @@ export default function CashBack() {
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const ref = useRef(null);
 
   const getMuiTheme = () =>
     createTheme({
@@ -218,15 +222,30 @@ export default function CashBack() {
     return modifiedResponse;
   };
 
-  useEffect(() => {
-    fetch(`/sap/bc/react/crm/cashback?sap-client=250&vbeln=${OrderId}`)
+  const getTableData = () => {
+    const formData = new FormData();
+    formData.append("orderId", OrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch("/api/dashboard/cashback", { method: "POST", body: formData })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
           setTableData(modifyResponse(data));
         }
       });
+  };
+
+  useEffect(() => {
+    getTableData();
   }, [OrderId]);
+
+  const saveCashbackReceipt = () => {
+    if (ref.current) {
+      ref.current.saveReceipt();
+    }
+  };
 
   return (
     <div>
@@ -244,12 +263,16 @@ export default function CashBack() {
         secondarySave={() => {
           setopenCreateForm(false);
         }}
-        // primarySave={() => {
-        //   savePayment();
-        // }}
+        primarySave={() => {
+          saveCashbackReceipt();
+        }}
         title="Create Cashback Request"
       >
-        <CreateCashBackReceipt />
+        <CreateCashBackReceipt
+          setopenCreateForm={setopenCreateForm}
+          ref={ref}
+          getTableData={getTableData}
+        />
       </CrmModal>
     </div>
   );

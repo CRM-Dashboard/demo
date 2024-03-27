@@ -26,9 +26,9 @@ export default function LoginPage() {
       method: "POST",
       body: formData,
     })
-      // .then((response) => response.json())
+      .then((response) => response.json())
       .then((data) => {
-        if (data.status === 200) {
+        if (data) {
           snackbar.showSuccess("Logged in successfully!");
           navigate("./home");
           dispatch(loginActions.setPassword(password));

@@ -63,7 +63,7 @@ function Graph() {
     },
     backgroundColor:
       reducerData.ThemeReducer.mode === "theme-mode-light" ||
-      reducerData.ThemeReducer.mode === "null"
+      reducerData.ThemeReducer.mode === null
         ? "#f0f0f0"
         : "#202020",
 

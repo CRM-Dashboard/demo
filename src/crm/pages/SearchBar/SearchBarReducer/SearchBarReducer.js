@@ -2,6 +2,8 @@ const initialState = {
   accountStatement: {},
   searchKey: "",
   orderId: "",
+  sid: "",
+  activityData: "",
 };
 
 const SearchBarReducer = (state = initialState, action) => {
@@ -20,6 +22,16 @@ const SearchBarReducer = (state = initialState, action) => {
       return {
         ...state,
         orderId: action.payload,
+      };
+    case "S_ID":
+      return {
+        ...state,
+        sid: action.payload,
+      };
+    case "ACTIVITY_DATA":
+      return {
+        ...state,
+        activityData: action.payload,
       };
     case "RESET_ALL_DATA":
       return initialState;

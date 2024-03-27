@@ -1,4 +1,10 @@
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import dayjs from "dayjs";
 import * as yup from "yup";
 import { useFormik } from "formik";
@@ -16,9 +22,11 @@ import MergeTypeOutlinedIcon from "@mui/icons-material/MergeTypeOutlined";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import moment from "moment";
 
 const CreateNewActivity = forwardRef((props, ref) => {
   const [error, setError] = useState("Required");
+  const [subActData, setSubActData] = useState(props.subActTypeData);
 
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
@@ -29,14 +37,14 @@ const CreateNewActivity = forwardRef((props, ref) => {
   const createActivity = () => {
     const entryData = {
       vbeln: orderId,
-      activityMode: formik.values.activityMode,
-      time: formik.values.time,
+      act_mode: formik.values.activityMode,
+      pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
       erdat: formik.values.date,
       action: formik.values.action,
       remark: formik.values.remark,
-      amount: formik.values.amount,
-      act_typ: formik.values.activityType,
-      pltac: "",
+      dmbtr: formik.values.amount,
+      act_typ: formik.values.subActivity,
+      dp_code: formik.values.dpCode,
     };
 
     if (!formik.values.remark) {
@@ -77,23 +85,27 @@ const CreateNewActivity = forwardRef((props, ref) => {
 
   const validationSchema = yup.object({
     activityMode: yup.string().required("Required"),
-    time: yup.string().required("Required"),
+    time: yup.date().required("Required"),
     date: yup.date().required("Required"),
     action: yup.string().required("Required"),
     remark: yup.string().required("Required"),
     amount: yup.number().required("Required"),
     activityType: yup.string().required("Required"),
+    subActivity: yup.number().required("Required"),
+    dpCode: yup.string().required("Required"),
   });
 
   const formik = useFormik({
     initialValues: {
       activityMode: "",
-      time: "",
+      time: dayjs(),
       date: " ",
       action: "",
       remark: "",
       amount: "",
       activityType: "",
+      subActivity: "",
+      dpCode: "",
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
@@ -101,6 +113,13 @@ const CreateNewActivity = forwardRef((props, ref) => {
       createActivity(data);
     },
   });
+
+  useEffect(() => {
+    const subData = props.subActTypeData.filter((data) => {
+      return data.actTyp == formik.values.activityType;
+    });
+    setSubActData(subData);
+  }, [formik.values.activityType]);
 
   return (
     <formik>
@@ -123,6 +142,118 @@ const CreateNewActivity = forwardRef((props, ref) => {
         <br />
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
+            <InterpreterModeIcon />
+            <Typography sx={{ marginLeft: "1em" }}> Activity Mode </Typography>
+          </Grid>
+          <Grid item xs={6} sm={8} md={8}>
+            <InputField
+              select
+              id="activityMode"
+              name="activityMode"
+              label="Activity Mode"
+              value={formik.values.activityMode}
+              onChange={(e) => {
+                formik.setFieldValue("activityMode", e.target.value);
+              }}
+              error={Boolean(formik.errors.activityMode)}
+              helperText={formik.errors.activityMode}
+              required
+            >
+              {props.actModeData?.map((data) => {
+                return <MenuItem value={data.mode}> {data.modeTxt}</MenuItem>;
+              })}
+            </InputField>
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
+            <MergeTypeOutlinedIcon />
+            <Typography sx={{ marginLeft: "1em" }}> Activity </Typography>
+          </Grid>
+          <Grid item xs={6} sm={8} md={8}>
+            <InputField
+              select
+              id="activityType"
+              name="activityType"
+              label="Activity"
+              value={formik.values.activityType}
+              onChange={(e) => {
+                formik.setFieldValue("activityType", e.target.value);
+              }}
+              error={Boolean(formik.errors.activityType)}
+              helperText={formik.errors.activityType}
+              required
+            >
+              {props.actTypeData?.map((data) => {
+                return <MenuItem value={data.typ}> {data.typTxt}</MenuItem>;
+              })}
+            </InputField>
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
+            <MergeTypeOutlinedIcon />
+            <Typography sx={{ marginLeft: "1em" }}> Sub-Activity </Typography>
+          </Grid>
+          <Grid item xs={6} sm={8} md={8}>
+            <InputField
+              select
+              id="subActivity"
+              name="subActivity"
+              label="Sub-Activity"
+              value={formik.values.subActivity}
+              onChange={(e) => {
+                formik.setFieldValue("subActivity", e.target.value);
+              }}
+              error={Boolean(formik.errors.subActivity)}
+              helperText={formik.errors.subActivity}
+              required
+            >
+              {subActData?.map((data) => {
+                return (
+                  <MenuItem value={data.actSubtyp}>
+                    {" "}
+                    {data.actSubtypTxt}
+                  </MenuItem>
+                );
+              })}
+            </InputField>
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
+            <MergeTypeOutlinedIcon />
+            <Typography sx={{ marginLeft: "1em" }}>
+              {" "}
+              Disposition Code{" "}
+            </Typography>
+          </Grid>
+          <Grid item xs={6} sm={8} md={8}>
+            <InputField
+              select
+              id="dpCode"
+              name="dpCode"
+              label="Disposition Code"
+              value={formik.values.dpCode}
+              onChange={(e) => {
+                formik.setFieldValue("dpCode", e.target.value);
+              }}
+              error={Boolean(formik.errors.dpCode)}
+              helperText={formik.errors.dpCode}
+              required
+            >
+              {props?.dpData?.map((data) => {
+                return <MenuItem value={data.dpCode}> {data.dpTxt}</MenuItem>;
+              })}
+            </InputField>
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
             <LocalActivityIcon />
             <Typography sx={{ marginLeft: "1em" }}> Action</Typography>
           </Grid>
@@ -130,7 +261,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
             <InputField
               id="action"
               name="action"
-              label="action"
+              label="Action"
               value={formik.values.action}
               onChange={formik.handleChange}
               error={Boolean(formik.errors.action)}
@@ -148,7 +279,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
             <InputField
               id="amount"
               name="amount"
-              label="amount"
+              label="Amount"
               value={formik.values.amount}
               onChange={formik.handleChange}
               error={Boolean(formik.errors.amount)}
@@ -202,58 +333,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
-        <Grid container spacing={4}>
-          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <MergeTypeOutlinedIcon />
-            <Typography sx={{ marginLeft: "1em" }}> Activity Type </Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} md={8}>
-            <InputField
-              select
-              id="activityType"
-              name="activityType"
-              label="Activity Type"
-              value={formik.values.activityType}
-              onChange={(e) => {
-                formik.setFieldValue("activityType", e.target.value);
-              }}
-              error={Boolean(formik.errors.activityType)}
-              helperText={formik.errors.activityType}
-              required
-            >
-              {props.actTypeData?.map((data) => {
-                return <MenuItem value={data.typ}> {data.typTxt}</MenuItem>;
-              })}
-            </InputField>
-          </Grid>
-        </Grid>
-        <br />
-        <Grid container spacing={4}>
-          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <InterpreterModeIcon />
-            <Typography sx={{ marginLeft: "1em" }}> Activity Mode </Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} md={8}>
-            <InputField
-              select
-              id="activityMode"
-              name="activityMode"
-              label="Activity Mode"
-              value={formik.values.activityMode}
-              onChange={(e) => {
-                formik.setFieldValue("activityMode", e.target.value);
-              }}
-              error={Boolean(formik.errors.activityMode)}
-              helperText={formik.errors.activityMode}
-              required
-            >
-              {props.actModeData?.map((data) => {
-                return <MenuItem value={data.mode}> {data.modeTxt}</MenuItem>;
-              })}
-            </InputField>
-          </Grid>
-        </Grid>
-        <br />
+
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
             <DriveFileRenameOutlineIcon />
@@ -264,7 +344,13 @@ const CreateNewActivity = forwardRef((props, ref) => {
               id="remark"
               name="remark"
               label="Remark"
-              style={{ width: "25.5em" }}
+              style={{
+                width: "25.5em",
+                fontFamily: "Futura, sans-serif",
+                paddingLeft: "0.5em",
+                paddingTop: "0.5em",
+                paddingRight: "0.5em",
+              }}
               value={formik.values.remarks}
               onChange={(e) => {
                 // formik.handleChange();

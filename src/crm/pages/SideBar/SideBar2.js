@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
 import { Box, Drawer, Typography, Tooltip, Badge } from "@mui/material";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
@@ -46,6 +46,7 @@ import { Grid } from "@mui/material";
 import EmailReport from "../Dashboard/EmailReport/EmailReport";
 import ServiceRequest from "../Dashboard/ServiceRequest/ServiceRequest";
 import CreateActivity from "./CreateActivity";
+import searchBarAction from "./../SearchBar/SearchBarReducer/SearchBarActions";
 import CrmModal from "../../components/crmModal/CrmModal";
 
 const routes = [
@@ -97,13 +98,23 @@ const routes = [
 const SideBar2 = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [anchor, setAnchor] = useState(null);
+  const [callAPI, setCallAPI] = useState(false);
+  const [sid, setSid] = useState(0);
+  const [dpData, setDpdata] = useState([]);
   const [docAnchor, setDocAnchor] = useState(null);
   const [mailAnchor, setMailAnchor] = useState(null);
+  const [actTypeData, setActTypeData] = useState([]);
+  const [actModeData, setActModeData] = useState([]);
+  const [disabledBtn, setDisabledBtn] = useState(true);
+  const [activityData, setActivityData] = useState({});
+  const [disabledTertiaryBtn, setDisabledTertiaryBtn] = useState(true);
   const [openSideBar, setOpenSideBar] = useState(false);
+  const [subActTypeData, setSubActTypeData] = useState([]);
   const [openActivityModal, setOpenActivityModal] = useState(false);
   const [shouldShowTimeLine, setShouldShowTimeline] = useState(false);
   const [shouldShowCustomerList, setShouldShowCustomerList] = useState(false);
 
+  const ref = useRef(null);
   const open = Boolean(anchor);
   const openDoc = Boolean(docAnchor);
   const openMail = Boolean(mailAnchor);
@@ -111,6 +122,9 @@ const SideBar2 = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const snackbar = UseCustomSnackbar();
   const color = GlobalFunctions.getThemeBasedColour(
@@ -131,6 +145,99 @@ const SideBar2 = () => {
     dispatch(dashboardActions.setShouldShowTimeLine(false));
   }, [shouldShowTimeLine]);
 
+  const submitActivity = () => {
+    if (ref.current) {
+      ref.current.createActivity();
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (callAPI) {
+        const interval = setInterval(async () => {
+          if (callAPI && sid !== 0) {
+            try {
+              // Fetch status of sid here
+              const data = await getCallDetailsBySid(sid); // Assuming getCallDetailsBySid is an asynchronous function
+
+              const sidData = data?.filter((data) => data.Sid === sid);
+              const status = sidData?.[0]?.Status; // Access the status from the first item of the filtered array
+
+              if (status) {
+                setCallAPI(false);
+                setOpenActivityModal(true);
+                clearInterval(interval); // Stop checking once flag is set to false
+              }
+            } catch (error) {
+              console.error("Error fetching status:", error);
+            }
+          }
+        }, 30000); // 30 seconds interval
+
+        return () => {
+          clearInterval(interval);
+          setCallAPI(false);
+          setSid(0);
+          dispatch(searchBarAction.setSid(""));
+        };
+      }
+    };
+
+    fetchData();
+  }, [callAPI, sid]); // Adding dependencies 'callAPI' and 'sid' to re-run effect when they change
+
+  useEffect(() => {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("orderId", orderId);
+
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/getActivity`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data[0].actdata) {
+          data[0].modedata && setActModeData(data[0].modedata);
+          data[0].typdata && setActTypeData(data[0].typdata);
+          data[0].subtypdata && setSubActTypeData(data[0].subtypdata);
+          data[0].dpdata && setDpdata(data[0].dpdata);
+        }
+      });
+  }, []);
+
+  const getCallDetailsBySid = (sid) => {
+    return new Promise((resolve, reject) => {
+      if (sid) {
+        const apiUrl =
+          process.env.REACT_APP_SERVER_URL + "/api/exotel/callDetails";
+        const formData = new FormData();
+        formData.append("sid", sid);
+
+        fetch(apiUrl, { method: "POST", body: formData })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data) {
+              resolve(data.Calls);
+            } else {
+              reject(new Error("No data received"));
+            }
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } else {
+        reject(new Error("SID is not provided"));
+      }
+    });
+  };
+
   const initiateOutgoingCall = async () => {
     if (customerMobileNumber !== "") {
       const formData = new FormData();
@@ -139,22 +246,26 @@ const SideBar2 = () => {
       formData.append("CallerId", "095-138-86363");
       formData.append("Record", "true");
 
-      const apiUrl = "http://localhost:5000/api/exotel/make-call";
+      const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
 
-      try {
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          body: formData,
+      fetch(apiUrl, { method: "POST", body: formData })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setCallAPI(true);
+            setSid(data.Call.Sid);
+            dispatch(searchBarAction.setSid(data.Call.Sid));
+            setOpenActivityModal(false);
+            setDisabledBtn(false);
+
+            snackbar.showSuccess("Connecting to..." + customerMobileNumber);
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            snackbar.showError("Error while connecting. Please try again!");
+          }
         });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        } else {
-          snackbar.showSuccess("Connecting to..." + customerMobileNumber);
-        }
-      } catch (error) {
-        snackbar.showError("Error while connecting. Please try again!");
-      }
     }
   };
 
@@ -327,8 +438,7 @@ const SideBar2 = () => {
                 color="inherit"
                 disabled={!customerMobileNumber}
                 onClick={() => {
-                  // setOpenActivityModal(true);
-                  initiateOutgoingCall();
+                  setOpenActivityModal(true);
                 }}
               >
                 <AudioCallIcon />
@@ -503,16 +613,33 @@ const SideBar2 = () => {
           handleShow={() => {
             setOpenActivityModal(false);
           }}
-          primaryBtnText="Create"
-          SecondaryBtnText="Close"
-          secondarySave={() => {
-            setOpenActivityModal(false);
-          }}
+          TertiaryBtnText="Continue"
+          disabled={disabledBtn}
+          disabledTertiaryBtn={disabledTertiaryBtn}
+          primaryBtnText="Submit"
           primarySave={() => {
-            // savePayment();
+            submitActivity();
+            setOpenActivityModal(false);
+            setDisabledBtn(false);
+          }}
+          TertiarySave={() => {
+            initiateOutgoingCall();
           }}
         >
-          <CreateActivity />
+          <CreateActivity
+            ref={ref}
+            dpData={dpData}
+            actTypeData={actTypeData}
+            actModeData={actModeData}
+            disabledBtn={disabledBtn}
+            activityData={activityData}
+            subActTypeData={subActTypeData}
+            setDisabledBtn={setDisabledBtn}
+            setActivityData={setActivityData}
+            setOpenActivityModal={setOpenActivityModal}
+            initiateOutgoingCall={initiateOutgoingCall}
+            setDisabledTertiaryBtn={setDisabledTertiaryBtn}
+          />
         </CrmModal>
       </Grid>
     </>

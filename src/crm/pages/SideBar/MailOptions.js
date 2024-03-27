@@ -24,7 +24,7 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch("/api/topBar/mail", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/mail", {
       method: "POST",
       body: formData,
     })

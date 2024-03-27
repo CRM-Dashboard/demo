@@ -172,7 +172,10 @@ export default function InvoiceTable() {
                 formData.append("orderId", response[dataIndex].vbeln);
                 formData.append("userName", userName);
                 formData.append("passWord", passWord);
-                setURL("/api/dashboard/invoice_print");
+                setURL(
+                  process.env.REACT_APP_SERVER_URL +
+                    "/api/dashboard/invoice_print"
+                );
                 setFormData({ method: "POST", body: formData });
                 setOpenModal(true);
               }}
@@ -193,7 +196,10 @@ export default function InvoiceTable() {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch("/api/dashboard/invoices", { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/invoices", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

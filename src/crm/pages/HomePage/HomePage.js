@@ -32,7 +32,7 @@ export default function HomePage() {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch("/api/project", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/project", {
       method: "POST",
       body: formData,
     })

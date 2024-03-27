@@ -32,7 +32,7 @@ export default function PrintOptions({ docAnchor, openDoc, setDocAnchor }) {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
 
-      fetch("/api/topBar/print", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/print", {
         method: "POST",
         body: formData,
       })

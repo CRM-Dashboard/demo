@@ -31,7 +31,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       formData.append("orderId", orderId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      fetch("/api/dashboard/cancel", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/cancel", {
         method: "POST",
         body: formData,
       })
@@ -107,7 +107,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
     }
 
     if (Object.keys(formik.errors).length === 0 && !error) {
-      fetch("/api/dashboard/cancelPost", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/cancelPost", {
         method: "POST",
         body: Data,
       })

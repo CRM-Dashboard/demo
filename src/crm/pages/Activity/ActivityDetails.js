@@ -18,9 +18,12 @@ import GlobalFunctions from "../../utils/GlobalFunctions";
 import CrmModal from "../../components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function ActivityDetails() {
+  const [dpData, setDpdata] = useState([]);
+  const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [actTypeData, setActTypeData] = useState([]);
@@ -28,12 +31,14 @@ export default function ActivityDetails() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openUpdates, setOpenUpdates] = useState(false);
   const [selectedValues, setSelectedValues] = useState({});
+  const [subActTypeData, setSubActTypeData] = useState([]);
   const [openCreateForm, setOpenCreateForm] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const snackbar = UseCustomSnackbar();
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
   const ref = useRef(null);
@@ -46,11 +51,54 @@ export default function ActivityDetails() {
     const handleChange = (event) => {
       const selectedValue = event.target.value;
       onChange(selectedValue);
+      const data = tableMeta.rowData;
+      const searchedString = `${data[0]}${OrderId}${data[6]}${data[4]}`;
+
+      const updatedData = response?.filter((obj) => {
+        const concatenatedString = `${obj.erdat}${OrderId}${obj.pltac}${obj.action}`; //${obj.pltac}
+        return concatenatedString === searchedString;
+      });
+
+      const updatedObject = {
+        ...updatedData[0], // Copy existing properties
+        comp_ind: selectedValue == "X" ? "X" : "", // Append new key-value pair
+      };
+
+      const finalData = { ...updatedObject };
+      delete finalData["compInd"];
+      const entryData = {
+        ...finalData,
+        act_typ: finalData.actTyp,
+        // Omit the 'actTyp' key from the new object
+        ...(delete finalData.actTyp && { actTyp: finalData.actTyp }),
+      };
 
       setSelectedValues({
         ...selectedValues,
         [tableMeta.rowIndex]: selectedValue,
       });
+
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(entryData));
+
+      fetch("/api/activity/createActivity", { method: "POST", body: formData })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            snackbar.showSuccess("Activity updated successfully!");
+            getTableData();
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            snackbar.showError(
+              "Error while updating activity. Please try again!"
+            );
+          }
+        });
     };
 
     return (
@@ -72,7 +120,7 @@ export default function ActivityDetails() {
               height: "2em",
               borderRadius: "0.1em",
             }}
-            value="open"
+            value="Open"
           >
             <Typography>Open</Typography>
           </MenuItem>
@@ -262,12 +310,20 @@ export default function ActivityDetails() {
       label: "Mode",
     },
     {
+      name: "Amount",
+      label: "Amount",
+    },
+    {
       name: "Action",
       label: "Action",
     },
     {
       name: "Remarks",
       label: "Remarks",
+    },
+    {
+      name: "Time",
+      label: "Time",
     },
     {
       name: "Status",
@@ -291,14 +347,24 @@ export default function ActivityDetails() {
     return result[0]?.typTxt;
   };
 
+  const getActivityMode = (mode) => {
+    const result = actModeData?.filter((data) =>
+      Object.values(data).includes(mode)
+    );
+    return result[0]?.modeTxt;
+  };
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.erdat,
         getActivityType(item?.actTyp),
-        item.actMode,
+        getActivityMode(item?.actMode),
+        item.dmbtr,
         item.action,
         item.remark,
+        item.pltac,
+        item.compInd == "X" ? "X" : "Open",
       ];
     });
     return modifiedResponse;
@@ -314,8 +380,11 @@ export default function ActivityDetails() {
       .then((response) => response.json())
       .then((data) => {
         if (data[0].actdata) {
-          setActModeData(data[0].modedata);
-          setActTypeData(data[0].typdata);
+          setResponse(data[0].actdata);
+          data[0].modedata && setActModeData(data[0].modedata);
+          data[0].typdata && setActTypeData(data[0].typdata);
+          data[0].subtypdata && setSubActTypeData(data[0].subtypdata);
+          data[0].dpdata && setDpdata(data[0].dpdata);
           setTableData(modifyResponse(data[0].actdata));
           setLoading(false);
         }
@@ -409,9 +478,11 @@ export default function ActivityDetails() {
             <CreateNewActivity
               setopenCreateForm={setOpenCreateForm}
               ref={ref}
-              getTableData={getTableData}
+              dpData={dpData}
               actTypeData={actTypeData}
               actModeData={actModeData}
+              getTableData={getTableData}
+              subActTypeData={subActTypeData}
             />
           </CrmModal>
         </div>

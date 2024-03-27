@@ -414,13 +414,13 @@ export default function ServiceRequest() {
     // Count the occurrences of each statusTitle
     const statusCounts = {};
 
-    Data.forEach((obj) => {
+    Data?.forEach((obj) => {
       const status = obj.statusTitle;
       statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
 
     // Calculate the total number of objects
-    const totalObjects = Data.length;
+    const totalObjects = Data?.length;
 
     // Calculate the percentages
     const percentages = {};
@@ -430,19 +430,18 @@ export default function ServiceRequest() {
       const count = statusCounts[status];
       counts[status] = count;
       const percentage = (count / totalObjects) * 100;
-      percentages[status] = percentage.toFixed(2); // Round to 2 decimal places
+      percentages[status] = percentage?.toFixed(2); // Round to 2 decimal places
     }
     const updatedObject = {};
     for (const key in percentages) {
-      const updatedKey = key.replace(/\s+/g, "_");
+      const updatedKey = key?.replace(/\s+/g, "_");
       updatedObject[updatedKey] = percentages[key];
     }
     const updatedCounts = {};
     for (const key in counts) {
-      const updatedKey = key.replace(/\s+/g, "_");
+      const updatedKey = key?.replace(/\s+/g, "_");
       updatedCounts[updatedKey] = counts[key];
     }
-
     setPercentages(updatedObject);
     setStatusCounts(updatedCounts);
     setIsLoading(false);
@@ -457,7 +456,10 @@ export default function ServiceRequest() {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("projectId", projectId);
-    fetch(`/api/reports/serviceRequest`, { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/reports/serviceRequest`, {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

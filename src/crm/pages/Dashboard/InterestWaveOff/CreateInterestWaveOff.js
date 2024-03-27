@@ -35,10 +35,14 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     formData.append("passWord", passWord);
     formData.append("orderId", orderId);
 
-    fetch("/api/dashboard/interestWaiveOff/get_waiveint_create", {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL +
+        "/api/dashboard/interestWaiveOff/get_waiveint_create",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data[0]) {
@@ -56,7 +60,10 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
           setReasons(data[0].rsndata);
         }
       });
-    fetch("/api/dashboard/so", { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data[0].vbeln) {
@@ -99,10 +106,14 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     Data.append("passWord", passWord);
     Data.append("entryData", JSON.stringify(entryData));
 
-    fetch(`/api/dashboard/interestWaiveOff/post_waiveint_create`, {
-      method: "POST",
-      body: Data,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL +
+        `/api/dashboard/interestWaiveOff/post_waiveint_create`,
+      {
+        method: "POST",
+        body: Data,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data) {

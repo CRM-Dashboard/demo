@@ -130,14 +130,37 @@ export default function InterestDetails() {
       },
     });
 
+  const calculateTotal = (index) => {
+    let total = 0;
+    tableData.forEach((row) => {
+      total += parseFloat(row[index]); // Assuming currency format like "$1000"
+    });
+
+    return total.toFixed(2); // Format total as needed
+  };
+
   const options = {
     selectableRows: "none",
+    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
     search: true,
     viewColumns: true,
     filter: true,
+    customFooter: () => {
+      return (
+        <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style={{ fontWeight: "Bold" }}> Total : {calculateTotal(5)}</td>
+          </tr>
+        </tfoot>
+      );
+    },
   };
 
   const columns = [
@@ -211,7 +234,10 @@ export default function InterestDetails() {
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch("/api/dashboard/interest", { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/interest", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

@@ -30,9 +30,15 @@ export default function SearchBar() {
     } else {
       setSearchData(value);
       if (projectId) {
-        fetch(
-          `http://115.124.113.252:8000/sap/bc/react/crm/search?sap-client=250&projectId=${projectId}&sap-user=${userName}&sap-password=${passWord}`
-        )
+        const formData = new FormData();
+        formData.append("projectId", projectId);
+        formData.append("userName", userName);
+        formData.append("passWord", passWord);
+
+        fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/search", {
+          method: "POST",
+          body: formData,
+        })
           .then((response) => response.json())
           .then((json) => {
             const results = json.filter((customer) => {
@@ -59,9 +65,13 @@ export default function SearchBar() {
       )
     );
 
-    fetch(
-      `http://115.124.113.252:8000/sap/bc/geraworld_app/bookings/soa?sap-client=250&vbeln=${result.orderId}`
-    )
+    const formData = new FormData();
+    formData.append("orderId", result.orderId);
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/soa", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         dispatch(searchbarActions.setAccountStmt(data.StatementOfAccount[0]));

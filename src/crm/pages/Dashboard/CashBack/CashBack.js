@@ -228,7 +228,10 @@ export default function CashBack() {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch("/api/dashboard/cashback", { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/cashback", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {

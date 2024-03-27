@@ -68,3 +68,21 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## For production
+
+Changes in .env:
+REACT_APP_SERVER_URL=https://gera-crm-server.azurewebsites.net
+
+In Package.json
+"homepage": "https://gera-crm-client.azurewebsites.net/",
+"proxy": "https://gera-crm-server.azurewebsites.net",
+
+## For local
+
+Changes in .env:
+REACT_APP_SERVER_URL=http://localhost:5000
+
+In Package.json
+"homepage": "http://localhost:3000/",
+"proxy": "http://localhost:5000",

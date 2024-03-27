@@ -47,7 +47,6 @@ const Timeline = () => {
   );
 
   const sendInvitation = () => {
-    console.log("DATA TO CONVERT#####", formik.values.date, formik.values.time);
     const entryData = {
       date: moment(formik.values.date.$d).format("DD/MM/YYYY"),
       time: moment(formik.values.time.$d).format("HH:mm:ss"),
@@ -56,7 +55,8 @@ const Timeline = () => {
     };
 
     fetch(
-      `/sap/bc/react/crm/mail?sap-client=250&vbeln=${OrderId}&mail=REGISTER_INVITE`,
+      process.env.REACT_APP_SERVER_URL +
+        `/sap/bc/react/crm/mail?sap-client=250&vbeln=${OrderId}&mail=REGISTER_INVITE`,
       {
         method: "POST",
         body: JSON.stringify(entryData),
@@ -70,7 +70,6 @@ const Timeline = () => {
         return response;
       })
       .then((data) => {
-        console.log("data########", data);
         if (data) {
           snackbar.showSuccess("Registration Invite Sent Successfully!");
           setAddress("");
@@ -141,10 +140,12 @@ const Timeline = () => {
       });
 
     if (OrderId) {
-      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`)
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          `/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`
+      )
         .then((response) => response.json())
         .then((data) => {
-          console.log("Bookig Data@@@@@@@@@@@", data[0].vbeln);
           if (data[0].vbeln) {
             setBookingDetails(data[0]);
             setShouldShowTimeLine(false);

@@ -138,7 +138,8 @@ export default function Invoices() {
             <PictureAsPdfIcon
               onClick={() => {
                 setURL(
-                  `/sap/bc/crm/invoice_print?sap-client=250&vbeln=${response[dataIndex].vbeln}&sap-user=${userName}&sap-password=${passWord}`
+                  process.env.REACT_APP_SERVER_URL +
+                    `/sap/bc/crm/invoice_print?sap-client=250&vbeln=${response[dataIndex].vbeln}&sap-user=${userName}&sap-password=${passWord}`
                 );
                 setOpenModal(true);
               }}
@@ -161,7 +162,10 @@ export default function Invoices() {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch("/api/invoices/so_invoices_dt", { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/invoices/so_invoices_dt", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -180,7 +184,10 @@ export default function Invoices() {
     formData.append("passWord", passWord);
     formData.append("mails".JSON.stringify(arrForMail));
 
-    fetch(`/api/invoices/so_invoices_mail`, { method: "POST", body: formData })
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/invoices/so_invoices_mail`, {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => {
         return response;
       })
@@ -369,8 +376,6 @@ export default function Invoices() {
                       hideIcon
                       value={dayjs(selectedDate)}
                       onChange={(value) => {
-                        console.log("#######date", value);
-
                         setSelectedDate(value);
                       }}
                     ></CrmDatePicker>

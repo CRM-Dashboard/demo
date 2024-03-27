@@ -188,7 +188,10 @@ export default function EmailReport() {
       formData.append("passWord", passWord);
       formData.append("emailId", EmailID);
 
-      fetch(`/api/reports/maillog`, { method: "POST", body: formData })
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/reports/maillog`, {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data.Emails) {

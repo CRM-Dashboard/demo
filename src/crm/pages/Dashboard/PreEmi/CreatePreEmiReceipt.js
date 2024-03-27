@@ -38,7 +38,10 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
 
-      fetch("/api/dashboard/so", { method: "POST", body: formData })
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data[0].vbeln) {
@@ -77,20 +80,23 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       panno: formik.values.onBehalfPan,
       spmon: moment(formik.values.month).format("YYYYMM"),
     };
-    console.log("######entryData,errors", entryData, formik.errors);
 
     if (Object.keys(formik.errors).length === 0) {
-      fetch(`/sap/bc/react/crm/repay_create?sap-client=250`, {
-        method: "POST",
-        body: JSON.stringify(entryData),
-        headers: {
-          Accept: "application/json",
-          Origin: "http://115.124.113.252:8000/",
-          Referer: "http://115.124.113.252:8000/",
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      })
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          `/sap/bc/react/crm/repay_create?sap-client=250`,
+        {
+          method: "POST",
+          body: JSON.stringify(entryData),
+          headers: {
+            Accept: "application/json",
+            Origin: "http://115.124.113.252:8000/",
+            Referer: "http://115.124.113.252:8000/",
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data) {

@@ -165,10 +165,14 @@ export default function PaymentDetails() {
     formdata.append("userName", userName);
     formdata.append("passWord", passWord);
     formdata.append("orderId", orderId);
-    fetch("/api/dashboard/paymentDetails/so_receipt", {
-      method: "POST",
-      body: formdata,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL +
+        "/api/dashboard/paymentDetails/so_receipt",
+      {
+        method: "POST",
+        body: formdata,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -189,10 +193,14 @@ export default function PaymentDetails() {
 
     setIsLoading(true);
 
-    fetch(`/api/dashboard/paymentDetails/receipt_mail`, {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL +
+        `/api/dashboard/paymentDetails/receipt_mail`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => {
         return response;
       })
@@ -217,6 +225,15 @@ export default function PaymentDetails() {
   useEffect(() => {
     getTableData();
   }, [orderId]);
+
+  const calculateTotal = () => {
+    let total = 0;
+    tableData.forEach((row) => {
+      total += parseFloat(row[3]); // Assuming currency format like "$1000"
+    });
+
+    return total.toFixed(2); // Format total as needed
+  };
 
   const options = {
     selectableRows: "none",
@@ -268,6 +285,20 @@ export default function PaymentDetails() {
         Send Mail
       </Button>,
     ],
+    customFooter: () => {
+      return (
+        <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td style={{ fontWeight: "Bold", "&.td": { paddingLeft: "0em" } }}>
+              {" "}
+              Total : {calculateTotal()}
+            </td>
+          </tr>
+        </tfoot>
+      );
+    },
   };
 
   const getMuiTheme = () =>

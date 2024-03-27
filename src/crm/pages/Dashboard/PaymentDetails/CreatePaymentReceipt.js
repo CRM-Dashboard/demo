@@ -39,10 +39,14 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
       formData.append("passWord", passWord);
       formData.append("entryData", JSON.stringify(entryData));
 
-      fetch("/api/dashboard/paymentDetails/receipt_create", {
-        method: "POST",
-        body: formData,
-      })
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          "/api/dashboard/paymentDetails/receipt_create",
+        {
+          method: "POST",
+          body: formData,
+        }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data) {

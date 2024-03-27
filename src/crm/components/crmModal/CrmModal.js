@@ -112,6 +112,22 @@ function CrmModal(props) {
               {props.SecondaryBtnText ? props.SecondaryBtnText : ""}
             </Button>
           )}
+          {props.TertiaryBtnText && (
+            <Button
+              sx={{
+                "&.MuiButton-root": {
+                  textTransform: "none",
+                  backgroundColor: "gray",
+                },
+              }}
+              disabled={props.disabledTertiaryBtn}
+              variant="contained"
+              size="md"
+              onClick={props.TertiarySave}
+            >
+              {props.TertiaryBtnText ? props.TertiaryBtnText : ""}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </animated.div>
@@ -138,7 +154,10 @@ CrmModal.propTypes = {
   deletingBtnText: PropTypes.string,
   savingText: PropTypes.string,
   icon: PropTypes.any,
+  TertiaryBtnText: PropTypes.string,
+  TertiarySave: PropTypes.func,
   secondarySavingText: PropTypes.any,
+  disabledTertiaryBtn: PropTypes.bool,
   cancelBtnText: PropTypes.string,
   secondarySave: PropTypes.func,
   primarySave: PropTypes.func,

@@ -52,7 +52,7 @@ const HappinessIndexDonut = ({
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
-      fetch(`/api/dashboard/customer`, {
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
         method: "POST",
         body: formData,
       })

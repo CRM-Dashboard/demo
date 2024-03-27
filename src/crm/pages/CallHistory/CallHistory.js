@@ -78,7 +78,7 @@ export default function CallHistory() {
   const getTableData = () => {
     setIsLoading(true);
 
-    fetch("/api/exotel/calls")
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/exotel/calls")
       .then((response) => response.json())
       .then((data) => {
         if (data) {

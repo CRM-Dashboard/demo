@@ -64,7 +64,8 @@ export default function CustomersList() {
         formData.append("CallerId", "095-138-86363");
         formData.append("Record", "true");
 
-        const apiUrl = "/api/exotel/make-call";
+        const apiUrl =
+          process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
 
         try {
           const response = await fetch(apiUrl, {
@@ -95,7 +96,7 @@ export default function CustomersList() {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
-      fetch(`/api/dashboard/customer`, {
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
         method: "POST",
         body: formData,
       })

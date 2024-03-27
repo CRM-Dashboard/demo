@@ -227,10 +227,14 @@ export default function InterestWaveOff() {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch("/api/dashboard/interestWaiveOff/waiveint", {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL +
+        "/api/dashboard/interestWaiveOff/waiveint",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data) {

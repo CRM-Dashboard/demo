@@ -14,7 +14,10 @@ export default function UnitDetails({ unitDetails }) {
 
   useEffect(() => {
     if (OrderId) {
-      fetch(`/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`)
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          `/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data[0].vbeln) {

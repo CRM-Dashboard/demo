@@ -20,8 +20,7 @@ export default function LoginPage() {
     formData.append("userName", userName);
     formData.append("password", password);
 
-    const apiUrl = "/api/login";
-    // const apiUrl = `http://115.124.113.252:8000/sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`;
+    const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/login";
 
     fetch(apiUrl, {
       method: "POST",
@@ -42,34 +41,6 @@ export default function LoginPage() {
           snackbar.showError("Error while Loggin in. Please try again!");
         }
       });
-
-    // fetch(
-    //   `/sap/bc/react/crm/login?sap-client=250&sap-user=${userName}&sap-password=${password}`,
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       Accept: "application/json",
-    //       "Content-Type": "application/json",
-    //     },
-
-    //     credentials: "omit",
-    //   }
-    // )
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     if (data) {
-    //       snackbar.showSuccess("Logged in successfully!");
-    //       navigate("./home");
-    //       dispatch(loginActions.setPassword(password));
-    //       dispatch(loginActions.setUserName(userName));
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     if (error) {
-    //       setError("Please Enter Valid Credentials!");
-    //       snackbar.showError("Error while Loggin in. Please try again!");
-    //     }
-    //   });
   };
 
   return (

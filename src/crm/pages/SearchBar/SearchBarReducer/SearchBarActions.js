@@ -19,10 +19,26 @@ const setOrderId = (oId) => {
   };
 };
 
+const setSid = (sid) => {
+  return {
+    type: "S_ID",
+    payload: sid,
+  };
+};
+
+const setActivityData = (data) => {
+  return {
+    type: "ACTIVITY_DATA",
+    payload: data,
+  };
+};
+
 const exportDefault = {
+  setActivityData,
   setAccountStmt,
   setSearchKey,
   setOrderId,
+  setSid,
 };
 
 export default exportDefault;

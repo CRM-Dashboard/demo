@@ -13,6 +13,7 @@ function Graph() {
   const [loading, setLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData.dashboard.project.projectId;
@@ -24,10 +25,13 @@ function Graph() {
   useEffect(() => {
     setLoading(true);
     const formData = new FormData();
-    formData.append("projectId", projectId);
+    reducerData?.searchBar?.searchKey
+      ? formData.append("vbeln", orderId)
+      : formData.append("projectId", projectId);
+
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch("/api/dashboard/projectf3", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/projectf3", {
       method: "POST",
       body: formData,
     })
@@ -35,7 +39,7 @@ function Graph() {
       .then((data) => {
         setYAxisKeys(extractYKeys(data));
         const apiPmtPoints = data.map((item) => ({
-          y: parseFloat(item.cumF3),
+          y: parseInt(item.cumF3),
           x: new Date(item.PostingDate),
         }));
         setYAxisKeys(apiPmtPoints);
@@ -77,12 +81,12 @@ function Graph() {
         ],
       },
     ],
-    navigator: {
-      slider: {
-        minimum: new Date("2021-04-01"),
-        maximum: new Date("2022-03-31"),
-      },
-    },
+    // navigator: {
+    //   slider: {
+    //     minimum: new Date("2021-04-01"),
+    //     maximum: new Date("2022-03-31"),
+    //   },
+    // },
   };
   const containerProps = {
     width: "44em",

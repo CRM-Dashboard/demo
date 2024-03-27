@@ -33,9 +33,14 @@ export default function CustomerDetails() {
   const getDetails = () => {
     setLoading(true);
     if (projectId !== "undefined" || projectId) {
-      fetch(
-        `http://115.124.113.252:8000/sap/bc/react/crm/summary?sap-client=250&projectId=${projectId}&sap-user=${userName}&sap-password=${passWord}`
-      )
+      const formData = new FormData();
+      formData.append("projectId", projectId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/summary", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           setCustomerDetails(data[0]);
@@ -81,7 +86,7 @@ export default function CustomerDetails() {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
-      fetch(`/api/dashboard/customer`, {
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
         method: "POST",
         body: formData,
       })

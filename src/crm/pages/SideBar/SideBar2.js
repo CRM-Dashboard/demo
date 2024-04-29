@@ -101,8 +101,8 @@ const SideBar2 = () => {
   const [callAPI, setCallAPI] = useState(false);
   const [sid, setSid] = useState(0);
   const [dpData, setDpdata] = useState([]);
-  const [docAnchor, setDocAnchor] = useState(null);
-  const [mailAnchor, setMailAnchor] = useState(null);
+  const [showPrintMenus, setShowPrintMenus] = useState(false);
+  const [showSendMail, setShowSendMail] = useState(false);
   const [actTypeData, setActTypeData] = useState([]);
   const [actModeData, setActModeData] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
@@ -116,8 +116,6 @@ const SideBar2 = () => {
 
   const ref = useRef(null);
   const open = Boolean(anchor);
-  const openDoc = Boolean(docAnchor);
-  const openMail = Boolean(mailAnchor);
   const toggle = () => setIsOpen(!isOpen);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -125,6 +123,7 @@ const SideBar2 = () => {
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
   const snackbar = UseCustomSnackbar();
   const color = GlobalFunctions.getThemeBasedColour(
@@ -238,13 +237,34 @@ const SideBar2 = () => {
     });
   };
 
+  const saveCallDetailsAPI = (callDetails) => {
+    const apiUrl =
+      process.env.REACT_APP_SERVER_URL + "/api/topBar/saveCallDetails";
+
+    fetch(apiUrl, { method: "POST", body: callDetails })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess("Call Deatails save successfully!");
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError(
+            "Error while saving call details. Please try again!"
+          );
+        }
+      });
+  };
+
   const initiateOutgoingCall = async () => {
     if (customerMobileNumber !== "") {
       const formData = new FormData();
-      formData.append("From", "09823230708");
+      // formData.append("From", "09823230708");
+      formData.append("From", loggedInUser?.mobile);
       formData.append("To", customerMobileNumber);
       formData.append("CallerId", "095-138-86363");
-      formData.append("Record", "true");
+      formData.append("Record", true);
 
       const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
 
@@ -257,6 +277,23 @@ const SideBar2 = () => {
             dispatch(searchBarAction.setSid(data.Call.Sid));
             setOpenActivityModal(false);
             setDisabledBtn(false);
+            const entryData = {
+              sid: data.Call.Sid,
+              dateCreated: data.Call.DateCreated,
+              to: data.Call.To,
+              from: data.Call.To,
+              phoneNumberSid: data.Call.To,
+              status: data.Call.To,
+              startTime: data.Call.To,
+              recordingUrl: data.Call.To,
+            };
+
+            const callDatails = new FormData();
+            callDatails.append("userName", userName);
+            callDatails.append("passWord", passWord);
+            callDatails.append("entryData", JSON.stringify(entryData));
+
+            saveCallDetailsAPI(callDatails);
 
             snackbar.showSuccess("Connecting to..." + customerMobileNumber);
           }
@@ -315,26 +352,6 @@ const SideBar2 = () => {
     );
   };
 
-  const showPrintMenus = () => {
-    return (
-      <PrintOptions
-        docAnchor={docAnchor}
-        openDoc={openDoc}
-        setDocAnchor={setDocAnchor}
-      />
-    );
-  };
-
-  const showMailMenus = () => {
-    return (
-      <MailOptions
-        mailAnchor={mailAnchor}
-        openMail={openMail}
-        setMailAnchor={setMailAnchor}
-      />
-    );
-  };
-
   const maskPhoneNumber = (number) => {
     const maskedNumber =
       number.substring(0, number.length - 4).replace(/\d/g, "X") +
@@ -351,10 +368,11 @@ const SideBar2 = () => {
           flex: "1",
           overflow: "auto",
           height: "100vh",
+          position: "relative",
         }}
       >
         <AppBar position="fixed" open={isOpen}>
-          <Toolbar className="toolbarBgColor">
+          <Toolbar className="toolbarBgColor" position="relative">
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -394,7 +412,7 @@ const SideBar2 = () => {
               {projectName}
             </Typography>
 
-            <div style={{ flexGrow: 1 }}>
+            <div style={{ flexGrow: 1, position: "relative" }}>
               <SearchBar />
             </div>
 
@@ -408,11 +426,9 @@ const SideBar2 = () => {
               size="large"
               color="inherit"
               onClick={(e) => {
-                setDocAnchor(e.currentTarget);
+                setShowPrintMenus(true);
               }}
               disabled={!shouldShowMenus}
-              aria-controls={openDoc}
-              aria-expanded={openDoc}
             >
               <PrintIcon />
             </IconButton>
@@ -421,10 +437,8 @@ const SideBar2 = () => {
               size="large"
               color="inherit"
               onClick={(e) => {
-                setMailAnchor(e.currentTarget);
+                setShowSendMail(true);
               }}
-              aria-controls={openMail}
-              aria-expanded={openMail}
               disabled={!shouldShowMenus}
             >
               <MailIcon />
@@ -470,7 +484,7 @@ const SideBar2 = () => {
               damping: 10,
             },
           }}
-          className={`sidebar `}
+          className="sidebar"
         >
           <div className="top_section">
             <AnimatePresence>
@@ -584,10 +598,14 @@ const SideBar2 = () => {
           </Box>
         </div>
 
-        <Grid sx={{ justifyContent: "flex-end", alignItems: "flex-end" }}>
+        <Grid
+          sx={{
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+            position: "relative",
+          }}
+        >
           {showMenus()}
-          {showPrintMenus()}
-          {showMailMenus()}
         </Grid>
 
         <Drawer
@@ -640,6 +658,30 @@ const SideBar2 = () => {
             initiateOutgoingCall={initiateOutgoingCall}
             setDisabledTertiaryBtn={setDisabledTertiaryBtn}
           />
+        </CrmModal>
+        <CrmModal
+          maxWidth="md"
+          show={showPrintMenus}
+          handleShow={() => {
+            setShowPrintMenus(false);
+          }}
+          closeModal={() => {
+            setShowPrintMenus(false);
+          }}
+        >
+          <PrintOptions />
+        </CrmModal>
+        <CrmModal
+          maxWidth="md"
+          show={showSendMail}
+          handleShow={() => {
+            setShowSendMail(false);
+          }}
+          closeModal={() => {
+            setShowSendMail(false);
+          }}
+        >
+          <MailOptions />
         </CrmModal>
       </Grid>
     </>

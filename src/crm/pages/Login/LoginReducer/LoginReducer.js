@@ -1,6 +1,7 @@
 const initialState = {
   userName: "",
   passWord: "",
+  loggedInUser: {},
 };
 
 const LoginReducer = (state = initialState, action) => {
@@ -14,6 +15,11 @@ const LoginReducer = (state = initialState, action) => {
       return {
         ...state,
         passWord: action.payload,
+      };
+    case "LOGGED_IN_USER":
+      return {
+        ...state,
+        loggedInUser: action.payload,
       };
     case "RESET_ALL_DATA":
       return initialState;

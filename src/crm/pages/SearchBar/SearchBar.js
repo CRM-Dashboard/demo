@@ -42,7 +42,7 @@ export default function SearchBar() {
         })
           .then((response) => response.json())
           .then((json) => {
-            const results = json.filter((customer) => {
+            const results = json?.filter((customer) => {
               return (
                 value &&
                 (customer?.name.toLowerCase().includes(value.toLowerCase()) ||

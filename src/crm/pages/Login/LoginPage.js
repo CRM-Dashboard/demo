@@ -18,6 +18,33 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const snackbar = UseCustomSnackbar();
 
+  const getLoggedInUserDetails = () => {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("password", password);
+
+    const apiUrl =
+      process.env.REACT_APP_SERVER_URL + "/api/loggedInUserDetails";
+
+    fetch(apiUrl, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess(`Welcome ${data[0].name}`);
+          dispatch(loginActions.setLoggedInUserDetails(data[0]));
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          setError("Please Enter Valid Credentials!");
+          snackbar.showError("Something went wrong! Please try again!");
+        }
+      });
+  };
+
   const shouldAllowUserLogin = () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -36,6 +63,7 @@ export default function LoginPage() {
           navigate("./home");
           dispatch(loginActions.setPassword(password));
           dispatch(loginActions.setUserName(userName));
+          getLoggedInUserDetails();
         }
       })
       .catch((error) => {

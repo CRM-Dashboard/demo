@@ -10,10 +10,17 @@ const setPassword = (data) => {
     payload: data,
   };
 };
+const setLoggedInUserDetails = (data) => {
+  return {
+    type: "LOGGED_IN_USER",
+    payload: data,
+  };
+};
 
 const exportDefault = {
   setUserName,
   setPassword,
+  setLoggedInUserDetails,
 };
 
 export default exportDefault;

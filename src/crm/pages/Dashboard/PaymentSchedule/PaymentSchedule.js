@@ -1,17 +1,25 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { TableRow, TableCell, TableFooter } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export default function PaymentSchedule() {
+  const [page, setPage] = useState(0);
   const [tableData, setTableData] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+
+  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+    reducerData.ThemeReducer.mode
+  );
 
   const getMuiTheme = () =>
     createTheme({
@@ -146,23 +154,72 @@ export default function PaymentSchedule() {
     search: true,
     viewColumns: true,
     filter: true,
-    customFooter: () => {
+    filterType: "dropdown",
+    responsive: "standard",
+
+    rowsPerPageOptions: [5, 10, 25, 50],
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
+    onChangePage(page) {
+      setPage(page);
+    },
+    customTableBodyFooterRender: (opts) => {
+      const startIndex = page * rowsPerPage;
+      const endIndex = (page + 3) * rowsPerPage;
+
+      let sumAmount = opts.data
+        .slice(startIndex, endIndex)
+        .reduce((accu, item) => {
+          return accu + item.data[3];
+        }, 0);
+
       return (
-        <tfoot>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td style={{ fontWeight: "Bold" }}> Total : {calculateTotal()}</td>
-          </tr>
-        </tfoot>
+        <>
+          {tableData.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                {opts.columns.map((col, index) => {
+                  if (col.display === "true") {
+                    if (col.name === "Date") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          Total
+                        </TableCell>
+                      );
+                    } else if (col.name === "Billing Percent") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "MileStone Description") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Amount") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {sumAmount}
+                        </TableCell>
+                      );
+                    } else if (col.name === "Status") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    }
+                  }
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
+        </>
       );
     },
   };
@@ -241,14 +298,6 @@ export default function PaymentSchedule() {
         });
     }
   }, [OrderId]);
-
-  const calculateTotal = () => {
-    let total = 0;
-    tableData.forEach((row) => {
-      total += parseFloat(row[3]); // Assuming currency format like "$1000"
-    });
-    return total.toFixed(2); // Format total as needed
-  };
 
   return (
     <div style={{ marginTop: "1em" }}>

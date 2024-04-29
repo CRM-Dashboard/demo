@@ -31,8 +31,8 @@ export default function CustomersList() {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.customerName,
-        item?.Mobile,
-        item?.Email,
+        // item?.Mobile,
+        // item?.Email,
         item?.Address,
         item?.State,
         item?.Country,
@@ -107,7 +107,7 @@ export default function CustomersList() {
             setIsLoading(false);
             setTableData(modifyResponse(data));
             if (OrderId) {
-              const filteredArray = data.filter(
+              const filteredArray = data?.filter(
                 (obj) => obj.orderId === OrderId
               );
               setFilteredResponse(filteredArray);
@@ -152,6 +152,7 @@ export default function CustomersList() {
       name: "Customer Name",
       label: "Customer Name",
       options: {
+        width: "auto",
         customBodyRenderLite: (rowIndex, value) => (
           <div
             style={{ color: "blue", cursor: "pointer" }}
@@ -171,14 +172,14 @@ export default function CustomersList() {
         ),
       },
     },
-    {
-      name: "Contact Number",
-      label: "Contact Number",
-    },
-    {
-      name: "Email ",
-      label: "Email",
-    },
+    // {
+    //   name: "Contact Number",
+    //   label: "Contact Number",
+    // },
+    // {
+    //   name: "Email ",
+    //   label: "Email",
+    // },
     {
       name: "Address ",
       label: "Address",
@@ -252,7 +253,7 @@ export default function CustomersList() {
     selectableRows: "none",
     elevation: 0,
     print: true,
-    download: true,
+    download: false,
     search: true,
     viewColumns: true,
     filter: true,

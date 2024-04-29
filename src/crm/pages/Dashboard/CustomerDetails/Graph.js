@@ -19,7 +19,7 @@ function Graph() {
   const projectId = reducerData.dashboard.project.projectId;
 
   function extractYKeys(data) {
-    return data.map((item) => item.Amt);
+    return data?.map((item) => item.Amt);
   }
 
   useEffect(() => {
@@ -38,7 +38,7 @@ function Graph() {
       .then((response) => response.json())
       .then((data) => {
         setYAxisKeys(extractYKeys(data));
-        const apiPmtPoints = data.map((item) => ({
+        const apiPmtPoints = data?.map((item) => ({
           y: parseInt(item.cumF3),
           x: new Date(item.PostingDate),
         }));
@@ -73,7 +73,7 @@ function Graph() {
         data: [
           {
             type: "splineArea",
-            name: "Invoice Value",
+            name: "F3 value",
             showInLegend: true,
             dataPoints: yAxisKeys,
             color: "#4D7AFF",

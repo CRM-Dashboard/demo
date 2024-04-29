@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
+import { Box, Typography, Grid } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { useSelector, useDispatch } from "react-redux";
 import searchbarActions from "./SearchBarReducer/SearchBarActions";
 import dashboardAction from "./../Dashboard/DashboardReducer.js/DashboardActions";
-import { Box, Typography } from "@mui/material";
 import "./SearchBar.css";
 
 export default function SearchBar() {
@@ -79,7 +80,12 @@ export default function SearchBar() {
   };
 
   return (
-    <Box display="flex" alignItems="center" justifyContent="center">
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      position="relative"
+    >
       <input
         style={{
           backgroundColor: "white",
@@ -98,6 +104,14 @@ export default function SearchBar() {
         onChange={(e) => handleChange(e.target.value)}
         label="Search"
       ></input>
+      <Grid>
+        <CancelIcon
+          className="cancelIcon"
+          style={{ position: "absolute" }}
+          onClick={() => handleChange("")}
+        />
+      </Grid>
+      {/* <span class="cancel-icon">&#10006;</span> */}
       <Box className="results-list">
         <Box>
           {results &&

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import SendIcon from "@mui/icons-material/Send";
-import GlobalFunctions from "./../../utils/GlobalFunctions";
 import CrmModal from "./../../components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import DropdownConstants from "./../../utils/DropdownConstants";
-import { Menu, MenuItem, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import SendMailComponent from "./SendMailComponent";
+import CustomTabLayout from "../../components/tabs/CustomTabLayout";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 
 export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
@@ -16,6 +16,21 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
   const orderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+
+  const tabs = [
+    {
+      label: "Pre-Registration Mail",
+      component: (
+        <SendMailComponent data={DropdownConstants.preRegistrationMail} />
+      ),
+    },
+    {
+      label: "Pre-Possession Mail",
+      component: (
+        <SendMailComponent data={DropdownConstants.prePossessionMail} />
+      ),
+    },
+  ];
 
   const sendMail = () => {
     const formData = new FormData();
@@ -50,70 +65,7 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
 
   return (
     <div style={{ backgroundColor: "#000000" }} className="toolbarBgColor">
-      <Menu
-        anchorEl={mailAnchor}
-        id="account-menu"
-        open={openMail}
-        keepMounted
-        onClose={() => {
-          setMailAnchor(null);
-        }}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        sx={{
-          top: "3.2em",
-          left: "76em",
-          "& .MuiAvatar-root": {
-            width: 22,
-            height: 22,
-            ml: -0.5,
-            mr: 0,
-          },
-          "& .MuiList-root": {
-            backgroundColor: GlobalFunctions.getThemeBasedMode(
-              reducerData.ThemeReducer.mode
-            ),
-            color: GlobalFunctions.getThemeBasedDatailsColour(
-              reducerData.ThemeReducer.mode
-            ),
-          },
-          "& .MuiSvgIcon-root": {
-            color: GlobalFunctions.getThemeBasedDatailsColour(
-              reducerData.ThemeReducer.mode
-            ),
-          },
-        }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-      >
-        {/* <MenuItem
-          onClick={() => {
-            setOpenModal(true);
-          }}
-        >
-          <SendIcon /> {"  "}
-          <Typography style={{ marginLeft: "0.5em" }}></Typography> Acceptance
-          Letter
-        </MenuItem> */}
-        {DropdownConstants.SendMailOptions.map((mail) => {
-          return (
-            <MenuItem
-              onClick={() => {
-                setOpenModal(true);
-                setMailId(mail.id);
-              }}
-            >
-              <SendIcon /> {"  "}
-              <Typography style={{ marginLeft: "0.5em" }}>
-                {" "}
-                {mail.name}
-              </Typography>
-            </MenuItem>
-          );
-        })}
-        {}
-      </Menu>
+      <CustomTabLayout tabPanels={tabs} />
       <CrmModal
         maxWidth="sm"
         show={openModal}

@@ -465,7 +465,7 @@ export default function ServiceRequest() {
         if (data) {
           const Data = data.data;
           if (OrderId) {
-            const filteredData = Data.filter(
+            const filteredData = Data?.filter(
               (obj) => obj.salesOrderNumber === OrderId
             );
 

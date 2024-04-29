@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
@@ -69,7 +69,7 @@ export default function BasicInformation({ customerInfo }) {
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      const data = values;
+      // const data = values;
       saveBasicDetails();
     },
   });
@@ -82,10 +82,6 @@ export default function BasicInformation({ customerInfo }) {
   };
   const dataStyle = { "font-size": 14, marginLeft: "1em" };
   const gridStyle = { display: "flex", marginLeft: "-1em" };
-
-  useEffect(() => {
-    console.log("######customerInfo", customerInfo);
-  }, []);
 
   return (
     <>

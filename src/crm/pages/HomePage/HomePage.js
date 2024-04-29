@@ -9,16 +9,13 @@ import { useDispatch, useSelector } from "react-redux";
 import OnGoingProjects from "./OnGoingProjects";
 import CompletedProjects from "./CompletedProjects";
 import CommercialProjects from "./CommercialProjects";
-import ApprovalIcon from "@mui/icons-material/Approval";
 import ChildCentricProjects from "./ChildCentricProjects";
 import homePageAction from "./HomePageReducer/HomePageAction";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
   const [value, setValue] = React.useState("one");
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -102,14 +99,14 @@ export default function HomePage() {
               wrapped
             />
           </Tabs>
-          <div>
+          {/* <div>
             {" "}
             <ApprovalIcon
               onClick={() => {
                 navigate("/requestApproval");
               }}
             />
-          </div>
+          </div> */}
         </Grid>
 
         <Grid sx={{ height: "80vh" }}>

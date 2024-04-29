@@ -115,7 +115,7 @@ const HappinessIndexDonut = ({
 
   const calculateEmotionPercentages = (data) => {
     console.log("data", data);
-    return data.map((emotionObject) => {
+    return data?.map((emotionObject) => {
       const emotions = {
         anger: emotionObject.anger,
         fear: emotionObject.fear,
@@ -156,7 +156,7 @@ const HappinessIndexDonut = ({
 
   useEffect(() => {
     if (OrderId) {
-      var selectedCust = custData.filter((cust) => cust.orderId === OrderId);
+      var selectedCust = custData?.filter((cust) => cust.orderId === OrderId);
       calculateAverageEmotions(selectedCust);
       calculateEmotionPercentages(selectedCust);
       calculateHappyIndex(selectedCust);

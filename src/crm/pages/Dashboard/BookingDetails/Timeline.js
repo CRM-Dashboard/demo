@@ -26,12 +26,15 @@ import moment from "moment";
 import UnitDetails from "./UnitDetails";
 import LoanDetails from "./LoanDetails";
 import OtherBookingDetails from "./OtherBookingDetails";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+
 const Timeline = () => {
   const [map, setMap] = useState("");
   const [city, setCity] = useState("");
   const [venue, setVenue] = useState([]);
   const [events, setEvents] = useState([]);
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState("");
   const [openForm, setOpenForm] = useState(false);
   const [contactDetails, setContactDetails] = useState([]);
@@ -42,6 +45,8 @@ const Timeline = () => {
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const mode = GlobalFunctions.getThemeBasedTextColour(
     reducerData.ThemeReducer.mode
   );
@@ -96,9 +101,15 @@ const Timeline = () => {
 
   useEffect(() => {
     if (OrderId) {
-      fetch(
-        `/sap/bc/geraworld_app/bookings/timeline?sap-client=250&vbeln=${OrderId}}`
-      )
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/timeline", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
@@ -128,7 +139,14 @@ const Timeline = () => {
   ];
 
   useEffect(() => {
-    fetch(`/sap/bc/react/crm/haveli?sap-client=250`)
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/haveli`, {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -138,19 +156,25 @@ const Timeline = () => {
           setContactDetails(ContactPersonData);
         }
       });
-
     if (OrderId) {
-      fetch(
-        process.env.REACT_APP_SERVER_URL +
-          `/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`
-      )
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data[0].vbeln) {
             setBookingDetails(data[0]);
             setShouldShowTimeLine(false);
+            setLoading(false);
           } else {
             setShouldShowTimeLine(true);
+            setLoading(false);
           }
         });
     }
@@ -159,7 +183,7 @@ const Timeline = () => {
   const [lineColor, setLineColor] = useState("#FFA500");
 
   useEffect(() => {
-    const isGreenLine = events.some((event) => event.date !== null);
+    const isGreenLine = events?.some((event) => event.date !== null);
     setLineColor(isGreenLine ? "rgb(16, 204, 82)" : "#FFA500");
   }, [events]);
 
@@ -231,7 +255,7 @@ const Timeline = () => {
             </VerticalTimelineElement>
           ))}
         </VerticalTimeline>
-      ) : (
+      ) : !loading ? (
         <Grid
           item
           xs={4}
@@ -243,6 +267,8 @@ const Timeline = () => {
             <CustomTabLayout tabPanels={tabs} />
           </div>
         </Grid>
+      ) : (
+        <CircularScreenLoader />
       )}
 
       {shouldShowTimeLine && (

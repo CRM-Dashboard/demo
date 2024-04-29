@@ -9,7 +9,7 @@ import React, {
 import dayjs from "dayjs";
 import * as yup from "yup";
 import moment from "moment";
-import { useFormik } from "formik";
+import { Formik, useFormik } from "formik";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
@@ -17,11 +17,12 @@ import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 
 const CreatePreEmiReceipt = forwardRef((props, ref) => {
-  // const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [files, setFiles] = useState([]);
   const [schemeStart, setSchemeStart] = useState(null);
   const [schemeEnd, setSchemeEnd] = useState(null);
   const [soDetails, setSoDetails] = useState("");
+  const [error, setError] = useState("");
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
@@ -66,6 +67,10 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   }, []);
 
   const saveReceipt = () => {
+    console.log(
+      "formik.values.month########",
+      moment(formik.values.month?.$d).format("YYYYMM")
+    );
     const entryData = {
       vbeln: OrderId,
       pmt_req_typ: formik.values.repayType,
@@ -78,23 +83,22 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       remark: formik.values.remarks,
       onbehalf: formik.values.onBehalf,
       panno: formik.values.onBehalfPan,
-      spmon: moment(formik.values.month).format("YYYYMM"),
+      spmon: moment(formik.values.month?.$d).format("YYYYMM"),
+      // files:[]
     };
 
-    if (Object.keys(formik.errors).length === 0) {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+
+    // eslint-disable-next-line eqeqeq
+    if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       fetch(
-        process.env.REACT_APP_SERVER_URL +
-          `/sap/bc/react/crm/repay_create?sap-client=250`,
+        process.env.REACT_APP_SERVER_URL + `/api/dashboard/preEmi/create_repay`,
         {
           method: "POST",
-          body: JSON.stringify(entryData),
-          headers: {
-            Accept: "application/json",
-            Origin: "http://115.124.113.252:8000/",
-            Referer: "http://115.124.113.252:8000/",
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
+          body: formData,
         }
       )
         .then((response) => response.json())
@@ -103,6 +107,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
             snackbar.showSuccess(
               "Pre EMI/ Rental receipt created successfully!"
             );
+            setError("");
             props.setopenCreateForm(false);
             props.getTableData();
           }
@@ -123,8 +128,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   }));
 
   const validationSchema = yup.object({
-    schemeStart: yup.date(),
-    schemeEnd: yup.date(),
+    schemeStart: yup.string(),
+    schemeEnd: yup.string(),
     repayType: yup.string().required("Required"),
     month: yup.string().required("Required"),
     amount: yup.number().required("Required"),
@@ -135,8 +140,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
 
   const formik = useFormik({
     initialValues: {
-      schemeStart: schemeStart,
-      schemeEnd: schemeEnd,
+      schemeStart: dayjs(schemeStart),
+      schemeEnd: dayjs(schemeEnd),
       repayType: "",
       month: null,
       amount: "",
@@ -162,60 +167,56 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     const result = currentDate > startDate && currentDate < endDate;
 
     // Check if the currentDate is between the startDate and endDate
-    if (currentDate > startDate && currentDate < endDate) {
-      console.log("In Range!!!!!!!!!!");
+    if (result) {
+      setError("");
     } else {
       formik.setFieldError(
         "month",
         "Month should be in Range of start scheme and end scheme."
       );
+      setError("Required");
+      snackbar.showError(
+        "Month should be in Range of start scheme and end scheme."
+      );
     }
   }, [formik.values.month]);
 
-  // const handleFileUpload = (event) => {
-  //   console.log("#######event.target.files", event.target.files);
-  //   const files1 = event.target.files;
-  //   const filesArray = Array.from(files1);
-  //   // setFiles((prevArray) => prevArray.concat(filesArray));
-  //   console.log(
-  //     "#######event.target.filesArray",
-  //     files,
-  //     filesArray,
-  //     filesArray.length
-  //   );
-  //   // console.log("#######apended files", [...files, ...filesArray]);
-  //   setFiles([...files, ...filesArray]);
-  //   const finalFiles = [...files, ...filesArray];
+  const handleFileUpload = (event) => {
+    const files1 = event.target.files;
+    const filesArray = Array.from(files1);
+    setFiles((prevArray) => prevArray.concat(filesArray));
 
-  //   console.log("#######finalFiles", finalFiles);
-  //   // Convert each file to base64
-  //   Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
-  //     .then((base64Array) => {
-  //       console.log("base64Array######", base64Array);
-  //       // setSelectedFile(base64Array);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error reading files#######:", error);
-  //     });
-  // };
+    setFiles([...files, ...filesArray]);
+    const finalFiles = [...files, ...filesArray];
 
-  // const readFileAsBase64 = (file) => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     const fileBlob = new Blob([file], { type: file.type });
+    // Convert each file to base64
+    Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
+      .then((base64Array) => {
+        console.log("base64Array######", base64Array);
+        setSelectedFile(base64Array);
+      })
+      .catch((error) => {
+        console.error("Error reading files#######:", error);
+      });
+  };
 
-  //     reader.onload = () => {
-  //       const base64String = reader.result.split(",")[1];
-  //       resolve(base64String);
-  //     };
+  const readFileAsBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const fileBlob = new Blob([file], { type: file.type });
 
-  //     reader.onerror = (error) => {
-  //       reject(error);
-  //     };
+      reader.onload = () => {
+        const base64String = reader.result.split(",")[1];
+        resolve(base64String);
+      };
 
-  //     reader.readAsDataURL(fileBlob);
-  //   });
-  // };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsDataURL(fileBlob);
+    });
+  };
 
   return (
     <formik>
@@ -227,15 +228,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               name="schemeStart"
               label="Scheme Start"
               value={dayjs(schemeStart)}
-              // onChange={(value) =>
-              //   formik.setFieldValue("schemeStart", value, true)
-              // }
-              error={
-                formik.touched.schemeStart && Boolean(formik.errors.schemeStart)
-              }
-              helperText={
-                formik.touched.schemeStart && formik.errors.schemeStart
-              }
+              error={Boolean(formik.errors.schemeStart)}
+              helperText={formik.errors.schemeStart}
               disabled
             />
           </Grid>
@@ -244,13 +238,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               name="schemeEnd"
               label="Scheme End"
               value={dayjs(schemeEnd)}
-              // onChange={(value) =>
-              //   formik.setFieldValue("schemeEnd", value, true)
-              // }
-              error={
-                formik.touched.schemeEnd && Boolean(formik.errors.schemeEnd)
-              }
-              helperText={formik.touched.schemeEnd && formik.errors.schemeEnd}
+              error={Boolean(formik.errors.schemeEnd)}
+              helperText={formik.errors.schemeEnd}
               disabled
             />
           </Grid>
@@ -303,6 +292,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               label="Amount"
               value={formik.values.amount}
               onChange={formik.handleChange}
+              error={Boolean(formik.errors.amount)}
+              helperText={formik.errors.amount}
               required
             />
           </Grid>
@@ -311,6 +302,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               id="onBehalf"
               name="onBehalf"
               label="On Behalf"
+              error={Boolean(formik.errors.onBehalf)}
+              helperText={formik.errors.onBehalf}
               value={formik.values.onBehalf}
               onChange={formik.handleChange}
             />
@@ -325,6 +318,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               name="onBehalfPan"
               label="On Behalf PAN"
               value={formik.values.onBehalfPan}
+              error={Boolean(formik.errors.onBehalfPan)}
+              helperText={formik.errors.onBehalfPan}
               onChange={formik.handleChange}
             />
           </Grid>
@@ -336,13 +331,15 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               label="Remarks"
               style={{ width: "25.5em" }}
               value={formik.values.remarks}
+              error={Boolean(formik.errors.remarks)}
+              helperText={formik.errors.remarks}
               onChange={formik.handleChange}
             />
           </Grid>
         </Grid>
         <br />
 
-        {/* {
+        {
           <input
             type="file"
             onChange={(event) => {
@@ -356,12 +353,12 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               return (
                 <div>
                   {file.name}{" "}
-                  {<LinearProgress variant="determinate" value={100} />}
+                  {/* {<LinearProgress variant="determinate" value={100} />} */}
                 </div>
               );
             })}
           </Grid>
-        } */}
+        }
       </Box>
     </formik>
   );

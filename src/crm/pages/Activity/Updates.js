@@ -38,8 +38,7 @@ export default class Updates extends Component {
       text: "",
     };
     this.handleChange = this.handleChange.bind(this);
-    // eslint-disable-next-line no-unused-expressions
-    (this.modules = {
+    this.modules = {
       toolbar: [
         [{ header: [1, 2, false] }],
         ["bold", "italic", "underline", "strike", "blockquote"],
@@ -52,21 +51,20 @@ export default class Updates extends Component {
         ["link", "image"],
         ["clean"],
       ],
-    })(
-      (this.formats = [
-        "header",
-        "bold",
-        "italic",
-        "underline",
-        "strike",
-        "blockquote",
-        "list",
-        "bullet",
-        "indent",
-        "link",
-        "image",
-      ])
-    );
+    };
+    this.formats = [
+      "header",
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "blockquote",
+      "list",
+      "bullet",
+      "indent",
+      "link",
+      "image",
+    ];
   }
 
   handleChange(value) {

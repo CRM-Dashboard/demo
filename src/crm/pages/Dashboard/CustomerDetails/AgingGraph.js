@@ -45,7 +45,7 @@ export default function AgingBar() {
       .then((response) => response.json())
       .then((data) => {
         if (OrderId) {
-          const dataToSet = data.filter((obj) => obj.orderId === OrderId);
+          const dataToSet = data?.filter((obj) => obj.orderId === OrderId);
           setGraphData(dataToSet);
         } else {
           setGraphData(data);

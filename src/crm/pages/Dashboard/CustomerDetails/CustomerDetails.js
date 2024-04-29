@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import { Grid } from "@mui/material";
-import StatusCard from "../../../components/statusCard/StatusCard";
 import AgingGraph from "./AgingGraph";
+import Divider from "@mui/material/Divider";
 import Graph from "./Graph";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 import HappinessIndexDonut from "./HappinessIndexDonut";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useDispatch } from "react-redux";
 import "./CustomerDetails.css";
 
@@ -17,7 +17,11 @@ export default function CustomerDetails() {
   const [customerDetails, setCustomerDetails] = useState("");
   const [loading, setLoading] = useState(false);
   const [numberOfCust, setNumberOfCust] = useState(0);
+  const [NoOfBookings, setNoOfBookings] = useState(0);
+  const [NoOfApplicants, setNoOfApplicants] = useState(0);
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
+  const [NoOfRegistrations, setNoOfRegistrations] = useState(0);
+  const [NoOfPossession, setNoOfPossession] = useState(0);
 
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
@@ -26,9 +30,6 @@ export default function CustomerDetails() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
-  const mode = GlobalFunctions.getThemeBasedDatailsColour(
-    reducerData.ThemeReducer.mode
-  );
 
   const getDetails = () => {
     setLoading(true);
@@ -44,6 +45,7 @@ export default function CustomerDetails() {
         .then((response) => response.json())
         .then((data) => {
           setCustomerDetails(data[0]);
+
           if (
             reducerData.dashboard.shouldShowSentimentAnalysis &&
             reducerData?.dashboard?.shouldShowHappinessMeter
@@ -93,7 +95,9 @@ export default function CustomerDetails() {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            const filteredArray = data.filter((obj) => obj.orderId === OrderId);
+            const filteredArray = data?.filter(
+              (obj) => obj.orderId === OrderId
+            );
             setNumberOfCust(filteredArray.length);
             setLoading(false);
           } else {
@@ -322,6 +326,57 @@ export default function CustomerDetails() {
     },
   };
 
+  function displayIncreasingNumbers(
+    currentVal,
+    targetNumber,
+    updatingFunction
+  ) {
+    let currentNumber = currentVal;
+
+    const intervalId = setInterval(() => {
+      updatingFunction(() => {
+        currentNumber = currentNumber + 1;
+
+        if (currentNumber === targetNumber) {
+          clearInterval(intervalId);
+        }
+
+        return currentNumber;
+      });
+    }, 5); // Interval duration set to 1 second
+  }
+
+  useEffect(() => {
+    if (customerDetails?.NoOfBookings) {
+      displayIncreasingNumbers(
+        0,
+        customerDetails.NoOfBookings,
+        setNoOfBookings
+      );
+    }
+    if (customerDetails?.NoOfCustomers) {
+      displayIncreasingNumbers(
+        0,
+        customerDetails.NoOfCustomers,
+        setNoOfApplicants
+      );
+    }
+    if (customerDetails?.NoOfRegistration) {
+      displayIncreasingNumbers(
+        0,
+        customerDetails.NoOfRegistration,
+        setNoOfRegistrations
+      );
+    }
+    if (customerDetails?.NoOfPossession) {
+      displayIncreasingNumbers(
+        0,
+        customerDetails.NoOfPossession,
+        setNoOfPossession
+      );
+    }
+  }, [customerDetails]);
+
   const showCustomerDetails = () => {
     return !loading &&
       customerDetails &&
@@ -341,7 +396,7 @@ export default function CustomerDetails() {
               display: "flex",
               cursor: "",
               marginTop: "2em",
-              marginLeft: "2em",
+              paddingLeft: "4em",
               "&.MuiGrid-item": {
                 paddingTop: "0em",
                 paddingLeft: "0em",
@@ -378,16 +433,63 @@ export default function CustomerDetails() {
                     }
                   }}
                 >
-                  <label
-                    className="detailsTitle"
-                    style={{ color: mode, paddingBottom: "0.7em" }}
+                  <Grid
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
                   >
-                    {OrderId ? "Booking Details" : "Number Of Bookings"}
-                  </label>
+                    <Grid style={{ padding: "0.8em" }}>
+                      <Grid className="detailsSubTitle">
+                        {searchValueAvailable ? 1 : NoOfBookings}
+                      </Grid>
+                      <Grid
+                        className="detailsTitle"
+                        style={{
+                          paddingBottom: "0.7em",
+                          fontSize: OrderId ? "15px" : "11px",
+                        }}
+                      >
+                        {OrderId ? "Booked" : "Booked Units"}
+                      </Grid>
+                    </Grid>
 
-                  <label className="detailsSubTitle" style={{ color: mode }}>
-                    {searchValueAvailable ? 1 : customerDetails?.NoOfBookings}
-                  </label>
+                    {!OrderId && <Divider orientation="vertical" flexItem />}
+
+                    <Grid style={{ padding: "0.5em" }}>
+                      <label className="detailsSubTitle">
+                        {searchValueAvailable ? " " : NoOfRegistrations}
+                      </label>
+                      <Grid
+                        className="detailsTitle"
+                        style={{
+                          paddingBottom: "0.7em",
+                          fontSize: "11px",
+                        }}
+                      >
+                        {OrderId ? "" : " Registered Units"}
+                      </Grid>
+                    </Grid>
+
+                    {!OrderId && <Divider orientation="vertical" flexItem />}
+
+                    <Grid style={{ padding: "0.5em" }}>
+                      <Grid className="detailsSubTitle">
+                        {searchValueAvailable ? "" : NoOfPossession}
+                      </Grid>
+                      <Grid
+                        className="detailsTitle"
+                        style={{
+                          paddingBottom: "0.7em",
+                          fontSize: "11px",
+                        }}
+                      >
+                        {OrderId ? " " : "Possession Given"}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                  {/* <Divider orientation="vertical" flexItem /> */}
                 </Grid>
                 <Grid sx={{ marginTop: "2em" }}>
                   <StatusCard
@@ -433,14 +535,11 @@ export default function CustomerDetails() {
                     );
                   }}
                 >
-                  <label className="detailsTitle" style={{ color: mode }}>
-                    Applicants Details
+                  <label className="detailsSubTitle">
+                    {searchValueAvailable ? numberOfCust : NoOfApplicants}
                   </label>
-
-                  <label className="detailsSubTitle" style={{ color: mode }}>
-                    {searchValueAvailable
-                      ? numberOfCust
-                      : customerDetails?.NoOfCustomers}
+                  <label className="detailsTitle" style={{ fontSize: "11px" }}>
+                    Applicants
                   </label>
                 </Grid>
 
@@ -478,14 +577,13 @@ export default function CustomerDetails() {
                 }}
               >
                 <Grid className=" circular-img-container">
-                  <label className="detailsTitle" style={{ color: mode }}>
-                    Consideration Amount
-                  </label>
-
-                  <label className="detailsSubTitle" style={{ color: mode }}>
+                  <label className="detailsSubTitle">
                     {searchValueAvailable
                       ? customerDetails.AgreementValue
-                      : "₹" + customerDetails?.ConsiderationAmount + " Cr"}
+                      : "₹" + customerDetails?.ConsiderationAmount + " Crore"}
+                  </label>
+                  <label className="detailsTitle" style={{ fontSize: "11px" }}>
+                    Consideration Amount
                   </label>
                 </Grid>
                 <Grid sx={{ marginTop: "2em" }}>

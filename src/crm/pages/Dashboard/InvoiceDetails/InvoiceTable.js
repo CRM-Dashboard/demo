@@ -1,32 +1,38 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
-import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
+import { animated, useSpring } from "react-spring";
 import { ThemeProvider } from "@mui/material/styles";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import TableMuiTheme from "./../../../utils/TableMuiTheme";
 import CrmModal from "../../../components/crmModal/CrmModal";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import PDFViewer from "./../../../components/pdfViewer/PdfViewer";
+import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
+import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
-import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
-import PDFViewer from "./../../../components/pdfViewer/PdfViewer";
-import { useSelector } from "react-redux/es/hooks/useSelector";
-import TableMuiTheme from "./../../../utils/TableMuiTheme";
-import { animated, useSpring } from "react-spring";
 
 export default function InvoiceTable() {
-  const [tableData, setTableData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
   const [url, setURL] = useState("");
-  const [arrForMail, setArrForMail] = useState([]);
+  // const [page, setPage] = useState(0);
   const [formdata, setFormData] = useState({});
+  const [response, setResponse] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [arrForMail, setArrForMail] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  // const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const getMuiTheme = TableMuiTheme.getMuiTheme(reducerData);
+  // const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+  //   reducerData.ThemeReducer.mode
+  // );
 
   const ExternalComponent = (props) => {
     return (
@@ -64,12 +70,12 @@ export default function InvoiceTable() {
       return [
         "",
         item?.Milestone,
-        item?.duedate,
-        `₹${item?.gstamount}`,
         item.invoicedate,
-        `₹${item.netamount}`,
         item.pTerms,
-        `₹${item.totalamount}`,
+        item?.duedate,
+        item.netamount,
+        item?.gstamount,
+        item.totalamount,
       ];
     });
     return modifiedResponse;
@@ -138,24 +144,24 @@ export default function InvoiceTable() {
       label: "Milestone",
     },
     {
-      name: "Due Date",
-      label: "Due Date",
-    },
-    {
-      name: "GST Amount",
-      label: "GST Amount",
-    },
-    {
       name: "Invoice Date",
       label: "Invoice Date",
+    },
+    {
+      name: "Terms",
+      label: "Terms",
+    },
+    {
+      name: "Due Date",
+      label: "Due Date",
     },
     {
       name: "Unit Installment",
       label: "Unit Installment",
     },
     {
-      name: "Terms",
-      label: "Terms",
+      name: "GST Amount",
+      label: "GST Amount",
     },
     {
       name: "Total Amount",
@@ -251,6 +257,112 @@ export default function InvoiceTable() {
     search: true,
     viewColumns: true,
     filter: true,
+    filterType: "dropdown",
+    responsive: "standard",
+    rowsPerPageOptions: [5, 10, 25, 50],
+    // onChangeRowsPerPage(numberOfRows) {
+    //   setRowsPerPage(numberOfRows);
+    // },
+    // onChangePage(page) {
+    //   setPage(page);
+    // },
+    // customTableBodyFooterRender: (opts) => {
+    //   const startIndex = page * rowsPerPage;
+    //   const endIndex = (page + 3) * rowsPerPage;
+
+    //   let unitSumAmount = opts.data
+    //     .slice(startIndex, endIndex)
+    //     .reduce((accu, item) => {
+    //       return accu + item.data[5];
+    //     }, 0);
+    //   let gstSumAmount = opts.data
+    //     .slice(startIndex, endIndex)
+    //     .reduce((accu, item) => {
+    //       return accu + item.data[6];
+    //     }, 0);
+    //   let totalSumAmount = opts.data
+    //     .slice(startIndex, endIndex)
+    //     .reduce((accu, item) => {
+    //       return accu + item.data[7];
+    //     }, 0);
+
+    //   return (
+    //     <>
+    //       {tableData.length > 0 && (
+    //         <TableFooter>
+    //           <TableRow>
+    //             {opts.columns.map((col, index) => {
+    //               if (col.display === "true") {
+    //                 if (!col.name) {
+    //                   return <TableCell key={index}>{}</TableCell>;
+    //                 } else if (col.name === "Milestone") {
+    //                   return (
+    //                     <TableCell
+    //                       style={{
+    //                         color: txtColour,
+    //                         fontSize: "14px",
+    //                         fontWeight: "bold",
+    //                       }}
+    //                       key={index}
+    //                     >
+    //                       Total
+    //                     </TableCell>
+    //                   );
+    //                 }
+    //                 if (col.name === "Invoice Date") {
+    //                   return <TableCell key={index}>{}</TableCell>;
+    //                 } else if (col.name === "Terms") {
+    //                   return <TableCell key={index}>{}</TableCell>;
+    //                 } else if (col.name === "Due Date") {
+    //                   return <TableCell key={index}>{}</TableCell>;
+    //                 } else if (col.name === "Unit Installment") {
+    //                   return (
+    //                     <TableCell
+    //                       style={{
+    //                         color: txtColour,
+    //                         fontSize: "14px",
+    //                         fontWeight: "bold",
+    //                       }}
+    //                       key={index}
+    //                     >
+    //                       {unitSumAmount}
+    //                     </TableCell>
+    //                   );
+    //                 } else if (col.name === "GST Amount") {
+    //                   return (
+    //                     <TableCell
+    //                       style={{
+    //                         color: txtColour,
+    //                         fontSize: "14px",
+    //                         fontWeight: "bold",
+    //                       }}
+    //                       key={index}
+    //                     >
+    //                       {gstSumAmount}
+    //                     </TableCell>
+    //                   );
+    //                 } else if (col.name === "Total Amount") {
+    //                   return (
+    //                     <TableCell
+    //                       style={{
+    //                         color: txtColour,
+    //                         fontSize: "14px",
+    //                         fontWeight: "bold",
+    //                       }}
+    //                       key={index}
+    //                     >
+    //                       {totalSumAmount}
+    //                     </TableCell>
+    //                   );
+    //                 }
+    //               }
+    //             })}
+    //           </TableRow>
+    //         </TableFooter>
+    //       )}
+    //     </>
+    //   );
+    // },
     customToolbar: () => [
       <Button
         variant="contained"

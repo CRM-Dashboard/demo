@@ -159,39 +159,48 @@ const PaymentTowards = [
 ];
 
 const PrintDocument = [
-  { id: "ACCEPT", name: "Acceptance Letter" },
   { id: "BANKA", name: "Bank Allotment" },
-  { id: "CFNOC", name: "CF NOC Approval" },
   { id: "SOA", name: "Statement of Account" },
   { id: "INT", name: "Interest Calculation" },
   { id: "AGREEMENT", name: "Agreement Draft" },
-  { id: "REJECT", name: "Rejection Letter" },
   { id: "BANKS", name: "Bank Scheme" },
+  { id: "WARRANTY", name: "Warranty Agreement" },
+];
+
+const NocDocument = [
   { id: "MOR_HDFC", name: "Mortgage NOC(HDFC)" },
   { id: "MOR_BAJAJ", name: "Mortgage NOC(Bajaj)" },
   { id: "MOR_ICICI", name: "Mortgage NOC(ICICI)" },
   { id: "CFNOCR", name: "CF NOC Request" },
+  { id: "CFNOC", name: "CF NOC Approval" },
+];
+
+const letterDocument = [
+  { id: "ACCEPT", name: "Acceptance Letter" },
+  { id: "REJECT", name: "Rejection Letter" },
   { id: "POSSESSION", name: "Possession Letter" },
-  { id: "WARRANTY", name: "Warranty Agreement" },
   { id: "CARPARK", name: "Carpark Letter" },
   { id: "CONFIRM", name: "Confirmation Letter" },
 ];
 
-const SendMailOptions = [
+const preRegistrationMail = [
   { id: "ACCEPT", name: "Acceptance Letter" },
   { id: "AGREEMENT", name: "Agreement Draft" },
-  { id: "SOA", name: "Statement of Account" },
-  { id: "INTEREST_LETTER", name: "Interest Letter" },
   { id: "REJECT", name: "Rejection Letter" },
   { id: "REGISTER_REMIND", name: "Registration Reminder" },
+];
+
+const prePossessionMail = [
+  { id: "CONNECT1", name: "Customer Connect 1" },
+  { id: "CONNECT2", name: "Customer Connect 2" },
+  { id: "CONNECT3", name: "Customer Connect 3" },
+  { id: "SOA", name: "Statement of Account" },
+  { id: "INTEREST_LETTER", name: "Interest Letter" },
   { id: "CONGRAT_REGISTER", name: "Congratulate after Registration" },
   { id: "PAYMENT_REMINDER", name: "Payment Reminder" },
   { id: "POSSESSION_INTIMATE", name: "Intimation of Possession" },
   { id: "POSSESSION_INVITE", name: "Possession Invitation" },
   { id: "POSSESSION_REMINDER", name: "Possession Reminder" },
-  { id: "CONNECT1", name: "Customer Connect 1" },
-  { id: "CONNECT2", name: "Customer Connect 2" },
-  { id: "CONNECT3", name: "Customer Connect 3" },
 ];
 
 const RegistrationInviteContact = [
@@ -203,9 +212,12 @@ const RegistrationInviteContact = [
 const exportDefault = {
   BankNames,
   PaymentMode,
+  NocDocument,
   PrintDocument,
+  letterDocument,
   PaymentTowards,
-  SendMailOptions,
+  prePossessionMail,
+  preRegistrationMail,
   RegistrationInviteContact,
 };
 

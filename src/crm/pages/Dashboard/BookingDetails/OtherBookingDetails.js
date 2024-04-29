@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
-import { Grid, Typography, Input, Tooltip, Avatar } from "@mui/material";
+import { Grid, Typography, Input, Avatar } from "@mui/material";
 
 export default function OtherBookingDetails({ otherBookingDetails }) {
   const validationSchema = Yup.object().shape({
@@ -103,7 +103,7 @@ export default function OtherBookingDetails({ otherBookingDetails }) {
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      const data = values;
+      // const data = values;
       saveCostSheet();
     },
   });
@@ -116,10 +116,6 @@ export default function OtherBookingDetails({ otherBookingDetails }) {
   };
   const dataStyle = { "font-size": 14, marginLeft: "1em" };
   const gridStyle = { display: "flex", marginLeft: "-1em" };
-
-  useEffect(() => {
-    console.log("######otherBookingDetails", otherBookingDetails);
-  }, []);
 
   return (
     <>

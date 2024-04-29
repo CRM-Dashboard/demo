@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
@@ -341,9 +342,9 @@ export default function ActivityDetails() {
   ];
 
   const getActivityType = (type) => {
-    const result = actTypeData?.filter((data) =>
-      Object.values(data).includes(type)
-    );
+    const result = actTypeData?.filter((data) => {
+      Object.values(data).includes(type);
+    });
     return result[0]?.typTxt;
   };
 
@@ -391,8 +392,22 @@ export default function ActivityDetails() {
       });
   };
 
+  // const getMailDetails = () => {
+  // const formData = new FormData();
+  // formData.append("userName", userName);
+  // formData.append("passWord", passWord);
+  // formData.append("orderId", OrderId);
+  // setLoading(true);
+  // fetch(`/api/activity/getMail`)
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     console.log("************data", data);
+  //   });
+  // };
+
   useEffect(() => {
     getTableData();
+    // getMailDetails();
   }, [OrderId]);
 
   return (

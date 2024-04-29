@@ -5,11 +5,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Grid,
 } from "@mui/material";
-import { useSpring, animated } from "react-spring";
 import PropTypes from "prop-types";
-import styled from "@mui/material/styles/styled";
 import Button from "@mui/material/Button";
+import styled from "@mui/material/styles/styled";
+import { useSpring, animated } from "react-spring";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 function CrmModal(props) {
   //   const { modalAction } = useContext(ModalContext);
@@ -70,7 +72,22 @@ function CrmModal(props) {
           },
         }}
       >
-        {props.title && <DialogTitleCustom>{props.title}</DialogTitleCustom>}
+        <Grid style={{ alignItems: "flex-start", display: "flex" }}>
+          {props.title && <DialogTitleCustom>{props.title}</DialogTitleCustom>}
+        </Grid>
+
+        {props.closeModal && (
+          <Grid
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+            }}
+          >
+            <CancelIcon onClick={props.closeModal} />
+          </Grid>
+        )}
+
         <DialogContent>
           {props.contentText && (
             <DialogContentText>{props.contentText}</DialogContentText>
@@ -161,6 +178,7 @@ CrmModal.propTypes = {
   cancelBtnText: PropTypes.string,
   secondarySave: PropTypes.func,
   primarySave: PropTypes.func,
+  closeModal: PropTypes.func,
 };
 
 export default CrmModal;

@@ -50,7 +50,7 @@ export default function ChildInformation() {
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      const data = values;
+      // const data = values;
       saveChildDetails();
     },
   });

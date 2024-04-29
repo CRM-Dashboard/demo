@@ -36,7 +36,7 @@ export default function BankInformation() {
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
-      const data = values;
+      // const data = values;
       saveBankDetails();
     },
   });

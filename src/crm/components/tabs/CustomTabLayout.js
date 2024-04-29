@@ -8,7 +8,7 @@ import { MenuOpen } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import GlobalFunctions from "../../utils/GlobalFunctions";
 
-const ErpTabs = styled((props) => (
+const CrmTabs = styled((props) => (
   <Tabs
     {...props}
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
@@ -128,7 +128,7 @@ function CustomTabLayout({
           ),
         }}
       >
-        <ErpTabs sx={{ padding: 0 }} value={value} onChange={handleChange}>
+        <CrmTabs sx={{ padding: 0 }} value={value} onChange={handleChange}>
           {tabPanels.length > 10
             ? tabPanels
                 .slice(0, 10)
@@ -145,7 +145,7 @@ function CustomTabLayout({
                   {...a11yProps(0)}
                 />
               ))}
-        </ErpTabs>
+        </CrmTabs>
         {tabPanels.length > 10 ? (
           <>
             <Button

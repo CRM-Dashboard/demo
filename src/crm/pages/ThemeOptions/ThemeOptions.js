@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
-import CloseIcon from "@mui/icons-material/Close";
 import "./ThemeOptions.css";
-import { useDispatch, useSelector } from "react-redux";
+import { Grid } from "@mui/material";
 import ThemeAction from "./ThemeAction";
+import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { useDispatch, useSelector } from "react-redux";
 import GlobalFunctions from "../../utils/GlobalFunctions";
 
 const mode_settings = [
@@ -119,13 +121,27 @@ const ThemeOptions = ({ setOpenSideBar }) => {
 
   return (
     <div>
-      <button
+      {/* <button
         ref={menu_toggle_ref}
         onClick={() => setActiveMenu()}
         className="dropdown__toggle"
       >
         <i className="bx bx-palette"></i>
-      </button>
+      </button> */}
+
+      <Grid
+        ref={menu_toggle_ref}
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+        }}
+      >
+        <CancelIcon
+          // className="dropdown__toggle"
+          onClick={() => setActiveMenu()}
+        />
+      </Grid>
 
       <div
         ref={menu_ref}

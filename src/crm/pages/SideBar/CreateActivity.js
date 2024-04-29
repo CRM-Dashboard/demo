@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
   forwardRef,
@@ -141,7 +142,7 @@ const CreateActivity = forwardRef((props, ref) => {
   }, [activityInfo]);
 
   useEffect(() => {
-    const subData = props.subActTypeData.filter((data) => {
+    const subData = props.subActTypeData?.filter((data) => {
       return data.actTyp === formik.values.activityType;
     });
     setSubActData(subData);

@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import loginActions from "./LoginReducer/LoginAction";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 
 export default function LoginPage() {
+  const [error, setError] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -73,7 +76,7 @@ export default function LoginPage() {
             md={7}
           >
             <img
-              style={{ width: "100%", height: "%" }}
+              style={{ width: "100%" }}
               src={require("./../../../assets/CRM_login.jpg")}
             ></img>
           </Grid>
@@ -83,17 +86,26 @@ export default function LoginPage() {
             lg={5}
             md={5}
             sx={{
-              marginTop: "1.5em",
-              width: "100%",
-              height: "80%",
-              background: "#fff",
-              border: "1px solid #d5d6d8",
+              // marginTop: "1.5em",
+              // width: "100%",
+              // height: "80%",
+              // background: "#fff",
+              // border: "1px solid #d5d6d8",
+              // "&.MuiGrid-item": {
+              //   paddingBottom: "0",
+              // },
+              // "&.MuiGrid-root": {
+              //   paddingBottom: "0",
+              // },
               "&.MuiGrid-item": {
-                paddingBottom: "0",
+                padding: "1.5em",
+                paddingRight: "0.5em",
               },
               "&.MuiGrid-root": {
-                paddingBottom: "0",
+                border: "none",
               },
+              background: "#fff",
+              border: "1px solid #d5d6d8",
             }}
           >
             <Grid
@@ -185,7 +197,7 @@ export default function LoginPage() {
                 paddingRight: "1em",
               }}
             >
-              <Grid style={{ paddingTop: "1em" }}>
+              <Grid style={{ paddingTop: "1em", position: "relative" }}>
                 <Grid
                   sx={{
                     display: "flex",
@@ -204,7 +216,7 @@ export default function LoginPage() {
                     value={password}
                     id="pswd"
                     label="Password"
-                    type="password"
+                    type={passwordVisible ? "text" : "password"}
                     variant="filled"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
@@ -213,6 +225,31 @@ export default function LoginPage() {
                     }}
                     fullWidth
                   />
+                  <Grid
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      alignItems: "flex-end",
+                      paddingBottom: "0.5em",
+                      paddingRight: "-1em",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPasswordVisible(!passwordVisible);
+                      }}
+                      style={{
+                        position: "absolute",
+                      }}
+                    >
+                      {passwordVisible ? (
+                        <VisibilityOffIcon />
+                      ) : (
+                        <VisibilityIcon />
+                      )}
+                    </button>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
@@ -235,7 +272,7 @@ export default function LoginPage() {
                 justifyContent: "center",
                 flexDirection: "row",
                 width: "100%",
-                padding: error ? "1.5em" : "3.5em",
+                padding: error ? "2.7em" : "4.2em",
               }}
             >
               <Button

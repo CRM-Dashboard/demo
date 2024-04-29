@@ -23,7 +23,10 @@ export default function DashboardOptions({
 
   return (
     <div
-      style={{ backgroundColor: "#000000", position: "relative" }}
+      style={{
+        backgroundColor: "#000000",
+        position: "absolute",
+      }}
       className="toolbarBgColor"
     >
       <Menu
@@ -40,9 +43,10 @@ export default function DashboardOptions({
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         sx={{
-          top: "3.2em",
-          left: "82em",
-          position: "absolute",
+          position: "fixed",
+
+          top: "7%",
+          transform: "translatex(90%)",
           ".dashboardOptionMenu": {
             top: "3.2em",
             left: "86em",

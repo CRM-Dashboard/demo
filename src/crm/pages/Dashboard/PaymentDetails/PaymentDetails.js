@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
@@ -11,18 +12,21 @@ import CircularScreenLoader from "../../../components/circularScreenLoader/Circu
 import PDFViewer from "./../../../components/pdfViewer/PdfViewer";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { TableRow, TableCell, TableFooter } from "@mui/material";
 import CreatePaymentReceipt from "./CreatePaymentReceipt";
 import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCheckBox";
 
 export default function PaymentDetails() {
+  const [url, setURL] = useState("");
+  const [page, setPage] = useState(0);
+  const [response, setResponse] = useState([]);
+  const [formdata, setFormData] = useState({});
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [url, setURL] = useState("");
   const [arrForMail, setArrForMail] = useState([]);
-  const [formdata, setFormData] = useState({});
   const [openCreateForm, setopenCreateForm] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const ref = useRef(null);
   const snackbar = UseCustomSnackbar();
@@ -30,6 +34,9 @@ export default function PaymentDetails() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const orderId = reducerData.searchBar.orderId;
+  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+    reducerData.ThemeReducer.mode
+  );
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
@@ -37,7 +44,7 @@ export default function PaymentDetails() {
         "",
         item?.CreatedOn,
         item?.Towards,
-        `₹${item?.Amount}`,
+        item?.Amount,
         item.UTRNumber,
         item.PaymentDate,
       ];
@@ -130,7 +137,6 @@ export default function PaymentDetails() {
       name: "Payment Date",
       label: "Payment Date",
     },
-
     {
       label: "Action",
       options: {
@@ -226,15 +232,6 @@ export default function PaymentDetails() {
     getTableData();
   }, [orderId]);
 
-  const calculateTotal = () => {
-    let total = 0;
-    tableData.forEach((row) => {
-      total += parseFloat(row[3]); // Assuming currency format like "$1000"
-    });
-
-    return total.toFixed(2); // Format total as needed
-  };
-
   const options = {
     selectableRows: "none",
     rowsPerPage: 100,
@@ -244,6 +241,71 @@ export default function PaymentDetails() {
     search: true,
     viewColumns: true,
     filter: true,
+    filterType: "dropdown",
+    responsive: "standard",
+    rowsPerPageOptions: [5, 10, 25, 50],
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
+    onChangePage(page) {
+      setPage(page);
+    },
+    customTableBodyFooterRender: (opts) => {
+      const startIndex = page * rowsPerPage;
+      const endIndex = (page + 3) * rowsPerPage;
+      let sumAmount = opts.data
+        .slice(startIndex, endIndex)
+        .reduce((accu, item) => {
+          return accu + item.data[3];
+        }, 0);
+
+      return (
+        <>
+          {tableData.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                {opts.columns.map((col, index) => {
+                  if (col.display === "true") {
+                    if (!col.name) {
+                      return <TableCell key={index}>{}</TableCell>;
+                    }
+                    if (col.name === "Created On") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          Total
+                        </TableCell>
+                      );
+                    } else if (col.name === "Towards") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Amount") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {sumAmount}
+                        </TableCell>
+                      );
+                    }
+                  }
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
+        </>
+      );
+    },
     customToolbar: () => [
       <Button
         variant="contained"
@@ -285,20 +347,6 @@ export default function PaymentDetails() {
         Send Mail
       </Button>,
     ],
-    customFooter: () => {
-      return (
-        <tfoot>
-          <tr>
-            <td></td>
-            <td></td>
-            <td style={{ fontWeight: "Bold", "&.td": { paddingLeft: "0em" } }}>
-              {" "}
-              Total : {calculateTotal()}
-            </td>
-          </tr>
-        </tfoot>
-      );
-    },
   };
 
   const getMuiTheme = () =>

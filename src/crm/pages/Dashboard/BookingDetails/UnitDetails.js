@@ -1,27 +1,38 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Typography, Avatar } from "@mui/material";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function UnitDetails({ unitDetails }) {
   const [unitData, setUnitData] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   useEffect(() => {
+    setLoading(true);
     if (OrderId) {
-      fetch(
-        process.env.REACT_APP_SERVER_URL +
-          `/sap/bc/react/crm/so?sap-client=250&vbeln=${OrderId}`
-      )
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+        method: "POST",
+        body: formData,
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data[0].vbeln) {
             setUnitData(data[0]);
+            setLoading(false);
           }
         });
     }
@@ -91,140 +102,145 @@ export default function UnitDetails({ unitDetails }) {
           />
         </Avatar>
       </div>
-
-      <Grid
-        container
-        columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-        sx={{
-          "&.MuiGrid-root": { marginLeft: "-2em" },
-          marginleft: "3em",
-          marginRight: "10em",
-          paddingLeft: "3em",
-          paddingTop: "1em",
-          paddingBottom: "1em",
-        }}
-      >
+      {!loading ? (
         <Grid
+          container
+          columnSpacing={{ xs: 1, sm: 2, md: 3 }}
           sx={{
-            border: "1px solid #AFAAA0",
-            boxShadow: "10px 10px 5px lightblue",
-            backgroundColor: "#FFFFFF",
-            borderRadius: "1em",
-            padding: "1em",
+            "&.MuiGrid-root": { marginLeft: "-2em" },
+            marginleft: "3em",
+            marginRight: "10em",
+            paddingLeft: "3em",
+            paddingTop: "1em",
+            paddingBottom: "1em",
           }}
         >
-          <Grid container spacing={4}>
-            <Grid item xs={4} sm={3} md={3}>
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Project Name: </Typography>
+          <Grid
+            sx={{
+              border: "1px solid #AFAAA0",
+              boxShadow: "10px 10px 5px lightblue",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "1em",
+              padding: "1em",
+            }}
+          >
+            <Grid container spacing={4}>
+              <Grid item xs={4} sm={3} md={3}>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Project Name: </Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.projectName}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.projectName}
-                  </Typography>
-                </div>
-              </div>
 
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Property:</Typography>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Property:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.property}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.property}
-                  </Typography>
-                </div>
-              </div>
 
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Building:</Typography>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Building:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {" "}
+                      {formik?.values?.building}{" "}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {" "}
-                    {formik?.values?.building}{" "}
-                  </Typography>
-                </div>
-              </div>
 
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>
-                    Flat / Unit Number:{" "}
-                  </Typography>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>
+                      Flat / Unit Number:{" "}
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.flatNumber}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.flatNumber}
-                  </Typography>
-                </div>
-              </div>
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Grid container spacing={4}>
-            <Grid item xs={4} sm={3} md={3}>
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Configuration:</Typography>
+            <Grid container spacing={4}>
+              <Grid item xs={4} sm={3} md={3}>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Configuration:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.propertyType}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.propertyType}
-                  </Typography>
-                </div>
-              </div>
 
-              <div className="d-flex mb-1" style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Floor Number:</Typography>
+                <div className="d-flex mb-1" style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Floor Number:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {" "}
+                      {formik?.values?.floorNumber}{" "}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {" "}
-                    {formik?.values?.floorNumber}{" "}
-                  </Typography>
-                </div>
-              </div>
 
-              <div className="d-flex mb-1" style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Saleable Area:</Typography>
+                <div className="d-flex mb-1" style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Saleable Area:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.saleableArea}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.saleableArea}
-                  </Typography>
-                </div>
-              </div>
 
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Carpet Area:</Typography>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>Carpet Area:</Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.carpetArea}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.carpetArea}
-                  </Typography>
-                </div>
-              </div>
 
-              <div style={gridStyle}>
-                <div className="mr-3">
-                  <Typography style={titleStyle}>Rera Carpet Area:</Typography>
+                <div style={gridStyle}>
+                  <div className="mr-3">
+                    <Typography style={titleStyle}>
+                      Rera Carpet Area:
+                    </Typography>
+                  </div>
+                  <div>
+                    <Typography style={dataStyle}>
+                      {formik?.values?.reraCarpetArea}
+                    </Typography>
+                  </div>
                 </div>
-                <div>
-                  <Typography style={dataStyle}>
-                    {formik?.values?.reraCarpetArea}
-                  </Typography>
-                </div>
-              </div>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
+      ) : (
+        <CircularScreenLoader />
+      )}
     </>
   );
 }

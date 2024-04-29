@@ -31,8 +31,9 @@
 }
 
 .detailsSubTitle {
-  font-size: x-large;
+  font-size: 22px;
   font-weight: bold;
+  color: #007fff;
 }
 
 .cardSubTitle {
@@ -43,4 +44,9 @@
 .subValue {
   margin-left: 2em;
   font-size: small;
+}
+
+.detailsTitle {
+  font-size: "11px";
+  color: #007fff;
 }

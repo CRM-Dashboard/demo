@@ -95,8 +95,13 @@ export default function CustomerDetails() {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            const filteredArray = data?.filter(
+            const filteredArray = data[0]?.customerdata?.filter(
               (obj) => obj.orderId === OrderId
+            );
+            console.log(
+              "##########filteredArray.length",
+              filteredArray.length,
+              OrderId
             );
             setNumberOfCust(filteredArray.length);
             setLoading(false);
@@ -182,7 +187,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: 100,
+        height: "50%",
         type: "radialBar",
       },
       plotOptions: {
@@ -195,12 +200,12 @@ export default function CustomerDetails() {
             name: {
               show: false,
               color: "#888",
-              fontSize: "13px",
+              fontSize: "11px",
             },
             value: {
               offsetY: -1,
               color: "#111",
-              fontSize: "12px",
+              fontSize: "11px",
               show: true,
             },
           },
@@ -216,7 +221,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: 100,
+        height: "50%",
         type: "radialBar",
       },
       fill: {
@@ -232,12 +237,12 @@ export default function CustomerDetails() {
             name: {
               show: false,
               color: "#888",
-              fontSize: "13px",
+              fontSize: "11px",
             },
             value: {
               offsetY: -1,
               color: "#111",
-              fontSize: "12px",
+              fontSize: "11px",
               show: true,
             },
           },
@@ -255,7 +260,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: 100,
+        height: "50%",
         type: "radialBar",
       },
       fill: {
@@ -272,12 +277,12 @@ export default function CustomerDetails() {
             name: {
               show: false,
               color: "#888",
-              fontSize: "13px",
+              fontSize: "11px",
             },
             value: {
               offsetY: -1,
               color: "#111",
-              fontSize: "12px",
+              fontSize: "11px",
               show: true,
             },
           },
@@ -295,7 +300,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: 100,
+        height: "50%",
         type: "radialBar",
       },
       fill: {
@@ -303,21 +308,21 @@ export default function CustomerDetails() {
       },
       plotOptions: {
         radialBar: {
-          hollow: {
-            size: "50%",
-          },
+          // hollow: {
+          //   size: "50%",
+          // },
 
           dataLabels: {
             showOn: "always",
             name: {
               show: false,
               color: "#888",
-              fontSize: "10px",
+              fontSize: "11px",
             },
             value: {
               offsetY: -1,
               color: "#111",
-              fontSize: "12px",
+              fontSize: "11px",
               show: true,
             },
           },
@@ -390,244 +395,221 @@ export default function CustomerDetails() {
       circlePaid.options &&
       projectId ? (
       <>
-        <div style={{ height: "12em" }}>
-          <div
+        {/* for div = style={{ height: "12em" }} */}
+        <Grid sx={{ marginLeft: "1%" }}>
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+            columns={14}
             style={{
               display: "flex",
               cursor: "",
               marginTop: "2em",
-              paddingLeft: "4em",
+
               "&.MuiGrid-item": {
                 paddingTop: "0em",
                 paddingLeft: "0em",
               },
             }}
           >
-            <Grid container spacing={4}>
-              <Grid
-                item
-                xs={2}
-                sm={2}
-                md={2}
-                sx={{
-                  marginRight: "1em",
-                  marginBottom: "2em",
-                  "&.MuiGrid-item": {
-                    paddingTop: "0em",
-                    paddingLeft: "0em",
-                  },
-                }}
-              >
-                <Grid
-                  className="circular-img-container"
-                  style={
-                    OrderId ? { cursor: "pointer" } : { cursor: "context-menu" }
-                  }
-                  onClick={() => {
-                    if (OrderId) {
-                      dispatch(
-                        dashboardActions.setShouldShowTimeLine(
-                          !reducerData.dashboard.shouldShowTimeLine
-                        )
-                      );
-                    }
-                  }}
-                >
-                  <Grid
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Grid style={{ padding: "0.8em" }}>
-                      <Grid className="detailsSubTitle">
-                        {searchValueAvailable ? 1 : NoOfBookings}
-                      </Grid>
-                      <Grid
-                        className="detailsTitle"
-                        style={{
-                          paddingBottom: "0.7em",
-                          fontSize: OrderId ? "15px" : "11px",
-                        }}
-                      >
-                        {OrderId ? "Booked" : "Booked Units"}
-                      </Grid>
-                    </Grid>
-
-                    {!OrderId && <Divider orientation="vertical" flexItem />}
-
-                    <Grid style={{ padding: "0.5em" }}>
-                      <label className="detailsSubTitle">
-                        {searchValueAvailable ? " " : NoOfRegistrations}
-                      </label>
-                      <Grid
-                        className="detailsTitle"
-                        style={{
-                          paddingBottom: "0.7em",
-                          fontSize: "11px",
-                        }}
-                      >
-                        {OrderId ? "" : " Registered Units"}
-                      </Grid>
-                    </Grid>
-
-                    {!OrderId && <Divider orientation="vertical" flexItem />}
-
-                    <Grid style={{ padding: "0.5em" }}>
-                      <Grid className="detailsSubTitle">
-                        {searchValueAvailable ? "" : NoOfPossession}
-                      </Grid>
-                      <Grid
-                        className="detailsTitle"
-                        style={{
-                          paddingBottom: "0.7em",
-                          fontSize: "11px",
-                        }}
-                      >
-                        {OrderId ? " " : "Possession Given"}
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  {/* <Divider orientation="vertical" flexItem /> */}
-                </Grid>
-                <Grid sx={{ marginTop: "2em" }}>
-                  <StatusCard
-                    icon={
-                      <Chart
-                        options={circleInvoice.options}
-                        series={circleInvoice.series}
-                        type="radialBar"
-                        height={110}
-                      />
-                    }
-                    count={
-                      searchValueAvailable
-                        ? "₹" + customerDetails.DueAmount
-                        : "₹" + customerDetails?.InvoiceAmount + "Cr"
-                    }
-                    title="Invoiced Amount"
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={2}
-                sm={2}
-                md={2}
-                sx={{
-                  marginRight: "1em",
-                  marginBottom: "2em",
-                  "&.MuiGrid-item": {
-                    paddingTop: "0em",
-                    paddingLeft: "0em",
-                  },
-                }}
-              >
-                <Grid
-                  className="circular-img-container"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    dispatch(
-                      dashboardActions.setShouldShowCustDetails(
-                        !reducerData.dashboard.shouldShowCustData
-                      )
-                    );
-                  }}
-                >
-                  <label className="detailsSubTitle">
-                    {searchValueAvailable ? numberOfCust : NoOfApplicants}
-                  </label>
-                  <label className="detailsTitle" style={{ fontSize: "11px" }}>
-                    Applicants
-                  </label>
-                </Grid>
-
-                <Grid sx={{ marginTop: "2em" }}>
-                  <StatusCard
-                    icon={
-                      <Chart
-                        options={circlePaid.options}
-                        series={circlePaid.series}
-                        type="radialBar"
-                        height={110}
-                      />
-                    }
-                    count={
-                      searchValueAvailable
-                        ? "₹" + getPaidAmt().toLocaleString()
-                        : "₹" + customerDetails?.PaidAmount + "Cr"
-                    }
-                    title="Paid Amount"
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                xs={2}
-                sm={2}
-                md={2}
-                sx={{
-                  marginRight: "1em",
-                  marginBottom: "2em",
-                  "&.MuiGrid-item": {
-                    paddingTop: "0em",
-                    paddingLeft: "0em",
-                  },
-                }}
-              >
-                <Grid className=" circular-img-container">
-                  <label className="detailsSubTitle">
-                    {searchValueAvailable
-                      ? customerDetails.AgreementValue
-                      : "₹" + customerDetails?.ConsiderationAmount + " Crore"}
-                  </label>
-                  <label className="detailsTitle" style={{ fontSize: "11px" }}>
-                    Consideration Amount
-                  </label>
-                </Grid>
-                <Grid sx={{ marginTop: "2em" }}>
-                  <StatusCard
-                    icon={
-                      <Chart
-                        options={circleOut.options}
-                        series={circleOut.series}
-                        type="radialBar"
-                        height={110}
-                      />
-                    }
-                    count={
-                      searchValueAvailable
-                        ? "₹" + customerDetails.BalanceAmount
-                        : "₹" + customerDetails?.BalanceAmount + "Cr"
-                    }
-                    title="Outstanding Amount"
-                  />
-                </Grid>
-              </Grid>
-
-              <HappinessIndexDonut
-                circleUp={circleUp}
-                customerDetails={customerDetails}
-                searchValueAvailable={searchValueAvailable}
+            <Grid
+              xs={2}
+              sm={2}
+              lg={2}
+              md={2}
+              style={
+                OrderId ? { cursor: "pointer" } : { cursor: "context-menu" }
+              }
+              onClick={() => {
+                if (OrderId) {
+                  dispatch(
+                    dashboardActions.setShouldShowTimeLine(
+                      !reducerData.dashboard.shouldShowTimeLine
+                    )
+                  );
+                }
+              }}
+            >
+              <StatusCard
+                width="10em"
+                height="5.5em"
+                count={searchValueAvailable ? 1 : NoOfBookings}
+                title={OrderId ? "Booked" : "Booked Units"}
               />
             </Grid>
-          </div>
-        </div>
+            <Grid
+              xs={2}
+              sm={2}
+              lg={2}
+              md={2}
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                dispatch(
+                  dashboardActions.setShouldShowCustDetails(
+                    !reducerData.dashboard.shouldShowCustData
+                  )
+                );
+              }}
+            >
+              <StatusCard
+                width="10em"
+                height="5.5em"
+                count={searchValueAvailable ? numberOfCust : NoOfApplicants}
+                title={"Applicants"}
+              />
+            </Grid>
+            <Grid xs={2} sm={2} lg={2} md={2}>
+              <StatusCard
+                width="12.5em"
+                height="5.5em"
+                count={
+                  searchValueAvailable
+                    ? customerDetails.AgreementValue
+                    : "₹" + customerDetails?.ConsiderationAmount + " Crore"
+                }
+                title={"Consideration Amount"}
+              />
+            </Grid>
+            <Grid xs={2} sm={2} lg={2} md={2}>
+              <StatusCard
+                width="14em"
+                height="5.5em"
+                icon={
+                  <Chart
+                    options={circleInvoice.options}
+                    series={circleInvoice.series}
+                    type="radialBar"
+                    height={110}
+                  />
+                }
+                count={
+                  searchValueAvailable
+                    ? "₹" + customerDetails.DueAmount
+                    : "₹" + customerDetails?.InvoiceAmount + "Cr"
+                }
+                title="Invoiced Amount"
+              />
+            </Grid>
+            <Grid xs={2} sm={2} lg={2} md={2}>
+              <StatusCard
+                width="14em"
+                height="5.5em"
+                icon={
+                  <Chart
+                    options={circlePaid.options}
+                    series={circlePaid.series}
+                    type="radialBar"
+                    height={110}
+                  />
+                }
+                count={
+                  searchValueAvailable
+                    ? "₹" + getPaidAmt().toLocaleString()
+                    : "₹" + customerDetails?.PaidAmount + "Cr"
+                }
+                title="Paid Amount"
+              />
+              {/* </Grid> */}
+            </Grid>
+            <Grid xs={2} sm={2} lg={2} md={2}>
+              <StatusCard
+                width="14em"
+                height="5.5em"
+                icon={
+                  <Chart
+                    options={circleOut.options}
+                    series={circleOut.series}
+                    type="radialBar"
+                    height={110}
+                  />
+                }
+                count={
+                  searchValueAvailable
+                    ? "₹" + customerDetails.BalanceAmount
+                    : "₹" + customerDetails?.BalanceAmount + "Cr"
+                }
+                title="Outstanding Amount"
+              />
+            </Grid>
+            <Grid xs={2} sm={2} lg={2} md={2}>
+              <StatusCard
+                width="14em"
+                height="5.5em"
+                icon={
+                  <Chart
+                    options={circleUp.options}
+                    series={circleUp.series}
+                    type="radialBar"
+                    height={110}
+                  />
+                }
+                count={
+                  searchValueAvailable
+                    ? "₹" + customerDetails.PossessionBalance
+                    : "₹" + customerDetails?.UpcomingAmount + "Cr"
+                }
+                title="Balance till possession"
+              />
+            </Grid>
+            {/* </Grid> */}
 
-        <Grid
-          style={{
-            height: "9.3em",
-            paddingTop: "0.10em",
-            display: "flex",
-            marginTop: "5em",
-          }}
-        >
-          <Grid sx={{ width: "50%" }}>
-            <AgingGraph />
+            {/* </Grid> */}
           </Grid>
-          <Grid sx={{ width: "50%" }}>
-            <Graph />
+        </Grid>
+
+        <HappinessIndexDonut
+          circleUp={circleUp}
+          customerDetails={customerDetails}
+          searchValueAvailable={searchValueAvailable}
+        />
+
+        <Grid sx={{ marginLeft: "1%" }}>
+          <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+            columns={12}
+            sx={{
+              display: "flex",
+              marginTop: "1%",
+            }}
+          >
+            <Grid
+              item
+              xs={6}
+              sm={6}
+              lg={6}
+              md={6}
+              sx={{
+                // width: "48%",
+                backgroundColor:
+                  reducerData.ThemeReducer.mode === "theme-mode-light" ||
+                  reducerData.ThemeReducer.mode === null
+                    ? "#ffffff"
+                    : "#2d2d2d",
+                // backgroundColor: "white",
+                borderRadius: "0.8em",
+              }}
+            >
+              <AgingGraph />
+            </Grid>
+            <Grid
+              item
+              xs={6}
+              sm={6}
+              lg={6}
+              md={6}
+              sx={{
+                paddingleft: "3em",
+                // width: "48%",
+                // height: "100%",
+                height: "10em",
+                borderRadius: "0.8em",
+              }}
+            >
+              <Graph />
+            </Grid>
           </Grid>
         </Grid>
       </>

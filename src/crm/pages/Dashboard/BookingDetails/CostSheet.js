@@ -1,94 +1,39 @@
 /* eslint-disable no-unreachable */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Style.css";
 import { Grid } from "@mui/material";
+import { useSelector } from "react-redux";
 import { Typography } from "@mui/material";
 
-export default function CostSheet({ costInfo }) {
-  // const validationSchema = Yup.object().shape({
-  //   baseRate: Yup.number().required("Required"),
-  //   baseValue: Yup.number().required("Required"),
-  //   carParkingValue: Yup.number().required("Required"),
-  //   pmc_pmrda: Yup.number().required("Required"),
-  //   mseb: Yup.number().required("Required"),
-  //   clubCharges: Yup.number().required("Required"),
-  //   exclClubCharges: Yup.number().required("Required"),
-  //   evPointCharges: Yup.number().required("Required"),
-  //   considerationRate: Yup.number().required("Required"),
-  //   otherCharges: Yup.number().required("Required"),
-  //   gstOtherAmt: Yup.number().required("Required"),
-  //   gstOtherpercentage: Yup.number().required("Required"),
-  //   allInclusiveRate: Yup.number().required("Required"),
-  //   allInclusiveValue: Yup.number().required("Required"),
-  //   considerationValue: Yup.number().required("Required"),
-  //   gstPercenatge: Yup.number().required("Required"),
-  //   gstAmount: Yup.number().required("Required"),
-  // });
+export default function CostSheet() {
+  const [costInfo, setCostInfo] = useState([]);
 
-  // const formik = useFormik({
-  //   initialValues: {
-  //     baseRate: costInfo?.baseRate ? costInfo?.baseRate : "",
-  //     baseValue: costInfo?.baseVal ? costInfo?.baseVal : "",
-  //     carParkingValue: costInfo?.car ? costInfo?.car : "",
-  //     pmc_pmrda: costInfo?.pmc ? costInfo?.pmc : "",
-  //     mseb: costInfo?.mseb ? costInfo?.mseb : "",
-  //     clubCharges: costInfo?.club ? costInfo?.club : "",
-  //     exclClubCharges: costInfo?.exclub ? costInfo?.exclub : "",
-  //     evPointCharges: costInfo?.evpOth ? costInfo?.evpOth : "",
-  //     considerationRate: costInfo?.considerationRate
-  //       ? costInfo?.considerationRate
-  //       : "",
-  //     otherCharges: costInfo?.other ? costInfo?.other : "",
-  //     gstOtherAmt: costInfo?.gstOther ? costInfo?.gstOther : "",
-  //     gstOtherpercentage: costInfo?.gstOtherPer ? costInfo?.gstOtherPer : "",
-  //     allInclusiveRate: costInfo?.allIncRate ? costInfo?.allIncRate : "",
-  //     allInclusiveValue: costInfo?.allIncVal ? costInfo?.allIncVal : "",
-  //     considerationValue: costInfo?.considerationValue
-  //       ? costInfo?.considerationValue
-  //       : "",
-  //     gstPercenatge: costInfo?.gstPer ? costInfo?.gstPer : "",
-  //     gstAmount: costInfo?.gst ? costInfo?.gst : "",
-  //   },
-  //   validationSchema,
-  //   onSubmit: (values, { resetForm }) => {
-  //     const data = values;
-  //     saveCostSheet();
-  //   },
-  // });
+  const reducerData = useSelector((state) => state);
+  const OrderId = reducerData?.searchBar?.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
-  // const columns = [
-  //   {
-  //     name: "Milestone",
-  //     label: "Milestone",
-  //   },
-  //   {
-  //     name: "Due Date",
-  //     label: "Due Date",
-  //   },
-  //   {
-  //     name: "GST Amount",
-  //     label: "GST Amount",
-  //   },
-  //   {
-  //     name: "Invoice Date",
-  //     label: "Invoice Date",
-  //   },
-  //   {
-  //     name: "Unit Installment",
-  //     label: "Unit Installment",
-  //   },
-  //   {
-  //     name: "Terms",
-  //     label: "Terms",
-  //   },
-  //   {
-  //     name: "Total Amount",
-  //     label: "Total Amount",
-  //   },
-  // ];
+  useEffect(() => {
+    if (OrderId) {
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data[0].so[0].vbeln) {
+            setCostInfo(data[0].so[0]);
+          }
+        });
+    }
+  }, []);
 
   return (
-    <div>
+    <div style={{ marginTop: "1em" }}>
       <div>
         <Grid container spacing={4} sx={{ marginLeft: "0.5em" }}>
           <Grid

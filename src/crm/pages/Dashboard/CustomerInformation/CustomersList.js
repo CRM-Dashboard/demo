@@ -12,14 +12,18 @@ import "./CustomersList.css";
 import CustomerInfoCard from "./CustomerInfoCard";
 
 export default function CustomersList() {
+  const [response, setResponse] = useState([]);
+  const [titleData, setTitleData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState([]);
-  const [openCustInfo, setOpenCustInfo] = useState(false);
+  const [occupations, setOccupation] = useState([]);
+  const [countryData, setCountryData] = useState([]);
+  const [stateData, setStateData] = useState([]);
   const [customerInfo, setCutomerInfo] = useState("");
-  const [customerMobileNumber, setCustomerMobileNumber] = useState("");
-  const [filteredCustomers, setFilteredCustomers] = useState("");
+  const [openCustInfo, setOpenCustInfo] = useState(false);
   const [filteredResponse, setFilteredResponse] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState("");
+  const [customerMobileNumber, setCustomerMobileNumber] = useState("");
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -30,6 +34,7 @@ export default function CustomersList() {
   const projectId = reducerData?.dashboard?.project?.projectId;
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
+      console.log("$$$$$$$$$$$$$$$$$$$$$$item", item);
       return [
         item?.customerName,
         // item?.Mobile,
@@ -44,6 +49,7 @@ export default function CustomersList() {
         item?.Company,
         item?.Gender,
         item?.city,
+        item?.Mobile,
       ];
     });
     return modifiedResponse;
@@ -60,7 +66,7 @@ export default function CustomersList() {
     const initiateOutgoingCall = async () => {
       if (customerMobileNumber !== "") {
         const formData = new FormData();
-        formData.append("From", "09823230708");
+
         formData.append("From", loggedInUser?.mobile);
         formData.append("To", customerMobileNumber);
         formData.append("CallerId", "095-138-86363");
@@ -105,11 +111,15 @@ export default function CustomersList() {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            setResponse(data);
+            setTitleData(data[0].titledata);
+            setCountryData(data[0].countrydata);
+            setOccupation(data[0].occupationdata);
+            setStateData(data[0].statedata);
+            setResponse(data[0]?.customerdata);
             setIsLoading(false);
-            setTableData(modifyResponse(data));
+            setTableData(modifyResponse(data[0]?.customerdata));
             if (OrderId) {
-              const filteredArray = data?.filter(
+              const filteredArray = data[0]?.customerdata?.filter(
                 (obj) => obj.orderId === OrderId
               );
               setFilteredResponse(filteredArray);
@@ -237,7 +247,7 @@ export default function CustomersList() {
               onClick={() => {
                 var ContactNo;
                 if (OrderId) {
-                  ContactNo = filteredCustomers[dataIndex][1];
+                  ContactNo = filteredCustomers[dataIndex][11];
                 } else {
                   ContactNo = response[dataIndex].Mobile;
                 }
@@ -421,7 +431,13 @@ export default function CustomersList() {
                   )}
             </ThemeProvider>
           ) : (
-            <CustomerInfoCard customerInfo={customerInfo} />
+            <CustomerInfoCard
+              customerInfo={customerInfo}
+              titleData={titleData}
+              occupations={occupations}
+              countryData={countryData}
+              stateData={stateData}
+            />
           )}
         </>
       ) : (

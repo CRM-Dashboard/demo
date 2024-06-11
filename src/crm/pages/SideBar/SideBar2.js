@@ -16,6 +16,7 @@ import PrintIcon from "@mui/icons-material/Print";
 import AudioCallIcon from "@mui/icons-material/Call";
 import SettingsIcon from "@mui/icons-material/SettingsSharp";
 import MailIcon from "@mui/icons-material/Mail";
+import EmailIcon from "@mui/icons-material/Email";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +25,7 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import EqualizerIcon from "@mui/icons-material/Equalizer";
 import CustomerDetails from "../Dashboard/CustomerDetails/CustomerDetails";
 import dashboardActions from "./../Dashboard/DashboardReducer.js/DashboardActions";
 import searchbarActions from "./../SearchBar/SearchBarReducer/SearchBarActions";
@@ -43,11 +45,14 @@ import Activities from "../Activity/Activities";
 import { useEffect } from "react";
 import DashboardOptions from "./DashboardOptions";
 import { Grid } from "@mui/material";
-import EmailReport from "../Dashboard/EmailReport/EmailReport";
-import ServiceRequest from "../Dashboard/ServiceRequest/ServiceRequest";
+import EmailReport from "../Reports/EmailReport/EmailReport";
+import ServiceRequest from "../Reports/ServiceRequest/ServiceRequest";
+import AgingReport from "../Reports/AgingReport/AgingReport";
 import CreateActivity from "./CreateActivity";
 import searchBarAction from "./../SearchBar/SearchBarReducer/SearchBarActions";
+import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CrmModal from "../../components/crmModal/CrmModal";
+import Mails from "../Mails/Mails";
 
 const routes = [
   {
@@ -73,6 +78,12 @@ const routes = [
         name: "Service Request",
         icon: <ManageAccountsIcon />,
       },
+      {
+        path: "/agingReport",
+        to: "/crm/agingReport",
+        name: "Aging Report",
+        icon: <EqualizerIcon />,
+      },
     ],
   },
   {
@@ -92,6 +103,12 @@ const routes = [
     to: "/crm/activities",
     name: "Activity",
     icon: <AutoStoriesIcon />,
+  },
+  {
+    path: "/mails",
+    to: "/crm/mails",
+    name: "Mail",
+    icon: <EmailIcon />,
   },
 ];
 
@@ -123,6 +140,8 @@ const SideBar2 = () => {
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData.dashboard.project.projectId;
+  const custData = reducerData.searchBar.accountStatement;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
   const snackbar = UseCustomSnackbar();
@@ -150,22 +169,54 @@ const SideBar2 = () => {
     }
   };
 
+  const handleContinue = () => {
+    if (ref.current) {
+      ref.current.handleContinue();
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
-      if (callAPI) {
+      if (callAPI && sid) {
         const interval = setInterval(async () => {
-          if (callAPI && sid !== 0) {
+          if (callAPI && sid) {
             try {
               // Fetch status of sid here
               const data = await getCallDetailsBySid(sid); // Assuming getCallDetailsBySid is an asynchronous function
 
               const sidData = data?.filter((data) => data.Sid === sid);
               const status = sidData?.[0]?.Status; // Access the status from the first item of the filtered array
+              const recordingUrl = sidData?.[0]?.RecordingUrl;
+              console.log("status", status, recordingUrl);
 
               if (status) {
                 setCallAPI(false);
                 setOpenActivityModal(true);
                 clearInterval(interval); // Stop checking once flag is set to false
+                if (status == "completed") {
+                  console.log("call update api");
+                  const [dateStr, timeStr] =
+                    sidData?.[0]?.DateCreated.split(" ");
+                  const entryData = {
+                    SID: sidData?.[0]?.Sid,
+                    ERDAT: dateStr,
+                    UZEIT: timeStr,
+                    CALL_FROM: sidData?.[0]?.From,
+                    CALL_TO: sidData?.[0]?.To,
+                    PHONESID: sidData?.[0]?.PhoneNumberSid,
+                    STATUS: sidData?.[0]?.Status,
+                    START_TIME: sidData?.[0]?.StartTime,
+                    RECORDING_URL: sidData?.[0]?.RecordingUrl,
+                    VBELN: orderId,
+                  };
+
+                  const callDatails = new FormData();
+                  callDatails.append("userName", userName);
+                  callDatails.append("passWord", passWord);
+                  callDatails.append("entryData", JSON.stringify(entryData));
+
+                  saveCallDetailsAPI(callDatails);
+                }
               }
             } catch (error) {
               console.error("Error fetching status:", error);
@@ -238,6 +289,7 @@ const SideBar2 = () => {
   };
 
   const saveCallDetailsAPI = (callDetails) => {
+    // process.env.REACT_APP_SERVER_URL
     const apiUrl =
       process.env.REACT_APP_SERVER_URL + "/api/topBar/saveCallDetails";
 
@@ -260,7 +312,6 @@ const SideBar2 = () => {
   const initiateOutgoingCall = async () => {
     if (customerMobileNumber !== "") {
       const formData = new FormData();
-      // formData.append("From", "09823230708");
       formData.append("From", loggedInUser?.mobile);
       formData.append("To", customerMobileNumber);
       formData.append("CallerId", "095-138-86363");
@@ -276,24 +327,7 @@ const SideBar2 = () => {
             setSid(data.Call.Sid);
             dispatch(searchBarAction.setSid(data.Call.Sid));
             setOpenActivityModal(false);
-            setDisabledBtn(false);
-            const entryData = {
-              sid: data.Call.Sid,
-              dateCreated: data.Call.DateCreated,
-              to: data.Call.To,
-              from: data.Call.To,
-              phoneNumberSid: data.Call.To,
-              status: data.Call.To,
-              startTime: data.Call.To,
-              recordingUrl: data.Call.To,
-            };
-
-            const callDatails = new FormData();
-            callDatails.append("userName", userName);
-            callDatails.append("passWord", passWord);
-            callDatails.append("entryData", JSON.stringify(entryData));
-
-            saveCallDetailsAPI(callDatails);
+            setDisabledBtn(true);
 
             snackbar.showSuccess("Connecting to..." + customerMobileNumber);
           }
@@ -359,10 +393,53 @@ const SideBar2 = () => {
     return maskedNumber;
   };
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Checking Gera-parking site",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
+  const handleParking = async () => {
+    try {
+      const formData = new FormData();
+      const entryData = {
+        crmId: userName,
+        projectId: projectId,
+      };
+      formData.append("entryData", JSON.stringify(entryData));
+
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/topBar/getParkingToken`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("data########", data);
+          const geraParkingUrl = `http://gera-parking-website.s3-website.ap-south-1.amazonaws.com?tokenTimeStamp=${data.data.tokenTimeStamp}`;
+          console.log("##########geraparkingurl", geraParkingUrl);
+          window.open(geraParkingUrl, "_blank", "noopener,noreferrer");
+          saveLog();
+          // window.location.href = geraParkingUrl;
+        });
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while generating the token. Please try again.");
+    }
+  };
+
   return (
     <>
       <Grid
-        //Refer main-conainer class
         sx={{
           display: "flex",
           flex: "1",
@@ -371,7 +448,7 @@ const SideBar2 = () => {
           position: "relative",
         }}
       >
-        <AppBar position="fixed" open={isOpen}>
+        <AppBar open={isOpen}>
           <Toolbar className="toolbarBgColor" position="relative">
             <IconButton
               color="inherit"
@@ -394,7 +471,7 @@ const SideBar2 = () => {
             <IconButton
               color="inherit"
               onClick={() => {
-                navigate("/home");
+                navigate("/menus");
                 dispatch(searchbarActions.setSearchKey(""));
                 dispatch(searchbarActions.setOrderId(""));
                 dispatch(searchbarActions.setAccountStmt({}));
@@ -408,19 +485,38 @@ const SideBar2 = () => {
               <HomeIcon />
             </IconButton>
 
-            <Typography gutterBottom style={{ marginTop: "0.6em" }}>
+            <Typography
+              gutterBottom
+              style={{
+                marginTop: "0.6em",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
               {projectName}
             </Typography>
 
-            <div style={{ flexGrow: 1, position: "relative" }}>
+            <Grid style={{ flexGrow: 1, position: "relative" }}>
               <SearchBar />
-            </div>
+            </Grid>
 
-            <div style={{ paddingRight: "0.8em" }}>
+            <IconButton
+              size="large"
+              color="inherit"
+              onClick={(e) => {
+                handleParking();
+              }}
+              disabled={!shouldShowMenus}
+            >
+              <DirectionsCarFilledIcon />
+            </IconButton>
+
+            <Grid style={{ paddingRight: "0.8em" }}>
               <Badge color="secondary" badgeContent={0} showZero>
                 <NotificationsIcon />
               </Badge>
-            </div>
+            </Grid>
 
             <IconButton
               size="large"
@@ -575,7 +671,7 @@ const SideBar2 = () => {
         </motion.div>
 
         <div className="content-container">
-          <Box
+          <Grid
             sx={{
               paddingLeft: "1em",
               paddingRight: "1em",
@@ -591,11 +687,13 @@ const SideBar2 = () => {
                 <Route path="callHistory" element={<CallHistory />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="activities" element={<Activities />} />
+                <Route path="mails" element={<Mails />} />
                 <Route path="emailReport" element={<EmailReport />} />
                 <Route path="serviceRequest" element={<ServiceRequest />} />
+                <Route path="agingReport" element={<AgingReport />} />
               </Route>
             </Routes>
-          </Box>
+          </Grid>
         </div>
 
         <Grid
@@ -625,6 +723,7 @@ const SideBar2 = () => {
             </div>{" "}
           </Box>
         </Drawer>
+
         <CrmModal
           maxWidth="sm"
           show={openActivityModal}
@@ -639,14 +738,19 @@ const SideBar2 = () => {
             submitActivity();
             setOpenActivityModal(false);
             setDisabledBtn(false);
+            setCallAPI(false);
+            setSid(0);
           }}
           TertiarySave={() => {
+            handleContinue();
             initiateOutgoingCall();
           }}
         >
           <CreateActivity
             ref={ref}
             dpData={dpData}
+            setCallAPI={setCallAPI}
+            setSid={setSid}
             actTypeData={actTypeData}
             actModeData={actModeData}
             disabledBtn={disabledBtn}
@@ -659,6 +763,7 @@ const SideBar2 = () => {
             setDisabledTertiaryBtn={setDisabledTertiaryBtn}
           />
         </CrmModal>
+
         <CrmModal
           maxWidth="md"
           show={showPrintMenus}
@@ -671,6 +776,7 @@ const SideBar2 = () => {
         >
           <PrintOptions />
         </CrmModal>
+
         <CrmModal
           maxWidth="md"
           show={showSendMail}

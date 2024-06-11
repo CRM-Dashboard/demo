@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
+// import FileUploader from "./../Activity/FileUploader";
 
 import ActivityDetails from "./ActivityDetails";
 import CustomTabLayout from "../../components/tabs/CustomTabLayout";
@@ -10,6 +11,10 @@ export default function Activities() {
       label: "Activity",
       component: <ActivityDetails />,
     },
+    // {
+    //   label: "File Upload",
+    //   component: <FileUploader />,
+    // },
   ];
 
   return <CustomTabLayout tabPanels={tabs} />;

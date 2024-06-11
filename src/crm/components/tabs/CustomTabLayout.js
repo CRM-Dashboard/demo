@@ -20,7 +20,7 @@ const CrmTabs = styled((props) => (
     backgroundColor: "transparent",
   },
   "& .MuiTabs-indicatorSpan": {
-    width: "70%",
+    width: "90%",
     backgroundColor: "#7252D3",
   },
 }));
@@ -80,7 +80,7 @@ function CustomTabLayout({
   };
   const handleMenuItemClick = (event, index) => {
     setValue(false);
-    setSelectedIndex(index - 10);
+    setSelectedIndex(index - 9);
     setAnchorEl(null);
     onTabChange(index);
   };
@@ -106,7 +106,7 @@ function CustomTabLayout({
   function renderButtonTabs(id) {
     return (
       <Typography>
-        {tabPanels.slice(10, tabPanels.length)[id].component}
+        {tabPanels.slice(9, tabPanels.length)[id].component}
       </Typography>
     );
   }
@@ -120,6 +120,8 @@ function CustomTabLayout({
           bgcolor: "#F3F5F7",
           display: "flex",
           alignItems: "center",
+          border: "1px solid white",
+          borderRadius: "18px",
           background: GlobalFunctions.getThemeBasedMode(
             reducerData.ThemeReducer.mode
           ),
@@ -129,9 +131,9 @@ function CustomTabLayout({
         }}
       >
         <CrmTabs sx={{ padding: 0 }} value={value} onChange={handleChange}>
-          {tabPanels.length > 10
+          {tabPanels.length > 9
             ? tabPanels
-                .slice(0, 10)
+                .slice(0, 9)
                 .map((item) => (
                   <ErpTab
                     label={<Typography>{item.label}</Typography>}
@@ -146,7 +148,7 @@ function CustomTabLayout({
                 />
               ))}
         </CrmTabs>
-        {tabPanels.length > 10 ? (
+        {tabPanels.length > 9 ? (
           <>
             <Button
               disableRipple
@@ -167,11 +169,11 @@ function CustomTabLayout({
                 "aria-labelledby": "basic-button",
               }}
             >
-              {tabPanels.slice(10, tabPanels.length).map((item, index) => (
+              {tabPanels.slice(9, tabPanels.length).map((item, index) => (
                 <MenuItem
                   selected={index === selectedIndex}
                   value={item.label}
-                  onClick={(event) => handleMenuItemClick(event, index + 10)}
+                  onClick={(event) => handleMenuItemClick(event, index + 9)}
                   disabled={item?.disabled}
                 >
                   <Typography> {item.label} </Typography>

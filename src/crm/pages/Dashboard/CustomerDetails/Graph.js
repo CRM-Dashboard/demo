@@ -54,8 +54,11 @@ function Graph() {
     animationEnabled: true,
     colorSet: "colorSet2",
     title: {
+      fontSize: 15,
+      fontWeight: "bold",
+      horizontalAlign: "left",
       text: "Collection Trend",
-      fontFamily: "Futura, sans-serif ",
+      fontFamily: "Futura",
     },
     axisY: {
       title: "Y-axis Title",
@@ -64,9 +67,8 @@ function Graph() {
     backgroundColor:
       reducerData.ThemeReducer.mode === "theme-mode-light" ||
       reducerData.ThemeReducer.mode === null
-        ? "#f0f0f0"
-        : "#202020",
-
+        ? "#ffffff"
+        : "#2d2d2d",
     color: GlobalFunctions.getThemeBasedColour(reducerData.ThemeReducer.mode),
     charts: [
       {
@@ -89,10 +91,10 @@ function Graph() {
     // },
   };
   const containerProps = {
-    width: "44em",
     height: "180%",
     margin: "auto",
     backgroundColor: "#fafafb",
+    borderRadius: "0.8em",
     color: GlobalFunctions.getThemeBasedColour(reducerData.ThemeReducer.mode),
   };
   return !loading ? (
@@ -101,6 +103,7 @@ function Graph() {
       containerProps={containerProps}
       onRef={(ref) => (stockChartRef.current = ref)}
       type="splineArea"
+      sx={{ borderRadius: "0.8em" }}
     />
   ) : (
     <CircularScreenLoader />

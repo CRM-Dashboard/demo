@@ -1,36 +1,106 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import "./CustomerInfoCard.css";
+import { useSelector } from "react-redux";
+import CRMInformation from "./CRM/CRMInformation";
 import CakeIcon from "@mui/icons-material/Cake";
 import MailIcon from "@mui/icons-material/Mail";
-import BankInformation from "./BankInformation";
+import BankInformation from "./Bank/BankInformation";
 import { Typography, Grid } from "@mui/material";
-import BasicInformation from "./BasicInformation";
-import ChildInformation from "./ChildInformation";
-import PlaceIcon from "@mui/icons-material/Place";
+import BasicInformation from "./Basic/BasicInformation";
+import ChildInformation from "./Child/ChildInformation";
 import PersonIcon from "@mui/icons-material/Person";
+import CustomisationDetails from "./Customisation/CustomisationDetails";
 import CelebrationIcon from "@mui/icons-material/Celebration";
-import TransactionInformation from "./TransactionInformation";
+import TransactionInformation from "./Transaction/TransactionInformation";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
 
-const CustomerInfoCard = ({ customerInfo }) => {
+const CustomerInfoCard = ({
+  customerInfo,
+  titleData,
+  occupations,
+  countryData,
+  stateData,
+}) => {
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+
+  const [customerData, setCustomerData] = useState(customerInfo);
+
+  const getUpdatedData = () => {
+    if (projectId) {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("projectId", projectId);
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            // setTitleData(data[0].titledata);
+            // setCountryData(data[0].countrydata);
+            // setOccupation(data[0].occupationdata);
+            // setStateData(data[0].statedata);
+
+            if (orderId) {
+              const filteredArray = data[0]?.customerdata?.filter(
+                (obj) => obj.orderId === orderId
+              );
+              const finalArray = filteredArray?.filter(
+                (data) => data.customerId === customerInfo.customerId
+              );
+
+              setCustomerData(finalArray[0]);
+            }
+          }
+        });
+    }
+  };
+
   const tabs = [
     {
       label: "Basic Info",
-      component: <BasicInformation customerInfo={customerInfo} />,
+      component: (
+        <BasicInformation
+          titleData={titleData}
+          occupations={occupations}
+          countryData={countryData}
+          stateData={stateData}
+          getUpdatedData={getUpdatedData}
+        />
+      ),
     },
     {
-      label: "Child Info",
-      component: <ChildInformation />,
+      label: "Child Details",
+      component: (
+        <ChildInformation
+          customerInfo={customerData}
+          getUpdatedData={getUpdatedData}
+        />
+      ),
     },
     {
       label: "Bank Details",
-      component: <BankInformation />,
+      component: <BankInformation customerInfo={customerData} />,
     },
     {
       label: "Transaction Details",
-      component: <TransactionInformation />,
+      component: <TransactionInformation customerInfo={customerData} />,
+    },
+    {
+      label: "CRM Details",
+      component: <CRMInformation customerInfo={customerData} />,
+    },
+    {
+      label: "Customisation Details",
+      component: <CustomisationDetails customerInfo={customerData} />,
     },
   ];
 
@@ -50,9 +120,27 @@ const CustomerInfoCard = ({ customerInfo }) => {
     );
   };
 
+  const getInitials = (name) => {
+    if (!name) return "";
+
+    const words = name.trim().split(/\s+/);
+    const initials = words.map((word) => word[0].toUpperCase()).join("");
+    return initials;
+  };
+
   return (
-    <>
-      <Grid container spacing={4} sx={{ marginLeft: "0.5em" }}>
+    <Grid>
+      <Grid
+        container
+        columns={12}
+        columnGap={2}
+        spacing={2}
+        sx={{
+          marginLeft: "0.5em",
+          padding: "3em",
+        }}
+        className="bgImage"
+      >
         <Grid
           item
           xs={4}
@@ -60,87 +148,158 @@ const CustomerInfoCard = ({ customerInfo }) => {
           md={3}
           sx={{
             display: "flex",
+            flexDirection: "column",
             backgroundColor: "white",
             paddingBottom: "2em",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "20%",
+            border: "1px solid white",
+            borderRadius: "18px",
+            position: "sticky",
+            top: "4em", // Adjust this value as needed
+            alignSelf: "flex-start",
           }}
         >
           <Grid>
-            <div style={{ display: "flex" }}>
-              <div className="circularImg">
-                <Typography
-                  sx={{ padding: "0.52em", fontSize: "20px", color: "white" }}
-                >
-                  AB
-                </Typography>{" "}
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <div className="circularImg">
+                  <Typography
+                    sx={{
+                      // paddingLeft: "22%",
+                      // paddingTop: "30%",
+                      height: "3.5em",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: "22px",
+                      color: "white",
+                    }}
+                  >
+                    {getInitials(customerData?.customerName)}
+                  </Typography>{" "}
+                </div>
               </div>
-              <div style={{ paddingTop: "1.5em" }}>
-                <Typography sx={{ fontWeight: "bold" }}>
-                  {customerInfo?.customerName}{" "}
-                </Typography>
-                <Typography fontSize="12px">
-                  {customerInfo?.Occupation}
-                </Typography>
-                <Typography fontSize="12px">
-                  {customerInfo?.Designation}
-                </Typography>
-                <Typography fontSize="12px">
-                  {customerInfo?.Company}, {customerInfo.WorkPlace}
-                </Typography>
-                <Typography fontSize="12px">
-                  {customerInfo?.Industry}
-                </Typography>
+              <div className="showDataAtCenter">
+                <div
+                  style={{
+                    paddingTop: "1em",
+                  }}
+                >
+                  <Typography
+                    fontSize="18px"
+                    sx={{ fontWeight: "bold", paddingLeft: "1em" }}
+                  >
+                    {customerData?.customerName}{" "}
+                  </Typography>
+                  <Typography fontSize="16px" className="showDataAtCenter">
+                    {customerData?.Occupation}{" "}
+                    {customerData?.industry &&
+                      "(" + customerData?.industry + ")"}
+                  </Typography>
+                  <Typography fontSize="16px" className="showDataAtCenter">
+                    {customerData?.Designation}
+                  </Typography>
+                  <Typography fontSize="16px" className="showDataAtCenter">
+                    {customerData?.Company}, {customerData.WorkPlace}
+                  </Typography>
+                </div>
               </div>
             </div>
             {/* //personalDetails */}
             <div>
               <div
-                className="d-flex"
-                style={{ paddingTop: "2em", paddingLeft: "1em" }}
+                style={{
+                  paddingTop: "2em",
+                  paddingLeft: "1em",
+                  display: "flex",
+                }}
               >
                 <CakeIcon fontSize="small" />
-                <Typography fontSize="14px" style={{ paddingLeft: "1em" }}>
+                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
                   {" "}
-                  {moment(customerInfo?.DOB).format("DD MMM YYYY")}
+                  {moment(customerData?.DOB).format("DD MMM YYYY")}
                 </Typography>
               </div>
 
               <div
-                className="d-flex"
-                style={{ paddingTop: "0.5em", paddingLeft: "1em" }}
+                style={{
+                  paddingTop: "0.5em",
+                  paddingLeft: "1em",
+                  display: "flex",
+                }}
               >
                 <CelebrationIcon fontSize="small" />
-                <Typography fontSize="14px" style={{ paddingLeft: "1em" }}>
+                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
                   {" "}
-                  {moment(customerInfo?.DOB).format("DD MMM YYYY")}
+                  {customerData?.anniversary &&
+                    moment(customerData?.anniversary).format("DD MMM YYYY")}
                 </Typography>
               </div>
+
               <div
-                className="d-flex"
-                style={{ paddingTop: "0.5em", paddingLeft: "1em" }}
+                style={{
+                  paddingTop: "0.5em",
+                  paddingLeft: "1em",
+                  display: "flex",
+                }}
               >
                 <PhoneAndroidIcon fontSize="small" />
-                <Typography fontSize="14px" style={{ paddingLeft: "1em" }}>
+                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
                   {" "}
-                  {customerInfo?.Mobile}
+                  {customerData?.Mobile}
                 </Typography>
               </div>
+
               <div
-                className="d-flex"
-                style={{ paddingTop: "0.5em", paddingLeft: "1em" }}
+                style={{
+                  paddingTop: "0.5em",
+                  paddingLeft: "1em",
+                  display: "flex",
+                }}
               >
                 <MailIcon fontSize="small" />
-                <Typography fontSize="14px" style={{ paddingLeft: "1em" }}>
+                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
                   {" "}
-                  {customerInfo?.Email}
+                  {customerData?.Email}
                 </Typography>
               </div>
+
               <div
+                style={{
+                  paddingTop: "1em",
+                  paddingLeft: "1em",
+                  display: "flex",
+                }}
+              >
+                <div>
+                  <PersonIcon fontSize="medium" />
+                </div>
+                <div>
+                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
+                    {customerData?.Age} Years
+                  </Typography>
+                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
+                    {customerData?.Gender}
+                  </Typography>
+                </div>
+              </div>
+
+              {/* <div
                 className="d-flex"
                 style={{ paddingTop: "0.5em", paddingLeft: "1em" }}
               >
                 <PlaceIcon fontSize="small" />{" "}
                 {getAddress(customerInfo?.Address)}
               </div>
+
               <Typography fontSize="14px" style={{ paddingLeft: "3.6em" }}>
                 {" "}
                 {customerInfo?.State}
@@ -148,44 +307,21 @@ const CustomerInfoCard = ({ customerInfo }) => {
               <Typography fontSize="14px" style={{ paddingLeft: "3.6em" }}>
                 {" "}
                 {customerInfo?.Country}
-              </Typography>
+              </Typography> */}
             </div>
             {/* OtherDetails */}
-            <div
-              style={{ paddingTop: "1em", paddingLeft: "1em", display: "flex" }}
-            >
-              <div>
-                <PersonIcon fontSize="medium" />
-              </div>
-              <div>
-                <Typography fontSize="14px" style={{ paddingLeft: "0.8em" }}>
-                  {customerInfo?.Age} Years
-                </Typography>
-                <Typography fontSize="14px" style={{ paddingLeft: "0.8em" }}>
-                  {customerInfo?.Gender}
-                </Typography>
-                <Typography fontSize="14px" style={{ paddingLeft: "0.8em" }}>
-                  {customerInfo?.Ethnicity}
-                </Typography>
-              </div>
-            </div>
+
             <></>
           </Grid>
         </Grid>
 
-        <Grid
-          item
-          xs={4}
-          sm={8}
-          md={8}
-          sx={{ marginLeft: "0.5em", backgroundColor: "white" }}
-        >
-          <div style={{ paddingTop: "1em" }}>
+        <Grid item xs={7} sm={8} md={8}>
+          <div>
             <CustomTabLayout tabPanels={tabs} />
           </div>
         </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 };
 export default CustomerInfoCard;

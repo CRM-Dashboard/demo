@@ -8,6 +8,7 @@ import DropdownConstants from "../../../utils/DropdownConstants";
 import InputField from "../../../components/inputField/InputField";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
+import GlobalFunctions from "../../../utils/GlobalFunctions";
 
 const CreatePaymentReceipt = forwardRef((props, ref) => {
   const PaymentTowards = DropdownConstants.PaymentTowards;
@@ -18,6 +19,22 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
   const snackbar = UseCustomSnackbar();
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create Payment Receipt",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
 
   const savePaymentDetails = () => {
     const entryData = {
@@ -50,6 +67,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
             snackbar.showSuccess("Payment details created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();

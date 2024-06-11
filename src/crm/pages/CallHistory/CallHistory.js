@@ -16,17 +16,18 @@ export default function CallHistory() {
   // const [transcript, setTranscript] = useState("");
 
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.To,
-        item?.From,
-        item?.Status,
-        item?.StartTime,
-        item?.EndTime,
-        item?.Duration,
-        item?.RecordingUrl,
+        item?.callTo,
+        item?.callFrom,
+        item?.status,
+        item?.startTime,
+        item?.recordingUrl,
       ];
     });
     return modifiedResponse;
@@ -49,14 +50,6 @@ export default function CallHistory() {
       name: "Start Time",
       label: "Start Time",
     },
-    {
-      name: "End Time",
-      label: "End Time",
-    },
-    {
-      name: "Duration",
-      label: "Duration",
-    },
 
     {
       label: "Action",
@@ -64,7 +57,7 @@ export default function CallHistory() {
         customBodyRenderLite: (dataIndex, rowIndex) => [
           <IconButton color="primary" size="small">
             <ReactPlayer
-              url={response[dataIndex].RecordingUrl}
+              url={response[dataIndex].recordingUrl}
               controls
               width="300px"
               height="50px"
@@ -97,6 +90,32 @@ export default function CallHistory() {
   useEffect(() => {
     getTableData();
   }, []);
+
+  useEffect(() => {
+    const formData = new FormData();
+    formData.append("orderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    //process.env.REACT_APP_SERVER_URL +
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topbar/getCallDetails", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          console.log("#########data", data);
+          setResponse(data);
+          setIsLoading(false);
+          setTableData(modifyResponse(data));
+        } else {
+          setIsLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }, [orderId]);
 
   const options = {
     selectableRows: "none",

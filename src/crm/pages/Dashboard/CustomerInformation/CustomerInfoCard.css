@@ -1,9 +1,15 @@
 .circularImg {
   margin: 0.8em;
-  width: 3em;
-  height: 3em;
+  width: 5em;
+  height: 5em;
   border-radius: 50%;
   background-color: blueviolet;
   border: none;
   overflow: hidden;
+}
+
+.bgImage {
+  /* background-image: url("./../../../../assets/bookingDetailsBg.jpg"); */
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }

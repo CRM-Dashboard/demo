@@ -23,8 +23,8 @@ import CostSheet from "./CostSheet";
 import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
 import { Typography } from "@mui/material";
 import moment from "moment";
+import LoanInfo from "./Loan/LoanInfo";
 import UnitDetails from "./UnitDetails";
-import LoanDetails from "./LoanDetails";
 import OtherBookingDetails from "./OtherBookingDetails";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
@@ -51,6 +51,22 @@ const Timeline = () => {
     reducerData.ThemeReducer.mode
   );
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: OrderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Sent Registration Invitation Successfully!",
+      CHANGEIND: "U",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const sendInvitation = () => {
     const entryData = {
       date: moment(formik.values.date.$d).format("DD/MM/YYYY"),
@@ -76,6 +92,7 @@ const Timeline = () => {
       })
       .then((data) => {
         if (data) {
+          saveLog();
           snackbar.showSuccess("Registration Invite Sent Successfully!");
           setAddress("");
           setMap("");
@@ -130,7 +147,7 @@ const Timeline = () => {
     },
     {
       label: "Loan Details",
-      component: <LoanDetails loanDetails={bookingDetails} />,
+      component: <LoanInfo />,
     },
     {
       label: "Other Details",
@@ -209,53 +226,40 @@ const Timeline = () => {
   });
 
   return (
-    <div>
-      <Typography
-        sx={{
-          fontSize: "2em",
-          margin: "0.5em",
-          fontWeight: "bold",
-          "&.MuiTypography-root": {
-            color: mode,
-          },
-        }}
-      >
-        Booking Details
-      </Typography>
-
-      {shouldShowTimeLine ? (
-        <VerticalTimeline lineColor={lineColor}>
-          {events?.map((event, index) => (
-            <VerticalTimelineElement
-              key={index}
-              className="vertical-timeline-element--work"
-              contentStyle={{
-                background: event.Reference
-                  ? "rgb(16, 204, 82)"
-                  : "rgb(33, 150, 243)",
-                color: "#fff",
-              }}
-              contentArrowStyle={{
-                borderRight: event.Reference
-                  ? "7px solid rgb(16, 204, 82)"
-                  : "7px solid rgb(33, 150, 243)",
-              }}
-              iconStyle={{
-                background: event.Reference
-                  ? "rgb(16, 204, 82)"
-                  : "rgb(33, 150, 243)",
-                color: "#fff",
-              }}
-              icon={event.Reference ? <AcUnit /> : <AccessTime />}
-              date={event.Reference}
-              dateClassName="date-text"
-            >
-              <h3 className="vertical-timeline-element-title">{event.Title}</h3>
-              <p>{event.Description}</p>
-            </VerticalTimelineElement>
-          ))}
-        </VerticalTimeline>
-      ) : !loading ? (
+    <div style={{ marginTop: "1em" }}>
+      {/* {shouldShowTimeLine ? ( */}
+      <VerticalTimeline lineColor={lineColor}>
+        {events?.map((event, index) => (
+          <VerticalTimelineElement
+            key={index}
+            className="vertical-timeline-element--work"
+            contentStyle={{
+              background: event.Reference
+                ? "rgb(16, 204, 82)"
+                : "rgb(33, 150, 243)",
+              color: "#fff",
+            }}
+            contentArrowStyle={{
+              borderRight: event.Reference
+                ? "7px solid rgb(16, 204, 82)"
+                : "7px solid rgb(33, 150, 243)",
+            }}
+            iconStyle={{
+              background: event.Reference
+                ? "rgb(16, 204, 82)"
+                : "rgb(33, 150, 243)",
+              color: "#fff",
+            }}
+            icon={event.Reference ? <AcUnit /> : <AccessTime />}
+            date={event.Reference}
+            dateClassName="date-text"
+          >
+            <h3 className="vertical-timeline-element-title">{event.Title}</h3>
+            <p>{event.Description}</p>
+          </VerticalTimelineElement>
+        ))}
+      </VerticalTimeline>
+      {/* ) : !loading ? (
         <Grid
           item
           xs={4}
@@ -269,34 +273,34 @@ const Timeline = () => {
         </Grid>
       ) : (
         <CircularScreenLoader />
-      )}
+      )} */}
 
-      {shouldShowTimeLine && (
-        <div
+      {/* {shouldShowTimeLine && ( */}
+      <div
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          display: "flex",
+          margin: "2em",
+        }}
+      >
+        <button
           style={{
-            justifyContent: "center",
-            alignItems: "center",
-            display: "flex",
-            margin: "2em",
+            borderRadius: "1.2em",
+            height: "2.6em",
+            width: "16em",
+            backgroundColor: "rgb(16, 204, 82)",
+            color: "white",
+          }}
+          onClick={() => {
+            setOpenForm(true);
           }}
         >
-          <button
-            style={{
-              borderRadius: "1.2em",
-              height: "2.6em",
-              width: "16em",
-              backgroundColor: "rgb(16, 204, 82)",
-              color: "white",
-            }}
-            onClick={() => {
-              setOpenForm(true);
-            }}
-          >
-            {" "}
-            Registration Invitation
-          </button>
-        </div>
-      )}
+          {" "}
+          Registration Invitation
+        </button>
+      </div>
+      {/* )} */}
 
       <CrmModal
         maxWidth="md"

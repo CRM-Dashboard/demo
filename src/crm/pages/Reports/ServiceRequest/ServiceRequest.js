@@ -448,12 +448,12 @@ export default function ServiceRequest() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true);
     countPercentage(response);
   }, [response]);
 
   useEffect(() => {
-    setIsLoading(true);
+    // setIsLoading(true);
     const formData = new FormData();
     formData.append("projectId", projectId);
     fetch(process.env.REACT_APP_SERVER_URL + `/api/reports/serviceRequest`, {
@@ -488,15 +488,14 @@ export default function ServiceRequest() {
       statusCounts &&
       Object.keys(percentages)?.length > 0 &&
       Object.keys(statusCounts)?.length > 0 ? (
-        <Grid style={{ marginTop: "1em" }}>
+        <Grid style={{ marginTop: "0.2em" }}>
           <Grid
             container
             spacing={4}
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              paddingBottom: "2em",
-              paddingTop: "2em",
+              paddingTop: "0.5em",
             }}
           >
             <Grid item xs={2} sm={3} md={3}>
@@ -573,7 +572,6 @@ export default function ServiceRequest() {
             spacing={4}
             sx={{
               display: "flex",
-              paddingBottom: "2em",
             }}
           >
             <Grid item xs={2} sm={3} md={3}>

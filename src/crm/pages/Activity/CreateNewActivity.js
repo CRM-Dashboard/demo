@@ -8,22 +8,23 @@ import React, {
 } from "react";
 import dayjs from "dayjs";
 import * as yup from "yup";
+import moment from "moment";
 import { useFormik } from "formik";
+import GlobalFunctions from "../../utils/GlobalFunctions";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../components/inputField/InputField";
-import CrmDatePicker from "../../components/crmDatePicker/CrmDatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import DateRangeOutlinedIcon from "@mui/icons-material/DateRangeOutlined";
 import InterpreterModeIcon from "@mui/icons-material/InterpreterMode";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
-import { useSelector } from "react-redux/es/hooks/useSelector";
-import MergeTypeOutlinedIcon from "@mui/icons-material/MergeTypeOutlined";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import moment from "moment";
+import CrmDatePicker from "../../components/crmDatePicker/CrmDatePicker";
+import DateRangeOutlinedIcon from "@mui/icons-material/DateRangeOutlined";
+import MergeTypeOutlinedIcon from "@mui/icons-material/MergeTypeOutlined";
+import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 
 const CreateNewActivity = forwardRef((props, ref) => {
   const [error, setError] = useState("Required");
@@ -34,6 +35,22 @@ const CreateNewActivity = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const snackbar = UseCustomSnackbar();
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create Activity",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
 
   const createActivity = () => {
     const entryData = {
@@ -61,10 +78,14 @@ const CreateNewActivity = forwardRef((props, ref) => {
       formData.append("passWord", passWord);
       formData.append("entryData", JSON.stringify(entryData));
 
-      fetch("/api/activity/createActivity", { method: "POST", body: formData })
+      fetch(
+        "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        { method: "POST", body: formData }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
             snackbar.showSuccess("Activity created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();

@@ -31,6 +31,22 @@ const SendMailComponent = forwardRef((props, ref) => {
     }
   }, []);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Send Mail (Pre-registration / Post-registration)",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const sendMail = () => {
     setDisabledYesBtn(true);
     const formData = new FormData();
@@ -48,6 +64,7 @@ const SendMailComponent = forwardRef((props, ref) => {
       })
       .then((data) => {
         if (data) {
+          saveLog();
           snackbar.showSuccess(
             <Typography> Sent Mail(s) Successfully!</Typography>
           );

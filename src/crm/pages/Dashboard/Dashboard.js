@@ -15,6 +15,7 @@ import CancellationRequest from "./CancellationRequest/CancellationRequest";
 import UnitCustomisation from "./UnitCustomisation/UnitCustomisation";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import Timeline from "./BookingDetails/Timeline";
+import BookingDetails from "./BookingDetails/BookingDetails";
 
 function Dashboard() {
   const [shoudldShowCustomerList, setShoudldShowCustomerList] = useState("");
@@ -93,7 +94,8 @@ function Dashboard() {
         ) : shoudldShowCustomerList ? (
           <CustomersList />
         ) : (
-          <Timeline />
+          // <Timeline />
+          <BookingDetails />
         )}
       </ThemeProvider>
     </Box>

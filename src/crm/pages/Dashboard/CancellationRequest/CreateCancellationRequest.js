@@ -4,6 +4,7 @@ import React, { forwardRef, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Typography, Button, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
@@ -65,6 +66,22 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
     return data[0]?.creason;
   };
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create Cancellation Request",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const savePaymentDetails = () => {
     const entryData = {
       vbeln: formData?.vbeln,
@@ -114,6 +131,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
             snackbar.showSuccess("Cancellation request created successfully!");
             formik.resetForm();
           }

@@ -6,7 +6,6 @@ import { Typography, Grid } from "@mui/material";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
-import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import Chart from "react-apexcharts";
 import "./CustomerDetails.css";
@@ -35,7 +34,6 @@ const HappinessIndexDonut = ({
     sadness: 0,
     surprise: 0,
   });
-
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
   var OrderId = reducerData?.searchBar?.orderId;
@@ -75,7 +73,7 @@ const HappinessIndexDonut = ({
 
   const calculateAverageEmotions = (EmotionData) => {
     // calculateEmotionPercentages(EmotionData);
-    const emotionSum = EmotionData.reduce(
+    const emotionSum = EmotionData?.reduce(
       (sum, emotionObject) => {
         return {
           anger: sum.anger + emotionObject.anger,
@@ -97,7 +95,7 @@ const HappinessIndexDonut = ({
     );
 
     // Calculate the average of each emotion
-    const emotionCount = EmotionData.length;
+    const emotionCount = EmotionData?.length;
     const emotionAverages = {
       anger: emotionSum.anger / emotionCount,
       fear: emotionSum.fear / emotionCount,
@@ -107,7 +105,10 @@ const HappinessIndexDonut = ({
       surprise: emotionSum.surprise / emotionCount,
     };
     console.log("emotionAverages", emotionAverages);
+
     setEmotionAverages(emotionAverages);
+
+    // setEmotionAverages(emotionAverages);
 
     dispatch(dashboardActions.setShowSentimentAnalysis(true));
     setShowSentimentalAnalysis(true);
@@ -169,27 +170,76 @@ const HappinessIndexDonut = ({
 
   const ChartOptions = {
     series: [
-      emotionAverages.anger,
-      emotionAverages.fear,
-      emotionAverages.joy,
-      emotionAverages.neutral,
-      emotionAverages.sadness,
-      emotionAverages.surprise,
+      {
+        data: [
+          {
+            x: "Anger",
+            y: parseFloat(emotionAverages.anger).toFixed(2),
+          },
+          {
+            x: "Fear",
+            y: parseFloat(emotionAverages.fear).toFixed(2),
+          },
+          {
+            x: "Joy",
+            y: parseFloat(emotionAverages.joy).toFixed(2),
+          },
+          {
+            x: "Neutral",
+            y: parseFloat(emotionAverages.neutral).toFixed(2),
+          },
+          {
+            x: "Sad",
+            y: parseFloat(emotionAverages.sadness).toFixed(2),
+          },
+          {
+            x: "surprise",
+            y: parseFloat(emotionAverages.surprise).toFixed(2),
+          },
+        ],
+      },
     ],
+    // series: [
+    //   emotionAverages.anger,
+    //   emotionAverages.fear,
+    //   emotionAverages.joy,
+    //   emotionAverages.neutral,
+    //   emotionAverages.sadness,
+    //   emotionAverages.surprise,
+    // ],
     options: {
       chart: {
-        type: "donut",
+        type: "bar",
       },
-      responsive: [
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              width: 400,
-            },
-          },
+      grid: {
+        show: false,
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          distributed: true, // Distribute the gradient evenly across bars
+          gradientColor: [
+            "#e83e8c",
+            "#20c997",
+            "#6c757d",
+            "#343a40",
+            "#ffc0cb",
+            "#ff7f0e",
+            "#2ecc71",
+            "#3498db",
+          ],
         },
-      ],
+      },
+      // responsive: [
+      //   {
+      //     breakpoint: 480,
+      //     options: {
+      //       chart: {
+      //         // width: 50,
+      //       },
+      //     },
+      //   },
+      // ],
       labels: ["Anger", "Fear", "Joy", "Neutral", "Sadness", "Surprise"],
     },
   };
@@ -206,92 +256,96 @@ const HappinessIndexDonut = ({
   return (
     <>
       {
-        <>
+        <Grid spacing={2}>
           <Grid
+            container
+            rowSpacing={1}
+            columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+            columns={14}
             item
-            xs={2}
-            sm={2}
-            md={2}
             sx={{
-              marginRight: "1em",
-              marginBottom: "2em",
-              "&.MuiGrid-item": {
-                paddingTop: "0em",
-                paddingLeft: "0em",
-              },
+              display: "flex",
             }}
           >
-            {shouldShowHappinessIndex() ? (
-              <Grid
-                className=" circular-img-container"
-                style={{ paddingTop: "1em" }}
-              >
-                <Typography style={{ color: mode }}>Happiness Meter</Typography>
-                {happyIndex > 0 && (
-                  <GaugeChart
-                    className="circular-donut pt-4"
-                    colors={["red", "green"]}
-                    nrOfLevels={20}
-                    arcPadding={0.02}
-                    arcWidth={0.3}
-                    textColor="#666"
-                    needleColor="#333"
-                    width="10"
-                    percent={happyIndex / 100}
-                    style={{ height: "100px", width: "70%" }}
-                  />
-                )}
+            {shouldShowHappinessIndex() && (
+              <Grid item xs={5} sm={5} md={5} lg={5}>
+                <Grid
+                  container
+                  direction="column"
+                  className="circular-img-container"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography style={{ color: mode }}>
+                    Happiness Meter
+                  </Typography>
+                  {happyIndex > 0 && (
+                    <GaugeChart
+                      className="circular-donut pt-4"
+                      colors={["red", "green"]}
+                      nrOfLevels={20}
+                      arcPadding={0.02}
+                      arcWidth={0.3}
+                      textColor="#666"
+                      needleColor="#333"
+                      width="10"
+                      percent={happyIndex / 100}
+                      style={{ height: "8rem", width: "50%" }}
+                    />
+                  )}
+                </Grid>
               </Grid>
-            ) : (
-              <Grid style={{ paddingTop: "8em" }} />
             )}
-            <Grid sx={{ marginTop: "2em" }}>
-              <StatusCard
-                icon={
+            {/* </Grid> */}
+            {shouldShowHappinessIndex() && (
+              <Grid item xs={9} sm={9} md={9} lg={9}>
+                <Grid
+                  container
+                  direction="column"
+                  sx={{
+                    // width: "60%",
+                    paddingLeft: "1%",
+                    paddingRight: "1%",
+                    backgroundColor:
+                      reducerData.ThemeReducer.mode === "theme-mode-light" ||
+                      reducerData.ThemeReducer.mode === null
+                        ? "#ffffff"
+                        : "#2d2d2d",
+                    color: GlobalFunctions.getThemeBasedColour(
+                      reducerData.ThemeReducer.mode
+                    ),
+                    // background: "white",
+                    borderRadius: "0.8em",
+                    "&.MuiGrid-item": {
+                      // paddingTop: "1em",
+                    },
+                  }}
+                >
+                  <Typography
+                    style={{
+                      color: mode,
+                      marginLeft: "2em",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Sentiment Analysis{" "}
+                  </Typography>
                   <Chart
-                    options={circleUp.options}
-                    series={circleUp.series}
-                    type="radialBar"
-                    height={110}
+                    // className="circular-donut"
+                    options={ChartOptions.options}
+                    series={ChartOptions.series}
+                    width="100%"
+                    height="100%"
+                    type="bar"
                   />
-                }
-                count={
-                  searchValueAvailable
-                    ? "₹" + customerDetails.PossessionBalance
-                    : "₹" + customerDetails?.UpcomingAmount + "Cr"
-                }
-                title="Balance till possession (Unbilled)"
-              />
-            </Grid>
+                </Grid>
+              </Grid>
+            )}
           </Grid>
-          {shouldShowHappinessIndex() && (
-            <Grid
-              item
-              xs={2}
-              sm={2}
-              md={2}
-              sx={{
-                // marginRight: "1em",
-                // marginBottom: "2em",
-                "&.MuiGrid-item": {
-                  // paddingTop: "1em",
-                  paddingLeft: "0em",
-                },
-              }}
-            >
-              <Typography style={{ color: mode, marginLeft: "2em" }}>
-                Sentiment Analysis{" "}
-              </Typography>
-              <Chart
-                className="circular-donut"
-                options={ChartOptions.options}
-                series={ChartOptions.series}
-                style={{ width: "350px" }}
-                type="donut"
-              />
-            </Grid>
-          )}
-        </>
+        </Grid>
       }
     </>
   );

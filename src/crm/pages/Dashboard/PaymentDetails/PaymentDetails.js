@@ -152,7 +152,8 @@ export default function PaymentDetails() {
                 formData.append("userName", userName);
                 formData.append("passWord", passWord);
 
-                const URL = "/api/dashboard/paymentDetails/receipt_print";
+                const URL =
+                  "https://gera-crm-server.azurewebsites.net//api/dashboard/paymentDetails/receipt_print";
                 setFormData({ method: "POST", body: formData });
                 setURL(URL);
                 setOpenModal(true);
@@ -191,6 +192,22 @@ export default function PaymentDetails() {
       });
   };
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Send payment receipt details mail",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const sendMails = () => {
     const formData = new FormData();
     formData.append("mailIds", JSON.stringify(arrForMail));
@@ -208,6 +225,7 @@ export default function PaymentDetails() {
       }
     )
       .then((response) => {
+        saveLog();
         return response;
       })
       .then((data) => {
@@ -501,7 +519,11 @@ export default function PaymentDetails() {
               setOpenModal(false);
             }}
           >
-            <PDFViewer url={url} formdata={formdata}></PDFViewer>
+            <PDFViewer
+              url={url}
+              formdata={formdata}
+              object="Payment receipt PDF Viewer"
+            ></PDFViewer>
           </CrmModal>
           <CrmModal
             maxWidth="md"

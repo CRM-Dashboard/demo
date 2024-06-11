@@ -48,6 +48,22 @@ export default function ActivityDetails() {
     setAnchorEl(null);
   };
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: OrderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Update Activity",
+      CHANGEIND: "U",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const DropDownCell = ({ value, tableMeta, onChange }) => {
     const handleChange = (event) => {
       const selectedValue = event.target.value;
@@ -85,10 +101,14 @@ export default function ActivityDetails() {
       formData.append("passWord", passWord);
       formData.append("entryData", JSON.stringify(entryData));
 
-      fetch("/api/activity/createActivity", { method: "POST", body: formData })
+      fetch(
+        "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        { method: "POST", body: formData }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
             snackbar.showSuccess("Activity updated successfully!");
             getTableData();
           }
@@ -377,37 +397,26 @@ export default function ActivityDetails() {
     formData.append("passWord", passWord);
     formData.append("orderId", OrderId);
     setLoading(true);
-    fetch(`/api/activity/getActivity`, { method: "POST", body: formData })
+    fetch(
+      `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
+      { method: "POST", body: formData }
+    )
       .then((response) => response.json())
       .then((data) => {
-        if (data[0].actdata) {
-          setResponse(data[0].actdata);
-          data[0].modedata && setActModeData(data[0].modedata);
-          data[0].typdata && setActTypeData(data[0].typdata);
-          data[0].subtypdata && setSubActTypeData(data[0].subtypdata);
-          data[0].dpdata && setDpdata(data[0].dpdata);
-          setTableData(modifyResponse(data[0].actdata));
+        if (data[0]?.actdata) {
+          setResponse(data[0]?.actdata);
+          data[0]?.modedata && setActModeData(data[0]?.modedata);
+          data[0]?.typdata && setActTypeData(data[0]?.typdata);
+          data[0]?.subtypdata && setSubActTypeData(data[0]?.subtypdata);
+          data[0]?.dpdata && setDpdata(data[0]?.dpdata);
+          setTableData(modifyResponse(data[0]?.actdata));
           setLoading(false);
         }
       });
   };
 
-  // const getMailDetails = () => {
-  // const formData = new FormData();
-  // formData.append("userName", userName);
-  // formData.append("passWord", passWord);
-  // formData.append("orderId", OrderId);
-  // setLoading(true);
-  // fetch(`/api/activity/getMail`)
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     console.log("************data", data);
-  //   });
-  // };
-
   useEffect(() => {
     getTableData();
-    // getMailDetails();
   }, [OrderId]);
 
   return (

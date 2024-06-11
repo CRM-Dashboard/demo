@@ -11,6 +11,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import PDFViewer from "./../../../components/pdfViewer/PdfViewer";
 import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
@@ -29,6 +30,7 @@ export default function InvoiceTable() {
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
   const getMuiTheme = TableMuiTheme.getMuiTheme(reducerData);
   // const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
   //   reducerData.ThemeReducer.mode
@@ -47,7 +49,11 @@ export default function InvoiceTable() {
           setOpenModal(false);
         }}
       >
-        <PDFViewer url={url} formdata={formdata}></PDFViewer>
+        <PDFViewer
+          url={url}
+          formdata={formdata}
+          object="Invoice PDF Viewer"
+        ></PDFViewer>
       </CrmModal>
     );
   };
@@ -218,21 +224,42 @@ export default function InvoiceTable() {
       });
   }, [reducerData.searchBar.orderId]);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId + "_" + arrForMail[0].vbeln,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Send invoice mail",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const sendMails = () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("mailIds", JSON.stringify(arrForMail));
+
     setIsLoading(true);
-    fetch(`/api/dashboard/invoice_mail`, {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      `https://gera-crm-server.azurewebsites.net//api/dashboard/invoice_mail`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => {
         return response;
       })
       .then((data) => {
         if (data) {
+          saveLog();
           snackbar.showSuccess(
             <Typography> Sent Mail(s) Successfully!</Typography>
           );

@@ -18,8 +18,27 @@ export default function DashboardOptions({
   setAnchor,
 }) {
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData?.searchBar?.orderId;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Logout",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
 
   return (
     <div
@@ -96,6 +115,7 @@ export default function DashboardOptions({
         </MenuItem>
         <MenuItem
           onClick={() => {
+            saveLog();
             dispatch(loginAction.setPassword(""));
             dispatch(loginAction.setUserName(""));
             dispatch(resetReducerAction.resetAllData());

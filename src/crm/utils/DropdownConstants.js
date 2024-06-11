@@ -209,15 +209,52 @@ const RegistrationInviteContact = [
   { Name: "Nilesh Pathak", contact: "8888874809" },
 ];
 
+const MaritalStatus = [
+  { Id: "1", Name: "Single" },
+  { Id: "2", Name: "Married" },
+  { Id: "3", Name: "Widowed" },
+  { Id: "4", Name: "Divorced" },
+  { Id: "5", Name: "Separated" },
+];
+
+const Gender = [
+  { Id: " ", Name: "Unknown" },
+  { Id: "1", Name: "Female" },
+  { Id: "2", Name: "Male" },
+];
+
+const HaveChildren = [
+  { Id: "01", Name: "Yes" },
+  { Id: "02", Name: "No" },
+  { Id: "03", Name: "Not Provided" },
+];
+
+const IntrogativeQueConstant = [
+  { Id: "X", Name: "Yes" },
+  { Id: "N", Name: "No" },
+];
+
+const Warranty_Extension = [
+  { Id: "SALES", Name: "SALES" },
+  { Id: "AGREEMENT", Name: "AGREEMENT" },
+  { Id: "POSSESSION", Name: "POSSESSION" },
+  { Id: "POSTPOSSES", Name: "POSTPOSSES" },
+];
+
 const exportDefault = {
+  Gender,
   BankNames,
   PaymentMode,
   NocDocument,
+  HaveChildren,
   PrintDocument,
+  MaritalStatus,
   letterDocument,
   PaymentTowards,
   prePossessionMail,
+  Warranty_Extension,
   preRegistrationMail,
+  IntrogativeQueConstant,
   RegistrationInviteContact,
 };
 

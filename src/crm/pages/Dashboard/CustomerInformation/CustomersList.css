@@ -10,3 +10,9 @@
   white-space: normal;
   word-wrap: break-word;
 }
+
+.showDataAtCenter {
+  display: flex;
+  justify-content: center;
+  align-items: "center";
+}

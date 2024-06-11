@@ -64,7 +64,7 @@ export default function MailOptions({ mailAnchor, openMail, setMailAnchor }) {
   };
 
   return (
-    <div style={{ backgroundColor: "#000000" }} className="toolbarBgColor">
+    <div>
       <CustomTabLayout tabPanels={tabs} />
       <CrmModal
         maxWidth="sm"

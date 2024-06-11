@@ -7,9 +7,10 @@ import React, {
 } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
@@ -72,6 +73,22 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       });
   }, [orderId]);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create Interest Waveoff Request",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const saveReceipt = () => {
     const entryData = {
       vbeln: detailsTSend.vbeln,
@@ -117,6 +134,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
+          saveLog();
           snackbar.showSuccess("Interest waived off created successfully!");
           props.setopenCreateForm(false);
           props.getTableData();

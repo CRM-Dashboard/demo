@@ -5,6 +5,7 @@ import { MenuItem } from "@mui/material";
 import { Select, Button } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 
 const UnitItemData = forwardRef((props, ref) => {
@@ -77,6 +78,22 @@ const UnitItemData = forwardRef((props, ref) => {
     setData(newData);
   };
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Unit Customisation Request Change",
+      CHANGEIND: "U",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const handleSave = () => {
     setBtnLoading(true);
     const template = [
@@ -113,6 +130,7 @@ const UnitItemData = forwardRef((props, ref) => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
+          saveLog();
           snackbar.showSuccess("Request Updated Successfully!");
           props.setUniqueIdOfItemData("");
           setBtnLoading(false);

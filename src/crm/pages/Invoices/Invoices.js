@@ -5,26 +5,39 @@ import Table from "mui-datatables";
 import PDFViewer from "./../../components/pdfViewer/PdfViewer";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
-import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Button,
+  Grid,
+  Typography,
+  TextField,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CrmDatePicker from "../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import LabelWithCheckbox from "../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function Invoices() {
-  const [tableData, setTableData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
   const [url, setURL] = useState("");
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [response, setResponse] = useState([]);
+  const [formdata, setFormData] = useState({});
+  const [tableData, setTableData] = useState([]);
   const [arrForMail, setArrForMail] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
 
@@ -35,7 +48,7 @@ export default function Invoices() {
         item?.Milestone,
         item?.duedate,
         `₹${item?.gstamount}`,
-        item.invoicedate,
+        item.billingDate,
         `₹${item.netamount}`,
         item.pTerms,
         `₹${item.totalamount}`,
@@ -47,6 +60,25 @@ export default function Invoices() {
   const isValuePresent = (valueToCheck) => {
     return arrForMail.some((item) => item.vbeln === valueToCheck);
   };
+
+  const handleDateFilterChange = (dateRange) => {
+    setDateRange(dateRange);
+    if (dateRange[0] && dateRange[1]) {
+      const startDate = dayjs(dateRange[0]).startOf("day");
+      const endDate = dayjs(dateRange[1]).endOf("day");
+      const filteredData = response.filter((item) => {
+        const invoiceDate = dayjs(item.invoicedate, "DD/MM/YYYY");
+        return invoiceDate.isAfter(startDate) && invoiceDate.isBefore(endDate);
+      });
+      setTableData(modifyResponse(filteredData));
+    } else {
+      setTableData(modifyResponse(response));
+    }
+  };
+
+  useEffect(() => {
+    handleDateFilterChange(dateRange);
+  }, [dateRange]);
 
   const columns = [
     {
@@ -114,9 +146,52 @@ export default function Invoices() {
       name: "GST Amount",
       label: "GST Amount",
     },
+    // {
+    //   name: "Invoice Date",
+    //   label: "Invoice Date",
+    // },
     {
       name: "Invoice Date",
       label: "Invoice Date",
+      options: {
+        filter: true,
+        filterType: "custom",
+        customFilterListOptions: { render: (v) => `Invoice Date: ${v}` },
+        filterOptions: {
+          logic: (invoiceDate, filters) => {
+            if (filters[0] && filters[1]) {
+              const dateToFilter = dayjs(invoiceDate, "DD/MM/YYYY");
+              const startDate = dayjs(filters[0]);
+              const endDate = dayjs(filters[1]);
+              return !(
+                dateToFilter.isAfter(startDate.subtract(1, "day")) &&
+                dateToFilter.isBefore(endDate.add(1, "day"))
+              );
+            }
+            return false;
+          },
+          display: (filterList, onChange, index, column) => (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateRangePicker
+                startText="Start Date"
+                endText="End Date"
+                value={dateRange}
+                onChange={(newValue) => {
+                  setDateRange(newValue);
+                  onChange(newValue);
+                }}
+                renderInput={(startProps, endProps) => (
+                  <>
+                    <TextField {...startProps} />
+                    <Box sx={{ mx: 2 }}> to </Box>
+                    <TextField {...endProps} />
+                  </>
+                )}
+              />
+            </LocalizationProvider>
+          ),
+        },
+      },
     },
     {
       name: "Unit Installment",
@@ -137,10 +212,15 @@ export default function Invoices() {
           <IconButton color="primary" size="small">
             <PictureAsPdfIcon
               onClick={() => {
+                const formData = new FormData();
+                formData.append("orderId", response[dataIndex].vbeln);
+                formData.append("userName", userName);
+                formData.append("passWord", passWord);
                 setURL(
                   process.env.REACT_APP_SERVER_URL +
-                    `/sap/bc/crm/invoice_print?sap-client=250&vbeln=${response[dataIndex].vbeln}&sap-user=${userName}&sap-password=${passWord}`
+                    "/api/dashboard/invoice_print"
                 );
+                setFormData({ method: "POST", body: formData });
                 setOpenModal(true);
               }}
               fontSize="inherit"
@@ -157,12 +237,12 @@ export default function Invoices() {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append("projectId", projectId);
-    formData.append("date", date);
+    formData.append("OrderId", orderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/invoices/so_invoices_dt", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/invoices", {
+      ///api/invoices/so_invoices_dt
       method: "POST",
       body: formData,
     })
@@ -360,29 +440,7 @@ export default function Invoices() {
       {!isLoading ? (
         <>
           <ThemeProvider theme={() => getMuiTheme()}>
-            <Table
-              data={tableData}
-              columns={columns}
-              options={options}
-              title={
-                <Grid container spacing={4}>
-                  <Grid item xs={4} sm={6} md={6}>
-                    <CrmDatePicker
-                      sx={{
-                        "& .MuiInputBase-root": {
-                          height: 45,
-                        },
-                      }}
-                      hideIcon
-                      value={dayjs(selectedDate)}
-                      onChange={(value) => {
-                        setSelectedDate(value);
-                      }}
-                    ></CrmDatePicker>
-                  </Grid>
-                </Grid>
-              }
-            ></Table>
+            <Table data={tableData} columns={columns} options={options}></Table>
           </ThemeProvider>
           <CrmModal
             maxWidth="xxl"
@@ -395,7 +453,11 @@ export default function Invoices() {
               setOpenModal(false);
             }}
           >
-            <PDFViewer url={url}></PDFViewer>
+            <PDFViewer
+              url={url}
+              formdata={formdata}
+              object="Invoice PDF Viewer"
+            ></PDFViewer>
           </CrmModal>
         </>
       ) : (

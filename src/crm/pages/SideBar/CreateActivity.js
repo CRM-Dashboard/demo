@@ -11,6 +11,7 @@ import * as yup from "yup";
 import moment from "moment";
 import { useFormik } from "formik";
 import { useDispatch } from "react-redux";
+import GlobalFunctions from "./../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
@@ -39,12 +40,40 @@ const CreateActivity = forwardRef((props, ref) => {
   const snackbar = UseCustomSnackbar();
   const [error, setError] = useState("Required");
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create New Activity",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const createActivity = () => {
     if (!formik.values.remark) {
       setError("Required");
     } else {
       setError("");
     }
+
+    const entryData = {
+      vbeln: orderId,
+      act_mode: formik.values.activityMode,
+      pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
+      erdat: formik.values.date,
+      action: formik.values.action,
+      remark: formik.values.remark,
+      dmbtr: formik.values.amount,
+      act_typ: formik.values.subActivity,
+      dp_code: formik.values.dpCode,
+    };
 
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       // props.setDisabledBtn(false);
@@ -53,12 +82,18 @@ const CreateActivity = forwardRef((props, ref) => {
       formData.append("orderId", orderId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("entryData", JSON.stringify(props.activityData));
+      formData.append("entryData", JSON.stringify(entryData));
 
-      fetch("/api/activity/createActivity", { method: "POST", body: formData })
+      fetch(
+        "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        { method: "POST", body: formData }
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
+            props.setCallAPI(false);
+            props.setSid(0);
             snackbar.showSuccess("Activity created successfully!");
             dispatch(searchbarActions.setActivityData({}));
             dispatch(searchbarActions.setSid(""));
@@ -77,6 +112,7 @@ const CreateActivity = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     createActivity,
+    handleContinue,
   }));
 
   const validationSchema = yup.object({
@@ -91,24 +127,37 @@ const CreateActivity = forwardRef((props, ref) => {
     dpCode: yup.string().required("Required"),
   });
 
-  const convertTimeToCustomFormat = (timeString) => {
-    const parsedTime = moment(timeString, "HH:mm:ss");
-    const isoFormat = parsedTime.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
-    return isoFormat;
+  const convertTime = (time24) => {
+    // Splitting the time string into hours, minutes, and seconds
+    const [hours, minutes, seconds] = time24.split(":");
+
+    // Creating a Date object to format the time
+    const time = new Date(0, 0, 0, hours, minutes, seconds);
+
+    // Formatting the time into 12-hour clock format
+    // const time12 = time.toLocaleString("en-US", {
+    //   hour: "numeric",
+    //   minute: "2-digit",
+    //   second: "2-digit",
+    //   hour12: true,
+    // });
+
+    // Formatting the time into the specified format
+    const formattedTime = time.toISOString().slice(0, -5) + "Z";
+
+    return formattedTime;
   };
 
   const formik = useFormik({
     initialValues: {
       activityMode: activityInfo?.act_mode ? activityInfo?.act_mode : "",
-      time: activityInfo?.pltac
-        ? convertTimeToCustomFormat(activityInfo?.pltac)
-        : dayjs(),
+      time: activityInfo?.pltac ? convertTime(activityInfo?.pltac) : dayjs(),
       date: activityInfo.erdat
         ? moment(activityInfo.erdat.$d).format("YYYY-MM-DD")
         : " ",
       action: activityInfo?.action ? activityInfo?.action : "",
       remark: activityInfo?.remark ? activityInfo?.remark : "",
-      amount: activityInfo?.amount ? activityInfo?.amount : "",
+      amount: activityInfo?.dmbtr ? activityInfo?.dmbtr : "",
       activityType: "",
       subActivity: activityInfo?.act_typ ? activityInfo.act_typ : "",
       dpCode: activityInfo?.dp_code ? activityInfo?.dp_code : "",
@@ -148,6 +197,23 @@ const CreateActivity = forwardRef((props, ref) => {
     setSubActData(subData);
   }, [formik.values.activityType]);
 
+  const handleContinue = () => {
+    const entryData = {
+      vbeln: orderId,
+      act_mode: formik.values.activityMode,
+      pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
+      erdat: formik.values.date,
+      action: formik.values.action,
+      remark: formik.values.remark,
+      dmbtr: formik.values.amount,
+      act_typ: formik.values.subActivity,
+      dp_code: formik.values.dpCode,
+    };
+
+    props.setActivityData(entryData);
+    dispatch(searchbarActions.setActivityData(entryData));
+  };
+
   useEffect(() => {
     const entryData = {
       vbeln: orderId,
@@ -160,9 +226,10 @@ const CreateActivity = forwardRef((props, ref) => {
       act_typ: formik.values.subActivity,
       dp_code: formik.values.dpCode,
     };
-    props.setActivityData(entryData);
+
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       // props.setDisabledBtn(false);
+      props.setActivityData(entryData);
       props.setDisabledTertiaryBtn(false);
       dispatch(searchbarActions.setActivityData(entryData));
     } else {

@@ -1,20 +1,43 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import GlobalFunctions from "./../../utils/GlobalFunctions";
 import { useSpring, animated } from "react-spring";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
-const PDFViewer = ({ url, formdata }) => {
+const PDFViewer = ({ url, formdata, object }) => {
   const [pdfData, setPdfData] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
   const fade = useSpring({ from: { opacity: 0 }, to: { opacity: 4 } });
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: object,
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
 
   useEffect(() => {
     const apiUrl = url;
     fetch(apiUrl, formdata)
       .then((response) => response.json())
       .then(async (data) => {
+        saveLog();
         setLoading(true);
         setPdfData(data);
       })

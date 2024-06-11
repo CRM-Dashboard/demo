@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import * as yup from "yup";
 import moment from "moment";
 import { Formik, useFormik } from "formik";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
@@ -66,6 +67,22 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     }
   }, []);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: OrderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Create Pre Emi / Rental Assurance",
+      CHANGEIND: "I",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const saveReceipt = () => {
     console.log(
       "formik.values.month########",
@@ -104,6 +121,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            saveLog();
             snackbar.showSuccess(
               "Pre EMI/ Rental receipt created successfully!"
             );

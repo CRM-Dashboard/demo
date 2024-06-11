@@ -24,7 +24,7 @@ main {
   background-color: var(--second-bg);
   flex: 1;
   /* top: 2%; */
-  margin-top: 1.5em;
+  margin-top: 2.5em;
   position: relative;
   height: "fit-content";
   overflow-y: auto;

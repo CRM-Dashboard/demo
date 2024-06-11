@@ -20,6 +20,7 @@ function CrmModal(props) {
     color: "#363B4D",
     fontSize: "1.25rem",
     borderBottom: "1px solid #E0E0E0",
+    width: "100%",
   }));
 
   const fade = useSpring({

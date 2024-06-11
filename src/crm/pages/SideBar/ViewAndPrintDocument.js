@@ -203,6 +203,22 @@ const ViewAndPrintDocument = forwardRef((props, ref) => {
     }
   }, []);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Print Documents(NOC/Letter/Files)",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   useEffect(() => {
     if (orderId && printOptionId) {
       setLoading(true);
@@ -225,6 +241,7 @@ const ViewAndPrintDocument = forwardRef((props, ref) => {
             setOpenModal(false);
           }
           await setPdfData(data.PrintData);
+          saveLog();
         })
         .catch((error) => {
           setLoading(false);

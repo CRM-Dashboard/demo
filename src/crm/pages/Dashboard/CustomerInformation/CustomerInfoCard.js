@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import "./CustomerInfoCard.css";
 import { useSelector } from "react-redux";
@@ -103,22 +103,6 @@ const CustomerInfoCard = ({
       component: <CustomisationDetails customerInfo={customerData} />,
     },
   ];
-
-  const getAddress = (address) => {
-    const separatedAddress = address.split(",").map((line) => line.trim());
-
-    return (
-      <>
-        <div>
-          {separatedAddress.map((line, index) => (
-            <Typography fontSize="14px" style={{ paddingLeft: "1em" }}>
-              {line}
-            </Typography>
-          ))}
-        </div>
-      </>
-    );
-  };
 
   const getInitials = (name) => {
     if (!name) return "";

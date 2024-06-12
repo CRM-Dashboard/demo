@@ -19,7 +19,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import CrmDatePicker from "../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import LabelWithCheckbox from "../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
@@ -33,7 +32,6 @@ export default function Invoices() {
   const [arrForMail, setArrForMail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -232,8 +230,6 @@ export default function Invoices() {
   ];
 
   useEffect(() => {
-    const date = dayjs(selectedDate.$d).format("DD/MM/YYYY");
-    const projectId = reducerData.dashboard.project.projectId;
     setIsLoading(true);
 
     const formData = new FormData();
@@ -256,7 +252,7 @@ export default function Invoices() {
           setIsLoading(false);
         }
       });
-  }, [reducerData.searchBar.orderId, selectedDate]);
+  }, [reducerData.searchBar.orderId]);
 
   const sendMails = () => {
     const formData = new FormData();

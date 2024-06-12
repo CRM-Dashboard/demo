@@ -7,7 +7,6 @@ import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export default function AgingGraph() {
-  const [loading, setLoading] = useState(false);
   const [graphData, setGraphData] = useState([]);
 
   const reducerData = useSelector((state) => state);
@@ -160,8 +159,6 @@ export default function AgingGraph() {
   };
 
   async function getData() {
-    setLoading(true);
-
     const formData = new FormData();
     formData.append("projectId", projectId);
     formData.append("userName", userName);
@@ -181,11 +178,8 @@ export default function AgingGraph() {
           console.log("###########data", data);
           setGraphData(modifyResponse(data));
         }
-        setLoading(false);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {});
   }
 
   const columns = [

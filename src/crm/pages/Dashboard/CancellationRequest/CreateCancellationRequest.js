@@ -44,6 +44,10 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
               "forfeitureAmount",
               data[0]?.reqdata[0].camount
             );
+            formik.setFieldValue(
+              "amountToBeRefund",
+              data[0]?.reqdata[0].refund
+            );
             setReasons(data[0]?.rsndata);
             setLoading(false);
           }
@@ -184,7 +188,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       forfeitureAmount: formData?.camount,
       cashBackAmount: "",
       totalForfeiture: formData?.tcamount,
-      amountToBeRefund: "",
+      amountToBeRefund: formData?.refund ? formData?.refund : "",
       cancellationReason: "",
       remark: "",
       rejectionReason: "",
@@ -196,6 +200,11 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       savePaymentDetails(data);
     },
   });
+
+  useEffect(() => {
+    const refundAmt = formData?.paid - formik.values.totalForfeiture;
+    formik.setFieldValue("amountToBeRefund", refundAmt);
+  }, [formik.values.amountPaid, formik.values.totalForfeiture]);
 
   useEffect(() => {
     const amt1 = formik?.values?.forfeitureAmount;
@@ -336,7 +345,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 name="amountToBeRefund"
                 label="Amount To Be Refund"
                 style={fixedFieldStyle}
-                value={formData?.refund}
+                value={formik?.values?.amountToBeRefund}
               />
             </Grid>
           </Grid>
@@ -388,9 +397,12 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 name="forfeitureAmount"
                 label="Forfeiture Amount"
                 value={formik?.values?.forfeitureAmount}
-                onChange={(e) =>
-                  formik.setFieldValue("forfeitureAmount", e.target.value)
-                }
+                onChange={(e) => {
+                  // const refundAmt =
+                  //   formik.values.amountPaid - formik.values.totalForfeiture;
+                  // formik.setFieldValue("amountToBeRefund", refundAmt);
+                  formik.setFieldValue("forfeitureAmount", e.target.value);
+                }}
                 error={Boolean(formik.errors.forfeitureAmount)}
                 helperText={formik.errors.forfeitureAmount}
                 required

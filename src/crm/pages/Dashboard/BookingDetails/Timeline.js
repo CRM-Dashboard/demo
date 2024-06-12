@@ -19,14 +19,7 @@ import CrmModal from "../../../components/crmModal/CrmModal";
 import InputField from "../../../components/inputField/InputField";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
-import CostSheet from "./CostSheet";
-import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
-import { Typography } from "@mui/material";
 import moment from "moment";
-import LoanInfo from "./Loan/LoanInfo";
-import UnitDetails from "./UnitDetails";
-import OtherBookingDetails from "./OtherBookingDetails";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 const Timeline = () => {
   const [map, setMap] = useState("");
@@ -34,12 +27,9 @@ const Timeline = () => {
   const [venue, setVenue] = useState([]);
   const [events, setEvents] = useState([]);
   const [address, setAddress] = useState("");
-  const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState("");
   const [openForm, setOpenForm] = useState(false);
   const [contactDetails, setContactDetails] = useState([]);
-  const [bookingDetails, setBookingDetails] = useState([]);
-  const [shouldShowTimeLine, setShouldShowTimeLine] = useState(false);
   const [contactPersonDetails, setContactPersonDetails] = useState("");
 
   const snackbar = UseCustomSnackbar();
@@ -47,9 +37,6 @@ const Timeline = () => {
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const mode = GlobalFunctions.getThemeBasedTextColour(
-    reducerData.ThemeReducer.mode
-  );
 
   const saveLog = async () => {
     const now = new Date();
@@ -136,25 +123,6 @@ const Timeline = () => {
     }
   }, [OrderId]);
 
-  const tabs = [
-    {
-      label: "Unit Details ",
-      component: <UnitDetails unitDetails={bookingDetails} />,
-    },
-    {
-      label: "Cost Sheet",
-      component: <CostSheet costInfo={bookingDetails} />,
-    },
-    {
-      label: "Loan Details",
-      component: <LoanInfo />,
-    },
-    {
-      label: "Other Details",
-      component: <OtherBookingDetails otherBookingDetails={bookingDetails} />,
-    },
-  ];
-
   useEffect(() => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -173,28 +141,22 @@ const Timeline = () => {
           setContactDetails(ContactPersonData);
         }
       });
-    if (OrderId) {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("orderId", OrderId);
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data[0].vbeln) {
-            setBookingDetails(data[0]);
-            setShouldShowTimeLine(false);
-            setLoading(false);
-          } else {
-            setShouldShowTimeLine(true);
-            setLoading(false);
-          }
-        });
-    }
+    // if (OrderId) {
+    //   const formData = new FormData();
+    //   formData.append("orderId", OrderId);
+    //   formData.append("userName", userName);
+    //   formData.append("passWord", passWord);
+    //   fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+    //     method: "POST",
+    //     body: formData,
+    //   })
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       if (data[0].vbeln) {
+    //         setBookingDetails(data[0]);
+    //       }
+    //     });
+    // }
   }, []);
 
   const [lineColor, setLineColor] = useState("#FFA500");
@@ -259,23 +221,7 @@ const Timeline = () => {
           </VerticalTimelineElement>
         ))}
       </VerticalTimeline>
-      {/* ) : !loading ? (
-        <Grid
-          item
-          xs={4}
-          sm={8}
-          md={8}
-          sx={{ marginLeft: "0.5em", backgroundColor: "white" }}
-        >
-          <div style={{ padding: "1em" }}>
-            <CustomTabLayout tabPanels={tabs} />
-          </div>
-        </Grid>
-      ) : (
-        <CircularScreenLoader />
-      )} */}
 
-      {/* {shouldShowTimeLine && ( */}
       <div
         style={{
           justifyContent: "center",

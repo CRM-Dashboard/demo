@@ -17,7 +17,7 @@ export default function ChildInformation({ customerInfo, getUpdatedData }) {
     marginLeft: "1em",
     paddinTop: "1em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+
   const gridStyle = {
     display: "flex",
     marginLeft: "-1em",

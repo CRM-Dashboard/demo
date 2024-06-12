@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styles from "./Style.css";
 import { Grid } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unreachable */
 import React, { useEffect, useState } from "react";
 import "./Style.css";

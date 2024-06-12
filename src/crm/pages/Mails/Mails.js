@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import AWS from "aws-sdk";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Grid } from "@mui/material";

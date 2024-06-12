@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import dayjs from "dayjs";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -16,7 +16,6 @@ const UpdateLoanDetails = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const orderId = reducerData.searchBar.orderId;
-  const projectId = reducerData?.dashboard?.project?.projectId;
   const IntrogativeQueConstant = DropdownConstants.IntrogativeQueConstant;
 
   const saveLog = async () => {
@@ -142,15 +141,6 @@ const UpdateLoanDetails = forwardRef((props, ref) => {
       saveLoanDetails();
     },
   });
-
-  const titleStyle = {
-    "font-weight": "bold",
-    "font-size": 14,
-    marginLeft: "1em",
-    paddinTop: "1em",
-  };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
-  const gridStyle = { display: "flex", marginLeft: "-1em" };
 
   return (
     <formik>

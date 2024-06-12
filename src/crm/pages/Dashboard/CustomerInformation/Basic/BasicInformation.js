@@ -1,7 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { Grid, Typography, Avatar } from "@mui/material";
@@ -164,7 +162,7 @@ export default function BasicInformation({
     marginLeft: "1em",
     paddinTop: "1em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+
   const gridStyle = {
     display: "flex",
     marginLeft: "-1em",

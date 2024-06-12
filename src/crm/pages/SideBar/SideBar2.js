@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
@@ -141,7 +142,6 @@ const SideBar2 = () => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData.dashboard.project.projectId;
-  const custData = reducerData.searchBar.accountStatement;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
   const snackbar = UseCustomSnackbar();

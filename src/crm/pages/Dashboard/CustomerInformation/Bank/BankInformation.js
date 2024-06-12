@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdateBankDetails from "./UpdateBankDetails";
-import { Grid, Typography, Input, Avatar } from "@mui/material";
+import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
 
 export default function BankInformation({ customerInfo }) {
@@ -17,7 +17,7 @@ export default function BankInformation({ customerInfo }) {
     marginLeft: "1em",
     paddinTop: "1em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+
   const gridStyle = {
     display: "flex",
     marginLeft: "-1em",

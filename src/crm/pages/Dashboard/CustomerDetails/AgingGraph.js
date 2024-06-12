@@ -41,6 +41,18 @@ export default function AgingBar() {
   async function getData() {
     setLoading(true);
 
+    const keysToRemove = ["arktx", "name"];
+
+    // Function to remove specified keys from each object in the array
+    function removeKeys(array, keys) {
+      return array.map((obj) => {
+        keys.forEach((key) => {
+          delete obj[key];
+        });
+        return obj;
+      });
+    }
+
     const formData = new FormData();
     formData.append("projectId", projectId);
     formData.append("userName", userName);
@@ -53,9 +65,11 @@ export default function AgingBar() {
       .then((data) => {
         if (OrderId) {
           const dataToSet = data?.filter((obj) => obj.orderId === OrderId);
-          setGraphData(dataToSet);
+          const updatedArray = removeKeys(dataToSet, keysToRemove);
+          setGraphData(updatedArray);
         } else {
-          setGraphData(data);
+          const updatedArray = removeKeys(data, keysToRemove);
+          setGraphData(updatedArray);
         }
 
         setXAxisKeys(extractKeys(data[0]));

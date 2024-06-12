@@ -18,7 +18,6 @@ import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
 
 const BookingDetails = () => {
   const [unitData, setUnitData] = useState([]);
-  const [options, setOptions] = useState([]);
 
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";

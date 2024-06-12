@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
@@ -23,7 +24,7 @@ export default function LoanInfo() {
     marginLeft: "1em",
     paddinTop: "1em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+
   const gridStyle = {
     display: "flex",
     marginLeft: "-1em",

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
@@ -13,7 +13,6 @@ const TicketTable = ({ data, secondIteration, statuses, getTableData }) => {
   const [openModal, setOpenModal] = useState(false);
   const [dataToDelete, setDataToDelete] = useState("");
 
-  const ref = useRef(null);
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;

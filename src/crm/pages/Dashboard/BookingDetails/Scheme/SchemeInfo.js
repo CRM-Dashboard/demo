@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
@@ -6,8 +7,6 @@ import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
 
 export default function SchemeInfo() {
-  //   const [gcs, setGcs] = useState([]);
-  //   const [mld, setMld] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [schemeDetails, setSchemeDetails] = useState([]);
   const [isSchemeInfoEditable, setIsSchemeInfoEditable] = useState(false);

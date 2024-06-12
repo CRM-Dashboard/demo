@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import TicketTable from "./TicketTable";
 import DeleteIcon from "@mui/icons-material/Delete";

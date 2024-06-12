@@ -1,14 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdateRegistrationDetails from "./UpdateRegistrationDetails";
-import { Grid, Typography, Input, Avatar } from "@mui/material";
+import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
 import CircularScreenLoader from "../../../../components/circularScreenLoader/CircularScreenLoader";
 
-export default function RegistrationInfo({}) {
+export default function RegistrationInfo() {
   const [loading, setLoading] = useState(false);
   const [registerInfo, setRegisterInfo] = useState([]);
   const [isRegInfoEditable, setIsRegInfoEditable] = useState(false);
@@ -25,7 +24,7 @@ export default function RegistrationInfo({}) {
     marginLeft: "1em",
     paddinTop: "1em",
   };
-  const dataStyle = { "font-size": 14, marginLeft: "1em" };
+
   const gridStyle = {
     display: "flex",
     marginLeft: "-1em",

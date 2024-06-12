@@ -1,19 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import * as yup from "yup";
-import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux";
 import { Grid, Box, MenuItem } from "@mui/material";
+import GlobalFunctions from "./../../../../utils/GlobalFunctions";
 import DropdownConstants from "../../../../utils/DropdownConstants";
 import InputField from "../../../../components/inputField/InputField";
 import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
-import GlobalFunctions from "./../../../../utils/GlobalFunctions";
 
 const UpdateCustomDetails = forwardRef((props, ref) => {
   const IntrogativeQueConstant = DropdownConstants.IntrogativeQueConstant;

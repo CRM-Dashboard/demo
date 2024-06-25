@@ -90,12 +90,8 @@ export default function Payment({ tableDetails, response, getFilteredData }) {
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },
@@ -152,10 +148,10 @@ export default function Payment({ tableDetails, response, getFilteredData }) {
       name: "Customer Name",
     },
     {
-      name: "Payment GST",
+      name: "Payment Unit",
     },
     {
-      name: "Payment %",
+      name: "Payment GST",
     },
     {
       name: "Payment TDS",
@@ -164,7 +160,7 @@ export default function Payment({ tableDetails, response, getFilteredData }) {
       name: "Payment Total",
     },
     {
-      name: "Payment Unit",
+      name: "Payment %",
     },
   ];
 
@@ -174,11 +170,11 @@ export default function Payment({ tableDetails, response, getFilteredData }) {
         item?.building,
         item?.flatno,
         item?.customerName,
+        item?.pmtUnit,
         item?.pmtGst,
-        item?.pmtPer,
         item?.pmtTds,
         item?.pmtTot,
-        item?.pmtUnit,
+        item?.pmtPer,
       ];
     });
     return modifiedResponse;

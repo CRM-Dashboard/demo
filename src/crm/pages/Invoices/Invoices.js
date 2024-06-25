@@ -144,10 +144,6 @@ export default function Invoices() {
       name: "GST Amount",
       label: "GST Amount",
     },
-    // {
-    //   name: "Invoice Date",
-    //   label: "Invoice Date",
-    // },
     {
       name: "Invoice Date",
       label: "Invoice Date",

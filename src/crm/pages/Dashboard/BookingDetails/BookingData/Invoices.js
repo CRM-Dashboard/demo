@@ -90,12 +90,8 @@ export default function Invoices({ tableDetails, response, getFilteredData }) {
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },
@@ -152,16 +148,16 @@ export default function Invoices({ tableDetails, response, getFilteredData }) {
       name: "Customer Name",
     },
     {
-      name: "Invoice GST",
+      name: "Invoice Unit",
     },
     {
-      name: "Invoice %",
+      name: "Invoice GST",
     },
     {
       name: "Invoice Total",
     },
     {
-      name: "Invoice Unit",
+      name: "Invoice %",
     },
   ];
 
@@ -171,10 +167,10 @@ export default function Invoices({ tableDetails, response, getFilteredData }) {
         item?.building,
         item?.flatno,
         item?.customerName,
-        item?.invGst,
-        item?.invPer,
-        item?.invTot,
         item?.invUnit,
+        item?.invGst,
+        item?.invTot,
+        item?.invPer,
       ];
     });
     return modifiedResponse;

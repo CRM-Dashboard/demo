@@ -90,12 +90,8 @@ export default function Booking({ tableDetails, response, getFilteredData }) {
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },

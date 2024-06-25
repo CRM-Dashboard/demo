@@ -94,12 +94,8 @@ export default function Registration({
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },
@@ -156,13 +152,16 @@ export default function Registration({
       name: "Customer Name",
     },
     {
+      name: "Stamp Registration Amount",
+    },
+    {
+      name: "Stamp Registration Received",
+    },
+    {
+      name: "Stamp Registration Balance",
+    },
+    {
       name: "Registration Date",
-    },
-    {
-      name: "Stamp Balance",
-    },
-    {
-      name: "Stamp Registration",
     },
   ];
 
@@ -172,9 +171,10 @@ export default function Registration({
         item?.building,
         item?.flatno,
         item?.customerName,
+        item?.stampRegAmt,
+        item?.stampRegReceived,
+        item?.stampRegBalance,
         item?.regDt,
-        item?.stampBal,
-        item?.stampReg,
       ];
     });
     return modifiedResponse;

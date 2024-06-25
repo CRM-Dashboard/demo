@@ -4,23 +4,26 @@ import React, { useEffect, useState } from "react";
 import {
   Grid,
   List,
+  Button,
   ListItem,
   Checkbox,
   Collapse,
-  ListItemText,
   MenuItem,
+  ListItemText,
+  Autocomplete,
 } from "@mui/material";
 import Booking from "./Booking";
 import Payment from "./Payment";
 import Invoices from "./Invoices";
 import Outstanding from "./Outstanding";
+import Registration from "./Registration";
 import { useDispatch, useSelector } from "react-redux";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import BookingAction from "./BookingReducer/BookingAction";
+import StatusCard from "../../../../components/statusCard/StatusCard";
 import InputField from "../../../../components/inputField/InputField";
 import CustomTabLayout from "../../../../components/tabs/CustomTabLayout";
-import Registration from "./Registration";
 
 export default function BookingData() {
   const dispatch = useDispatch();
@@ -217,19 +220,19 @@ export default function BookingData() {
 
     let filteredData = data;
 
-    if (Registration_status.length > 0) {
+    if (Registration_status?.length > 0) {
       filteredData = filteredData.filter((item) =>
         Registration_status.includes(item.regStatus)
       );
     }
 
-    if (Confirmation_status.length > 0) {
+    if (Confirmation_status?.length > 0) {
       filteredData = filteredData.filter((item) =>
         Confirmation_status.includes(item.confStatus)
       );
     }
 
-    if (Possession_status.length > 0) {
+    if (Possession_status?.length > 0) {
       filteredData = filteredData.filter((item) =>
         Possession_status.includes(item.possStatus)
       );
@@ -353,8 +356,8 @@ export default function BookingData() {
             marginTop: "1em",
             backgroundColor: "white",
             paddingBottom: "2em",
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: "left",
+            justifyContent: "left",
             height: "20%",
             border: "1px solid white",
             borderRadius: "18px",
@@ -363,9 +366,35 @@ export default function BookingData() {
             alignSelf: "flex-start",
           }}
         >
+          <Grid
+            sx={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              color: "blue",
+              padding: "0.5em",
+            }}
+          >
+            <Button
+              sx={{ cursor: "Pointer" }}
+              onClick={() => {
+                setSelectedItems({
+                  Registration_status: [],
+                  Confirmation_status: [],
+                  Possession_status: [],
+                  Property_type: "",
+                  Building: "",
+                  Unit_Number: "",
+                });
+                getTableData();
+              }}
+            >
+              Clear ALL
+            </Button>
+          </Grid>
           {/* Dropdowns */}
           <Grid container spacing={2}>
-            <Grid item xs={12} style={{ margin: "0.5em" }}>
+            <Grid item xs={12} style={{ margin: "0.2em" }}>
               <InputField
                 select
                 label={"Building"}
@@ -382,8 +411,8 @@ export default function BookingData() {
                 ))}
               </InputField>
             </Grid>
-            <Grid item xs={12} style={{ margin: "0.5em" }}>
-              <InputField
+            <Grid item xs={12} style={{ margin: "0.2em" }}>
+              {/* <InputField
                 select
                 label={"Flat Number"}
                 value={selectedItems.Unit_Number}
@@ -397,9 +426,27 @@ export default function BookingData() {
                     {unit}
                   </MenuItem>
                 ))}
-              </InputField>
+              </InputField> */}
+              <Autocomplete
+                label="Flat Number"
+                value={selectedItems.Unit_Number}
+                onChange={(event, newValue) =>
+                  handleDropdownChange("Unit_Number", newValue)
+                }
+                options={[...itemGroups.Unit_Number].sort((a, b) =>
+                  b.localeCompare(a)
+                )}
+                getOptionLabel={(option) => option || ""}
+                renderInput={(params) => (
+                  <InputField
+                    {...params}
+                    label="Flat Number"
+                    InputLabelProps={{ shrink: true }}
+                  />
+                )}
+              />
             </Grid>
-            <Grid item xs={12} style={{ margin: "0.5em" }}>
+            <Grid item xs={12} style={{ margin: "0.2em" }}>
               <InputField
                 select
                 label={"Property Type"}

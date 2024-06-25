@@ -94,12 +94,8 @@ export default function Outstanding({
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },
@@ -156,16 +152,16 @@ export default function Outstanding({
       name: "Customer Name",
     },
     {
-      name: "Balance GST",
+      name: "Balance Unit",
     },
     {
-      name: "Balance %",
+      name: "Balance GST",
     },
     {
       name: "Balance Total",
     },
     {
-      name: "Balance Unit",
+      name: "Balance %",
     },
   ];
 
@@ -175,10 +171,10 @@ export default function Outstanding({
         item?.building,
         item?.flatno,
         item?.customerName,
-        item?.balGst,
-        item?.balPer,
-        item?.balTot,
         item?.balUnit,
+        item?.balGst,
+        item?.balTot,
+        item?.balPer,
       ];
     });
     return modifiedResponse;

@@ -10,9 +10,9 @@ import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 
 const UnitItemData = forwardRef((props, ref) => {
   const [data, setData] = useState([]);
-  const [selectedRows, setSelectedRows] = useState([]);
   const [locations, setLocation] = useState([]);
   const [btnLoading, setBtnLoading] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
@@ -233,7 +233,9 @@ const UnitItemData = forwardRef((props, ref) => {
         disableElevation
         disableFocusRipple
         size="small"
-        onClick={handleSave}
+        onClick={() => {
+          handleSave();
+        }}
         sx={{
           "&.MuiButton-root": {
             textTransform: "none",

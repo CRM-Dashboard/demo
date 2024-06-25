@@ -18,9 +18,9 @@ const setShouldShowCustDetails = (data) => {
   };
 };
 
-const setShouldShowTimeLine = (data) => {
+const setShouldShowBookingDetails = (data) => {
   return {
-    type: "SHOW_TIMELINE",
+    type: "SHOW_BOOKING_DETAILS",
     payload: data,
   };
 };
@@ -58,10 +58,10 @@ const exportDefault = {
   setProjectId,
   setCustomerEmailID,
   setShowHappinessMeter,
-  setShouldShowTimeLine,
   setShouldShowCustDetails,
   setShowSentimentAnalysis,
   setCustomerContactNumber,
+  setShouldShowBookingDetails,
 };
 
 export default exportDefault;

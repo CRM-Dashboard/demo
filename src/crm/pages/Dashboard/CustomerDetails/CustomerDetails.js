@@ -1,17 +1,17 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
+import Graph from "./Graph";
+import "./CustomerDetails.css";
 import Chart from "react-apexcharts";
 import { Grid } from "@mui/material";
 import AgingGraph from "./AgingGraph";
-import Divider from "@mui/material/Divider";
-import Graph from "./Graph";
+import { useDispatch } from "react-redux";
+import HappinessIndexDonut from "./HappinessIndexDonut";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
-import HappinessIndexDonut from "./HappinessIndexDonut";
-import { useDispatch } from "react-redux";
-import "./CustomerDetails.css";
 
 export default function CustomerDetails() {
   const [customerDetails, setCustomerDetails] = useState("");
@@ -88,22 +88,15 @@ export default function CustomerDetails() {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
+      formData.append("orderId", OrderId);
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
         method: "POST",
         body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            const filteredArray = data[0]?.customerdata?.filter(
-              (obj) => obj.orderId === OrderId
-            );
-            console.log(
-              "##########filteredArray.length",
-              filteredArray.length,
-              OrderId
-            );
-            setNumberOfCust(filteredArray.length);
+            setNumberOfCust(data[0]?.customerdata?.length);
             setLoading(false);
           } else {
             setLoading(false);
@@ -418,17 +411,13 @@ export default function CustomerDetails() {
               sm={2}
               lg={2}
               md={2}
-              style={
-                OrderId ? { cursor: "pointer" } : { cursor: "context-menu" }
-              }
+              style={{ cursor: "pointer" }}
               onClick={() => {
-                if (OrderId) {
-                  dispatch(
-                    dashboardActions.setShouldShowTimeLine(
-                      !reducerData.dashboard.shouldShowTimeLine
-                    )
-                  );
-                }
+                dispatch(
+                  dashboardActions.setShouldShowBookingDetails(
+                    !reducerData.dashboard.shouldShowBookingDetails
+                  )
+                );
               }}
             >
               <StatusCard

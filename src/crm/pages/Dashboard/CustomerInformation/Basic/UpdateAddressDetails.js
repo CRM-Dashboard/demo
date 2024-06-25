@@ -48,7 +48,7 @@ const UpdateAddressDetails = forwardRef((props, ref) => {
           city: formik.values.city,
           postl_cod1: formik.values.pincode,
           str_suppl1: formik.values.address1,
-          strsuppl2: formik.values.address2,
+          str_suppl2: formik.values.address2,
           str_suppl3: formik.values.address3,
           street: formik.values.street,
           country: formik.values.country,

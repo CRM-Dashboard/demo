@@ -1,11 +1,11 @@
 const initialState = {
   project: {},
+  customerEmailId: "",
   customerContactNo: "",
   shouldShowCustData: false,
-  shouldShowTimeLine: false,
   shouldHappinessMeter: false,
   shouldSentimentAnalysis: false,
-  customerEmailId: "",
+  shouldShowBookingDetails: false,
 };
 
 const DashboardReducer = (state = initialState, action) => {
@@ -20,10 +20,10 @@ const DashboardReducer = (state = initialState, action) => {
         ...state,
         shouldShowCustData: action.payload,
       };
-    case "SHOW_TIMELINE":
+    case "SHOW_BOOKING_DETAILS":
       return {
         ...state,
-        shouldShowTimeLine: action.payload,
+        shouldShowBookingDetails: action.payload,
       };
     case "SHOW_HAPPINESS_METER":
       return {

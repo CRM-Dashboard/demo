@@ -62,13 +62,13 @@ const TreeTable = ({
 
     return (
       <>
-        {item.tasks && item.tasks.length > 0 ? (
-          <tr key={`expandable-row-${item.ID}`}>
+        {item.tasks && Array.isArray(item.tasks) && item.tasks.length !== 0 ? (
+          <tr key={`expandable-row-${item.taskId}`}>
             <td colSpan="15" style={{ padding: "0", border: "none" }}>
               <div style={{ paddingLeft: "20px" }}>
                 <TaskTable
                   data={item.tasks}
-                  secondIteration={"true"}
+                  secondIteration="true"
                   statuses={statuses}
                   getTableData={getTableData}
                   setSelectedRows={setSelectedRows}
@@ -79,15 +79,17 @@ const TreeTable = ({
         ) : (
           <></>
         )}
-        {item.changes && item.changes.length > 0 ? (
-          <tr key={`expandable-row-${item.ID}`}>
+        {item.changes &&
+        Array.isArray(item.changes) &&
+        item.changes.length !== 0 ? (
+          <tr key={`expandable-row-${item.changeNo}`}>
             <td colSpan="15" style={{ padding: "0", border: "none" }}>
               <div style={{ paddingLeft: "20px" }}>
                 <ChangeManagementTable
                   data={item.changes}
                   users={users}
                   modules={modules}
-                  secondIteration={"true"}
+                  secondIteration="true"
                   statuses={statuses}
                   getTableData={getTableData}
                   setSelectedRows={setSelectedRows}

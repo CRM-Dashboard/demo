@@ -151,7 +151,7 @@ const UpdatePersonalDetails = forwardRef((props, ref) => {
           ? props.customerInfo?.salaried
           : "N",
       vipCustomer:
-        props.customerInfo?.vip === "X" ? props.customerInfo?.vip : "N",
+        props.customerInfo?.vip2 === "X" ? props.customerInfo?.vip2 : "N",
       vipReason: props.customerInfo?.vipRsn ? props.customerInfo?.vipRsn : "",
       cibilScore: props.customerInfo?.cibil ? props.customerInfo?.cibil : "",
     },

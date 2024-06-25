@@ -14,8 +14,8 @@ export default function BasicInformation({
   countryData,
   stateData,
 }) {
-  const [customerInfo, setCustomerInfo] = useState({});
   const [loading, setLoading] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({});
   const [isPersonalDetailsEditable, setIsPersonalDetailsEditable] =
     useState(false);
   const [isAddressEditable, setIsAddressEditable] = useState(false);
@@ -36,28 +36,20 @@ export default function BasicInformation({
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("projectId", projectId);
-    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
+    formData.append("orderId", orderId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
       method: "POST",
       body: formData,
     })
       .then((response) => response.json())
       .then(async (data) => {
         if (data) {
-          // setTitleData(data[0].titledata);
-          // setCountryData(data[0].countrydata);
-          // setOccupation(data[0].occupationdata);
-          // setStateData(data[0].statedata);
           if (orderId) {
             const filteredArray = data[0]?.customerdata?.filter(
-              (obj) => obj.orderId === orderId
+              (obj) => obj.customerId === custId
             );
-            const finalArray = filteredArray?.filter(
-              (data) => data.customerId === custId
-            );
-            console.log("###########finalArray", finalArray[0], custId);
-            console.log("##########custId", custId);
 
-            await setCustomerInfo(finalArray[0]);
+            await setCustomerInfo(filteredArray[0]);
             setLoading(false);
           }
         }
@@ -67,40 +59,6 @@ export default function BasicInformation({
   useEffect(() => {
     getUpdatedData();
   }, [isPersonalDetailsEditable, isAddressEditable]);
-
-  // const validationSchema = Yup.object().shape({
-  //   customerName: Yup.string().required("Required"),
-  //   mobile: Yup.number().required("Required"),
-  //   alterhateMobile: Yup.number().required("Required"),
-  //   city: Yup.string().required("Required"),
-  //   gender: Yup.string().required("Required"),
-  //   pincode: Yup.number().required("Required"),
-  //   adharNumber: Yup.number().required("Required"),
-  //   country: Yup.string().required("Required"),
-  //   state: Yup.string().required("Required"),
-  //   pan: Yup.string().required("Required"),
-  //   email: Yup.string().required("Required"),
-  //   dob: Yup.date().required("Required"),
-  //   age: Yup.number().required("Required"),
-  //   occupation: Yup.string().required("Required"),
-  //   designation: Yup.string().required("Required"),
-  //   company: Yup.string().required("Required"),
-  //   maritalStatus: Yup.string().required("Required"),
-  //   ethnicity: Yup.string().required("Required"),
-  //   industry: Yup.string().required("Required"),
-  //   workplace: Yup?.string()?.required("Required"),
-  //   childs: Yup?.number()?.required("required"),
-  //   agreementAddr: Yup?.string()?.required("Required"),
-  //   address: Yup?.string()?.required("required"),
-  //   salaried: Yup?.string()?.required("required"),
-  //   vipCustomer: Yup?.string()?.required("required"),
-  //   vipReason: Yup?.string()?.required("required"),
-  //   cibilScore: Yup?.string()?.required("required"),
-  // });
-
-  // const saveBasicDetails = () => {
-  //   console.log("#######formik.values", formik.values);
-  // };
 
   const savePersonalDetails = () => {
     if (personalInfoRef.current) {
@@ -113,48 +71,6 @@ export default function BasicInformation({
       addressInfoRef.current.saveAddressDetails();
     }
   };
-
-  // const formik = useFormik({
-  //   initialValues: {
-  //     customerName: customerInfo.customerName,
-  //     mobile: customerInfo?.Mobile ? customerInfo?.Mobile : "",
-  //     alterhateMobile: customerInfo?.alterhateMobile
-  //       ? customerInfo?.alterhateMobile
-  //       : "",
-  //     city: customerInfo?.city ? customerInfo?.city : "",
-  //     gender: customerInfo?.Gender ? customerInfo?.Gender : "",
-  //     pincode: customerInfo?.pincode ? customerInfo?.pincode : "",
-  //     adharNumber: customerInfo?.adharNumber ? customerInfo?.adharNumber : "",
-  //     country: customerInfo?.Country ? customerInfo?.Country : "",
-  //     state: customerInfo?.State ? customerInfo?.State : "",
-  //     pan: customerInfo?.PAN ? customerInfo?.PAN : "",
-  //     email: customerInfo?.Email ? customerInfo?.Email : "",
-  //     dob: customerInfo?.DOB ? customerInfo?.DOB : "",
-  //     age: customerInfo?.Age ? customerInfo?.Age : "",
-  //     occupation: customerInfo?.Occupation ? customerInfo?.Occupation : "",
-  //     designation: customerInfo?.Designation ? customerInfo?.Designation : "",
-  //     company: customerInfo?.Company ? customerInfo?.Company : "",
-  //     maritalStatus: customerInfo?.maritalStatus
-  //       ? customerInfo?.maritalStatus
-  //       : "",
-  //     ethnicity: customerInfo?.ethnicity ? customerInfo?.ethnicity : "",
-  //     industry: customerInfo?.Industry ? customerInfo?.industry : "",
-  //     workplace: customerInfo?.workplace ? customerInfo?.workplace : "",
-  //     childs: customerInfo?.childs ? customerInfo?.childs : "",
-  //     agreementAddr: customerInfo?.agreementAddr
-  //       ? customerInfo?.agreementAddr
-  //       : "",
-  //     address: customerInfo?.Address ? customerInfo?.Address : "",
-  //     salaried: customerInfo?.salaried ? customerInfo?.salaried : "",
-  //     vipCustomer: customerInfo?.vip ? customerInfo?.vip : "",
-  //     vipReason: customerInfo?.vipRsn ? customerInfo?.vipRsn : "",
-  //     cibilScore: customerInfo?.cibil ? customerInfo?.cibil : "",
-  //   },
-  //   validationSchema,
-  //   onSubmit: (values, { resetForm }) => {
-  //     saveBasicDetails();
-  //   },
-  // });
 
   const titleStyle = {
     "font-weight": "bold",
@@ -334,7 +250,7 @@ export default function BasicInformation({
                 </Grid>
                 <Grid xs={5} sm={5} md={5}>
                   <Typography>
-                    {customerInfo?.vip === "X" ? "Yes" : "No"}
+                    {customerInfo?.vip2 === "X" ? "Yes" : "No"}
                   </Typography>
                 </Grid>
               </Grid>

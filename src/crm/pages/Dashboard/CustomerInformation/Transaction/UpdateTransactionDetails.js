@@ -18,6 +18,7 @@ const UpdateTransactionDetails = forwardRef((props, ref) => {
   const userName = reducerData.LoginReducer.userName;
   const orderId = reducerData.searchBar.orderId;
   const projectId = reducerData?.dashboard?.project?.projectId;
+  const selfFundingConstant = DropdownConstants.SelfFundingConstant;
   const IntrogativeQueConstant = DropdownConstants.IntrogativeQueConstant;
 
   const saveLog = async () => {
@@ -103,7 +104,7 @@ const UpdateTransactionDetails = forwardRef((props, ref) => {
       pendDt: props.customerInfo.pendDt ? props.customerInfo.pendDt : "",
       regDev: props?.customerInfo?.regDev === "" ? "N" : "X",
       devDt: props.customerInfo.devDt ? props.customerInfo.devDt : "",
-      selfPmt: props.customerInfo.selfPmt === "" ? "N" : "X",
+      selfPmt: props.customerInfo.selfPmt,
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
@@ -215,17 +216,10 @@ const UpdateTransactionDetails = forwardRef((props, ref) => {
               helperText={formik.errors.selfPmt}
               required
             >
-              {IntrogativeQueConstant?.map((data) => {
+              {selfFundingConstant?.map((data) => {
                 return <MenuItem value={data.Id}>{data.Name}</MenuItem>;
               })}
             </InputField>
-            {/* <InputField
-              id="selfPmt"
-              name="selfPmt"
-              label="If Self Funding"
-              value={formik.values.selfPmt}
-              onChange={formik.handleChange}
-            /> */}
           </Grid>
         </Grid>
         <br />

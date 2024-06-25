@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-// import FileUploader from "./../Activity/FileUploader";
+// import FileUploader from "./FileUploader/FileUploader";
 
 import ActivityDetails from "./ActivityDetails";
 import CustomTabLayout from "../../components/tabs/CustomTabLayout";

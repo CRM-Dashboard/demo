@@ -10,8 +10,12 @@ import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import "./CustomersList.css";
 import CustomerInfoCard from "./CustomerInfoCard";
+import { Grid } from "@mui/material";
+import InputField from "../../../components/inputField/InputField";
 
 export default function CustomersList() {
+  const [city, setCity] = useState("");
+  const [gender, setGender] = useState("");
   const [response, setResponse] = useState([]);
   const [titleData, setTitleData] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -34,7 +38,6 @@ export default function CustomersList() {
   const projectId = reducerData?.dashboard?.project?.projectId;
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
-      console.log("$$$$$$$$$$$$$$$$$$$$$$item", item);
       return [
         item?.customerName,
         // item?.Mobile,
@@ -97,14 +100,15 @@ export default function CustomersList() {
     initiateOutgoingCall();
   }, [customerMobileNumber]);
 
-  useEffect(() => {
+  const getTableData = () => {
     setIsLoading(true);
     if (projectId) {
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
+      formData.append("orderId", OrderId);
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
         method: "POST",
         body: formData,
       })
@@ -130,7 +134,34 @@ export default function CustomersList() {
           }
         });
     }
+  };
+
+  useEffect(() => {
+    getTableData();
   }, [OrderId]);
+
+  useEffect(() => {
+    if (city.length > 0 && gender.length > 0) {
+      const updatedData = response?.filter(
+        (data) =>
+          data.city.toLowerCase().includes(city.toLowerCase()) &&
+          data.Gender.toLowerCase().includes(gender.toLowerCase())
+      );
+      setTableData(modifyResponse(updatedData));
+    } else if (city.length > 0) {
+      const updatedData = response?.filter((data) =>
+        data.city.toLowerCase().includes(city.toLowerCase())
+      );
+      setTableData(modifyResponse(updatedData));
+    } else if (gender.length > 0) {
+      const updatedData = response?.filter((data) =>
+        data.Gender.toLowerCase().includes(gender.toLowerCase())
+      );
+      setTableData(modifyResponse(updatedData));
+    } else {
+      getTableData();
+    }
+  }, [city, gender]);
 
   const initialVisibleColumns = [
     {
@@ -425,6 +456,32 @@ export default function CustomersList() {
                     <Table
                       sx={{ height: "10px", overflow: "hidden" }}
                       data={tableData}
+                      title={
+                        <Grid container spacing={2} sx={{ display: "flex" }}>
+                          <Grid item sm={3} md={3} lg={3}>
+                            <InputField
+                              id="city"
+                              name="city"
+                              label="City"
+                              value={city}
+                              onChange={(e) => {
+                                setCity(e.target.value);
+                              }}
+                            ></InputField>
+                          </Grid>
+                          <Grid item sm={3} md={3} lg={3}>
+                            <InputField
+                              id="gender"
+                              name="gender"
+                              label="Gender"
+                              value={gender}
+                              onChange={(e) => {
+                                setGender(e.target.value);
+                              }}
+                            ></InputField>
+                          </Grid>
+                        </Grid>
+                      }
                       columns={columns}
                       options={options}
                     ></Table>

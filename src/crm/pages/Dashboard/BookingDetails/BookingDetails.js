@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 
-import Timeline from "./Timeline";
-import CostSheet from "./CostSheet";
+import Timeline from "./TimeLine/Timeline";
+import CostSheet from "./CostSheet/CostSheet";
 import LoanInfo from "./Loan/LoanInfo";
 import { useSelector } from "react-redux";
 import SchemeInfo from "./Scheme/SchemeInfo";
@@ -78,9 +78,9 @@ const BookingDetails = () => {
         container
         columns={12}
         columnGap={2}
-        spacing={2}
+        columnSpacing={2}
         sx={{
-          padding: "3em",
+          marginLeft: "1em",
         }}
         className="bgImage"
       >
@@ -90,6 +90,7 @@ const BookingDetails = () => {
           sm={3}
           md={3}
           sx={{
+            "&.MuiGrid-item": { paddingLeft: "0px" },
             display: "flex",
             flexDirection: "column",
             backgroundColor: "white",
@@ -240,33 +241,13 @@ const BookingDetails = () => {
                   </Grid>
                 </Grid>
               </div>
-
-              {/* <div
-                style={{
-                  paddingTop: "1em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <div>
-                  <PersonIcon fontSize="medium" />
-                </div>
-                <div>
-                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
-                    {customerData?.Age} Years
-                  </Typography>
-                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
-                    {customerData?.Gender}
-                  </Typography>
-                </div>
-              </div> */}
             </div>
 
             <></>
           </Grid>
         </Grid>
 
-        <Grid item xs={7} sm={8} md={8}>
+        <Grid item xs={8} sm={7} md={7} lg={7}>
           <div>
             <CustomTabLayout tabPanels={tabs} />
           </div>

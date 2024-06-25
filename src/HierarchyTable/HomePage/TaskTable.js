@@ -35,7 +35,7 @@ const TaskTable = ({
             <div style={{ paddingLeft: "20px" }}>
               <TicketTable
                 data={item.tickets}
-                secondIteration={"true"}
+                secondIteration="true"
                 statuses={statuses}
                 getTableData={getTableData}
               />

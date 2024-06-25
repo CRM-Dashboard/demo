@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import moment from "moment";
 import "./CustomerInfoCard.css";
-import { useSelector } from "react-redux";
 import CRMInformation from "./CRM/CRMInformation";
 import CakeIcon from "@mui/icons-material/Cake";
 import MailIcon from "@mui/icons-material/Mail";
@@ -23,46 +22,7 @@ const CustomerInfoCard = ({
   countryData,
   stateData,
 }) => {
-  const reducerData = useSelector((state) => state);
-  const passWord = reducerData.LoginReducer.passWord;
-  const userName = reducerData.LoginReducer.userName;
-  const orderId = reducerData.searchBar.orderId;
-  const projectId = reducerData?.dashboard?.project?.projectId;
-
-  const [customerData, setCustomerData] = useState(customerInfo);
-
-  const getUpdatedData = () => {
-    if (projectId) {
-      const formData = new FormData();
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-      formData.append("projectId", projectId);
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/customer`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            // setTitleData(data[0].titledata);
-            // setCountryData(data[0].countrydata);
-            // setOccupation(data[0].occupationdata);
-            // setStateData(data[0].statedata);
-
-            if (orderId) {
-              const filteredArray = data[0]?.customerdata?.filter(
-                (obj) => obj.orderId === orderId
-              );
-              const finalArray = filteredArray?.filter(
-                (data) => data.customerId === customerInfo.customerId
-              );
-
-              setCustomerData(finalArray[0]);
-            }
-          }
-        });
-    }
-  };
+  const customerData = customerInfo;
 
   const tabs = [
     {
@@ -73,34 +33,28 @@ const CustomerInfoCard = ({
           occupations={occupations}
           countryData={countryData}
           stateData={stateData}
-          getUpdatedData={getUpdatedData}
         />
       ),
     },
     {
       label: "Child Details",
-      component: (
-        <ChildInformation
-          customerInfo={customerData}
-          getUpdatedData={getUpdatedData}
-        />
-      ),
+      component: <ChildInformation />,
     },
     {
       label: "Bank Details",
-      component: <BankInformation customerInfo={customerData} />,
+      component: <BankInformation />,
     },
     {
       label: "Transaction Details",
-      component: <TransactionInformation customerInfo={customerData} />,
+      component: <TransactionInformation />,
     },
     {
       label: "CRM Details",
-      component: <CRMInformation customerInfo={customerData} />,
+      component: <CRMInformation />,
     },
     {
       label: "Customisation Details",
-      component: <CustomisationDetails customerInfo={customerData} />,
+      component: <CustomisationDetails />,
     },
   ];
 
@@ -275,27 +229,7 @@ const CustomerInfoCard = ({
                   </Typography>
                 </div>
               </div>
-
-              {/* <div
-                className="d-flex"
-                style={{ paddingTop: "0.5em", paddingLeft: "1em" }}
-              >
-                <PlaceIcon fontSize="small" />{" "}
-                {getAddress(customerInfo?.Address)}
-              </div>
-
-              <Typography fontSize="14px" style={{ paddingLeft: "3.6em" }}>
-                {" "}
-                {customerInfo?.State}
-              </Typography>
-              <Typography fontSize="14px" style={{ paddingLeft: "3.6em" }}>
-                {" "}
-                {customerInfo?.Country}
-              </Typography> */}
             </div>
-            {/* OtherDetails */}
-
-            <></>
           </Grid>
         </Grid>
 

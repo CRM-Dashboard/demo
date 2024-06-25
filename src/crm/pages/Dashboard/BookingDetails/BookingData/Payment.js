@@ -1,31 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
 import { Grid } from "@mui/material";
-import { useSelector } from "react-redux";
-import GlobalFunctions from "./../../../utils/GlobalFunctions";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import GlobalFunctions from "../../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import CircularScreenLoader from "./../../../../components/circularScreenLoader/CircularScreenLoader";
 
-export default function AgingGraph() {
-  const [graphData, setGraphData] = useState([]);
+export default function Payment({ tableDetails, response, getFilteredData }) {
+  const [tableData, setTableData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
-  const OrderId = reducerData?.searchBar?.orderId;
-  const passWord = reducerData.LoginReducer.passWord;
-  const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData.dashboard.project.projectId;
 
   const getMuiTheme = () =>
     createTheme({
       components: {
         MuiIconButton: {
-          styleOverrides: {
-            root: {
-              variant: "contained",
-            },
-          },
-        },
-        MuiSvgIcon: {
           styleOverrides: {
             root: {
               color: "Blue",
@@ -125,7 +116,7 @@ export default function AgingGraph() {
             root: {
               paddingTop: 0,
               paddingBottom: 0,
-              lineHeight: "2.2em",
+              lineHeight: "1.3em",
             },
           },
         },
@@ -139,100 +130,82 @@ export default function AgingGraph() {
       },
     });
 
-  const modifyResponse = (res) => {
-    const modifiedResponse = res?.map((item) => {
-      console.log("#########item", item?.bal_0_15);
-      return [
-        item?.name,
-        item?.arktx,
-        item?.bal_0_15,
-        item?.bal_15_30,
-        item?.bal_30_60,
-        item?.bal_60_90,
-        item?.bal_90_120,
-        item?.bal_120_150,
-        item?.bal_150_180,
-        item?.bal_180,
-      ];
-    });
-    return modifiedResponse;
-  };
-
-  async function getData() {
-    const formData = new FormData();
-    formData.append("projectId", projectId);
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/aging", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (OrderId) {
-          const dataToSet = data?.filter((obj) => obj.orderId === OrderId);
-
-          setGraphData(modifyResponse(dataToSet));
-        } else {
-          setGraphData(modifyResponse(data));
-        }
-      })
-      .catch(() => {});
-  }
-
-  const columns = [
-    { name: "Name" },
-    { name: "Unit" },
-    {
-      name: "0-15",
-    },
-    {
-      name: "15-30",
-    },
-    {
-      name: "30-60",
-    },
-    {
-      name: "60-90",
-    },
-    {
-      name: "90-120",
-    },
-    {
-      name: "120-150",
-    },
-    {
-      name: "150-180",
-    },
-    {
-      name: "> 180",
-    },
-  ];
-
   const options = {
     selectableRows: "none",
+    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
     search: true,
     viewColumns: true,
     filter: true,
-    pagination: false,
+  };
+
+  const columns = [
+    {
+      name: "Building",
+    },
+    {
+      name: "Flat Number",
+    },
+    {
+      name: "Customer Name",
+    },
+    {
+      name: "Payment GST",
+    },
+    {
+      name: "Payment %",
+    },
+    {
+      name: "Payment TDS",
+    },
+    {
+      name: "Payment Total",
+    },
+    {
+      name: "Payment Unit",
+    },
+  ];
+
+  const modifyResponse = (res) => {
+    const modifiedResponse = res?.map((item) => {
+      return [
+        item?.building,
+        item?.flatno,
+        item?.customerName,
+        item?.pmtGst,
+        item?.pmtPer,
+        item?.pmtTds,
+        item?.pmtTot,
+        item?.pmtUnit,
+      ];
+    });
+    return modifiedResponse;
   };
 
   useEffect(() => {
-    getData();
-  }, [OrderId, projectId]);
+    setLoading(true);
+    const data = getFilteredData(response);
+    setTableData(modifyResponse(data));
+    setLoading(false);
+  }, [reducerData?.BookingReducer?.BookingsDetailsFilter, tableDetails]);
 
   useEffect(() => {
-    getData();
+    setLoading(true);
+    setTableData(modifyResponse(tableDetails));
+    setLoading(false);
   }, []);
 
   return (
-    <Grid sx={{ paddingTop: "0.5em" }}>
-      <ThemeProvider theme={() => getMuiTheme()}>
-        <Table data={graphData} columns={columns} options={options}></Table>
-      </ThemeProvider>
+    <Grid style={{ marginTop: "0.5em" }}>
+      {!loading ? (
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <Table data={tableData} columns={columns} options={options}></Table>
+        </ThemeProvider>
+      ) : (
+        <CircularScreenLoader />
+      )}
     </Grid>
   );
 }

@@ -1,0 +1,10 @@
+.circularContainer {
+  /* margin: 0.8em; */
+  width: 2em;
+  height: 2em;
+  border-radius: 50%;
+  color: white;
+  background-color: blueviolet;
+  border: none;
+  overflow: hidden;
+}

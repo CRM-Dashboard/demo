@@ -183,7 +183,12 @@ const CreateNewTask = forwardRef((props, ref) => {
               required
             >
               {props?.users?.map((data) => {
-                return <MenuItem value={data?.bname}> {data?.name}</MenuItem>;
+                return (
+                  <MenuItem value={data?.bname} key={data?.bname}>
+                    {" "}
+                    {data?.name}
+                  </MenuItem>
+                );
               })}
             </InputField>
           </Grid>

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unreachable */
 import React, { useEffect, useState } from "react";
-import "./Style.css";
+import "./../Style.css";
 import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Typography } from "@mui/material";

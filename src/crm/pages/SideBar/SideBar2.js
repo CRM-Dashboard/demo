@@ -129,7 +129,8 @@ const SideBar2 = () => {
   const [openSideBar, setOpenSideBar] = useState(false);
   const [subActTypeData, setSubActTypeData] = useState([]);
   const [openActivityModal, setOpenActivityModal] = useState(false);
-  const [shouldShowTimeLine, setShouldShowTimeline] = useState(false);
+  const [shouldShowBookingDetails, setShouldShowBookingDetails] =
+    useState(false);
   const [shouldShowCustomerList, setShouldShowCustomerList] = useState(false);
 
   const ref = useRef(null);
@@ -160,8 +161,8 @@ const SideBar2 = () => {
   }, [shouldShowCustomerList]);
 
   useEffect(() => {
-    dispatch(dashboardActions.setShouldShowTimeLine(false));
-  }, [shouldShowTimeLine]);
+    dispatch(dashboardActions.setShouldShowBookingDetails(false));
+  }, [shouldShowBookingDetails]);
 
   const submitActivity = () => {
     if (ref.current) {
@@ -637,7 +638,7 @@ const SideBar2 = () => {
                     onClick={() => {
                       if (route.path === "/dashboard") {
                         setShouldShowCustomerList(!shouldShowCustomerList);
-                        setShouldShowTimeline(!shouldShowTimeLine);
+                        setShouldShowBookingDetails(!shouldShowBookingDetails);
                       }
                       navigate(`/crm/crm${route.path}`);
                     }}
@@ -655,7 +656,9 @@ const SideBar2 = () => {
                         onClick={() => {
                           if (route.path === "/dashboard") {
                             setShouldShowCustomerList(!shouldShowCustomerList);
-                            setShouldShowTimeline(!shouldShowTimeLine);
+                            setShouldShowBookingDetails(
+                              !shouldShowBookingDetails
+                            );
                           }
                           navigate(`/crm/crm${route.path}`);
                         }}

@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Button, Grid } from "@mui/material";
-import { Divider } from "@mui/material";
+import { Button, Grid, Typography, Divider } from "@mui/material";
+import "./Style.css";
 
 function Mails() {
   const reducerData = useSelector((state) => state);
@@ -11,6 +11,10 @@ function Mails() {
   const [tableData, setTableData] = useState([]);
   const [nextDataLink, setNextDataLink] = useState("");
   const [mailData, setMailData] = useState([]);
+
+  useEffect(() => {
+    if (tableData[0]) setMailData(tableData[0].body?.content);
+  }, [tableData]);
 
   const getMailDetails = () => {
     if (customerEmailId) {
@@ -57,6 +61,14 @@ function Mails() {
     return `${year}/${month}/${date}  ${hours}:${minutes}`;
   };
 
+  // const getInitials = (name) => {
+  //   if (!name) return "";
+
+  //   const words = name.trim().split(/\s+/);
+  //   const initials = words.map((word) => word[0].toUpperCase()).join("");
+  //   return initials;
+  // };
+
   return (
     <>
       <Grid
@@ -76,9 +88,10 @@ function Mails() {
         </Button>
       </Grid>
       {/* {tableData?.length > 0 ? */}
-      <Grid sx={{ marginLeft: "1%", backgroundColor: "white" }}>
+      <Grid sx={{ marginLeft: "1%" }}>
         <Grid
           container
+          columnGap={3}
           rowSpacing={1}
           columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
           columns={12}
@@ -90,15 +103,13 @@ function Mails() {
             sm={3}
             md={3}
             lg={3}
-            sx={{ backgroundColor: "white", paddingRight: "1em" }}
+            sx={{ backgroundColor: "white" }}
           >
             {tableData?.map((mailData) => {
               return (
                 <>
                   <Grid
                     container
-                    rowSpacing={1}
-                    columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
                     columns={12}
                     sx={{
                       display: "flex",
@@ -106,12 +117,38 @@ function Mails() {
                       alignItems: "space-around",
                     }}
                   >
+                    {/* <div
+                      item
+                      md={2}
+                      sm={2}
+                      lg={2}
+                      xs={2}
+                      className="circularImg"
+                    >
+                      <label
+                        style={{
+                          // paddingLeft: "22%",
+                          // paddingTop: "30%",
+                          height: "0.2em",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          fontSize: "22px",
+                          color: "white",
+                        }}
+                      >
+                        {" "}
+                        {getInitials(
+                          mailData?.toRecipients[0]?.emailAddress?.name
+                        )}
+                      </label>
+                    </div> */}
                     <Grid
                       item
-                      md={8}
-                      sm={8}
-                      lg={8}
-                      xs={8}
+                      md={7}
+                      sm={7}
+                      lg={7}
+                      xs={7}
                       sx={{
                         paddingTop: "0.5em",
                         paddingBottom: "0.5em",
@@ -119,18 +156,24 @@ function Mails() {
                         wordBreak: "break-all",
                       }}
                       onClick={() => {
+                        console.log(
+                          "mailData?.body?.content",
+                          mailData?.body?.content
+                        );
                         setMailData(mailData?.body?.content);
                       }}
                     >
-                      <Grid>{mailData?.sender?.emailAddress?.address}</Grid>
-                      <Grid>{mailData?.subject}</Grid>
+                      <Grid sx={{ fontSize: "12px" }}>
+                        {mailData?.sender?.emailAddress?.address}
+                      </Grid>
+                      <Grid sx={{ fontSize: "12px" }}>{mailData?.subject}</Grid>
                     </Grid>
                     <Grid
                       item
-                      md={4}
-                      sm={4}
-                      lg={4}
-                      xs={4}
+                      md={3}
+                      sm={3}
+                      lg={3}
+                      xs={3}
                       sx={{ fontSize: "11px" }}
                     >
                       {getDateAndTime(mailData?.receivedDateTime)}
@@ -142,7 +185,27 @@ function Mails() {
             })}
           </Grid>
           <Divider orientation="vertical" />
-          <Grid item xs={8} sm={8} md={8} lg={8}>
+          <Grid
+            item
+            xs={8}
+            sm={8}
+            md={8}
+            lg={8}
+            sx={{ backgroundColor: "white" }}
+          >
+            <Typography
+              style={{
+                height: "0.2em",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: "22px",
+                color: "white",
+              }}
+            >
+              {" "}
+              {/* {getInitials(mailData?.toRecipients[0]?.emailAddress?.name)} */}
+            </Typography>
             <div dangerouslySetInnerHTML={{ __html: mailData }} />
           </Grid>
         </Grid>

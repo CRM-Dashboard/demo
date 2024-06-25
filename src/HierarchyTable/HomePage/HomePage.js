@@ -107,12 +107,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Scrollable table div */}
       <div>
         <TreeTable
           ref={ref}
-          // data={data}
-          secondIteration={false}
+          secondIteration="false"
           openCreateForm={openCreateForm}
           setOpenCreateForm={setOpenCreateForm}
           openCreateTask={openCreateTask}

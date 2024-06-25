@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Grid } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import "./Style.css";
 // import { useTrail, a } from "@react-spring/web";
 
 // const Trail = ({ open, children }) => {
@@ -26,7 +27,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ProjectMenus() {
   const navigate = useNavigate();
-  const [open, set] = useState(true);
+  // const [open, set] = useState(true);
 
   return (
     <Grid
@@ -40,7 +41,6 @@ export default function ProjectMenus() {
     >
       {/* <Trail open={open}> */}
       <Grid
-        // className={styles.container}
         container
         rowSpacing={1}
         columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
@@ -51,7 +51,7 @@ export default function ProjectMenus() {
           alignItems: "center",
           height: "100vh",
         }}
-        onClick={() => set((state) => !state)}
+        // onClick={() => set((state) => !state)}
       >
         <Grid item md={5} lg={5} sm={5} xs={5} className="animatedGrid">
           <Grid

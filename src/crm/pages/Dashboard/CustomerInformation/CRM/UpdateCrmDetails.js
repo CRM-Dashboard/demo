@@ -11,6 +11,7 @@ import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar
 import GlobalFunctions from "../../../../utils/GlobalFunctions";
 
 const UpdateCrmDetails = forwardRef((props, ref) => {
+  const PurchaseRsnConstants = DropdownConstants.PurchaseReasonConstant;
   const IntrogativeQueConstant = DropdownConstants.IntrogativeQueConstant;
 
   const snackbar = UseCustomSnackbar();
@@ -118,7 +119,7 @@ const UpdateCrmDetails = forwardRef((props, ref) => {
       comm_mode: props.customerInfo?.commMode
         ? props.customerInfo?.commMode
         : "",
-      pur_rsn: props.customerInfo?.purRsn ? props.customerInfo?.purRsn : "",
+      pur_rsn: props.customerInfo?.purRsn,
       concess: props.customerInfo?.concess === "" ? "N" : "X",
       concess_dlt: props.customerInfo?.concessDtl
         ? props.customerInfo?.concessDtl
@@ -293,14 +294,20 @@ const UpdateCrmDetails = forwardRef((props, ref) => {
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
+              select
               id="pur_rsn"
               name="pur_rsn"
-              label="Reason of purchase "
+              label="Reason of purchase"
               value={formik.values.pur_rsn}
               onChange={formik.handleChange}
               error={Boolean(formik.errors.pur_rsn)}
               helperText={formik.errors.pur_rsn}
-            />
+              required
+            >
+              {PurchaseRsnConstants?.map((data) => {
+                return <MenuItem value={data.Id}>{data.Name}</MenuItem>;
+              })}
+            </InputField>
           </Grid>
         </Grid>
         <br />

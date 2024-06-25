@@ -241,6 +241,17 @@ const Warranty_Extension = [
   { Id: "POSTPOSSES", Name: "POSTPOSSES" },
 ];
 
+const SelfFundingConstant = [
+  { Id: "1", Name: "Payment as per STANDARD Schedule" },
+  { Id: "2", Name: "Bulk Payment" },
+  { Id: "3", Name: "Customised Payment Schedule" },
+];
+
+const PurchaseReasonConstant = [
+  { Id: "1", Name: "Self Use" },
+  { Id: "2", Name: "Investment" },
+];
+
 const exportDefault = {
   Gender,
   BankNames,
@@ -253,8 +264,10 @@ const exportDefault = {
   PaymentTowards,
   prePossessionMail,
   Warranty_Extension,
+  SelfFundingConstant,
   preRegistrationMail,
   IntrogativeQueConstant,
+  PurchaseReasonConstant,
   RegistrationInviteContact,
 };
 

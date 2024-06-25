@@ -1,15 +1,25 @@
-import React, { useState, useRef } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
-import CrmModal from "../../../../components/crmModal/CrmModal";
 import { Grid, Typography, Avatar } from "@mui/material";
+import CrmModal from "../../../../components/crmModal/CrmModal";
 import UpdateTransactionDetails from "./UpdateTransactionDetails";
+import DropdownConstants from "./../../../../utils/DropdownConstants";
 
-export default function TransactionInformation({ customerInfo }) {
+export default function TransactionInformation() {
+  // const [loading, setLoading] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({});
   const [isTransInfoEditable, setIsTransInfoEditable] = useState(false);
 
   const transRef = useRef(null);
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+  const selfFundingConstant = DropdownConstants.SelfFundingConstant;
+  const custId = reducerData?.searchBar?.accountStatement.CustomerNumber;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -24,14 +34,35 @@ export default function TransactionInformation({ customerInfo }) {
     "& .MuiGrid-item": "7px",
   };
 
-  const validationSchema = Yup.object().shape({
-    pendingUnit: Yup.string().required("Required"),
-    pendingGst: Yup.number().required("Required"),
-    pendingAmtTimeline: Yup.string().required("Required"),
-    registrationDeviation: Yup.string().required("Required"),
-    registerTimeline: Yup.string().required("Required"),
-    ifSeflFunding: Yup.string().required("Required"),
-  });
+  const getUpdatedData = () => {
+    // setLoading(true);
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
+    formData.append("orderId", orderId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (data) {
+          if (orderId) {
+            const filteredArray = data[0]?.customerdata?.filter(
+              (obj) => obj.customerId === custId
+            );
+
+            await setCustomerInfo(filteredArray[0]);
+            // setLoading(false);
+          }
+        }
+      });
+  };
+
+  useEffect(() => {
+    getUpdatedData();
+  }, [isTransInfoEditable]);
 
   const saveTransactionDetails = () => {
     if (transRef.current) {
@@ -39,21 +70,10 @@ export default function TransactionInformation({ customerInfo }) {
     }
   };
 
-  const formik = useFormik({
-    initialValues: {
-      pendingUnit: customerInfo?.pendAmt ? customerInfo?.pendAmt : "",
-      pendingGst: customerInfo?.pendGst ? customerInfo?.pendGst : "",
-      pendingAmtTimeline: customerInfo?.pendDt ? customerInfo?.pendDt : "",
-      registrationDeviation: customerInfo?.regDev ? customerInfo?.regDev : "",
-      registerTimeline: customerInfo?.devDt ? customerInfo?.devDt : "",
-      ifSeflFunding: customerInfo?.selfPmt ? customerInfo?.selfPmt : "",
-    },
-    validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      // const data = values;
-      saveTransactionDetails();
-    },
-  });
+  const getSelfFund = (selfPmt) => {
+    const finalData = selfFundingConstant.filter((data) => data.Id === selfPmt);
+    return finalData[0]?.Name;
+  };
 
   return (
     <>
@@ -131,7 +151,7 @@ export default function TransactionInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.pendingUnit}</Typography>
+              <Typography>{customerInfo?.pendAmt}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -147,7 +167,7 @@ export default function TransactionInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.pendingGst}</Typography>
+              <Typography>{customerInfo?.pendGst}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -163,7 +183,7 @@ export default function TransactionInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.pendingAmtTimeline}</Typography>
+              <Typography>{customerInfo?.pendDt}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -180,7 +200,7 @@ export default function TransactionInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.registrationDeviation === "X" ? "Yes" : "No"}
+                {customerInfo?.regDev === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -197,7 +217,7 @@ export default function TransactionInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.registerTimeline}</Typography>
+              <Typography>{customerInfo?.devDt}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -211,9 +231,7 @@ export default function TransactionInformation({ customerInfo }) {
               <Typography style={titleStyle}>If Self Funding:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>
-                {formik?.values?.ifSeflFunding === "X" ? "Yes" : "No"}
-              </Typography>
+              <Typography>{getSelfFund(customerInfo?.selfPmt)}</Typography>
             </Grid>
           </Grid>
         </Grid>

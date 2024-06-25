@@ -1,15 +1,23 @@
-import React, { useState, useRef } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdateBankDetails from "./UpdateBankDetails";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
 
-export default function BankInformation({ customerInfo }) {
+export default function BankInformation() {
+  // const [loading, setLoading] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({});
   const [isBankInfoEditable, setIsBankInfoEditable] = useState(false);
 
   const bankRef = useRef(null);
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+  const custId = reducerData?.searchBar?.accountStatement.CustomerNumber;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -24,34 +32,39 @@ export default function BankInformation({ customerInfo }) {
     "& .MuiGrid-item": "7px",
   };
 
-  const validationSchema = Yup.object().shape({
-    accountName: Yup.string().required("Required"),
-    accountNumber: Yup.number().required("Required"),
-    bankName: Yup.string().required("Required"),
-    bankAddress: Yup.string().required("Required"),
-    ifsc: Yup.string().required("Required"),
-  });
+  const getUpdatedData = () => {
+    // setLoading(true);
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
+    formData.append("orderId", orderId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (data) {
+          if (orderId) {
+            const filteredArray = data[0]?.customerdata?.filter(
+              (obj) => obj.customerId === custId
+            );
+            await setCustomerInfo(filteredArray[0]);
+            // setLoading(false);
+          }
+        }
+      });
+  };
+  useEffect(() => {
+    getUpdatedData();
+  }, [isBankInfoEditable]);
 
   const saveBankDetails = () => {
     if (bankRef.current) {
       bankRef.current.saveBankDetails();
     }
   };
-
-  const formik = useFormik({
-    initialValues: {
-      accountName: customerInfo?.bankAccName ? customerInfo?.bankAccName : "",
-      accountNumber: customerInfo?.bankAccNo ? customerInfo?.bankAccNo : "",
-      bankName: customerInfo?.bankName ? customerInfo?.bankName : "",
-      bankAddress: customerInfo?.bankAddr ? customerInfo?.bankAddr : "",
-      ifsc: customerInfo?.ifsc ? customerInfo?.ifsc : "",
-    },
-    validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      // const data = values;
-      saveBankDetails();
-    },
-  });
 
   return (
     <>
@@ -130,7 +143,7 @@ export default function BankInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={8} sm={8} md={8}>
-              <Typography>{formik?.values?.accountName}</Typography>
+              <Typography>{customerInfo?.bankAccName}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -144,7 +157,7 @@ export default function BankInformation({ customerInfo }) {
               <Typography style={titleStyle}>Bank Account Number:</Typography>
             </Grid>
             <Grid xs={8} sm={8} md={8}>
-              <Typography>{formik?.values?.accountNumber}</Typography>
+              <Typography>{customerInfo?.bankAccNo}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -158,7 +171,7 @@ export default function BankInformation({ customerInfo }) {
               <Typography style={titleStyle}>Bank Name:</Typography>
             </Grid>
             <Grid xs={8} sm={8} md={8}>
-              <Typography>{formik?.values?.bankName}</Typography>
+              <Typography>{customerInfo?.bankName}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -172,7 +185,7 @@ export default function BankInformation({ customerInfo }) {
               <Typography style={titleStyle}>Bank Address:</Typography>
             </Grid>
             <Grid xs={8} sm={8} md={8}>
-              <Typography>{formik?.values?.bankAddress}</Typography>
+              <Typography>{customerInfo?.bankAddr}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -186,7 +199,7 @@ export default function BankInformation({ customerInfo }) {
               <Typography style={titleStyle}>IFSC:</Typography>
             </Grid>
             <Grid xs={8} sm={8} md={8}>
-              <Typography>{formik?.values?.ifsc}</Typography>
+              <Typography>{customerInfo?.ifsc}</Typography>
             </Grid>
           </Grid>
         </Grid>

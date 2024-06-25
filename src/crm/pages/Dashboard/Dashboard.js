@@ -1,34 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
-import CustomTabLayout from "../../components/tabs/CustomTabLayout";
-import CustomerDetails from "./CustomerDetails/CustomerDetails";
-import InvoiceTable from "../Dashboard/InvoiceDetails/InvoiceTable";
-import PaymentDetails from "../Dashboard/PaymentDetails/PaymentDetails";
-import InterestDetails from "../Dashboard/InterestDetails/InterestDetails";
 import PreEmi from "./PreEmi/PreEmi";
 import CashBack from "./CashBack/CashBack";
+import BookingDetails from "./BookingDetails/BookingDetails";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import CustomersList from "./CustomerInformation/CustomersList";
+import CustomerDetails from "./CustomerDetails/CustomerDetails";
 import InterestWaveOff from "./InterestWaveOff/InterestWaveOff";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CustomersList from "./CustomerInformation/CustomersList";
+import BookingData from "./BookingDetails/BookingData/BookingData";
+import CustomTabLayout from "../../components/tabs/CustomTabLayout";
+import InvoiceTable from "../Dashboard/InvoiceDetails/InvoiceTable";
+import UnitCustomisation from "./UnitCustomisation/UnitCustomisation";
+import PaymentDetails from "../Dashboard/PaymentDetails/PaymentDetails";
+import InterestDetails from "../Dashboard/InterestDetails/InterestDetails";
 import PaymentSchedule from "../Dashboard/PaymentSchedule/PaymentSchedule";
 import CancellationRequest from "./CancellationRequest/CancellationRequest";
-import UnitCustomisation from "./UnitCustomisation/UnitCustomisation";
-import { useSelector } from "react-redux/es/hooks/useSelector";
-import Timeline from "./BookingDetails/Timeline";
-import BookingDetails from "./BookingDetails/BookingDetails";
 
 function Dashboard() {
   const [shoudldShowCustomerList, setShoudldShowCustomerList] = useState("");
-  const [shouldShowTimeLine, setShouldTimeLine] = useState("");
+  const [shouldShowBookingDetails, setShouldShowBookingDetails] = useState("");
+
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData?.searchBar.orderId;
 
   useEffect(() => {
     setShoudldShowCustomerList(reducerData.dashboard.shouldShowCustData);
   }, [reducerData.dashboard.shouldShowCustData]);
 
   useEffect(() => {
-    setShouldTimeLine(reducerData.dashboard.shouldShowTimeLine);
-  }, [reducerData.dashboard.shouldShowTimeLine]);
+    setShouldShowBookingDetails(reducerData.dashboard.shouldShowBookingDetails);
+  }, [reducerData.dashboard.shouldShowBookingDetails]);
 
   const tabs = [
     {
@@ -89,14 +91,17 @@ function Dashboard() {
   return (
     <Box>
       <ThemeProvider theme={() => getMuiTheme()}>
-        {!shoudldShowCustomerList && !shouldShowTimeLine ? (
-          <CustomTabLayout tabPanels={tabs} />
-        ) : shoudldShowCustomerList ? (
-          <CustomersList />
-        ) : (
-          // <Timeline />
-          <BookingDetails />
-        )}
+        {
+          !shoudldShowCustomerList && !shouldShowBookingDetails ? (
+            <CustomTabLayout tabPanels={tabs} /> // Dashboard Data
+          ) : shoudldShowCustomerList ? (
+            <CustomersList /> // Applicants Data
+          ) : orderId ? (
+            <BookingDetails />
+          ) : (
+            <BookingData />
+          ) //Booking details if orderId set
+        }
       </ThemeProvider>
     </Box>
   );

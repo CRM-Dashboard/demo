@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "https://gera-crm-client.azurewebsites.net/",
   "dependencies": {
+    "@aws-amplify/core": "^6.3.2",
     "@canvasjs/react-stockcharts": "^1.0.0",
     "@emotion/styled": "^11.11.0",
     "@maxstudener/react-mui-daterange-picker": "^0.0.2",

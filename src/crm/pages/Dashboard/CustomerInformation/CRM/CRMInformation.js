@@ -1,15 +1,24 @@
-import React, { useState, useRef } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
+import UpdateCrmDetails from "./UpdateCrmDetails";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
-import UpdateCrmDetails from "./UpdateCrmDetails";
+import DropdownConstants from "../../../../utils/DropdownConstants";
 
-export default function CRMInformation({ customerInfo }) {
+export default function CRMInformation() {
+  const [customerInfo, setCustomerInfo] = useState({});
   const [isCrmInfoEditable, setIsCrmInfoEditable] = useState(false);
 
   const crmRef = useRef(null);
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+  const purchaseReason = DropdownConstants.PurchaseReasonConstant;
+  const custId = reducerData?.searchBar?.accountStatement.CustomerNumber;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -24,20 +33,35 @@ export default function CRMInformation({ customerInfo }) {
     "& .MuiGrid-item": "7px",
   };
 
-  const validationSchema = Yup.object().shape({
-    referedByPromotors: Yup.string().required("Required"),
-    politician: Yup.string().required("Required"),
-    hni: Yup.string().required("Required"),
-    hardToDealWith: Yup.string().required("Required"),
-    antagonised: Yup.string().required("Required"),
-    requestedForCondition: Yup.string().required("Required"),
-    natureOfCondition: Yup.string().required("Required"),
-    requestedForMode: Yup.string().required("Required"),
-    modeOfCommunication: Yup.string().required("Required"),
-    reasonOfPurchase: Yup.string().required("Required"),
-    concessions: Yup.string().required("Required"),
-    concessionsDetails: Yup.string().required("Required"),
-  });
+  const getUpdatedData = () => {
+    // setLoading(true);
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
+    formData.append("orderId", orderId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (data) {
+          if (orderId) {
+            const filteredArray = data[0]?.customerdata?.filter(
+              (obj) => obj.customerId === custId
+            );
+
+            await setCustomerInfo(filteredArray[0]);
+            // setLoading(false);
+          }
+        }
+      });
+  };
+
+  useEffect(() => {
+    getUpdatedData();
+  }, [isCrmInfoEditable]);
 
   const saveCrmDetails = () => {
     if (crmRef.current) {
@@ -45,31 +69,10 @@ export default function CRMInformation({ customerInfo }) {
     }
   };
 
-  const formik = useFormik({
-    initialValues: {
-      referedByPromotors: customerInfo?.referBy ? customerInfo?.referBy : "",
-      politician: customerInfo?.vip ? customerInfo?.vip : "",
-      hni: customerInfo?.hni ? customerInfo?.hni : "",
-      hardToDealWith: customerInfo?.hard ? customerInfo?.hard : "",
-      antagonised: customerInfo?.antagon ? customerInfo?.antagon : "",
-      requestedForCondition: customerInfo?.specCond
-        ? customerInfo?.specCond
-        : "",
-      natureOfCondition: customerInfo?.cond ? customerInfo?.cond : "",
-      requestedForMode: customerInfo?.specMode ? customerInfo?.specMode : "",
-      modeOfCommunication: customerInfo?.commMode ? customerInfo?.commMode : "",
-      reasonOfPurchase: customerInfo?.purRsn ? customerInfo?.purRsn : "",
-      concessions: customerInfo?.concess ? customerInfo?.concess : "",
-      concessionsDetails: customerInfo?.concessDtl
-        ? customerInfo?.concessDtl
-        : "",
-    },
-    validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      // const data = values;
-      saveCrmDetails();
-    },
-  });
+  const getPurchaseReson = (reason) => {
+    const finalData = purchaseReason.filter((data) => data.Id === reason);
+    return finalData[0]?.Name;
+  };
 
   return (
     <>
@@ -149,7 +152,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.referedByPromotors === "X" ? "Yes" : "No"}
+                {customerInfo?.referBy === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -167,7 +170,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.politician === "X" ? "Yes" : "No"}
+                {customerInfo?.vip === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -185,7 +188,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.hni === "X" ? "Yes" : "No"}
+                {customerInfo?.hni === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -201,7 +204,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.hardToDealWith === "X" ? "Yes" : "No"}
+                {customerInfo?.hard === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -219,7 +222,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.antagonised === "X" ? "Yes" : "No"}
+                {customerInfo?.antagon === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -237,7 +240,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.requestedForCondition === "X" ? "Yes" : "No"}
+                {customerInfo?.specCond === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -254,7 +257,7 @@ export default function CRMInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.natureOfCondition}</Typography>
+              <Typography>{customerInfo?.cond}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -271,7 +274,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.requestedForMode === "X" ? "Yes" : "No"}
+                {customerInfo?.specMode === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -288,7 +291,7 @@ export default function CRMInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.modeOfCommunication}</Typography>
+              <Typography>{customerInfo?.commMode}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -302,7 +305,7 @@ export default function CRMInformation({ customerInfo }) {
               <Typography style={titleStyle}>Reason of purchase</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography> {formik?.values?.reasonOfPurchase}</Typography>
+              <Typography> {getPurchaseReson(customerInfo?.purRsn)}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -319,7 +322,7 @@ export default function CRMInformation({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.concessions === "X" ? "Yes" : "No"}
+                {customerInfo?.concess === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -336,7 +339,7 @@ export default function CRMInformation({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography> {formik?.values?.concessionsDetails}</Typography>
+              <Typography> {customerInfo?.concessDtl}</Typography>
             </Grid>
           </Grid>
         </Grid>

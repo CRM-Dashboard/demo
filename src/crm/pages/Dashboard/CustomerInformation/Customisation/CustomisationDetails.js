@@ -1,15 +1,23 @@
-import React, { useState, useRef } from "react";
-import * as Yup from "yup";
-import { useFormik } from "formik";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
-import CrmModal from "../../../../components/crmModal/CrmModal";
 import { Grid, Typography, Avatar } from "@mui/material";
+import CrmModal from "../../../../components/crmModal/CrmModal";
 import UpdateCustomDetails from "../Customisation/UpdateCustomDetails";
 
-export default function CustomisationDetails({ customerInfo }) {
+export default function CustomisationDetails() {
+  // const [loading, setLoading] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({});
   const [isCustomEditable, setIsCustomEditable] = useState(false);
 
   const customRef = useRef(null);
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const orderId = reducerData.searchBar.orderId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+  const custId = reducerData?.searchBar?.accountStatement.CustomerNumber;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -24,36 +32,41 @@ export default function CustomisationDetails({ customerInfo }) {
     "& .MuiGrid-item": "7px",
   };
 
-  const validationSchema = Yup.object().shape({
-    customApplicable: Yup.string().required("Required"),
-    natureOfCustom: Yup.number().required("Required"),
-    customisationDetails: Yup.string().required("Required"),
-    finalisedTerms: Yup.string().required("Required"),
-    otherDetails: Yup.string().required("Required"),
-  });
+  const getUpdatedData = () => {
+    // setLoading(true);
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
+    formData.append("orderId", orderId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then(async (data) => {
+        if (data) {
+          if (orderId) {
+            const filteredArray = data[0]?.customerdata?.filter(
+              (obj) => obj.customerId === custId
+            );
+
+            await setCustomerInfo(filteredArray[0]);
+            // setLoading(false);
+          }
+        }
+      });
+  };
+
+  useEffect(() => {
+    getUpdatedData();
+  }, [isCustomEditable]);
 
   const saveCustomDetails = () => {
     if (customRef.current) {
       customRef.current.saveCustomDetails();
     }
   };
-
-  const formik = useFormik({
-    initialValues: {
-      customApplicable: customerInfo?.custom ? customerInfo?.custom : "",
-      natureOfCustom: customerInfo?.customNature
-        ? customerInfo?.customNature
-        : "",
-      customisationDetails: customerInfo?.pddMail ? customerInfo?.pddMail : "",
-      finalisedTerms: customerInfo?.terms ? customerInfo?.terms : "",
-      otherDetails: customerInfo?.otherDetail ? customerInfo?.otherDetail : "",
-    },
-    validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      // const data = values;
-      saveCustomDetails();
-    },
-  });
 
   return (
     <>
@@ -133,7 +146,7 @@ export default function CustomisationDetails({ customerInfo }) {
             </Grid>
             <Grid xs={4} sm={4} md={4}>
               <Typography>
-                {formik?.values?.customApplicable === "X" ? "Yes" : "No"}
+                {customerInfo?.custom === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -150,7 +163,7 @@ export default function CustomisationDetails({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.natureOfCustom}</Typography>
+              <Typography>{customerInfo?.customNature}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -168,7 +181,7 @@ export default function CustomisationDetails({ customerInfo }) {
             <Grid xs={4} sm={4} md={4}>
               <Typography>
                 {" "}
-                {formik?.values?.customisationDetails === "X" ? "Yes" : "No"}
+                {customerInfo?.pddMail === "X" ? "Yes" : "No"}
               </Typography>
             </Grid>
           </Grid>
@@ -185,7 +198,7 @@ export default function CustomisationDetails({ customerInfo }) {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography> {formik?.values?.finalisedTerms}</Typography>
+              <Typography> {customerInfo?.terms}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -199,7 +212,7 @@ export default function CustomisationDetails({ customerInfo }) {
               <Typography style={titleStyle}>Any Other Details</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{formik?.values?.otherDetails}</Typography>
+              <Typography>{customerInfo?.otherDetail}</Typography>
             </Grid>
           </Grid>
         </Grid>

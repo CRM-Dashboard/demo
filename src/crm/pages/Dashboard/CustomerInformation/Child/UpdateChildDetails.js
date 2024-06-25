@@ -4,7 +4,7 @@ import * as yup from "yup";
 import dayjs from "dayjs";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux";
-import { Grid, Box, MenuItem } from "@mui/material";
+import { Grid, Box, MenuItem, Typography } from "@mui/material";
 import DropdownConstants from "../../../../utils/DropdownConstants";
 import InputField from "../../../../components/inputField/InputField";
 import CrmDatePicker from "../../../../components/crmDatePicker/CrmDatePicker";
@@ -16,11 +16,11 @@ const UpdateChildDetails = forwardRef((props, ref) => {
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
   const projectId = reducerData?.dashboard?.project?.projectId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const IntrogativeQueConstant = DropdownConstants.IntrogativeQueConstant;
-  const orderId = reducerData.searchBar.orderId;
+  const HaveChildren = DropdownConstants.HaveChildren;
 
   const saveLog = async () => {
     const now = new Date();
@@ -46,6 +46,7 @@ const UpdateChildDetails = forwardRef((props, ref) => {
       child: [
         {
           customerid: props.customerInfo.customerId,
+          partner: props.customerInfo.partnerId,
           katr5: formik.values.haveChild,
           children: formik.values.noOfChild,
           child1_name: formik.values.child1Name,
@@ -115,7 +116,7 @@ const UpdateChildDetails = forwardRef((props, ref) => {
 
   const formik = useFormik({
     initialValues: {
-      haveChild: props.customerInfo.child === "" ? "N" : "X",
+      haveChild: props.customerInfo.katr5,
       noOfChild: props.customerInfo.children ? props.customerInfo.children : "",
       child1Name: props.customerInfo.child1Name
         ? props.customerInfo.child1Name
@@ -189,7 +190,7 @@ const UpdateChildDetails = forwardRef((props, ref) => {
               helperText={formik.errors.haveChild}
               required
             >
-              {IntrogativeQueConstant?.map((data) => {
+              {HaveChildren?.map((data) => {
                 return <MenuItem value={data.Id}>{data.Name}</MenuItem>;
               })}
             </InputField>
@@ -197,13 +198,18 @@ const UpdateChildDetails = forwardRef((props, ref) => {
           <Grid item xs={4} sm={6} md={6}>
             <InputField
               id="noOfChild"
-              name="Number Of Child"
+              name="noOfChild"
               label="Number Of Child"
               value={formik.values.noOfChild}
               onChange={formik.handleChange}
             />
           </Grid>
         </Grid>
+        <br />
+
+        <Typography sx={{ fontSize: "1.2em", fontWeight: "bold" }}>
+          Child 1
+        </Typography>
         <br />
 
         <Grid container spacing={4}>
@@ -266,6 +272,11 @@ const UpdateChildDetails = forwardRef((props, ref) => {
         </Grid>
         <br />
 
+        <Typography sx={{ fontSize: "1.2em", fontWeight: "bold" }}>
+          Child 2
+        </Typography>
+        <br />
+
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
@@ -293,7 +304,6 @@ const UpdateChildDetails = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
-
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
@@ -324,6 +334,11 @@ const UpdateChildDetails = forwardRef((props, ref) => {
         </Grid>
         <br />
 
+        <Typography sx={{ fontSize: "1.2em", fontWeight: "bold" }}>
+          Child 3
+        </Typography>
+        <br />
+
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
@@ -351,7 +366,6 @@ const UpdateChildDetails = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
-
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField

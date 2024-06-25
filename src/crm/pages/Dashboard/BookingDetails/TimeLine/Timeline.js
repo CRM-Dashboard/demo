@@ -13,12 +13,12 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import "react-vertical-timeline-component/style.min.css";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
+import GlobalFunctions from "../../../../utils/GlobalFunctions";
 import { AcUnit, AccessTime } from "@mui/icons-material";
-import CrmModal from "../../../components/crmModal/CrmModal";
-import InputField from "../../../components/inputField/InputField";
-import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
-import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
+import CrmModal from "../../../../components/crmModal/CrmModal";
+import InputField from "../../../../components/inputField/InputField";
+import CrmDatePicker from "../../../../components/crmDatePicker/CrmDatePicker";
+import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 import moment from "moment";
 
 const Timeline = () => {
@@ -189,7 +189,6 @@ const Timeline = () => {
 
   return (
     <div style={{ marginTop: "1em" }}>
-      {/* {shouldShowTimeLine ? ( */}
       <VerticalTimeline lineColor={lineColor}>
         {events?.map((event, index) => (
           <VerticalTimelineElement

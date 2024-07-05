@@ -130,7 +130,7 @@ export default function getPublicRoutes(params) {
       MuiTypography: {
         styleOverrides: {
           root: {
-            fontFamily: "Futura, sans-serif",
+            fontFamily: "Futura",
           },
         },
       },
@@ -141,12 +141,12 @@ export default function getPublicRoutes(params) {
         MuiTypography: {
           styleOverrides: {
             root: {
-              fontFamily: "Futura , sans-serif",
+              fontFamily: "Futura",
             },
           },
         },
       },
-      fontFamily: "Futura, sans-serif",
+      fontFamily: "Futura",
       fontWeightRegular: 400,
       fontWeightLight: 300,
       fontWeightMedium: 500,

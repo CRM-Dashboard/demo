@@ -253,7 +253,7 @@ const CreateNewTask = forwardRef((props, ref) => {
               label="Estimated Hours"
               style={{
                 width: "25.5em",
-                fontFamily: "Futura, sans-serif",
+                fontFamily: "Futura",
                 paddingLeft: "0.5em",
                 paddingTop: "0.5em",
                 paddingRight: "0.5em",
@@ -284,7 +284,7 @@ const CreateNewTask = forwardRef((props, ref) => {
               label="Remark"
               style={{
                 width: "25.5em",
-                fontFamily: "Futura, sans-serif",
+                fontFamily: "Futura",
                 paddingLeft: "0.5em",
                 paddingTop: "0.5em",
                 paddingRight: "0.5em",

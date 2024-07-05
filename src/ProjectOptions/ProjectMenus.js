@@ -1,45 +1,21 @@
 import React from "react";
 import { Grid } from "@mui/material";
+import { useSelector } from "react-redux";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import Constants from "./../crm/utils/Constants";
+import GlobalFunctions from "./../crm/utils/GlobalFunctions";
 import "./Style.css";
-// import { useTrail, a } from "@react-spring/web";
-
-// const Trail = ({ open, children }) => {
-//   const items = React.Children.toArray(children);
-//   const trail = useTrail(items.length, {
-//     config: { mass: 5, tension: 1000, friction: 100 },
-//     opacity: open ? 1 : 0,
-//     x: open ? 0 : 20,
-//     height: open ? 110 : 0,
-//     from: { opacity: 0, x: 20, height: 0 },
-//   });
-//   return (
-//     <div>
-//       {trail.map(({ height, ...style }, index) => (
-//         <a.div key={index} className={styles.trailsText} style={style}>
-//           <a.div style={{ height }}>{items[index]}</a.div>
-//         </a.div>
-//       ))}
-//     </div>
-//   );
-// };
 
 export default function ProjectMenus() {
   const navigate = useNavigate();
+  const roles = Constants.roleConstants;
+  const reducerData = useSelector((state) => state);
+  const accessRoles = reducerData.LoginReducer.accessRoles;
   // const [open, set] = useState(true);
 
   return (
-    <Grid
-    // sx={{
-    //   justifyContent: "center",
-    //   alignItems: "centre",
-    //   display: "flex",
-    //   height: "100vh",
-    // }}
-    // className={styles.container}
-    >
-      {/* <Trail open={open}> */}
+    <Grid>
       <Grid
         container
         rowSpacing={1}
@@ -62,6 +38,11 @@ export default function ProjectMenus() {
               justifyContent: "center",
               alignItems: "center",
             }}
+            className={
+              GlobalFunctions.allowAccessByRoles(accessRoles, roles.customer360)
+                ? ""
+                : "non-clickable-grid"
+            }
             onClick={() => {
               navigate("/menus/home");
             }}
@@ -76,7 +57,7 @@ export default function ProjectMenus() {
             <Typography
               sx={{ fontSize: "1rem", padding: "1em", paddingTop: "1.2em" }}
             >
-              Customer 360 degree Dashboard
+              Customer 360° Dashboard
             </Typography>
           </Grid>
         </Grid>
@@ -90,7 +71,14 @@ export default function ProjectMenus() {
               justifyContent: "center",
               alignItems: "center",
             }}
-            className="non-clickable-grid"
+            className={
+              GlobalFunctions.allowAccessByRoles(
+                accessRoles,
+                roles.itServiceManagement
+              )
+                ? ""
+                : "non-clickable-grid"
+            }
             onClick={() => {
               navigate("./table");
             }}

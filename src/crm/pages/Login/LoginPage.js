@@ -36,8 +36,9 @@ export default function LoginPage() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          // snackbar.showSuccess(`Welcome ${data[0].name}`);
-          dispatch(loginActions.setLoggedInUserDetails(data[0]));
+          snackbar.showSuccess(`Welcome ${data[0]?.user[0].name}`);
+          dispatch(loginActions.setLoggedInUserDetails(data[0]?.user[0]));
+          dispatch(loginActions.setAccessRoles(data[0]?.roles));
         }
       })
       .catch((error) => {
@@ -86,12 +87,12 @@ export default function LoginPage() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          saveLog();
           // snackbar.showSuccess("Logged in successfully!");
           navigate("./menus");
           dispatch(loginActions.setPassword(password));
           dispatch(loginActions.setUserName(userName));
           getLoggedInUserDetails();
+          saveLog();
         }
       })
       .catch((error) => {
@@ -176,7 +177,7 @@ export default function LoginPage() {
           <Typography
             sx={{
               fontSize: "1.5em",
-              fontFamily: "Futura, sans-serif",
+              fontFamily: "Futura",
               color: "#4a4e63",
               opacity: "0.8",
               paddingTop: "0.2em",

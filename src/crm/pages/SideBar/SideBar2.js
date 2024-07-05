@@ -50,8 +50,10 @@ import EmailReport from "../Reports/EmailReport/EmailReport";
 import ServiceRequest from "../Reports/ServiceRequest/ServiceRequest";
 import AgingReport from "../Reports/AgingReport/AgingReport";
 import CreateActivity from "./CreateActivity";
+import PaymentsIcon from "@mui/icons-material/Payments";
 import searchBarAction from "./../SearchBar/SearchBarReducer/SearchBarActions";
 import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
+import CashbackReport from "../Reports/CashbackReport/CashbackReport";
 import CrmModal from "../../components/crmModal/CrmModal";
 import Mails from "../Mails/Mails";
 
@@ -82,8 +84,14 @@ const routes = [
       {
         path: "/agingReport",
         to: "/crm/agingReport",
-        name: "Aging Report",
+        name: "Ageing Report",
         icon: <EqualizerIcon />,
+      },
+      {
+        path: "/cashBackReport",
+        to: "/crm/cashBackReport",
+        name: "Cashback Report",
+        icon: <PaymentsIcon />,
       },
     ],
   },
@@ -125,7 +133,6 @@ const SideBar2 = () => {
   const [actModeData, setActModeData] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [activityData, setActivityData] = useState({});
-  const [disabledTertiaryBtn, setDisabledTertiaryBtn] = useState(true);
   const [openSideBar, setOpenSideBar] = useState(false);
   const [subActTypeData, setSubActTypeData] = useState([]);
   const [openActivityModal, setOpenActivityModal] = useState(false);
@@ -139,6 +146,7 @@ const SideBar2 = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
+  const Sid = reducerData.searchBar.sid;
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -192,7 +200,7 @@ const SideBar2 = () => {
 
               if (status) {
                 setCallAPI(false);
-                setOpenActivityModal(true);
+                // setOpenActivityModal(true);
                 clearInterval(interval); // Stop checking once flag is set to false
                 if (status == "completed") {
                   console.log("call update api");
@@ -235,7 +243,7 @@ const SideBar2 = () => {
     };
 
     fetchData();
-  }, [callAPI, sid]); // Adding dependencies 'callAPI' and 'sid' to re-run effect when they change
+  }, [callAPI]); // Adding dependencies 'callAPI' and 'sid' to re-run effect when they change
 
   useEffect(() => {
     const formData = new FormData();
@@ -317,9 +325,7 @@ const SideBar2 = () => {
       formData.append("To", customerMobileNumber);
       formData.append("CallerId", "095-138-86363");
       formData.append("Record", true);
-
       const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
-
       fetch(apiUrl, { method: "POST", body: formData })
         .then((response) => response.json())
         .then((data) => {
@@ -329,7 +335,6 @@ const SideBar2 = () => {
             dispatch(searchBarAction.setSid(data.Call.Sid));
             setOpenActivityModal(false);
             setDisabledBtn(true);
-
             snackbar.showSuccess("Connecting to..." + customerMobileNumber);
           }
         })
@@ -472,7 +477,7 @@ const SideBar2 = () => {
             <IconButton
               color="inherit"
               onClick={() => {
-                navigate("/menus");
+                navigate("/menus/home");
                 dispatch(searchbarActions.setSearchKey(""));
                 dispatch(searchbarActions.setOrderId(""));
                 dispatch(searchbarActions.setAccountStmt({}));
@@ -550,6 +555,10 @@ const SideBar2 = () => {
                 disabled={!customerMobileNumber}
                 onClick={() => {
                   setOpenActivityModal(true);
+                  handleContinue();
+                  if (!Sid) {
+                    initiateOutgoingCall();
+                  }
                 }}
               >
                 <AudioCallIcon />
@@ -606,7 +615,7 @@ const SideBar2 = () => {
 
             <div
               className="bars"
-              style={{ color: color, padding: "0.4em 0.4em 0.8em" }}
+              style={{ color: "gray", padding: "0.4em 0.4em 0.8em" }}
             >
               <FaBars onClick={toggle} />
             </div>
@@ -694,6 +703,7 @@ const SideBar2 = () => {
                 <Route path="emailReport" element={<EmailReport />} />
                 <Route path="serviceRequest" element={<ServiceRequest />} />
                 <Route path="agingReport" element={<AgingReport />} />
+                <Route path="cashBackReport" element={<CashbackReport />} />
               </Route>
             </Routes>
           </Grid>
@@ -733,20 +743,13 @@ const SideBar2 = () => {
           handleShow={() => {
             setOpenActivityModal(false);
           }}
-          TertiaryBtnText="Continue"
           disabled={disabledBtn}
-          disabledTertiaryBtn={disabledTertiaryBtn}
           primaryBtnText="Submit"
           primarySave={() => {
             submitActivity();
-            setOpenActivityModal(false);
             setDisabledBtn(false);
             setCallAPI(false);
             setSid(0);
-          }}
-          TertiarySave={() => {
-            handleContinue();
-            initiateOutgoingCall();
           }}
         >
           <CreateActivity
@@ -763,7 +766,6 @@ const SideBar2 = () => {
             setActivityData={setActivityData}
             setOpenActivityModal={setOpenActivityModal}
             initiateOutgoingCall={initiateOutgoingCall}
-            setDisabledTertiaryBtn={setDisabledTertiaryBtn}
           />
         </CrmModal>
 

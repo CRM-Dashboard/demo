@@ -11,10 +11,6 @@ export default function Activities() {
       label: "Activity",
       component: <ActivityDetails />,
     },
-    // {
-    //   label: "File Upload",
-    //   component: <FileUploader />,
-    // },
   ];
 
   return <CustomTabLayout tabPanels={tabs} />;

@@ -1,17 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Table from "mui-datatables";
 import { Grid } from "@mui/material";
+import { debounce } from "lodash";
+import { Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import GlobalFunctions from "../../../../utils/GlobalFunctions";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import searchbarActions from "./../../../SearchBar/SearchBarReducer/SearchBarActions";
+import DashboardAction from "./../../../Dashboard/DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "./../../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function Invoices({ tableDetails, response, getFilteredData }) {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData?.dashboard?.project?.projectId;
 
   const getMuiTheme = () =>
     createTheme({
@@ -161,11 +171,78 @@ export default function Invoices({ tableDetails, response, getFilteredData }) {
     },
   ];
 
+  const setSearchData = (result) => {
+    if (result && result.length > 0) {
+      const res = result[0];
+      dispatch(searchbarActions.setOrderId(res.orderId));
+      dispatch(DashboardAction.setCustomerContactNumber(res.MobileNo));
+      dispatch(DashboardAction.setCustomerEmailID(res.email));
+      dispatch(
+        searchbarActions.setSearchKey(
+          res.name ? res.name + "  -  " + res.unit : ""
+        )
+      );
+
+      const formData = new FormData();
+      formData.append("orderId", res.orderId);
+
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/soa", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          dispatch(searchbarActions.setAccountStmt(data.StatementOfAccount[0]));
+        });
+    }
+  };
+
+  const handleClick = useCallback(
+    debounce((orderID) => {
+      if (orderID === "") {
+        dispatch(searchbarActions.setAccountStmt({}));
+        dispatch(searchbarActions.setSearchKey(""));
+        dispatch(searchbarActions.setOrderId(""));
+        dispatch(DashboardAction.setCustomerContactNumber(""));
+        dispatch(DashboardAction.setCustomerEmailID(""));
+      } else {
+        if (projectId) {
+          const formData = new FormData();
+          formData.append("projectId", projectId);
+          formData.append("userName", userName);
+          formData.append("passWord", passWord);
+
+          fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/search", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((json) => {
+              const results = json?.filter((customer) => {
+                return customer.orderId === orderID;
+              });
+              setSearchData(results);
+            });
+        }
+      }
+    }, 300),
+    [dispatch, projectId, passWord, userName]
+  );
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.building,
-        item?.flatno,
+        <Typography
+          style={{ color: "blue", cursor: "pointer" }}
+          onClick={() => {
+            navigate("/crm/crm/dashboard");
+            dispatch(DashboardAction.setShouldShowBookingDetails(false));
+            handleClick(item?.orderId);
+          }}
+        >
+          {item?.flatno}
+        </Typography>,
         item?.customerName,
         item?.invUnit,
         item?.invGst,

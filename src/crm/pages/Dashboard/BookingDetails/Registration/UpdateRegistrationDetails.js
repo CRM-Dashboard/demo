@@ -100,7 +100,7 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
       zstamp: props?.registerInfo?.zstamp ? props?.registerInfo?.zstamp : "", //SDR/ESBTR Received Amount,
       draftApprDt: props?.registerInfo?.draftApprDt
         ? props?.registerInfo?.draftApprDt
-        : "", //Agreement Draft Accepted date
+        : dayjs(""), //Agreement Draft Accepted date
       regDate: props?.registerInfo?.zzregdt ? props?.registerInfo?.zzregdt : "",
       zzagmdt: props?.registerInfo?.zzagmdt ? props?.registerInfo?.zzagmdt : "", //Agreement date
       regNo: props?.registerInfo?.zzregno ? props?.registerInfo?.zzregno : "",
@@ -150,9 +150,10 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
               label="Agreement Draft Accepted Date"
               value={dayjs(formik.values.draftApprDt)}
               onChange={(value) => {
-                const formattedDate = value
-                  ? dayjs(value).format("YYYY-MM-DD")
-                  : "";
+                const formattedDate =
+                  value !== "0000-00-00"
+                    ? dayjs(value).format("YYYY-MM-DD")
+                    : dayjs("");
                 formik.setFieldValue("draftApprDt", formattedDate, true);
               }}
               error={
@@ -162,13 +163,6 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
                 formik.touched.draftApprDt && formik.errors.draftApprDt
               }
             />
-            {/* <InputField
-              id="draftApprDt"
-              name="draftApprDt"
-              label="Agreement Draft Accepted Date"
-              value={formik.values.draftApprDt}
-              onChange={formik.handleChange}
-            /> */}
           </Grid>
         </Grid>
         <br />

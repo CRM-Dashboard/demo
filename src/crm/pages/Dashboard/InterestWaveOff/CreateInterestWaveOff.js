@@ -29,7 +29,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
   const orderId = reducerData.searchBar.orderId;
   const snackbar = UseCustomSnackbar();
 
-  useEffect(() => {
+  const getData = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("userName", userName);
@@ -67,10 +67,17 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data[0].vbeln) {
-          setDetailsToSend(data[0]);
+        if (data[0]?.so[0]) {
+          setDetailsToSend(data[0]?.so[0]);
         }
       });
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    getData();
   }, [orderId]);
 
   const saveLog = async () => {

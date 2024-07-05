@@ -2,6 +2,7 @@ const initialState = {
   userName: "",
   passWord: "",
   loggedInUser: {},
+  accessRoles: [],
 };
 
 const LoginReducer = (state = initialState, action) => {
@@ -20,6 +21,11 @@ const LoginReducer = (state = initialState, action) => {
       return {
         ...state,
         loggedInUser: action.payload,
+      };
+    case "ACCESS_ROLES":
+      return {
+        ...state,
+        accessRoles: action.payload,
       };
     case "RESET_ALL_DATA":
       return initialState;

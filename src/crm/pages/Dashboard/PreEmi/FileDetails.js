@@ -252,7 +252,7 @@ const FileDetails = forwardRef((props, ref) => {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("loIndex", fileObjectToDelete.loIndex);
-    formData.append("process", "CUSTOMISATION");
+    formData.append("process", "REPAYMENT");
     fetch(process.env.REACT_APP_SERVER_URL + "/api/activity/deleteFileUrl", {
       method: "POST",
       body: formData,
@@ -274,7 +274,7 @@ const FileDetails = forwardRef((props, ref) => {
     formData.append("orderId", orderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("process", "CUSTOMISATION");
+    formData.append("process", "REPAYMENT");
     fetch(
       process.env.REACT_APP_SERVER_URL + "/api/activity/getFileUrlsByReqNo",
       {

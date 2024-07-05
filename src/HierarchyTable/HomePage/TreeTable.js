@@ -63,7 +63,7 @@ const TreeTable = ({
     return (
       <>
         {item.tasks && Array.isArray(item.tasks) && item.tasks.length !== 0 ? (
-          <tr key={`expandable-row-${item.taskId}`}>
+          <tr key={`expandable-row-${item?.tasks?.[0]?.taskId}`}>
             <td colSpan="15" style={{ padding: "0", border: "none" }}>
               <div style={{ paddingLeft: "20px" }}>
                 <TaskTable
@@ -82,7 +82,7 @@ const TreeTable = ({
         {item.changes &&
         Array.isArray(item.changes) &&
         item.changes.length !== 0 ? (
-          <tr key={`expandable-row-${item.changeNo}`}>
+          <tr key={`expandable-row-${item?.changes[0]?.changeNo}`}>
             <td colSpan="15" style={{ padding: "0", border: "none" }}>
               <div style={{ paddingLeft: "20px" }}>
                 <ChangeManagementTable

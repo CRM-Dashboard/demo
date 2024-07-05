@@ -2,9 +2,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
-import UpdateRegistrationDetails from "./UpdateRegistrationDetails";
+import Constants from "./../../../../utils/Constants";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
+import GlobalFunctions from "./../../../../utils/GlobalFunctions";
+import UpdateRegistrationDetails from "./UpdateRegistrationDetails";
+import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function RegistrationInfo() {
@@ -13,10 +16,13 @@ export default function RegistrationInfo() {
   const [isRegInfoEditable, setIsRegInfoEditable] = useState(false);
 
   const regRef = useRef(null);
+  const snackbar = UseCustomSnackbar();
+  const accessConstants = Constants.accessConstants;
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const accessRoles = reducerData.LoginReducer.accessRoles;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -111,8 +117,17 @@ export default function RegistrationInfo() {
               <Avatar sx={{ cursor: "pointer" }}>
                 <EditIcon
                   onClick={() => {
-                    setIsRegInfoEditable(!isRegInfoEditable);
-                    saveRegDetails();
+                    if (
+                      GlobalFunctions.allowAccessByRoles(
+                        accessRoles,
+                        accessConstants.registrationAccess
+                      )
+                    ) {
+                      setIsRegInfoEditable(!isRegInfoEditable);
+                      saveRegDetails();
+                    } else {
+                      snackbar.showError("Not Authorize!");
+                    }
                   }}
                 />
               </Avatar>

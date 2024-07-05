@@ -94,6 +94,7 @@ export default function SearchBar() {
           borderRadius: "8px",
           border: "2px solid White",
           padding: "7px",
+          fontFamily: "Futura, sans-serif",
         }}
         InputProps={{
           disableUnderline: true,

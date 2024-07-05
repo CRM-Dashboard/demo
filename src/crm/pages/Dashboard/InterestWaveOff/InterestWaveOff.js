@@ -179,43 +179,23 @@ export default function InterestWaveOff() {
       label: "Created By",
     },
     {
+      name: "Amount",
+      label: "Amount",
+    },
+    {
       name: "Reason",
       label: "Reason",
-    },
-    {
-      name: "Interest Amount",
-      label: "Interest Amount",
-    },
-    {
-      name: "Interest Waived",
-      label: "Interest Waived",
-    },
-    {
-      name: "Interest Balance",
-      label: "Interest Balance",
-    },
-    {
-      name: "Waived Amount",
-      label: "Waived Amount",
-    },
-    {
-      name: "Remark",
-      label: "Remark",
     },
   ];
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.reqno,
+        item?.vbeln,
         item?.erdat,
         item?.ernam,
-        item?.reasonTxt,
-        item?.intAmt,
-        item?.intWaived,
-        item?.intBalance,
-        item?.waiveAmt,
-        item?.remark,
+        item?.amount,
+        item?.reason,
       ];
     });
     return modifiedResponse;
@@ -239,7 +219,7 @@ export default function InterestWaveOff() {
       .then((data) => {
         if (data) {
           console.log("#data", data);
-          setTableData(modifyResponse(data));
+          setTableData(modifyResponse(data[0].waivedoff));
         }
       });
   };

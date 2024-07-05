@@ -120,7 +120,7 @@ function CustomTabLayout({
           bgcolor: "#F3F5F7",
           display: "flex",
           alignItems: "center",
-          border: "1px solid white",
+          // border: "1px solid white",
           borderRadius: "18px",
           background: GlobalFunctions.getThemeBasedMode(
             reducerData.ThemeReducer.mode
@@ -132,14 +132,13 @@ function CustomTabLayout({
       >
         <CrmTabs sx={{ padding: 0 }} value={value} onChange={handleChange}>
           {tabPanels.length > 9
-            ? tabPanels
-                .slice(0, 9)
-                .map((item) => (
-                  <ErpTab
-                    label={<Typography>{item.label}</Typography>}
-                    {...a11yProps(0)}
-                  />
-                ))
+            ? tabPanels.slice(0, 9).map((item) => (
+                <ErpTab
+                  // disabled={item?.disabled}
+                  label={<Typography>{item.label}</Typography>}
+                  {...a11yProps(0)}
+                />
+              ))
             : tabPanels.map((item) => (
                 <ErpTab
                   disabled={item?.disabled}

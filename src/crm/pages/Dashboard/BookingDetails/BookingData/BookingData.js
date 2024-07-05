@@ -21,9 +21,9 @@ import { useDispatch, useSelector } from "react-redux";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import BookingAction from "./BookingReducer/BookingAction";
-import StatusCard from "../../../../components/statusCard/StatusCard";
 import InputField from "../../../../components/inputField/InputField";
 import CustomTabLayout from "../../../../components/tabs/CustomTabLayout";
+import CircularScreenLoader from "../../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function BookingData() {
   const dispatch = useDispatch();
@@ -35,6 +35,7 @@ export default function BookingData() {
   const bookingsFilters = reducerData?.BookingReducer?.BookingsDetailsFilter;
 
   const [response, setResponse] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [selectedItems, setSelectedItems] = useState({
     Registration_status: [],
@@ -317,6 +318,8 @@ export default function BookingData() {
     formData.append("passWord", passWord);
     formData.append("projectId", projectId);
 
+    setLoading(true);
+
     fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so_list", {
       method: "POST",
       body: formData,
@@ -327,6 +330,7 @@ export default function BookingData() {
           setResponse(data[0].orderdata);
           setTableData(data[0].orderdata);
           getUniqueStatuses(data[0].orderdata);
+          setLoading(false);
         }
       });
   };
@@ -340,8 +344,8 @@ export default function BookingData() {
     console.log("Selected Items:", selectedItems);
   }, [selectedItems]);
 
-  return (
-    <Grid style={{ marginTop: "1em" }}>
+  return !loading ? (
+    <Grid>
       <Grid container columns={12} spacing={1}>
         <Grid
           item
@@ -372,7 +376,7 @@ export default function BookingData() {
               alignItems: "flex-end",
               justifyContent: "flex-end",
               color: "blue",
-              padding: "0.5em",
+              padding: "0.2em",
             }}
           >
             <Button
@@ -412,21 +416,6 @@ export default function BookingData() {
               </InputField>
             </Grid>
             <Grid item xs={12} style={{ margin: "0.2em" }}>
-              {/* <InputField
-                select
-                label={"Flat Number"}
-                value={selectedItems.Unit_Number}
-                onChange={(e) =>
-                  handleDropdownChange("Unit_Number", e.target.value)
-                }
-              >
-                <MenuItem value="">Select Unit Number</MenuItem>
-                {itemGroups.Unit_Number.map((unit) => (
-                  <MenuItem key={unit} value={unit}>
-                    {unit}
-                  </MenuItem>
-                ))}
-              </InputField> */}
               <Autocomplete
                 label="Flat Number"
                 value={selectedItems.Unit_Number}
@@ -509,5 +498,7 @@ export default function BookingData() {
         </Grid>
       </Grid>
     </Grid>
+  ) : (
+    <CircularScreenLoader />
   );
 }

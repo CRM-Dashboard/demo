@@ -84,6 +84,7 @@ const UnitCustomisation = () => {
     formData.append("orderId", orderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
+    formData.append("process", "CUSTOMISATION");
     fetch(
       process.env.REACT_APP_SERVER_URL + "/api/activity/getFileUrlsByReqNo",
       {
@@ -176,6 +177,7 @@ const UnitCustomisation = () => {
         DOKNR: requestNo,
         REFERENCE: orderId,
         LO_INDEX: Index + 1,
+        PROCESS: "CUSTOMISATION",
         FILENAME: obj?.key?.split("/")?.pop(),
         URL: obj.url,
         AEDAT: new Date()?.toISOString()?.split("T")[0],

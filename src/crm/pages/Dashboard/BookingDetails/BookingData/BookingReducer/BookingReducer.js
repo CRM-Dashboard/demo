@@ -1,12 +1,5 @@
 const initialState = {
-  BookingsDetailsFilter: {
-    Registration_status: [],
-    Confirmation_status: [],
-    Possession_status: [],
-    Property_type: "",
-    Building: "",
-    Unit_Number: "",
-  },
+  BookingsDetailsFilter: [],
 };
 
 const BookingReducer = (state = initialState, action) => {

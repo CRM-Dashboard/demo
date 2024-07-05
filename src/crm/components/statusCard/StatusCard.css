@@ -44,6 +44,7 @@
     var(--main-color),
     var(--second-color)
   );
+
   position: absolute;
   left: -50%;
   top: 0;
@@ -53,6 +54,7 @@
 
 .status-card:hover::before {
   transform: scale(3);
+  color: white;
 }
 
 .status-card:hover {

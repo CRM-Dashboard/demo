@@ -2,7 +2,7 @@
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import AllProjects from "./AllProjects";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,27 +75,27 @@ export default function HomePage() {
             <Tab
               style={{ fontSize: 15 }}
               value="one"
-              label="Ongoing Projects"
+              label={<Typography>Ongoing Projects</Typography>}
             />
             <Tab
               style={{ fontSize: 15 }}
               value="two"
-              label="Completed Projects"
+              label={<Typography>Completed Projects</Typography>}
             />
             <Tab
               style={{ fontSize: 15 }}
               value="three"
-              label="Child centric Projects"
+              label={<Typography>Child centric Projects</Typography>}
             />
             <Tab
               style={{ fontSize: 15 }}
               value="four"
-              label="Commercial Projects"
+              label={<Typography>Commercial Projects</Typography>}
             />
             <Tab
               style={{ fontSize: 15 }}
               value="five"
-              label="All Projects"
+              label={<Typography>All Projects</Typography>}
               wrapped
             />
           </Tabs>

@@ -1,36 +1,36 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
-import FileDetails from "./FileDetails";
-import { Button, IconButton } from "@mui/material";
-import CreatePreEmiReceipt from "./CreatePreEmiReceipt";
+import { useSelector } from "react-redux";
 import FileUploader from "./FileUploader";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
-import CrmModal from "./../../../components/crmModal/CrmModal";
-import { useSelector } from "react-redux/es/hooks/useSelector";
+import { Grid, Button, IconButton } from "@mui/material";
+import CreateCashBackReceipt from "./CreateCashBackReceipt";
+import CrmModal from "../../../components/crmModal/CrmModal";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCheckBox";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
-export default function PreEmi() {
-  const [tableData, setTableData] = useState([]);
-
+export default function CashbackReport() {
   const [response, setResponse] = useState([]);
   const [requestNo, setRequestNo] = useState();
   const [fileIndex, setFileIndex] = useState(0);
-  const [fileUrlReqNo, setFileUrlReqNo] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [tableData, setTableData] = useState([]);
+  const [cashbackId, setCashbackId] = useState("");
+  const [dataToUpdate, setDataToUpdate] = useState([]);
   const [openFileUpload, setOpenFileUpload] = useState(false);
-  const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
 
+  const ref = useRef(null);
+  const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const OrderId = reducerData.searchBar.orderId;
+  const projectId = reducerData.dashboard.project.projectId;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
-  const snackbar = UseCustomSnackbar();
-  const ref = useRef(null);
 
   const getMuiTheme = () =>
     createTheme({
@@ -156,98 +156,54 @@ export default function PreEmi() {
       },
     });
 
-  const handleCreateBtnClick = () => {
-    if (OrderId) {
-      const formData = new FormData();
-      formData.append("orderId", OrderId);
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-
-      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data[0]?.so[0]?.vbeln) {
-            if (
-              data[0]?.so[0]?.schemeStart === "0000-00-00" ||
-              data[0]?.so[0]?.schemeEnd === "0000-00-00" ||
-              !data[0]?.so[0]?.schemeEnd ||
-              !data[0]?.so[0]?.schemeStart
-            ) {
-              snackbar.showError(
-                "Please set Scheme start and Scheme end date!"
-              );
-            } else {
-              setopenCreateForm(true);
-            }
-          }
-        });
+  const saveCashbackReceipt = () => {
+    if (ref.current) {
+      ref.current.saveReceipt();
     }
   };
 
-  const calculateTotal = () => {
-    let total = 0;
-    tableData.forEach((row) => {
-      total += parseFloat(row[2]); // Assuming currency format like "$1000"
+  const modifyResponse = (res) => {
+    const modifiedResponse = res?.map((item) => {
+      return [
+        "",
+        item?.cashback,
+        item?.building,
+        item?.flatno,
+        item?.customer,
+        item?.appDt,
+        item?.regDt,
+        item?.delay,
+        item?.status,
+        item?.selfEmp,
+        item?.salaried,
+        item?.selfFund,
+        item?.bankLoan,
+        item?.eligible,
+      ];
     });
-
-    return total.toFixed(2); // Format total as needed
+    return modifiedResponse;
   };
 
-  const options = {
-    selectableRows: "none",
-    rowsPerPage: 50,
-    elevation: 0,
-    print: true,
-    download: true,
-    search: true,
-    viewColumns: true,
-    filter: true,
-    customToolbar: () => [
-      <Button
-        variant="contained"
-        disableElevation
-        disableFocusRipple
-        size="small"
-        sx={{ marginRight: "0.5em" }}
-        onClick={() => {
-          handleCreateBtnClick();
-        }}
-      >
-        Create
-      </Button>,
-      <Button
-        variant="contained"
-        disableElevation
-        disableFocusRipple
-        size="small"
-        disabled={!requestNo}
-        onClick={() => {
-          setOpenFileUpload(true);
-          getFilesCount();
-        }}
-      >
-        Choose Files to Upload
-      </Button>,
-    ],
-    customFooter: () => {
-      return (
-        <tfoot>
-          <tr>
-            <td></td>
-            <td style={{ fontWeight: "Bold" }}>
-              <label style={{ marginLeft: "25em" }}>
-                {" "}
-                Total : {calculateTotal()}
-              </label>
-            </td>
-          </tr>
-        </tfoot>
-      );
-    },
-  };
+  async function getData() {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("projectId", projectId);
+    formData.append("orderId", OrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/reports/cashbackList", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setResponse(data);
+        setTableData(modifyResponse(data));
+        console.log("@@@@@@@@@data", data);
+        setLoading(false);
+      })
+      .catch(() => {});
+  }
 
   const columns = [
     {
@@ -259,13 +215,26 @@ export default function PreEmi() {
               size="small"
               id={rowIndex[0]}
               onClick={() => {
-                setRequestNo(response[rowIndex].repayRequestNo);
+                setDataToUpdate(response[rowIndex]);
+                setCashbackId(
+                  response[rowIndex].cashback + response[rowIndex].orderId
+                );
+                setRequestNo(response[rowIndex].cashback);
               }}
+              style={
+                response[rowIndex].status.length > 0
+                  ? { pointerEvents: "none", opacity: "0.4" }
+                  : {}
+              }
             >
               <LabelWithCheckbox
                 value={
-                  requestNo
-                    ? response[rowIndex].repayRequestNo === requestNo
+                  cashbackId
+                    ? response[rowIndex].cashback +
+                        response[rowIndex].orderId ===
+                      cashbackId
+                    : requestNo
+                    ? response[rowIndex].cashback === requestNo
                     : false
                 }
               />
@@ -273,103 +242,38 @@ export default function PreEmi() {
           ],
       },
     },
+    { name: "Type" },
+    { name: "Building" },
+    { name: "Unit" },
     {
-      name: "Request Number",
-      label: "Request Number",
+      name: "Customer Name",
     },
     {
-      name: "Month",
-      label: "Month",
+      name: "Application Date",
     },
     {
-      name: "Amount",
-      label: "Amount",
+      name: "Registration Date",
     },
     {
-      name: "Remark",
-      label: "Remark",
+      name: "Delay",
     },
     {
       name: "Status",
-      label: "Status",
-      //   options: {
-      //     customBodyRender: (value) => {
-      //       const cellStyle = {
-      //         fontWeight: "bold",
-      //         color:
-      //           value === "Invoiced"
-      //             ? "#0E9E07" //green
-      //             : value === "Mlstn Not Completed"
-      //             ? "#FFD800" //yellow
-      //             : "red", //red
-      //       };
-
-      //       return <div style={cellStyle}>{value}</div>;
-      //     },
-      //   },
+    },
+    { name: "Self Employee" },
+    {
+      name: "Salaried",
     },
     {
-      name: "Created On",
-      label: "Created On",
+      name: "Self Fund",
     },
     {
-      name: "Created By",
-      label: "Created By",
+      name: "Bank Loan",
     },
-    { name: "Files", label: "Files" },
+    {
+      name: "Eligible",
+    },
   ];
-
-  const saveReceiptDetails = () => {
-    if (ref.current) {
-      ref.current.saveReceipt();
-    }
-  };
-
-  const modifyResponse = (res) => {
-    const modifiedResponse = res?.map((item) => {
-      return [
-        "",
-        item?.repayRequestNo,
-        item?.monthTxt,
-        item?.amount,
-        item?.remark,
-        item?.status,
-        item?.createdOn,
-        item?.createdBy,
-        <IconButton
-          style={{ color: "blue" }}
-          onClick={() => {
-            setOpenShowFiles(true);
-            setFileUrlReqNo(item.repayRequestNo);
-          }}
-        >
-          <InsertDriveFileIcon />
-        </IconButton>,
-      ];
-    });
-    return modifiedResponse;
-  };
-
-  const getTableData = () => {
-    if (OrderId) {
-      const formData = new FormData();
-      formData.append("orderId", OrderId);
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/preEmi/repay`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            setResponse(data);
-            setTableData(modifyResponse(data));
-          }
-        });
-    }
-  };
 
   const getFilesCount = () => {
     const formData = new FormData();
@@ -377,7 +281,7 @@ export default function PreEmi() {
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("process", "REPAYMENT");
+    formData.append("process", "CASHBACK");
     fetch(
       process.env.REACT_APP_SERVER_URL + "/api/activity/getFileUrlsByReqNo",
       {
@@ -393,19 +297,6 @@ export default function PreEmi() {
       });
   };
 
-  useEffect(() => {
-    getFilesCount();
-  }, [requestNo]);
-
-  useEffect(() => {
-    getTableData();
-    getFilesCount();
-  }, []);
-
-  useEffect(() => {
-    getTableData();
-  }, [OrderId]);
-
   const saveUrls = (fileUrls) => {
     const entryData = [];
     var Index = fileIndex;
@@ -415,7 +306,7 @@ export default function PreEmi() {
         DOKNR: requestNo,
         REFERENCE: OrderId,
         LO_INDEX: Index + 1,
-        PROCESS: "REPAYMENT",
+        PROCESS: "CASHBACK",
         FILENAME: obj?.key?.split("/")?.pop(),
         URL: obj.url,
         AEDAT: new Date()?.toISOString()?.split("T")[0],
@@ -442,33 +333,79 @@ export default function PreEmi() {
           snackbar.showSuccess("File URLs data saved successfully");
         }
       });
+
+    console.log("data*************", entryData);
   };
 
+  const options = {
+    selectableRows: "none",
+    elevation: 0,
+    print: true,
+    download: true,
+    search: true,
+    viewColumns: true,
+    filter: true,
+    customToolbar: () => [
+      <Button
+        variant="contained"
+        disableElevation
+        disableFocusRipple
+        size="small"
+        disabled={!cashbackId}
+        onClick={() => {
+          setopenCreateForm(true);
+        }}
+        sx={{ marginRight: "0.5em" }}
+      >
+        Create
+      </Button>,
+    ],
+  };
+
+  useEffect(() => {
+    getData();
+  }, [OrderId, projectId]);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
-    <div style={{ marginTop: "1em" }}>
-      <ThemeProvider theme={() => getMuiTheme()}>
-        <Table data={tableData} columns={columns} options={options}></Table>
-      </ThemeProvider>
+    <Grid sx={{ paddingTop: "0.5em" }}>
+      {!loading ? (
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <Table data={tableData} columns={columns} options={options}></Table>
+        </ThemeProvider>
+      ) : (
+        <CircularScreenLoader />
+      )}
       <CrmModal
         maxWidth="md"
         show={openCreateForm}
         handleShow={() => {
           setopenCreateForm(false);
+          setCashbackId("");
         }}
         primaryBtnText="Create"
         SecondaryBtnText="Close"
         secondarySave={() => {
           setopenCreateForm(false);
+          setCashbackId("");
         }}
         primarySave={() => {
-          saveReceiptDetails();
+          saveCashbackReceipt();
+          setCashbackId("");
         }}
-        title="Create Pre Emi / Rental Assurance"
+        title="Create Cashback Request"
       >
-        <CreatePreEmiReceipt
+        <CreateCashBackReceipt
+          getFilesCount={getFilesCount}
+          requestNo={requestNo}
+          setOpenFileUpload={setOpenFileUpload}
           setopenCreateForm={setopenCreateForm}
           ref={ref}
-          getTableData={getTableData}
+          getTableData={getData}
+          dataToUpdate={dataToUpdate}
         />
       </CrmModal>
       <CrmModal
@@ -488,19 +425,6 @@ export default function PreEmi() {
           callBack={saveUrls}
         />
       </CrmModal>
-      <CrmModal
-        maxWidth="sm"
-        show={openShowFiles}
-        handleShow={() => {
-          setOpenShowFiles(false);
-        }}
-        SecondaryBtnText="Close"
-        secondarySave={() => {
-          setOpenShowFiles(false);
-        }}
-      >
-        <FileDetails fileUrlReqNo={fileUrlReqNo} />
-      </CrmModal>
-    </div>
+    </Grid>
   );
 }

@@ -216,7 +216,7 @@ const ChangeManagementTable = ({
         item.planEndDt,
         item.actStartDt,
         item.actEndDt,
-        users.filter((user) => item.assigned),
+        "", // users?.filter((user) => item.assigned),
         item.changeType,
         item.moduleSys,
         item.changeType,

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from "react";
@@ -22,11 +23,12 @@ export default function PaymentDetails() {
   const [response, setResponse] = useState([]);
   const [formdata, setFormData] = useState({});
   const [tableData, setTableData] = useState([]);
+  const [arrForMail, setArrForMail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [arrForMail, setArrForMail] = useState([]);
-  const [openCreateForm, setopenCreateForm] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openCreateForm, setopenCreateForm] = useState(false);
+  const [disabledSaveBtn, setDisabledSaveBtn] = useState(true);
 
   const ref = useRef(null);
   const snackbar = UseCustomSnackbar();
@@ -526,7 +528,7 @@ export default function PaymentDetails() {
             ></PDFViewer>
           </CrmModal>
           <CrmModal
-            maxWidth="md"
+            maxWidth="sm"
             show={openCreateForm}
             handleShow={() => {
               setopenCreateForm(false);
@@ -542,9 +544,10 @@ export default function PaymentDetails() {
             }}
           >
             <CreatePaymentReceipt
-              setopenCreateForm={setopenCreateForm}
-              getTableData={getTableData}
               ref={ref}
+              getTableData={getTableData}
+              setopenCreateForm={setopenCreateForm}
+              setDisabledSaveBtn={setDisabledSaveBtn}
             />
           </CrmModal>
         </div>

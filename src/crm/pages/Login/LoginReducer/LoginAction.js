@@ -16,10 +16,17 @@ const setLoggedInUserDetails = (data) => {
     payload: data,
   };
 };
+const setAccessRoles = (data) => {
+  return {
+    type: "ACCESS_ROLES",
+    payload: data,
+  };
+};
 
 const exportDefault = {
   setUserName,
   setPassword,
+  setAccessRoles,
   setLoggedInUserDetails,
 };
 

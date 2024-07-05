@@ -71,27 +71,6 @@ export default function CallHistory() {
   const getTableData = () => {
     setIsLoading(true);
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/exotel/calls")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          setResponse(data.Calls);
-          setIsLoading(false);
-          setTableData(modifyResponse(data.Calls));
-        } else {
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
-  };
-
-  useEffect(() => {
-    getTableData();
-  }, []);
-
-  useEffect(() => {
     const formData = new FormData();
     formData.append("orderId", orderId);
     formData.append("userName", userName);
@@ -115,6 +94,14 @@ export default function CallHistory() {
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
       });
+  };
+
+  useEffect(() => {
+    getTableData();
+  }, []);
+
+  useEffect(() => {
+    getTableData();
   }, [orderId]);
 
   const options = {

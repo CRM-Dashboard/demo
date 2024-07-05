@@ -362,17 +362,13 @@ export default function ActivityDetails() {
   ];
 
   const getActivityType = (type) => {
-    const result = actTypeData?.filter((data) => {
-      Object.values(data).includes(type);
-    });
-    return result[0]?.typTxt;
+    const result = actTypeData.find((data) => data.typ == type);
+    return result ? result.typTxt : "";
   };
 
   const getActivityMode = (mode) => {
-    const result = actModeData?.filter((data) =>
-      Object.values(data).includes(mode)
-    );
-    return result[0]?.modeTxt;
+    const result = actModeData.find((data) => data.mode == mode);
+    return result ? result.modeTxt : "";
   };
 
   const modifyResponse = (res) => {
@@ -422,7 +418,7 @@ export default function ActivityDetails() {
   return (
     <>
       {!loading ? (
-        <div>
+        <div style={{ marginTop: "1em" }}>
           <ThemeProvider theme={() => getMuiTheme()}>
             <Table data={tableData} columns={columns} options={options}></Table>
           </ThemeProvider>

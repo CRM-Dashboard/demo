@@ -163,7 +163,7 @@ export default function AgingGraph() {
     formData.append("projectId", projectId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/aging", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/reports/aging", {
       method: "POST",
       body: formData,
     })

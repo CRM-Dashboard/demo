@@ -2,9 +2,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
+import Constants from "./../../../../utils/Constants";
 import UpdateSchemeDetails from "./UpdateSchemeDetails";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
+import GlobalFunctions from "./../../../../utils/GlobalFunctions";
+import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 
 export default function SchemeInfo() {
   const [customers, setCustomers] = useState([]);
@@ -12,10 +15,13 @@ export default function SchemeInfo() {
   const [isSchemeInfoEditable, setIsSchemeInfoEditable] = useState(false);
 
   const schemeRef = useRef(null);
+  const snackbar = UseCustomSnackbar();
+  const accessConstants = Constants.accessConstants;
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const accessRoles = reducerData.LoginReducer.accessRoles;
   const projectId = reducerData?.dashboard?.project?.projectId;
 
   const titleStyle = {
@@ -124,8 +130,17 @@ export default function SchemeInfo() {
             <Avatar sx={{ cursor: "pointer" }}>
               <EditIcon
                 onClick={() => {
-                  setIsSchemeInfoEditable(!isSchemeInfoEditable);
-                  saveSchemeDetails();
+                  if (
+                    GlobalFunctions.allowAccessByRoles(
+                      accessRoles,
+                      accessConstants.schemeAccess
+                    )
+                  ) {
+                    setIsSchemeInfoEditable(!isSchemeInfoEditable);
+                    saveSchemeDetails();
+                  } else {
+                    snackbar.showError("Not Authorize!");
+                  }
                 }}
               />
             </Avatar>

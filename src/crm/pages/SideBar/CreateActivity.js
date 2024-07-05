@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
@@ -36,8 +37,9 @@ const CreateActivity = forwardRef((props, ref) => {
   const activityInfo = reducerData.searchBar.activityData;
   const Sid = reducerData.searchBar.sid;
   const dispatch = useDispatch();
-  const [subActData, setSubActData] = useState(props.subActTypeData);
   const snackbar = UseCustomSnackbar();
+
+  const [subActData, setSubActData] = useState(props.subActTypeData);
   const [error, setError] = useState("Required");
 
   const saveLog = async () => {
@@ -65,19 +67,20 @@ const CreateActivity = forwardRef((props, ref) => {
 
     const entryData = {
       vbeln: orderId,
-      act_mode: formik.values.activityMode,
+      act_mode: "02",
       pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
       erdat: formik.values.date,
       action: formik.values.action,
       remark: formik.values.remark,
       dmbtr: formik.values.amount,
-      act_typ: formik.values.subActivity,
+      act_typ: formik.values.activityType,
+      act_subtyp: formik.values.subActivity,
       dp_code: formik.values.dpCode,
     };
 
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       // props.setDisabledBtn(false);
-      props.setDisabledTertiaryBtn(false);
+
       const formData = new FormData();
       formData.append("orderId", orderId);
       formData.append("userName", userName);
@@ -107,6 +110,8 @@ const CreateActivity = forwardRef((props, ref) => {
             );
           }
         });
+    } else {
+      snackbar.showError("All fields are mandatory!");
     }
   };
 
@@ -148,9 +153,37 @@ const CreateActivity = forwardRef((props, ref) => {
     return formattedTime;
   };
 
+  // useEffect(() => {
+  //   const entryData = {
+  //     vbeln: orderId,
+  //     act_mode: formik.values.activityMode,
+  //     pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
+  //     erdat: formik.values.date,
+  //     action: formik.values.action,
+  //     remark: formik.values.remark,
+  //     dmbtr: formik.values.amount,
+  //     act_typ: formik.values.activityType,
+  //     act_subtyp: formik.values.subActivity,
+  //     dp_code: formik.values.dpCode,
+  //   };
+
+  //   if (props.shouldShowFullForm) {
+  //     props.setActivityData(entryData);
+  //   }
+  // }, [props.shouldShowFullForm]);
+
+  // const getCurrentActType = (actTyp) => {
+  //   const filteredData = props.actTypeData?.filter((actData) => {
+  //     if (actData.typ === activityInfo?.act_typ) {
+  //       return actData.typTxt;
+  //     }
+  //   });
+  //   return filteredData;
+  // };
+
   const formik = useFormik({
     initialValues: {
-      activityMode: activityInfo?.act_mode ? activityInfo?.act_mode : "",
+      activityMode: "02",
       time: activityInfo?.pltac ? convertTime(activityInfo?.pltac) : dayjs(),
       date: activityInfo.erdat
         ? moment(activityInfo.erdat.$d).format("YYYY-MM-DD")
@@ -158,8 +191,8 @@ const CreateActivity = forwardRef((props, ref) => {
       action: activityInfo?.action ? activityInfo?.action : "",
       remark: activityInfo?.remark ? activityInfo?.remark : "",
       amount: activityInfo?.dmbtr ? activityInfo?.dmbtr : "",
-      activityType: "",
-      subActivity: activityInfo?.act_typ ? activityInfo.act_typ : "",
+      activityType: activityInfo?.act_typ ? activityInfo.act_typ : "",
+      subActivity: activityInfo?.act_subtyp ? activityInfo.act_subtyp : "",
       dpCode: activityInfo?.dp_code ? activityInfo?.dp_code : "",
     },
     validationSchema,
@@ -174,7 +207,6 @@ const CreateActivity = forwardRef((props, ref) => {
       (sub) => sub?.actSubtyp == activityInfo?.act_typ
     );
     setSubActData(subActData);
-    formik.setFieldValue("activityType", subActData[0]?.actTyp);
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       props.setDisabledBtn(false);
     }
@@ -182,10 +214,8 @@ const CreateActivity = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (Sid) {
-      props.setDisabledTertiaryBtn(true);
       props.setDisabledBtn(false);
     } else {
-      // props.setDisabledTertiaryBtn(false);
       props.setDisabledBtn(true);
     }
   }, [activityInfo]);
@@ -197,44 +227,47 @@ const CreateActivity = forwardRef((props, ref) => {
     setSubActData(subData);
   }, [formik.values.activityType]);
 
-  const handleContinue = () => {
-    const entryData = {
-      vbeln: orderId,
-      act_mode: formik.values.activityMode,
-      pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
-      erdat: formik.values.date,
-      action: formik.values.action,
-      remark: formik.values.remark,
-      dmbtr: formik.values.amount,
-      act_typ: formik.values.subActivity,
-      dp_code: formik.values.dpCode,
-    };
+  useEffect(() => {
+    handleContinue();
+  }, [formik.values]);
 
-    props.setActivityData(entryData);
-    dispatch(searchbarActions.setActivityData(entryData));
+  const handleContinue = () => {
+    if (formik.values.activityMode) {
+      const entryData = {
+        vbeln: orderId,
+        act_mode: "02",
+        pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
+        erdat: formik.values.date,
+        action: formik.values.action,
+        remark: formik.values.remark,
+        dmbtr: formik.values.amount,
+        act_typ: formik.values.activityType,
+        act_subtyp: formik.values.subActivity,
+        dp_code: formik.values.dpCode,
+      };
+
+      props.setActivityData(entryData);
+      dispatch(searchbarActions.setActivityData(entryData));
+    }
   };
 
   useEffect(() => {
     const entryData = {
       vbeln: orderId,
-      act_mode: formik.values.activityMode,
+      act_mode: "02",
       pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
       erdat: formik.values.date,
       action: formik.values.action,
       remark: formik.values.remark,
       dmbtr: formik.values.amount,
-      act_typ: formik.values.subActivity,
+      act_typ: formik.values.activityType,
+      act_subtyp: formik.values.subActivity,
       dp_code: formik.values.dpCode,
     };
 
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
-      // props.setDisabledBtn(false);
       props.setActivityData(entryData);
-      props.setDisabledTertiaryBtn(false);
       dispatch(searchbarActions.setActivityData(entryData));
-    } else {
-      // props.setDisabledBtn(true);
-      props.setDisabledTertiaryBtn(true);
     }
   }, [formik.errors, error]);
 
@@ -268,13 +301,11 @@ const CreateActivity = forwardRef((props, ref) => {
               id="activityMode"
               name="activityMode"
               label="Activity Mode"
-              value={formik.values.activityMode}
-              onChange={(e) => {
-                formik.setFieldValue("activityMode", e.target.value);
-              }}
+              value={"02"}
               error={Boolean(formik.errors.activityMode)}
               helperText={formik.errors.activityMode}
               required
+              disabled
             >
               {props.actModeData?.map((data) => {
                 return <MenuItem value={data.mode}> {data.modeTxt}</MenuItem>;
@@ -283,6 +314,7 @@ const CreateActivity = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
+
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
             <MergeTypeOutlinedIcon />
@@ -433,24 +465,28 @@ const CreateActivity = forwardRef((props, ref) => {
                 name="time"
                 label="Time"
                 value={formik.values.time}
-                sx={{
-                  "&.MuiInputBase-input": {
-                    height: "2em",
-                    padding: 0,
-                  },
-                  width: "100%",
-                }}
-                onChange={(value) => {
-                  formik.setFieldValue("time", value, true);
-                }}
-                error={Boolean(formik.errors.time)}
-                helperText={formik.touched.time && formik.errors.time}
+                onChange={(value) =>
+                  formik.setFieldValue("time", dayjs(value), true)
+                }
+                renderInput={(params) => (
+                  <InputField
+                    {...params}
+                    error={Boolean(formik.errors.time)}
+                    helperText={formik.errors.time}
+                    sx={{
+                      "& .MuiInputBase-input": {
+                        height: "2em",
+                        padding: 0,
+                      },
+                      width: "100%",
+                    }}
+                  />
+                )}
               />
             </LocalizationProvider>
           </Grid>
         </Grid>
         <br />
-
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
             <DriveFileRenameOutlineIcon />
@@ -463,7 +499,7 @@ const CreateActivity = forwardRef((props, ref) => {
               label="Remark"
               style={{
                 width: "25.5em",
-                fontFamily: "Futura, sans-serif",
+                fontFamily: "Futura",
                 paddingLeft: "0.5em",
                 paddingTop: "0.5em",
                 paddingRight: "0.5em",

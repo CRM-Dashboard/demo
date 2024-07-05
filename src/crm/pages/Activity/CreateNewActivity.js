@@ -61,7 +61,8 @@ const CreateNewActivity = forwardRef((props, ref) => {
       action: formik.values.action,
       remark: formik.values.remark,
       dmbtr: formik.values.amount,
-      act_typ: formik.values.subActivity,
+      act_typ: formik.values.activityType,
+      act_subtyp: formik.values.subActivity,
       dp_code: formik.values.dpCode,
     };
 
@@ -368,7 +369,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
               label="Remark"
               style={{
                 width: "25.5em",
-                fontFamily: "Futura, sans-serif",
+                fontFamily: "Futura",
                 paddingLeft: "0.5em",
                 paddingTop: "0.5em",
                 paddingRight: "0.5em",

@@ -3,8 +3,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdatePossession from "./UpdatePossession";
+import Constants from "./../../../../utils/Constants";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
+import GlobalFunctions from "./../../../../utils/GlobalFunctions";
+import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 
 export default function PossessionInfo() {
   const [possessionDetails, setPossessionDetails] = useState([]);
@@ -12,10 +15,13 @@ export default function PossessionInfo() {
     useState(false);
 
   const posRef = useRef(null);
+  const snackbar = UseCustomSnackbar();
+  const accessConstants = Constants.accessConstants;
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const accessRoles = reducerData.LoginReducer.accessRoles;
 
   const titleStyle = {
     "font-weight": "bold",
@@ -105,8 +111,17 @@ export default function PossessionInfo() {
             <Avatar sx={{ cursor: "pointer" }}>
               <EditIcon
                 onClick={() => {
-                  setIsPossessionInfoEditable(!isPossessionInfoEditable);
-                  savePossessionDetails();
+                  if (
+                    GlobalFunctions.allowAccessByRoles(
+                      accessRoles,
+                      accessConstants.possessionAccess
+                    )
+                  ) {
+                    setIsPossessionInfoEditable(!isPossessionInfoEditable);
+                    savePossessionDetails();
+                  } else {
+                    snackbar.showError("Not Authorize!");
+                  }
                 }}
               />
             </Avatar>

@@ -8,6 +8,7 @@ import { Grid } from "@mui/material";
 import AgingGraph from "./AgingGraph";
 import { useDispatch } from "react-redux";
 import HappinessIndexDonut from "./HappinessIndexDonut";
+import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
@@ -454,8 +455,11 @@ export default function CustomerDetails() {
                 height="5.5em"
                 count={
                   searchValueAvailable
-                    ? customerDetails.AgreementValue
-                    : "₹" + customerDetails?.ConsiderationAmount + " Crore"
+                    ? "₹" +
+                      GlobalFunctions.formatToIndianNumber(
+                        customerDetails.AgreementValue
+                      )
+                    : "₹" + customerDetails?.ConsiderationAmount + " Cr"
                 }
                 title={"Consideration Amount"}
               />
@@ -474,7 +478,10 @@ export default function CustomerDetails() {
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" + customerDetails.DueAmount
+                    ? "₹" +
+                      GlobalFunctions.formatToIndianNumber(
+                        customerDetails.DueAmount
+                      )
                     : "₹" + customerDetails?.InvoiceAmount + "Cr"
                 }
                 title="Invoiced Amount"
@@ -494,7 +501,10 @@ export default function CustomerDetails() {
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" + getPaidAmt().toLocaleString()
+                    ? "₹" +
+                      GlobalFunctions.formatToIndianNumber(
+                        getPaidAmt().toLocaleString()
+                      )
                     : "₹" + customerDetails?.PaidAmount + "Cr"
                 }
                 title="Paid Amount"
@@ -595,6 +605,9 @@ export default function CustomerDetails() {
                 // height: "100%",
                 height: "10em",
                 borderRadius: "0.8em",
+                "&.MuiGrid-item": {
+                  paddingTop: "0px",
+                },
               }}
             >
               <Graph />

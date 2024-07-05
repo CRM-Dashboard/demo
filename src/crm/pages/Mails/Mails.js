@@ -13,7 +13,9 @@ function Mails() {
   const [mailData, setMailData] = useState([]);
 
   useEffect(() => {
-    if (tableData[0]) setMailData(tableData[0].body?.content);
+    if (tableData?.[0]) {
+      setMailData(tableData?.[0]?.body?.content);
+    }
   }, [tableData]);
 
   const getMailDetails = () => {
@@ -34,7 +36,9 @@ function Mails() {
           console.log("mails data", nextDataLink[2]);
         });
     } else {
+      setMailData([]);
       setTableData([]);
+      setNextDataLink("");
     }
   };
 
@@ -83,6 +87,7 @@ function Mails() {
           onClick={() => {
             getMailDetails();
           }}
+          disabled={!(mailData?.length > 0)}
         >
           Next
         </Button>
@@ -166,7 +171,9 @@ function Mails() {
                       <Grid sx={{ fontSize: "12px" }}>
                         {mailData?.sender?.emailAddress?.address}
                       </Grid>
-                      <Grid sx={{ fontSize: "12px" }}>{mailData?.subject}</Grid>
+                      <Grid sx={{ fontSize: "12px", cursor: "pointer" }}>
+                        {mailData?.subject}
+                      </Grid>
                     </Grid>
                     <Grid
                       item

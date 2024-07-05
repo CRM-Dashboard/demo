@@ -17,6 +17,7 @@ import Invoices from "../crm/pages/Invoices/Invoices";
 import ProjectMenus from "../ProjectOptions/ProjectMenus";
 import Mails from "./../crm/pages/Mails/Mails";
 import HierarchyTable from "./../HierarchyTable/HomePage/HomePage";
+import CashbackReport from "../crm/pages/Reports/CashbackReport/CashbackReport";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -64,6 +65,7 @@ export default function Navigation() {
                   <Route path="emailReport" element={<EmailReport />} />
                   <Route path="serviceRequest" element={<ServiceRequest />} />
                   <Route path="agingReport" element={<AgingReport />} />
+                  <Route path="cashBackReport" element={<CashbackReport />} />
                 </Route>
               </Routes>
             </div>

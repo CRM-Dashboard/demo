@@ -2,9 +2,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
+import UpdateLoanDetails from "./UpdateLoanDetails";
+import Constants from "./../../../../utils/Constants";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
-import UpdateLoanDetails from "./UpdateLoanDetails";
+import GlobalFunctions from "./../../../../utils/GlobalFunctions";
+import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 
 export default function LoanInfo() {
   const [gcs, setGcs] = useState([]);
@@ -13,10 +16,13 @@ export default function LoanInfo() {
   const [isLoanInfoEditable, setIsLoanInfoEditable] = useState(false);
 
   const loanRef = useRef(null);
+  const accessConstants = Constants.accessConstants;
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const accessRoles = reducerData.LoginReducer.accessRoles;
+  const snackbar = UseCustomSnackbar();
 
   const titleStyle = {
     "font-weight": "bold",
@@ -109,8 +115,17 @@ export default function LoanInfo() {
             <Avatar sx={{ cursor: "pointer" }}>
               <EditIcon
                 onClick={() => {
-                  setIsLoanInfoEditable(!isLoanInfoEditable);
-                  saveLoanDetails();
+                  if (
+                    GlobalFunctions.allowAccessByRoles(
+                      accessRoles,
+                      accessConstants.schemeAccess
+                    )
+                  ) {
+                    setIsLoanInfoEditable(!isLoanInfoEditable);
+                    saveLoanDetails();
+                  } else {
+                    snackbar.showError("Not Authorize!");
+                  }
                 }}
               />
             </Avatar>

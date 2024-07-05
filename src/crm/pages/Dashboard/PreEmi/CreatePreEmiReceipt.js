@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {
@@ -12,7 +13,7 @@ import moment from "moment";
 import { Formik, useFormik } from "formik";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import { Grid, Box, Typography, MenuItem } from "@mui/material";
+import { Grid, Box, Typography, MenuItem, Button } from "@mui/material";
 import InputField from "../../../components/inputField/InputField";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
@@ -25,13 +26,13 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   const [soDetails, setSoDetails] = useState("");
   const [error, setError] = useState("");
 
+  const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const projectId = reducerData.dashboard.project.projectId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const custData = reducerData.searchBar.accountStatement;
-  const snackbar = UseCustomSnackbar();
 
   useEffect(() => {
     if (OrderId) {
@@ -46,11 +47,11 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data[0].vbeln) {
+          if (data[0].so[0].vbeln) {
             setSoDetails(data);
             if (
-              data[0].schemeStart === "0000-00-00" ||
-              data[0].schemeEnd === "0000-00-00"
+              data[0].so[0].schemeStart === "0000-00-00" ||
+              data[0].so[0].schemeEnd === "0000-00-00"
             ) {
               props.setopenCreateForm(false);
               snackbar.showError(
@@ -59,8 +60,8 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               setSchemeEnd(null);
               setSchemeStart(null);
             } else {
-              setSchemeEnd(data[0].schemeEnd);
-              setSchemeStart(data[0].schemeStart);
+              setSchemeEnd(data[0].so[0].schemeEnd);
+              setSchemeStart(data[0].so[0].schemeStart);
             }
           }
         });
@@ -108,7 +109,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
-
+    console.log("formik.errors#############", formik.errors, error);
     // eslint-disable-next-line eqeqeq
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
       fetch(
@@ -176,28 +177,38 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
 
   useEffect(() => {
     const inputDate = new Date(formik.values.month);
-
     const currentDate = new Date(inputDate);
-
-    // Convert the start and end range to JavaScript Date objects
     const startDate = new Date(schemeStart);
     const endDate = new Date(schemeEnd);
-    const result = currentDate > startDate && currentDate < endDate;
 
-    // Check if the currentDate is between the startDate and endDate
-    if (result) {
-      setError("");
-    } else {
+    const isDateInRange = (currentDate, startDate, endDate) => {
+      return currentDate >= startDate && currentDate <= endDate;
+    };
+
+    const isSameMonthAndYear = (date1, date2) => {
+      return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth()
+      );
+    };
+
+    const isValidDate =
+      isDateInRange(currentDate, startDate, endDate) ||
+      isSameMonthAndYear(currentDate, startDate) ||
+      isSameMonthAndYear(currentDate, endDate);
+
+    console.log("isValidDate#############", isValidDate);
+
+    if (!isValidDate) {
       formik.setFieldError(
         "month",
-        "Month should be in Range of start scheme and end scheme."
+        "Month should be in the range of the start scheme and end scheme."
       );
-      setError("Required");
       snackbar.showError(
-        "Month should be in Range of start scheme and end scheme."
+        "Month should be in the range of the start scheme and end scheme."
       );
     }
-  }, [formik.values.month]);
+  }, [formik.values.month, schemeStart, schemeEnd]);
 
   const handleFileUpload = (event) => {
     const files1 = event.target.files;
@@ -353,30 +364,28 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               helperText={formik.errors.remarks}
               onChange={formik.handleChange}
             />
+            <Typography sx={{ color: "red", fontSize: "11px" }}>
+              {error}
+            </Typography>
           </Grid>
         </Grid>
         <br />
-
-        {
-          <input
-            type="file"
-            onChange={(event) => {
-              handleFileUpload(event);
+        {/* 
+        <Grid>
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            disabled={!props.requestNo}
+            onClick={() => {
+              props.setOpenFileUpload(true);
+              props.getFilesCount();
             }}
-          />
-        }
-        {
-          <Grid>
-            {files?.map((file) => {
-              return (
-                <div>
-                  {file.name}{" "}
-                  {/* {<LinearProgress variant="determinate" value={100} />} */}
-                </div>
-              );
-            })}
-          </Grid>
-        }
+          >
+            Choose Files to Upload
+          </Button>
+        </Grid> */}
       </Box>
     </formik>
   );

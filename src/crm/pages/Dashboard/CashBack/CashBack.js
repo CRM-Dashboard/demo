@@ -1,22 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
-import { Button } from "@mui/material";
+import { IconButton } from "@mui/material";
+import FileDetails from "./FileDetails";
+import CrmModal from "../../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CreateCashBackReceipt from "./CreateCashBackReceipt";
-import CrmModal from "../../../components/crmModal/CrmModal";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function CashBack() {
+  const [loading, setLoading] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [openCreateForm, setopenCreateForm] = useState(false);
+  const [fileUrlReqNo, setFileUrlReqNo] = useState("");
+  const [openShowFiles, setOpenShowFiles] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const ref = useRef(null);
 
   const getMuiTheme = () =>
     createTheme({
@@ -150,133 +153,95 @@ export default function CashBack() {
     search: true,
     viewColumns: true,
     filter: true,
-    customToolbar: () => [
-      <Button
-        variant="contained"
-        disableElevation
-        disableFocusRipple
-        size="small"
-        onClick={() => {
-          setopenCreateForm(true);
-        }}
-      >
-        Create
-      </Button>,
-    ],
   };
 
   const columns = [
-    {
-      name: "Type",
-      label: "Type",
-    },
-    {
-      name: "Created On",
-      label: "Created On",
-    },
-    {
-      name: "Created By",
-      label: "Created By",
-    },
-
+    { name: "Created By" },
+    { name: "Created On" },
     {
       name: "Amount",
-      label: "Amount",
     },
     {
-      name: "Remark",
-      label: "Remark",
+      name: "Type",
     },
     {
       name: "Status",
-      label: "Status",
-      //   options: {
-      //     customBodyRender: (value) => {
-      //       const cellStyle = {
-      //         fontWeight: "bold",
-      //         color:
-      //           value === "Invoiced"
-      //             ? "#0E9E07" //green
-      //             : value === "Mlstn Not Completed"
-      //             ? "#FFD800" //yellow
-      //             : "red", //red
-      //       };
-
-      //       return <div style={cellStyle}>{value}</div>;
-      //     },
-      //   },
     },
+    {
+      name: "Remarks",
+    },
+    { name: "Files" },
   ];
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.type,
-        item?.createdOn,
         item?.createdBy,
+        item?.createdOn,
         item?.amount,
-        item?.remark,
+        item?.type,
         item?.status,
+        item?.remark,
+        <IconButton
+          style={{ color: "blue" }}
+          onClick={() => {
+            setOpenShowFiles(true);
+            setFileUrlReqNo(item.type);
+          }}
+        >
+          <InsertDriveFileIcon />
+        </IconButton>,
       ];
     });
     return modifiedResponse;
   };
 
   const getTableData = () => {
+    setLoading(true);
     const formData = new FormData();
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/cashback", {
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getCashbackInfo", {
       method: "POST",
       body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data) {
-          setTableData(modifyResponse(data));
-        }
-      });
+        setTableData(modifyResponse(data));
+        setLoading(false);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
     getTableData();
   }, [OrderId]);
 
-  const saveCashbackReceipt = () => {
-    if (ref.current) {
-      ref.current.saveReceipt();
-    }
-  };
-
   return (
-    <div style={{ marginTop: "1em" }}>
-      <ThemeProvider theme={() => getMuiTheme()}>
-        <Table data={tableData} columns={columns} options={options}></Table>
-      </ThemeProvider>
+    <>
+      <div style={{ marginTop: "1em" }}>
+        {!loading ? (
+          <ThemeProvider theme={() => getMuiTheme()}>
+            <Table data={tableData} columns={columns} options={options}></Table>
+          </ThemeProvider>
+        ) : (
+          <CircularScreenLoader />
+        )}
+      </div>
       <CrmModal
-        maxWidth="md"
-        show={openCreateForm}
+        maxWidth="sm"
+        show={openShowFiles}
         handleShow={() => {
-          setopenCreateForm(false);
+          setOpenShowFiles(false);
         }}
-        primaryBtnText="Create"
         SecondaryBtnText="Close"
         secondarySave={() => {
-          setopenCreateForm(false);
+          setOpenShowFiles(false);
         }}
-        primarySave={() => {
-          saveCashbackReceipt();
-        }}
-        title="Create Cashback Request"
       >
-        <CreateCashBackReceipt
-          setopenCreateForm={setopenCreateForm}
-          ref={ref}
-          getTableData={getTableData}
-        />
+        <FileDetails fileUrlReqNo={fileUrlReqNo} />
       </CrmModal>
-    </div>
+    </>
   );
 }

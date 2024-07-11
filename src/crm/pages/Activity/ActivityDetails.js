@@ -361,22 +361,12 @@ export default function ActivityDetails() {
     },
   ];
 
-  const getActivityType = (type) => {
-    const result = actTypeData.find((data) => data.typ == type);
-    return result ? result.typTxt : "";
-  };
-
-  const getActivityMode = (mode) => {
-    const result = actModeData.find((data) => data.mode == mode);
-    return result ? result.modeTxt : "";
-  };
-
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.erdat,
-        getActivityType(item?.actTyp),
-        getActivityMode(item?.actMode),
+        item.actTypTxt,
+        item.actModeTxt,
         item.dmbtr,
         item.action,
         item.remark,

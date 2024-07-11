@@ -85,10 +85,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   };
 
   const saveReceipt = () => {
-    console.log(
-      "formik.values.month########",
-      moment(formik.values.month?.$d).format("YYYYMM")
-    );
     const entryData = {
       vbeln: OrderId,
       pmt_req_typ: formik.values.repayType,
@@ -101,8 +97,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       remark: formik.values.remarks,
       onbehalf: formik.values.onBehalf,
       panno: formik.values.onBehalfPan,
-      spmon: moment(formik.values.month?.$d).format("YYYYMM"),
-      // files:[]
+      spmon: moment(formik.values.schemeMonth?.$d).format("YYYYMM"),
     };
 
     const formData = new FormData();
@@ -150,7 +145,25 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     schemeStart: yup.string(),
     schemeEnd: yup.string(),
     repayType: yup.string().required("Required"),
-    month: yup.string().required("Required"),
+    schemeMonth: yup
+      .string()
+      .required("Required")
+      .test(
+        "is-date-in-range",
+        "Month should be in the range of the start scheme and end scheme.",
+        function (value) {
+          const inputDate = new Date(value);
+          const startDate = new Date(schemeStart);
+          const endDate = new Date(schemeEnd);
+          return (
+            inputDate >= startDate &&
+            inputDate <= endDate &&
+            !isNaN(inputDate) &&
+            !isNaN(startDate) &&
+            !isNaN(endDate)
+          );
+        }
+      ),
     amount: yup.number().required("Required"),
     onBehalf: yup.string(),
     onBehalfPan: yup.string(),
@@ -162,7 +175,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       schemeStart: dayjs(schemeStart),
       schemeEnd: dayjs(schemeEnd),
       repayType: "",
-      month: null,
+      schemeMonth: null,
       amount: "",
       onBehalf: "",
       onBehalfPan: "",
@@ -176,8 +189,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   });
 
   useEffect(() => {
-    const inputDate = new Date(formik.values.month);
-    const currentDate = new Date(inputDate);
+    const inputDate = new Date(formik.values.schemeMonth);
     const startDate = new Date(schemeStart);
     const endDate = new Date(schemeEnd);
 
@@ -193,59 +205,57 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     };
 
     const isValidDate =
-      isDateInRange(currentDate, startDate, endDate) ||
-      isSameMonthAndYear(currentDate, startDate) ||
-      isSameMonthAndYear(currentDate, endDate);
-
-    console.log("isValidDate#############", isValidDate);
+      isDateInRange(inputDate, startDate, endDate) ||
+      isSameMonthAndYear(inputDate, startDate) ||
+      isSameMonthAndYear(inputDate, endDate);
 
     if (!isValidDate) {
       formik.setFieldError(
-        "month",
+        "schemeMonth",
         "Month should be in the range of the start scheme and end scheme."
       );
       snackbar.showError(
         "Month should be in the range of the start scheme and end scheme."
       );
     }
-  }, [formik.values.month, schemeStart, schemeEnd]);
+  }, [formik.values.schemeMonth, schemeStart, schemeEnd]);
 
-  const handleFileUpload = (event) => {
-    const files1 = event.target.files;
-    const filesArray = Array.from(files1);
-    setFiles((prevArray) => prevArray.concat(filesArray));
+  // const handleFileUpload = (event) => {
+  //   const files1 = event.target.files;
+  //   const filesArray = Array.from(files1);
+  //   setFiles((prevArray) => prevArray.concat(filesArray));
 
-    setFiles([...files, ...filesArray]);
-    const finalFiles = [...files, ...filesArray];
+  //   setFiles([...files, ...filesArray]);
+  //   const finalFiles = [...files, ...filesArray];
 
-    // Convert each file to base64
-    Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
-      .then((base64Array) => {
-        console.log("base64Array######", base64Array);
-        setSelectedFile(base64Array);
-      })
-      .catch((error) => {
-        console.error("Error reading files#######:", error);
-      });
-  };
+  //   // Convert each file to base64
+  //   Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
+  //     .then((base64Array) => {
+  //       console.log("base64Array######", base64Array);
+  //       setSelectedFile(base64Array);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error reading files#######:", error);
+  //     });
+  // };
 
-  const readFileAsBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      const fileBlob = new Blob([file], { type: file.type });
+  // const readFileAsBase64 = (file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     const fileBlob = new Blob([file], { type: file.type });
 
-      reader.onload = () => {
-        const base64String = reader.result.split(",")[1];
-        resolve(base64String);
-      };
+  //     reader.onload = () => {
+  //       const base64String = reader.result.split(",")[1];
+  //       resolve(base64String);
+  //     };
 
-      reader.onerror = (error) => {
-        reject(error);
-      };
+  //     reader.onerror = (error) => {
+  //       reject(error);
+  //     };
 
-      reader.readAsDataURL(fileBlob);
-    });
-  };
+  //     reader.readAsDataURL(fileBlob);
+  //   });
+  // };
 
   return (
     <formik>
@@ -299,15 +309,19 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
           </Grid>
           <Grid item xs={4} sm={6} md={6}>
             <CrmDatePicker
-              id="month"
-              name="month"
+              id="schemeMonth"
+              name="schemeMonth"
               label="Month"
               format="MMMM YYYY"
               views={["month", "year"]}
-              value={formik.values.month}
-              onChange={(value) => formik.setFieldValue("month", value, true)}
-              error={Boolean(formik.errors.month)}
-              helperText={formik.errors.month}
+              value={formik.values.schemeMonth}
+              onChange={(value) =>
+                formik.setFieldValue("schemeMonth", value, true)
+              }
+              minDate={dayjs(schemeStart)}
+              maxDate={dayjs(schemeEnd)}
+              error={Boolean(formik.errors.schemeMonth)}
+              helperText={formik.errors.schemeMonth}
               isRequired
             />
           </Grid>
@@ -352,16 +366,23 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               onChange={formik.handleChange}
             />
           </Grid>
+        </Grid>
+        <br />
+
+        <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
-            <Typography style={{ fontSize: "0.8em" }}>Remarks</Typography>
+            <Typography style={{ fontSize: "0.9em" }}>Remarks</Typography>
             <textarea
               id="remarks"
               name="remarks"
               label="Remarks"
-              style={{ width: "25.5em" }}
+              style={{
+                width: "29.2em",
+                fontSize: "14px",
+                padding: "0.5em",
+                fontWeight: "bold",
+              }}
               value={formik.values.remarks}
-              error={Boolean(formik.errors.remarks)}
-              helperText={formik.errors.remarks}
               onChange={formik.handleChange}
             />
             <Typography sx={{ color: "red", fontSize: "11px" }}>
@@ -369,23 +390,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
             </Typography>
           </Grid>
         </Grid>
-        <br />
-        {/* 
-        <Grid>
-          <Button
-            variant="contained"
-            disableElevation
-            disableFocusRipple
-            size="small"
-            disabled={!props.requestNo}
-            onClick={() => {
-              props.setOpenFileUpload(true);
-              props.getFilesCount();
-            }}
-          >
-            Choose Files to Upload
-          </Button>
-        </Grid> */}
       </Box>
     </formik>
   );

@@ -66,6 +66,7 @@ const CreateCashBackReceipt = forwardRef((props, ref) => {
             props.getTableData();
             props.setopenCreateForm(false);
             saveLog();
+            props.setIsFileUploaded(false);
             snackbar.showSuccess("Payment details created successfully!");
           }
         })

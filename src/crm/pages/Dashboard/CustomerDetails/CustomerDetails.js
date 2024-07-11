@@ -13,6 +13,7 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+import TodayActivity from "./TodayActivity";
 
 export default function CustomerDetails() {
   const [customerDetails, setCustomerDetails] = useState("");
@@ -614,6 +615,8 @@ export default function CustomerDetails() {
             </Grid>
           </Grid>
         </Grid>
+
+        <TodayActivity />
       </>
     ) : (
       <CircularScreenLoader />

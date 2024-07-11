@@ -53,18 +53,20 @@ const CreateNewActivity = forwardRef((props, ref) => {
   };
 
   const createActivity = () => {
-    const entryData = {
-      vbeln: orderId,
-      act_mode: formik.values.activityMode,
-      pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
-      erdat: formik.values.date,
-      action: formik.values.action,
-      remark: formik.values.remark,
-      dmbtr: formik.values.amount,
-      act_typ: formik.values.activityType,
-      act_subtyp: formik.values.subActivity,
-      dp_code: formik.values.dpCode,
-    };
+    const entryData = [
+      {
+        vbeln: orderId,
+        act_mode: formik.values.activityMode,
+        pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
+        erdat: formik.values.date,
+        action: formik.values.action,
+        remark: formik.values.remark,
+        dmbtr: formik.values.amount,
+        act_typ: formik.values.activityType,
+        act_subtyp: formik.values.subActivity,
+        dp_code: formik.values.dpCode,
+      },
+    ];
 
     if (!formik.values.remark) {
       setError("Required");

@@ -1,10 +1,7 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import Table from "mui-datatables";
-import PDFViewer from "./../../components/pdfViewer/PdfViewer";
-import CrmModal from "../../components/crmModal/CrmModal";
-import GlobalFunctions from "../../utils/GlobalFunctions";
 import {
   Box,
   IconButton,
@@ -13,31 +10,41 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Table from "mui-datatables";
+import CrmModal from "../../components/crmModal/CrmModal";
+import GlobalFunctions from "../../utils/GlobalFunctions";
+import PDFViewer from "./../../components/pdfViewer/PdfViewer";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { TableRow, TableCell, TableFooter } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import LabelWithCheckbox from "../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function Invoices() {
   const [url, setURL] = useState("");
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [page, setPage] = useState(0);
   const [response, setResponse] = useState([]);
   const [formdata, setFormData] = useState({});
   const [tableData, setTableData] = useState([]);
   const [arrForMail, setArrForMail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [dateRange, setDateRange] = useState([null, null]);
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
-  const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+    reducerData.ThemeReducer.mode
+  );
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
@@ -45,7 +52,7 @@ export default function Invoices() {
         "",
         item?.Milestone,
         item?.duedate,
-        `₹${item?.gstamount}`,
+        item?.gstamt,
         item.billingDate,
         `₹${item.netamount}`,
         item.pTerms,
@@ -229,12 +236,12 @@ export default function Invoices() {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append("OrderId", orderId);
+    formData.append("projectId", projectId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/invoices", {
-      ///api/invoices/so_invoices_dt
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/invoices/so_invoices_dt", {
+      ///api/dashboard/invoices
       method: "POST",
       body: formData,
     })
@@ -308,6 +315,69 @@ export default function Invoices() {
         Send Mail
       </Button>,
     ],
+    rowsPerPageOptions: [5, 10, 25, 50],
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
+    onChangePage(page) {
+      setPage(page);
+    },
+    customTableBodyFooterRender: (opts) => {
+      const startIndex = page * rowsPerPage;
+      const endIndex = (page + 3) * rowsPerPage;
+
+      let sumGstAmount = opts.data
+        .slice(startIndex, endIndex)
+        .reduce((accu, item) => {
+          return accu + item.data[3];
+        }, 0);
+
+      return (
+        <>
+          {tableData.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                {opts.columns.map((col, index) => {
+                  if (col.display === "true") {
+                    if (!col.name) {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Milestone") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          Total
+                        </TableCell>
+                      );
+                    } else if (col.name === "Due Date") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "GST Amount") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {sumGstAmount}
+                        </TableCell>
+                      );
+                    }
+                  }
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
+        </>
+      );
+    },
   };
 
   const getMuiTheme = () =>

@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
@@ -8,6 +9,7 @@ import FileUploader from "./FileUploader";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import CrmModal from "./../../../components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { TableRow, TableCell, TableFooter } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
@@ -16,21 +18,26 @@ import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCh
 export default function PreEmi() {
   const [tableData, setTableData] = useState([]);
 
+  const [page, setPage] = useState(0);
   const [response, setResponse] = useState([]);
   const [requestNo, setRequestNo] = useState();
   const [fileIndex, setFileIndex] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
 
+  const ref = useRef(null);
+  const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const OrderId = reducerData.searchBar.orderId;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
-  const snackbar = UseCustomSnackbar();
-  const ref = useRef(null);
+  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+    reducerData.ThemeReducer.mode
+  );
 
   const getMuiTheme = () =>
     createTheme({
@@ -187,15 +194,6 @@ export default function PreEmi() {
     }
   };
 
-  const calculateTotal = () => {
-    let total = 0;
-    tableData.forEach((row) => {
-      total += parseFloat(row[2]); // Assuming currency format like "$1000"
-    });
-
-    return total.toFixed(2); // Format total as needed
-  };
-
   const options = {
     selectableRows: "none",
     rowsPerPage: 50,
@@ -232,19 +230,67 @@ export default function PreEmi() {
         Choose Files to Upload
       </Button>,
     ],
-    customFooter: () => {
+    rowsPerPageOptions: [5, 10, 25, 50],
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
+    onChangePage(page) {
+      setPage(page);
+    },
+    customTableBodyFooterRender: (opts) => {
+      const startIndex = page * rowsPerPage;
+      const endIndex = (page + 3) * rowsPerPage;
+
+      let sumAmount = opts.data
+        .slice(startIndex, endIndex)
+        .reduce((accu, item) => {
+          return accu + item.data[3];
+        }, 0);
+
       return (
-        <tfoot>
-          <tr>
-            <td></td>
-            <td style={{ fontWeight: "Bold" }}>
-              <label style={{ marginLeft: "25em" }}>
-                {" "}
-                Total : {calculateTotal()}
-              </label>
-            </td>
-          </tr>
-        </tfoot>
+        <>
+          {tableData.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                {opts.columns.map((col, index) => {
+                  if (col.display === "true") {
+                    if (!col.name) {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Request Number") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          Total
+                        </TableCell>
+                      );
+                    } else if (col.name === "Month") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Amount") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {sumAmount}
+                        </TableCell>
+                      );
+                    }
+                  }
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
+        </>
       );
     },
   };

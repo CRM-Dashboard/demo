@@ -56,7 +56,7 @@ const HappinessIndexDonut = ({
       })
         .then((response) => response.json())
         .then((data) => {
-          setCustData(data);
+          setCustData(data[0].customerdata);
         });
     }
   };
@@ -245,12 +245,7 @@ const HappinessIndexDonut = ({
   };
 
   const shouldShowHappinessIndex = () => {
-    return (
-      showSentimentalAnalysis &&
-      emotionAverages &&
-      happyIndex > 0 &&
-      emotionAverages
-    );
+    return showSentimentalAnalysis && emotionAverages && happyIndex > 0;
   };
 
   return (

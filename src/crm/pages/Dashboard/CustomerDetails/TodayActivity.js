@@ -1,31 +1,20 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
+import moment from "moment";
 import Table from "mui-datatables";
-import { IconButton } from "@mui/material";
-import FileDetails from "./FileDetails";
-import CrmModal from "../../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import { TableRow, TableCell, TableFooter } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+import { Typography } from "@mui/material";
 
-export default function CashBack() {
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState([]);
+export default function TodayActivity() {
   const [tableData, setTableData] = useState([]);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [fileUrlReqNo, setFileUrlReqNo] = useState("");
-  const [openShowFiles, setOpenShowFiles] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
-    reducerData.ThemeReducer.mode
-  );
 
   const getMuiTheme = () =>
     createTheme({
@@ -153,163 +142,115 @@ export default function CashBack() {
 
   const options = {
     selectableRows: "none",
+    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
     search: true,
     viewColumns: true,
     filter: true,
-    rowsPerPageOptions: [5, 10, 25, 50],
-    onChangeRowsPerPage(numberOfRows) {
-      setRowsPerPage(numberOfRows);
-    },
-    onChangePage(page) {
-      setPage(page);
-    },
-    customTableBodyFooterRender: (opts) => {
-      const startIndex = page * rowsPerPage;
-      const endIndex = (page + 3) * rowsPerPage;
-
-      let sumAmount = opts.data
-        .slice(startIndex, endIndex)
-        .reduce((accu, item) => {
-          console.log("**********sumdata", accu, item.data);
-          return accu + item.data[2];
-        }, 0);
-
-      return (
-        <>
-          {tableData.length > 0 && (
-            <TableFooter>
-              <TableRow>
-                {opts.columns.map((col, index) => {
-                  if (col.display === "true") {
-                    if (col.name === "Created By") {
-                      return (
-                        <TableCell
-                          style={{
-                            color: txtColour,
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                          }}
-                          key={index}
-                        >
-                          Total
-                        </TableCell>
-                      );
-                    } else if (col.name === "Created On") {
-                      return <TableCell key={index}>{}</TableCell>;
-                    } else if (col.name === "Amount") {
-                      return (
-                        <TableCell
-                          style={{
-                            color: txtColour,
-                            fontSize: "14px",
-                            fontWeight: "bold",
-                          }}
-                          key={index}
-                        >
-                          {sumAmount}
-                        </TableCell>
-                      );
-                    }
-                  }
-                })}
-              </TableRow>
-            </TableFooter>
-          )}
-        </>
-      );
-    },
+    filterType: "dropdown",
+    responsive: "standard",
   };
 
   const columns = [
-    { name: "Created By" },
-    { name: "Created On" },
+    {
+      name: "Date",
+      label: "Date",
+    },
+    {
+      name: "Activity Type",
+      label: "Activity Type",
+    },
+    {
+      name: "Mode",
+      label: "Mode",
+    },
     {
       name: "Amount",
+      label: "Amount",
     },
     {
-      name: "Type",
-    },
-    {
-      name: "Status",
+      name: "Action",
+      label: "Action",
     },
     {
       name: "Remarks",
+      label: "Remarks",
     },
-    { name: "Files" },
+    {
+      name: "Time",
+      label: "Time",
+    },
+    {
+      name: "Status",
+      label: "Status",
+    },
   ];
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.createdBy,
-        item?.createdOn,
-        item?.amount,
-        item?.type,
-        item?.status,
-        item?.remark,
-        <IconButton
-          style={{ color: "blue" }}
-          onClick={() => {
-            setOpenShowFiles(true);
-            setFileUrlReqNo(item.type);
-          }}
-        >
-          <InsertDriveFileIcon />
-        </IconButton>,
+        item?.erdat,
+        item.actTypTxt,
+        item.actModeTxt,
+        item.dmbtr,
+        item.action,
+        item.remark,
+        item.pltac,
+        item.compInd === "X" ? "X" : "Open",
       ];
     });
     return modifiedResponse;
   };
 
   const getTableData = () => {
-    setLoading(true);
     const formData = new FormData();
-    formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getCashbackInfo", {
-      method: "POST",
-      body: formData,
-    })
+    formData.append("orderId", OrderId);
+
+    fetch(
+      `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
+      { method: "POST", body: formData }
+    )
       .then((response) => response.json())
       .then((data) => {
-        setTableData(modifyResponse(data));
-        setLoading(false);
-      })
-      .catch(() => {});
+        if (data[0]?.actdata) {
+          const todayActivity = data[0]?.actdata?.filter(
+            (act) => act.erdat === "2024-03-08"
+          );
+          console.log(
+            "#########today's Activity",
+            todayActivity,
+            moment(new Date()).format("YYYY-MM-DD")
+          );
+          setTableData(modifyResponse(todayActivity));
+        }
+      });
   };
 
   useEffect(() => {
     getTableData();
-  }, [OrderId]);
+  }, []);
 
   return (
-    <>
+    tableData.length > 0 && (
       <div style={{ marginTop: "1em" }}>
-        {!loading ? (
-          <ThemeProvider theme={() => getMuiTheme()}>
-            <Table data={tableData} columns={columns} options={options}></Table>
-          </ThemeProvider>
-        ) : (
-          <CircularScreenLoader />
-        )}
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <Table
+            data={tableData}
+            columns={columns}
+            options={options}
+            title={
+              <Typography sx={{ fontWeight: "Bold" }}>
+                {" "}
+                Today's Activity
+              </Typography>
+            }
+          ></Table>
+        </ThemeProvider>
       </div>
-      <CrmModal
-        maxWidth="sm"
-        show={openShowFiles}
-        handleShow={() => {
-          setOpenShowFiles(false);
-        }}
-        SecondaryBtnText="Close"
-        secondarySave={() => {
-          setOpenShowFiles(false);
-        }}
-      >
-        <FileDetails fileUrlReqNo={fileUrlReqNo} />
-      </CrmModal>
-    </>
+    )
   );
 }

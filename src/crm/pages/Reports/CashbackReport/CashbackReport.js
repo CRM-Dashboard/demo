@@ -20,6 +20,7 @@ export default function CashbackReport() {
   const [tableData, setTableData] = useState([]);
   const [cashbackId, setCashbackId] = useState("");
   const [dataToUpdate, setDataToUpdate] = useState([]);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
 
@@ -233,8 +234,6 @@ export default function CashbackReport() {
                     ? response[rowIndex].cashback +
                         response[rowIndex].orderId ===
                       cashbackId
-                    : requestNo
-                    ? response[rowIndex].cashback === requestNo
                     : false
                 }
               />
@@ -392,6 +391,7 @@ export default function CashbackReport() {
           setopenCreateForm(false);
           setCashbackId("");
         }}
+        disabled={!isFileUploaded}
         primarySave={() => {
           saveCashbackReceipt();
           setCashbackId("");
@@ -399,6 +399,7 @@ export default function CashbackReport() {
         title="Create Cashback Request"
       >
         <CreateCashBackReceipt
+          setIsFileUploaded={setIsFileUploaded}
           getFilesCount={getFilesCount}
           requestNo={requestNo}
           setOpenFileUpload={setOpenFileUpload}
@@ -420,9 +421,11 @@ export default function CashbackReport() {
         }}
       >
         <FileUploader
-          requestNo={requestNo}
-          setOpenFileUpload={setOpenFileUpload}
           callBack={saveUrls}
+          requestNo={requestNo}
+          // isFileUploaded={isFileUploaded}
+          setOpenFileUpload={setOpenFileUpload}
+          setIsFileUploaded={setIsFileUploaded}
         />
       </CrmModal>
     </Grid>

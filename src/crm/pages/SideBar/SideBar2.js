@@ -172,12 +172,6 @@ const SideBar2 = () => {
     dispatch(dashboardActions.setShouldShowBookingDetails(false));
   }, [shouldShowBookingDetails]);
 
-  const submitActivity = () => {
-    if (ref.current) {
-      ref.current.createActivity();
-    }
-  };
-
   const handleContinue = () => {
     if (ref.current) {
       ref.current.handleContinue();
@@ -738,18 +732,10 @@ const SideBar2 = () => {
         </Drawer>
 
         <CrmModal
-          maxWidth="sm"
+          maxWidth="xxl"
           show={openActivityModal}
           handleShow={() => {
             setOpenActivityModal(false);
-          }}
-          disabled={disabledBtn}
-          primaryBtnText="Submit"
-          primarySave={() => {
-            submitActivity();
-            setDisabledBtn(false);
-            setCallAPI(false);
-            setSid(0);
           }}
         >
           <CreateActivity

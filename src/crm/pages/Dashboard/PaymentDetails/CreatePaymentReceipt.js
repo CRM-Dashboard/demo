@@ -1,6 +1,7 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useImperativeHandle, useEffect } from "react";
 import dayjs from "dayjs";
 import * as Yup from "yup";
+import moment from "moment";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, MenuItem, Typography } from "@mui/material";
@@ -41,7 +42,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
       towards: formik.values.paymentTowards,
       vbeln: orderId,
       pay_mode: formik.values.paymentMode,
-      paid_on: formik.values.dateOfInstrument.$d,
+      paid_on: moment(formik.values.dateOfInstrument.$d).format("DD-MM-YYYY"),
       utr_no: formik.values.chequeNumber,
       amount: formik.values.paymentAmount,
       bank: formik.values.bankName,
@@ -128,7 +129,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
   }));
 
   // Pass form state and validation status to parent component
-  React.useEffect(() => {
+  useEffect(() => {
     props.setDisabledSaveBtn(!formik.isValid || !formik.dirty);
   }, [formik.isValid, formik.dirty, props]);
 

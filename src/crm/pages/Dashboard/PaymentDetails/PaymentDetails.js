@@ -40,15 +40,32 @@ export default function PaymentDetails() {
     reducerData.ThemeReducer.mode
   );
 
+  const getColor = (status) => {
+    if (status === "CREATED") {
+      return "#FFD700"; //yellow
+    } else if (status === "POSTED") {
+      return "#009900"; //green
+    } else if (status === "BOUNCED") {
+      return "red";
+    }
+  };
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
         "",
         item?.CreatedOn,
         item?.Towards,
-        item?.Amount,
+        item?.amountUnit,
+        item?.amountGst,
+        item?.amountOth,
+        <Typography sx={{ color: getColor(item?.status) }}>
+          {item?.status}
+        </Typography>,
+        item?.PaymentDate,
         item.UTRNumber,
         item.PaymentDate,
+        item?.UTRNumber,
       ];
     });
     return modifiedResponse;
@@ -128,16 +145,28 @@ export default function PaymentDetails() {
       label: "Towards",
     },
     {
-      name: "Amount",
-      label: "Amount",
+      name: "Unit Installment",
+      label: "Unit Installment",
     },
     {
-      name: "UTR Number",
-      label: "UTR Number",
+      name: "GST",
+      label: "GST",
     },
     {
-      name: "Payment Date",
-      label: "Payment Date",
+      name: "Other",
+      label: "Other",
+    },
+    {
+      name: "Status",
+      label: "Status",
+    },
+    {
+      name: "Cheque Date",
+      label: "Cheque Date",
+    },
+    {
+      name: "Cheque Number",
+      label: "Cheque Number",
     },
     {
       label: "Action",
@@ -288,8 +317,7 @@ export default function PaymentDetails() {
                   if (col.display === "true") {
                     if (!col.name) {
                       return <TableCell key={index}>{}</TableCell>;
-                    }
-                    if (col.name === "Created On") {
+                    } else if (col.name === "Created On") {
                       return (
                         <TableCell
                           style={{

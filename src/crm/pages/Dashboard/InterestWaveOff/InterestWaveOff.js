@@ -2,21 +2,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import { Button } from "@mui/material";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
-import { useSelector } from "react-redux/es/hooks/useSelector";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CreateInterestWaveOff from "./CreateInterestWaveOff";
 import CrmModal from "../../../components/crmModal/CrmModal";
+import GlobalFunctions from "../../../utils/GlobalFunctions";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import { TableRow, TableCell, TableFooter } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 export default function InterestWaveOff() {
+  const [page, setPage] = useState(0);
   const [tableData, setTableData] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openCreateForm, setopenCreateForm] = useState(false);
 
+  const ref = useRef(null);
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const ref = useRef(null);
+  const txtColour = GlobalFunctions.getThemeBasedDatailsColour(
+    reducerData.ThemeReducer.mode
+  );
 
   const getMuiTheme = () =>
     createTheme({
@@ -163,6 +169,69 @@ export default function InterestWaveOff() {
         Create
       </Button>,
     ],
+    rowsPerPageOptions: [5, 10, 25, 50],
+    onChangeRowsPerPage(numberOfRows) {
+      setRowsPerPage(numberOfRows);
+    },
+    onChangePage(page) {
+      setPage(page);
+    },
+    customTableBodyFooterRender: (opts) => {
+      const startIndex = page * rowsPerPage;
+      const endIndex = (page + 3) * rowsPerPage;
+
+      let sumAmount = opts.data
+        .slice(startIndex, endIndex)
+        .reduce((accu, item) => {
+          return accu + item.data[3];
+        }, 0);
+
+      return (
+        <>
+          {tableData.length > 0 && (
+            <TableFooter>
+              <TableRow>
+                {opts.columns.map((col, index) => {
+                  if (col.display === "true") {
+                    if (col.name === "Request Number") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          Total
+                        </TableCell>
+                      );
+                    } else if (col.name === "Created On") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Created By") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Amount") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {sumAmount}
+                        </TableCell>
+                      );
+                    }
+                  }
+                })}
+              </TableRow>
+            </TableFooter>
+          )}
+        </>
+      );
+    },
   };
 
   const columns = [

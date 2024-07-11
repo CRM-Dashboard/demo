@@ -17,7 +17,12 @@ import CloudUploadIcon from "@mui/icons-material/CloudUploadOutlined";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import FileUploadAction from "../../Activity/FileUploader/FileReducer/FileUploadAction";
 
-function FileUploader({ requestNo, setOpenFileUpload, callBack }) {
+function FileUploader({
+  callBack,
+  requestNo,
+  setOpenFileUpload,
+  setIsFileUploaded,
+}) {
   // Create state to store file
   const dispatch = useDispatch();
   const snackbar = UseCustomSnackbar();
@@ -27,8 +32,8 @@ function FileUploader({ requestNo, setOpenFileUpload, callBack }) {
   const [files, setFiles] = useState([]);
 
   const uploadFile = async () => {
-    console.log("#######Inside File Upload- cashback");
-    if (files) {
+    console.log("#######Inside File Upload- cashback", files);
+    if (files.length > 0) {
       const apiUrl =
         process.env.REACT_APP_SERVER_URL + "/api/activity/uploadFileToS3";
 
@@ -70,11 +75,16 @@ function FileUploader({ requestNo, setOpenFileUpload, callBack }) {
               dispatch(FileUploadAction.setUploadFileUrls(data));
               setOpenFileUpload(false);
               callBack(data.urls);
+              setIsFileUploaded(true);
               snackbar.showSuccess("Files Uploaded Successfully!");
             } else {
               alert("Error");
             }
           });
+      } else {
+        snackbar.showError(
+          "Please filter for a customer first, for which wanted to upload files!"
+        );
       }
     }
   };
@@ -170,9 +180,7 @@ function FileUploader({ requestNo, setOpenFileUpload, callBack }) {
                 color="primary"
                 component="span"
                 disabled={files.length === 0}
-                onClick={() => {
-                  uploadFile();
-                }}
+                onClick={uploadFile}
               >
                 Upload Files
               </Button>

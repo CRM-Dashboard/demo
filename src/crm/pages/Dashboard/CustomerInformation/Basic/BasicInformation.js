@@ -24,19 +24,21 @@ export default function BasicInformation({
   const addressInfoRef = useRef(null);
 
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
+  const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const orderId = reducerData.searchBar.orderId;
   const projectId = reducerData?.dashboard?.project?.projectId;
   const custId = reducerData?.searchBar?.accountStatement.CustomerNumber;
 
   const getUpdatedData = () => {
     setLoading(true);
     const formData = new FormData();
+    formData.append("crmId", crmId);
+    formData.append("orderId", orderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("projectId", projectId);
-    formData.append("orderId", orderId);
     fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
       method: "POST",
       body: formData,

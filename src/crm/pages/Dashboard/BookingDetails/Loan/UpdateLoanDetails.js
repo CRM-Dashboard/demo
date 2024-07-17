@@ -108,19 +108,24 @@ const UpdateLoanDetails = forwardRef((props, ref) => {
 
   const formik = useFormik({
     initialValues: {
-      zzlnocdt: props.loanDetails?.zzlnocdt ? props.loanDetails?.zzlnocdt : "",
+      zzlnocdt:
+        props.loanDetails?.zzlnocdt !== "0000-00-00"
+          ? props.loanDetails?.zzlnocdt
+          : " ",
       zzlbnknam: props.loanDetails?.zzlbnknam
         ? props.loanDetails?.zzlbnknam
         : "",
-      loan_san_dt: props.loanDetails?.loanSanDt
-        ? props.loanDetails?.loanSanDt
-        : "",
+      loan_san_dt:
+        props.loanDetails?.loanSanDt !== "0000-00-00"
+          ? props.loanDetails?.loanSanDt
+          : " ",
       zsanc_amt_dmbtr: props.loanDetails?.zsancAmtDmbtr
         ? props.loanDetails?.zsancAmtDmbtr
         : "",
-      zdisbrsmnt_date: props.loanDetails?.zdisbrsmntDate
-        ? props.loanDetails?.zdisbrsmntDate
-        : "",
+      zdisbrsmnt_date:
+        props.loanDetails?.zdisbrsmntDate !== "0000-00-00"
+          ? props.loanDetails?.zdisbrsmntDate
+          : " ",
       zopt_gcs: props.loanDetails?.zoptGcs ? props.loanDetails?.zoptGcs : "",
       zmld_conn: props.loanDetails?.zmldConn ? props.loanDetails?.zmldConn : "",
       zgcs_code: props.loanDetails?.zgcsCode ? props.loanDetails?.zgcsCode : "",

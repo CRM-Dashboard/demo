@@ -53,7 +53,15 @@ const setCustomerEmailID = (data) => {
   };
 };
 
+const setCrmId = (data) => {
+  return {
+    type: "CRM_ID",
+    payload: data,
+  };
+};
+
 const exportDefault = {
+  setCrmId,
   getProjectId,
   setProjectId,
   setCustomerEmailID,

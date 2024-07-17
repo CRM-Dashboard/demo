@@ -13,6 +13,7 @@ export default function AgingBar() {
   const [dataLoad, setDataLoad] = useState(false);
 
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData?.dashboard?.crmId;
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -54,6 +55,8 @@ export default function AgingBar() {
     }
 
     const formData = new FormData();
+    formData.append("crmId", crmId);
+    formData.append("orderId", OrderId);
     formData.append("projectId", projectId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);

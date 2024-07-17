@@ -32,6 +32,7 @@ const CreateActivity = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const activityInfo = reducerData.searchBar.activityData;
+  const projectId = reducerData?.dashboard?.project?.projectId;
 
   const [data, setData] = useState([]);
   const [subActData, setSubActData] = useState({});
@@ -80,6 +81,8 @@ const CreateActivity = forwardRef((props, ref) => {
       template.forEach((key, i) => {
         if (key === "vbeln") {
           obj[key] = orderId;
+        } else if (key == "werks") {
+          obj[key] = projectId;
         } else {
           obj[key] = arr[i] ? arr[i] : ""; // Assign value or default to empty string
         }
@@ -375,7 +378,7 @@ const CreateActivity = forwardRef((props, ref) => {
   const formatDateAndTime = (data) => {
     return data.map((item) => ({
       ...item,
-      erdat: moment(item.erdat.$d).format("YYYY/MM/DD"),
+      erdat: moment(item.erdat.$d).format("YYYY-MM-DD"),
       pltac: moment(item.pltac.$d).format("HH:mm:ss"),
     }));
   };
@@ -392,6 +395,7 @@ const CreateActivity = forwardRef((props, ref) => {
       "pltac",
       "remark",
       "vbeln",
+      "werks",
     ];
     const updatedData = convertToArrayOfObjects(data, template);
 
@@ -407,6 +411,7 @@ const CreateActivity = forwardRef((props, ref) => {
 
     fetch(
       "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+      // "http://localhost:5000/api/activity/createActivity",
       { method: "POST", body: formData }
     )
       .then((response) => response.json())

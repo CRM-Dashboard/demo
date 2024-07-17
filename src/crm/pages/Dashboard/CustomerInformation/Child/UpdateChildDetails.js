@@ -228,9 +228,13 @@ const UpdateChildDetails = forwardRef((props, ref) => {
               name="child1Dob"
               label="Child 1 DOB"
               value={dayjs(formik.values.child1Dob)}
-              onChange={(value) =>
-                formik.setFieldValue("child1Dob", value, true)
-              }
+              onChange={(value) => {
+                const formattedDate =
+                  value !== "0000-00-00"
+                    ? dayjs(value).format("YYYY-MM-DD")
+                    : dayjs("");
+                formik.setFieldValue("child1Dob", formattedDate, true);
+              }}
               error={
                 formik.touched.child1Dob && Boolean(formik.errors.child1Dob)
               }

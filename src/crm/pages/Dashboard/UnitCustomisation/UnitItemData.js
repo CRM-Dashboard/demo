@@ -42,7 +42,7 @@ const UnitItemData = forwardRef((props, ref) => {
         if (data) {
           setLocation(data[0].locdata);
           const Data = data[0]?.item?.filter(
-            (data) => data?.reqNo === props?.uniqueIdOfItemData[0]
+            (data) => data?.reqNo === props?.uniqueIdOfItemData[1]
           );
 
           const DataForTable = Data?.map((item) => {

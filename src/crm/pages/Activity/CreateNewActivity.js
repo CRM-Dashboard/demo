@@ -34,6 +34,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData?.dashboard?.project?.projectId;
   const snackbar = UseCustomSnackbar();
 
   const saveLog = async () => {
@@ -56,6 +57,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
     const entryData = [
       {
         vbeln: orderId,
+        werks: projectId,
         act_mode: formik.values.activityMode,
         pltac: moment(formik.values.time.$d).format("HH:mm:ss"),
         erdat: formik.values.date,
@@ -83,6 +85,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
 
       fetch(
         "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        // "http://localhost:5000/api/activity/createActivity",
         { method: "POST", body: formData }
       )
         .then((response) => response.json())
@@ -324,7 +327,13 @@ const CreateNewActivity = forwardRef((props, ref) => {
               name="date"
               label="Date"
               value={dayjs(formik.values.date)}
-              onChange={(value) => formik.setFieldValue("date", value, true)}
+              onChange={(value) => {
+                const formattedDate =
+                  value !== "0000-00-00"
+                    ? dayjs(value).format("YYYY-MM-DD")
+                    : dayjs("");
+                formik.setFieldValue("date", formattedDate, true);
+              }}
               error={formik.touched.date && Boolean(formik.errors.date)}
               helperText={formik.errors.date}
             />

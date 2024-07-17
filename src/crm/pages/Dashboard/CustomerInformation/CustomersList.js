@@ -27,11 +27,13 @@ export default function CustomersList() {
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
   const projectId = reducerData?.dashboard?.project?.projectId;
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
@@ -68,7 +70,7 @@ export default function CustomersList() {
 
         formData.append("From", loggedInUser?.mobile);
         formData.append("To", customerMobileNumber);
-        formData.append("CallerId", "095-138-86363");
+        formData.append("CallerId", "020-485-54946");
         formData.append("Record", "true");
 
         const apiUrl =
@@ -104,6 +106,7 @@ export default function CustomersList() {
       formData.append("passWord", passWord);
       formData.append("projectId", projectId);
       formData.append("orderId", OrderId);
+      formData.append("crmId", crmId);
       fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
         method: "POST",
         body: formData,
@@ -134,7 +137,7 @@ export default function CustomersList() {
 
   useEffect(() => {
     getTableData();
-  }, [OrderId]);
+  }, [OrderId, crmId]);
 
   const initialVisibleColumns = [
     {
@@ -171,7 +174,7 @@ export default function CustomersList() {
         width: "auto",
         customBodyRenderLite: (rowIndex, value) => (
           <div
-            style={{ color: "blue", cursor: "pointer" }}
+            style={OrderId ? { color: "blue", cursor: "pointer" } : {}}
             onClick={() => {
               if (OrderId) {
                 setCutomerInfo(filteredResponse[rowIndex]);

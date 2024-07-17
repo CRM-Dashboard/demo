@@ -24,10 +24,13 @@ import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import LabelWithCheckbox from "../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
+import CrmDatePicker from "../../components/crmDatePicker/CrmDatePicker";
 
 export default function Invoices() {
   const [url, setURL] = useState("");
   const [page, setPage] = useState(0);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [response, setResponse] = useState([]);
   const [formdata, setFormData] = useState({});
   const [tableData, setTableData] = useState([]);
@@ -98,7 +101,7 @@ export default function Invoices() {
               onClick={() => {
                 // eslint-disable-next-line array-callback-return
                 response.map((data) => {
-                  if (arrForMail.length > 0) {
+                  if (arrForMail?.length > 0) {
                     setArrForMail([]);
                   } else {
                     setArrForMail((prevItems) => [
@@ -112,7 +115,7 @@ export default function Invoices() {
           </Grid>
         ),
         customBodyRenderLite: (rowIndex) =>
-          tableData.length > 0 && [
+          tableData?.length > 0 && [
             <IconButton
               color="primary"
               size="small"
@@ -232,13 +235,14 @@ export default function Invoices() {
     },
   ];
 
-  useEffect(() => {
+  const getTableData = () => {
     setIsLoading(true);
-
     const formData = new FormData();
-    formData.append("projectId", projectId);
+    formData.append("toDate", toDate);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
+    formData.append("fromDate", fromDate);
+    formData.append("projectId", projectId);
 
     fetch(process.env.REACT_APP_SERVER_URL + "/api/invoices/so_invoices_dt", {
       ///api/dashboard/invoices
@@ -255,7 +259,12 @@ export default function Invoices() {
           setIsLoading(false);
         }
       });
-  }, [reducerData.searchBar.orderId]);
+  };
+
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   getTableData();
+  // }, [reducerData.searchBar.orderId]);
 
   const sendMails = () => {
     const formData = new FormData();
@@ -278,6 +287,7 @@ export default function Invoices() {
           setArrForMail([]);
         }
       })
+
       .catch((error) => {
         if (error) {
           snackbar.showError("Error while sending mail. Please try again!");
@@ -307,7 +317,7 @@ export default function Invoices() {
             color: "white",
           },
         }}
-        disabled={!arrForMail.length > 0}
+        disabled={!arrForMail?.length > 0}
         onClick={() => {
           sendMails();
         }}
@@ -334,7 +344,7 @@ export default function Invoices() {
 
       return (
         <>
-          {tableData.length > 0 && (
+          {tableData?.length > 0 && (
             <TableFooter>
               <TableRow>
                 {opts.columns.map((col, index) => {
@@ -502,7 +512,54 @@ export default function Invoices() {
       {!isLoading ? (
         <>
           <ThemeProvider theme={() => getMuiTheme()}>
-            <Table data={tableData} columns={columns} options={options}></Table>
+            <Table
+              title={
+                <Grid container columnSpacing={2} columns={12}>
+                  <Grid item sm={4} lg={4} md={4}>
+                    <CrmDatePicker
+                      id="fromDate"
+                      name="fromDate"
+                      label="From"
+                      value={dayjs(fromDate)}
+                      onChange={(value) => {
+                        const formattedDate = value
+                          ? dayjs(value).format("YYYYMMDD")
+                          : "";
+                        setFromDate(formattedDate);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item sm={4} lg={4} md={4}>
+                    <CrmDatePicker
+                      id="toDate"
+                      name="toDate"
+                      label="To"
+                      value={dayjs(toDate)}
+                      onChange={(value) => {
+                        const formattedDate = value
+                          ? dayjs(value).format("YYYYMMDD")
+                          : "";
+                        setToDate(formattedDate);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item sm={4} md={4} lg={4}>
+                    <Button
+                      disabled={!fromDate && !toDate}
+                      onClick={() => {
+                        getTableData();
+                      }}
+                    >
+                      {" "}
+                      Go{" "}
+                    </Button>
+                  </Grid>
+                </Grid>
+              }
+              data={tableData}
+              columns={columns}
+              options={options}
+            ></Table>
           </ThemeProvider>
           <CrmModal
             maxWidth="xxl"

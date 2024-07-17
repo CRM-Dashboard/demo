@@ -1,4 +1,5 @@
 const initialState = {
+  crmId: "",
   project: {},
   customerEmailId: "",
   customerContactNo: "",
@@ -44,6 +45,11 @@ const DashboardReducer = (state = initialState, action) => {
       return {
         ...state,
         customerEmailId: action.payload,
+      };
+    case "CRM_ID":
+      return {
+        ...state,
+        crmId: action.payload,
       };
     case "RESET_ALL_DATA":
       return initialState;

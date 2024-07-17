@@ -10,6 +10,7 @@ export default function AgingGraph() {
   const [graphData, setGraphData] = useState([]);
 
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData?.dashboard?.crmId;
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -160,22 +161,18 @@ export default function AgingGraph() {
 
   async function getData() {
     const formData = new FormData();
-    formData.append("projectId", projectId);
+    formData.append("crmId", crmId);
+    formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
     fetch(process.env.REACT_APP_SERVER_URL + "/api/reports/aging", {
       method: "POST",
       body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
-        if (OrderId) {
-          const dataToSet = data?.filter((obj) => obj.orderId === OrderId);
-
-          setGraphData(modifyResponse(dataToSet));
-        } else {
-          setGraphData(modifyResponse(data));
-        }
+        setGraphData(modifyResponse(data));
       })
       .catch(() => {});
   }
@@ -222,7 +219,7 @@ export default function AgingGraph() {
 
   useEffect(() => {
     getData();
-  }, [OrderId, projectId]);
+  }, [OrderId, projectId, crmId]);
 
   useEffect(() => {
     getData();

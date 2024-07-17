@@ -31,6 +31,7 @@ export default function CustomerDetails() {
   const projectId = reducerData?.dashboard?.project?.projectId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const crmId = reducerData.dashboard.crmId;
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
 
   const getDetails = () => {
@@ -40,6 +41,7 @@ export default function CustomerDetails() {
       formData.append("projectId", projectId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
+      formData.append("crmId", crmId);
       fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/summary", {
         method: "POST",
         body: formData,
@@ -57,6 +59,10 @@ export default function CustomerDetails() {
         });
     }
   };
+
+  useEffect(() => {
+    getDetails();
+  }, [crmId]);
 
   useEffect(() => {
     setSearchValueAvailable(reducerData.searchBar.searchKey ? true : false);
@@ -87,10 +93,11 @@ export default function CustomerDetails() {
 
     if (projectId !== "undefined") {
       const formData = new FormData();
+      formData.append("projectId", projectId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("projectId", projectId);
       formData.append("orderId", OrderId);
+      formData.append("crmId", crmId);
       fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
         method: "POST",
         body: formData,
@@ -105,7 +112,7 @@ export default function CustomerDetails() {
           }
         });
     }
-  }, [reducerData?.searchBar?.accountStatement, projectId, OrderId]);
+  }, [reducerData?.searchBar?.accountStatement, projectId, OrderId, crmId]);
 
   const getPaidAmt = () => {
     const bigNumber1 = parseFloat(

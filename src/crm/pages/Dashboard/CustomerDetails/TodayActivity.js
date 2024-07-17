@@ -12,9 +12,11 @@ export default function TodayActivity() {
   const [tableData, setTableData] = useState([]);
 
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData.dashboard.project.projectId;
 
   const getMuiTheme = () =>
     createTheme({
@@ -206,9 +208,11 @@ export default function TodayActivity() {
 
   const getTableData = () => {
     const formData = new FormData();
+    formData.append("crmId", crmId);
+    formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("orderId", OrderId);
+    formData.append("projectId", projectId);
 
     fetch(
       `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
@@ -218,7 +222,7 @@ export default function TodayActivity() {
       .then((data) => {
         if (data[0]?.actdata) {
           const todayActivity = data[0]?.actdata?.filter(
-            (act) => act.erdat === "2024-03-08"
+            (act) => act.erdat === moment(new Date()).format("YYYY-MM-DD")
           );
           console.log(
             "#########today's Activity",

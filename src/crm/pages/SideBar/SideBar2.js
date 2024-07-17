@@ -2,7 +2,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import { Box, Drawer, Typography, Tooltip, Badge } from "@mui/material";
+import {
+  Box,
+  Drawer,
+  Typography,
+  Tooltip,
+  Badge,
+  MenuItem,
+} from "@mui/material";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AnimatePresence, motion } from "framer-motion";
@@ -56,6 +63,7 @@ import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CashbackReport from "../Reports/CashbackReport/CashbackReport";
 import CrmModal from "../../components/crmModal/CrmModal";
 import Mails from "../Mails/Mails";
+import InputField from "../../components/inputField/InputField";
 
 const routes = [
   {
@@ -122,19 +130,20 @@ const routes = [
 ];
 
 const SideBar2 = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [anchor, setAnchor] = useState(null);
-  const [callAPI, setCallAPI] = useState(false);
   const [sid, setSid] = useState(0);
   const [dpData, setDpdata] = useState([]);
-  const [showPrintMenus, setShowPrintMenus] = useState(false);
-  const [showSendMail, setShowSendMail] = useState(false);
+  const [anchor, setAnchor] = useState(null);
+  const [crmData, setCrmData] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [callAPI, setCallAPI] = useState(false);
   const [actTypeData, setActTypeData] = useState([]);
   const [actModeData, setActModeData] = useState([]);
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [activityData, setActivityData] = useState({});
   const [openSideBar, setOpenSideBar] = useState(false);
+  const [showSendMail, setShowSendMail] = useState(false);
   const [subActTypeData, setSubActTypeData] = useState([]);
+  const [showPrintMenus, setShowPrintMenus] = useState(false);
   const [openActivityModal, setOpenActivityModal] = useState(false);
   const [shouldShowBookingDetails, setShouldShowBookingDetails] =
     useState(false);
@@ -142,11 +151,12 @@ const SideBar2 = () => {
 
   const ref = useRef(null);
   const open = Boolean(anchor);
-  const toggle = () => setIsOpen(!isOpen);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toggle = () => setIsOpen(!isOpen);
   const reducerData = useSelector((state) => state);
   const Sid = reducerData.searchBar.sid;
+  const crmId = reducerData.dashboard.crmId;
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -239,16 +249,41 @@ const SideBar2 = () => {
     fetchData();
   }, [callAPI]); // Adding dependencies 'callAPI' and 'sid' to re-run effect when they change
 
-  useEffect(() => {
+  const getCrmDetails = () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("orderId", orderId);
+    formData.append("projectId", projectId);
 
-    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/getActivity`, {
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getCrmManager`, {
       method: "POST",
       body: formData,
     })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("#########crm data", data);
+        if (data?.length > 0) {
+          setCrmData(data);
+        }
+      });
+  };
+
+  useEffect(() => {
+    const formData = new FormData();
+    formData.append("crmId", crmId);
+    formData.append("orderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("projectId", projectId);
+
+    fetch(
+      process.env.REACT_APP_SERVER_URL + `/api/activity/getActivity`,
+      // "http://localhost:5000/api/activity/getActivity",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data[0].actdata) {
@@ -258,6 +293,7 @@ const SideBar2 = () => {
           data[0].dpdata && setDpdata(data[0].dpdata);
         }
       });
+    getCrmDetails();
   }, []);
 
   const getCallDetailsBySid = (sid) => {
@@ -317,7 +353,7 @@ const SideBar2 = () => {
       const formData = new FormData();
       formData.append("From", loggedInUser?.mobile);
       formData.append("To", customerMobileNumber);
-      formData.append("CallerId", "095-138-86363");
+      formData.append("CallerId", "020-485-54946");
       formData.append("Record", true);
       const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
       fetch(apiUrl, { method: "POST", body: formData })
@@ -616,6 +652,30 @@ const SideBar2 = () => {
           </div>
 
           <section className="routes">
+            {isOpen && (
+              <InputField
+                sx={{ padding: "0.5em" }}
+                select
+                id="crm"
+                name="crm"
+                label="CRM"
+                value={crmId}
+                onChange={(e) => {
+                  dispatch(dashboardActions.setCrmId(e.target.value));
+                  // setSelectedCRM(e.target.value);
+                }}
+              >
+                <MenuItem value=""> {"Select CRM"} </MenuItem>
+
+                {crmData.map((crm) => {
+                  return (
+                    <MenuItem value={crm.crmId} key={crm.name}>
+                      {crm.name}
+                    </MenuItem>
+                  );
+                })}
+              </InputField>
+            )}
             {routes.map((route, index) => {
               if (route.subRoutes) {
                 return (

@@ -67,11 +67,13 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
       )
         .then((response) => response.json())
         .then((data) => {
-          if (data) {
+          if (!data.error) {
             saveLog();
             snackbar.showSuccess("Payment details created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();
+          } else {
+            snackbar.showError("Something went wrong. Please try agin!");
           }
         })
         .catch((error) => {

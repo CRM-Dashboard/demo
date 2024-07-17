@@ -28,6 +28,7 @@ import CircularScreenLoader from "../../../../components/circularScreenLoader/Ci
 export default function BookingData() {
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -44,6 +45,7 @@ export default function BookingData() {
     Property_type: "",
     Building: "",
     Unit_Number: "",
+    CrmData: [],
   });
   const [open, setOpen] = useState({
     Registration_status: true,
@@ -58,6 +60,7 @@ export default function BookingData() {
     Building: [],
     Unit_Number: [],
     Property_type: [],
+    CrmData: [],
   });
 
   function getUniqueStatuses(data) {
@@ -67,6 +70,7 @@ export default function BookingData() {
     const propertyTypeSet = new Set();
     const unitNumberSet = new Set();
     const buildingSet = new Set();
+    const crmDataSet = new Set();
 
     data.forEach((item) => {
       if (item.regStatus) registrationStatusSet.add(item.regStatus);
@@ -75,6 +79,7 @@ export default function BookingData() {
       if (item.building) buildingSet.add(item.building);
       if (item.flatno) unitNumberSet.add(item.flatno);
       if (item.property) propertyTypeSet.add(item.property);
+      if (item.crmid) crmDataSet.add(item.crmid);
     });
 
     const itemGroups = {
@@ -84,7 +89,10 @@ export default function BookingData() {
       Property_type: Array.from(propertyTypeSet),
       Unit_Number: Array.from(unitNumberSet),
       Building: Array.from(buildingSet),
+      CrmData: Array.from(crmDataSet),
     };
+
+    console.log("#######itemGroups", itemGroups);
 
     setItemGroups(itemGroups);
   }
@@ -186,12 +194,14 @@ export default function BookingData() {
       Building,
       Unit_Number,
       Property_type,
+      CrmData,
     } = bookingsFilters;
 
     if (
       Registration_status?.length === 0 &&
       Confirmation_status?.length === 0 &&
       Possession_status?.length === 0 &&
+      CrmData?.length === 0 &&
       !Building &&
       !Unit_Number &&
       !Property_type
@@ -237,6 +247,10 @@ export default function BookingData() {
       filteredData = filteredData.filter((item) =>
         Possession_status.includes(item.possStatus)
       );
+    }
+
+    if (CrmData?.length > 0) {
+      filteredData = filteredData.filter((item) => item.crmid === CrmData);
     }
 
     if (Building) {
@@ -313,6 +327,7 @@ export default function BookingData() {
 
   const getTableData = () => {
     const formData = new FormData();
+    formData.append("crmId", crmId);
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
@@ -334,6 +349,10 @@ export default function BookingData() {
         }
       });
   };
+
+  useEffect(() => {
+    getTableData();
+  }, [crmId]);
 
   useEffect(() => {
     getTableData();
@@ -448,6 +467,23 @@ export default function BookingData() {
                 {itemGroups.Property_type.map((property) => (
                   <MenuItem key={property} value={property}>
                     {property}
+                  </MenuItem>
+                ))}
+              </InputField>
+            </Grid>
+            <Grid item xs={12} style={{ margin: "0.2em" }}>
+              <InputField
+                select
+                label={"CRM"}
+                value={selectedItems.CrmData}
+                onChange={(e) =>
+                  handleDropdownChange("CrmData", e.target.value)
+                }
+              >
+                <MenuItem value="">Select CRM</MenuItem>
+                {itemGroups.CrmData.map((crm) => (
+                  <MenuItem key={crm} value={crm}>
+                    {crm}
                   </MenuItem>
                 ))}
               </InputField>

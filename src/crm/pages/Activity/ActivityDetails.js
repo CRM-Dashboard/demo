@@ -36,9 +36,12 @@ export default function ActivityDetails() {
   const [openCreateForm, setOpenCreateForm] = useState(false);
 
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
+  const projectId = reducerData?.dashboard?.project?.projectId;
+
   const snackbar = UseCustomSnackbar();
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
@@ -86,6 +89,7 @@ export default function ActivityDetails() {
       const entryData = {
         ...finalData,
         act_typ: finalData.actTyp,
+        werks: projectId,
         // Omit the 'actTyp' key from the new object
         ...(delete finalData.actTyp && { actTyp: finalData.actTyp }),
       };
@@ -103,6 +107,7 @@ export default function ActivityDetails() {
 
       fetch(
         "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        // "http://localhost:5000/api/activity/createActivity",
         { method: "POST", body: formData }
       )
         .then((response) => response.json())
@@ -379,12 +384,15 @@ export default function ActivityDetails() {
 
   const getTableData = () => {
     const formData = new FormData();
+    formData.append("crmId", crmId);
+    formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("orderId", OrderId);
+    formData.append("projectId", projectId);
     setLoading(true);
     fetch(
       `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
+      // "http://localhost:5000/api/activity/getActivity",
       { method: "POST", body: formData }
     )
       .then((response) => response.json())
@@ -403,7 +411,7 @@ export default function ActivityDetails() {
 
   useEffect(() => {
     getTableData();
-  }, [OrderId]);
+  }, [OrderId, crmId]);
 
   return (
     <>

@@ -16,8 +16,13 @@ import ApprovalPage from "../crm/pages/HomePage/ApprovalPage";
 import Invoices from "../crm/pages/Invoices/Invoices";
 import ProjectMenus from "../ProjectOptions/ProjectMenus";
 import Mails from "./../crm/pages/Mails/Mails";
-import HierarchyTable from "./../HierarchyTable/HomePage/HomePage";
+import Sidebar from "../HierarchyTable/OverView/Sidebar";
+import TrackerLayout from "../HierarchyTable/OverView/Layout";
 import CashbackReport from "../crm/pages/Reports/CashbackReport/CashbackReport";
+import CancellationReport from "../crm/pages/Reports/CancellationReport/CancellationReport";
+import Tasks from "../HierarchyTable/TaskManagement/Tasks";
+import Tickets from "../HierarchyTable/TicketManagement/Tickets";
+import Projects from "../HierarchyTable/ProjectManagement/Projects";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -53,7 +58,14 @@ export default function Navigation() {
                 <Route path="/" element={<LoginPage />} />
                 <Route path="/menus" element={<ProjectMenus />} />
                 <Route path="/menus/home" element={<HomePage />} />
-                <Route path="/menus/table" element={<HierarchyTable />} />
+                <Route path="/*" element={<TrackerLayout />}>
+                  {/* <Route index element={<HierarchyTable />} /> */}
+                  <Route path="task" element={<Tasks />} />
+                  <Route path="tickets" element={<Tickets />} />
+                  <Route path="project" element={<Projects />} />
+                </Route>
+                {/* <Route path="/menus/table" element={<HierarchyTable />} /> */}
+                <Route path="/menus/table" element={<Sidebar />} />
                 <Route path="/requestApproval" element={<ApprovalPage />} />
                 <Route path="/crm/*" element={<Layout />}>
                   <Route index element={<CustomerDetails />} />
@@ -66,6 +78,10 @@ export default function Navigation() {
                   <Route path="serviceRequest" element={<ServiceRequest />} />
                   <Route path="agingReport" element={<AgingReport />} />
                   <Route path="cashBackReport" element={<CashbackReport />} />
+                  <Route
+                    path="cancellationReport"
+                    element={<CancellationReport />}
+                  ></Route>
                 </Route>
               </Routes>
             </div>

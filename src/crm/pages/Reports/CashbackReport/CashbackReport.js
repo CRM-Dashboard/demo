@@ -20,6 +20,7 @@ export default function CashbackReport() {
   const [tableData, setTableData] = useState([]);
   const [cashbackId, setCashbackId] = useState("");
   const [dataToUpdate, setDataToUpdate] = useState([]);
+  const [selectedOrderId, setSelectedOrderId] = useState();
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
@@ -216,6 +217,7 @@ export default function CashbackReport() {
               size="small"
               id={rowIndex[0]}
               onClick={() => {
+                setSelectedOrderId(response[rowIndex].orderId);
                 setDataToUpdate(response[rowIndex]);
                 setCashbackId(
                   response[rowIndex].cashback + response[rowIndex].orderId
@@ -303,7 +305,7 @@ export default function CashbackReport() {
     fileUrls?.map((obj) => {
       entryData.push({
         DOKNR: requestNo,
-        REFERENCE: OrderId,
+        REFERENCE: selectedOrderId,
         LO_INDEX: Index + 1,
         PROCESS: "CASHBACK",
         FILENAME: obj?.key?.split("/")?.pop(),
@@ -407,6 +409,7 @@ export default function CashbackReport() {
           ref={ref}
           getTableData={getData}
           dataToUpdate={dataToUpdate}
+          isFileUploaded={isFileUploaded}
         />
       </CrmModal>
       <CrmModal
@@ -424,6 +427,7 @@ export default function CashbackReport() {
           callBack={saveUrls}
           requestNo={requestNo}
           // isFileUploaded={isFileUploaded}
+          selectedOrderId={selectedOrderId}
           setOpenFileUpload={setOpenFileUpload}
           setIsFileUploaded={setIsFileUploaded}
         />

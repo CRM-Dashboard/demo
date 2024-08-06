@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
+import moment from "moment";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { TableRow, TableCell, TableFooter } from "@mui/material";
@@ -171,7 +172,7 @@ export default function PaymentSchedule() {
       let sumAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + item.data[3];
+          return accu + Number(item.data[3].replaceAll(",", ""));
         }, 0);
 
       return (
@@ -265,10 +266,10 @@ export default function PaymentSchedule() {
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.Date,
+        moment(item?.Date).format("DD-MM-YYYY"),
         item?.BillingPercent,
         item?.MilestoneDescription,
-        item.Amount,
+        GlobalFunctions.getFormatedNumber(item.Amount),
         item.Status,
       ];
     });

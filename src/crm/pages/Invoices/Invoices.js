@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
@@ -10,6 +11,7 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
+import moment from "moment";
 import Table from "mui-datatables";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
@@ -53,12 +55,12 @@ export default function Invoices() {
     const modifiedResponse = res?.map((item) => {
       return [
         "",
+        moment(item.billingDate).format("DD-MM-YYYY"),
         item?.Milestone,
-        item?.duedate,
-        item?.gstamt,
-        item.billingDate,
-        `₹${item.netamount}`,
         item.pTerms,
+        item?.duedate,
+        `₹${item.netamount}`,
+        GlobalFunctions.getFormatedNumber(item?.gstamt),
         `₹${item.totalamount}`,
       ];
     });
@@ -143,18 +145,6 @@ export default function Invoices() {
       },
     },
     {
-      name: "Milestone",
-      label: "Milestone",
-    },
-    {
-      name: "Due Date",
-      label: "Due Date",
-    },
-    {
-      name: "GST Amount",
-      label: "GST Amount",
-    },
-    {
       name: "Invoice Date",
       label: "Invoice Date",
       options: {
@@ -198,12 +188,24 @@ export default function Invoices() {
       },
     },
     {
-      name: "Unit Installment",
-      label: "Unit Installment",
+      name: "Milestone",
+      label: "Milestone",
     },
     {
       name: "Terms",
       label: "Terms",
+    },
+    {
+      name: "Due Date",
+      label: "Due Date",
+    },
+    {
+      name: "Unit Installment",
+      label: "Unit Installment",
+    },
+    {
+      name: "GST Amount",
+      label: "GST Amount",
     },
     {
       name: "Total Amount",
@@ -334,12 +336,12 @@ export default function Invoices() {
     },
     customTableBodyFooterRender: (opts) => {
       const startIndex = page * rowsPerPage;
-      const endIndex = (page + 3) * rowsPerPage;
+      const endIndex = (page + 6) * rowsPerPage;
 
       let sumGstAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + item.data[3];
+          return accu + Number(item.data[6]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -349,9 +351,9 @@ export default function Invoices() {
               <TableRow>
                 {opts.columns.map((col, index) => {
                   if (col.display === "true") {
-                    if (!col.name) {
+                    if (col.name == undefined) {
                       return <TableCell key={index}>{}</TableCell>;
-                    } else if (col.name === "Milestone") {
+                    } else if (col.name === "Invoice Date") {
                       return (
                         <TableCell
                           style={{
@@ -364,7 +366,13 @@ export default function Invoices() {
                           Total
                         </TableCell>
                       );
+                    } else if (col.name === "Milestone") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Terms") {
+                      return <TableCell key={index}>{}</TableCell>;
                     } else if (col.name === "Due Date") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Unit Installment") {
                       return <TableCell key={index}>{}</TableCell>;
                     } else if (col.name === "GST Amount") {
                       return (
@@ -545,6 +553,7 @@ export default function Invoices() {
                   </Grid>
                   <Grid item sm={4} md={4} lg={4}>
                     <Button
+                      sx={{ backgroundColor: "green", color: "white" }}
                       disabled={!fromDate && !toDate}
                       onClick={() => {
                         getTableData();

@@ -247,10 +247,10 @@ export default function Payment({ tableDetails, response, getFilteredData }) {
           {item?.flatno}
         </Typography>,
         item?.customerName,
-        item?.pmtUnit,
-        item?.pmtGst,
-        item?.pmtTds,
-        item?.pmtTot,
+        GlobalFunctions.getFormatedNumber(item?.pmtUnit),
+        GlobalFunctions.getFormatedNumber(item?.pmtGst),
+        GlobalFunctions.getFormatedNumber(item?.pmtTds),
+        GlobalFunctions.getFormatedNumber(item?.pmtTot),
         item?.pmtPer,
       ];
     });

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import FileDetails from "./FileDetails";
+import moment from "moment";
 import { Button, IconButton } from "@mui/material";
 import CreatePreEmiReceipt from "./CreatePreEmiReceipt";
 import FileUploader from "./FileUploader";
@@ -24,11 +25,13 @@ export default function PreEmi() {
   const [fileIndex, setFileIndex] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
-  const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openShowFiles, setOpenShowFiles] = useState(false);
+  const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
+  const [disabledCreateBtn, setDisabledCreateBtn] = useState(false);
 
   const ref = useRef(null);
+  const fileRef = useRef(null);
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const OrderId = reducerData.searchBar.orderId;
@@ -244,7 +247,7 @@ export default function PreEmi() {
       let sumAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + item.data[3];
+          return accu + Number(item.data[3]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -377,10 +380,10 @@ export default function PreEmi() {
         "",
         item?.repayRequestNo,
         item?.monthTxt,
-        item?.amount,
+        GlobalFunctions.getFormatedNumber(item?.amount),
         item?.remark,
         item?.status,
-        item?.createdOn,
+        moment(item?.createdOn).format("DD-MM-YYYY"),
         item?.createdBy,
         <IconButton
           style={{ color: "blue" }}
@@ -490,6 +493,12 @@ export default function PreEmi() {
       });
   };
 
+  const UploadFile = () => {
+    if (fileRef.current) {
+      fileRef.current.uploadFile();
+    }
+  };
+
   return (
     <div style={{ marginTop: "1em" }}>
       <ThemeProvider theme={() => getMuiTheme()}>
@@ -501,6 +510,7 @@ export default function PreEmi() {
         handleShow={() => {
           setopenCreateForm(false);
         }}
+        disabled={disabledCreateBtn}
         primaryBtnText="Create"
         SecondaryBtnText="Close"
         secondarySave={() => {
@@ -515,6 +525,7 @@ export default function PreEmi() {
           setopenCreateForm={setopenCreateForm}
           ref={ref}
           getTableData={getTableData}
+          setDisabledCreateBtn={setDisabledCreateBtn}
         />
       </CrmModal>
       <CrmModal
@@ -527,8 +538,14 @@ export default function PreEmi() {
         secondarySave={() => {
           setOpenFileUpload(false);
         }}
+        // disabled="false"
+        // primaryBtnText="Upload Files"
+        // primarySave={() => {
+        //   UploadFile();
+        // }}
       >
         <FileUploader
+          ref={fileRef}
           requestNo={requestNo}
           setOpenFileUpload={setOpenFileUpload}
           callBack={saveUrls}

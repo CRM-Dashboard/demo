@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
+import moment from "moment";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import Constants from "./../../../../utils/Constants";
@@ -12,6 +13,7 @@ import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar
 export default function SchemeInfo() {
   const [customers, setCustomers] = useState([]);
   const [schemeDetails, setSchemeDetails] = useState([]);
+  const [disableUpdateBtn, setDisableUpdateBtn] = useState(false);
   const [isSchemeInfoEditable, setIsSchemeInfoEditable] = useState(false);
 
   const schemeRef = useRef(null);
@@ -80,6 +82,14 @@ export default function SchemeInfo() {
   const saveSchemeDetails = () => {
     if (schemeRef.current) {
       schemeRef.current.saveSchemeDetails();
+    }
+  };
+
+  const getFormattedDate = (date) => {
+    if (date !== "0000-00-00") {
+      return moment(date).format("DD-MM-YYYY");
+    } else {
+      return "0000-00-00";
     }
   };
 
@@ -181,7 +191,9 @@ export default function SchemeInfo() {
               <Typography style={titleStyle}>Scheme Start:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{schemeDetails.schemeStart}</Typography>
+              <Typography>
+                {getFormattedDate(schemeDetails.schemeStart)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -195,7 +207,9 @@ export default function SchemeInfo() {
               <Typography style={titleStyle}>Scheme End:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{schemeDetails.schemeEnd}</Typography>
+              <Typography>
+                {getFormattedDate(schemeDetails.schemeEnd)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -209,7 +223,9 @@ export default function SchemeInfo() {
               <Typography style={titleStyle}>Scheme Cost:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{schemeDetails?.schemeCost}</Typography>
+              <Typography>
+                {GlobalFunctions.getFormatedNumber(schemeDetails?.schemeCost)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -289,6 +305,7 @@ export default function SchemeInfo() {
         primarySave={() => {
           saveSchemeDetails();
         }}
+        disabled={disableUpdateBtn}
         secondarySave={() => {
           setIsSchemeInfoEditable(false);
         }}
@@ -298,6 +315,7 @@ export default function SchemeInfo() {
           getData={getData}
           customers={customers}
           schemeDetails={schemeDetails}
+          setDisableUpdateBtn={setDisableUpdateBtn}
           setIsSchemeInfoEditable={setIsSchemeInfoEditable}
         />
       </CrmModal>

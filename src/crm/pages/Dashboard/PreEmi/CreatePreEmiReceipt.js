@@ -25,6 +25,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
   const [schemeEnd, setSchemeEnd] = useState(null);
   const [soDetails, setSoDetails] = useState("");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // Track the submission state
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -41,30 +42,32 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
 
-      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data[0].so[0].vbeln) {
-            setSoDetails(data);
-            if (
-              data[0].so[0].schemeStart === "0000-00-00" ||
-              data[0].so[0].schemeEnd === "0000-00-00"
-            ) {
-              props.setopenCreateForm(false);
-              snackbar.showError(
-                "Please set Scheme start and Scheme end date!"
-              );
-              setSchemeEnd(null);
-              setSchemeStart(null);
-            } else {
-              setSchemeEnd(data[0].so[0].schemeEnd);
-              setSchemeStart(data[0].so[0].schemeStart);
+      if (Object.keys(formik.errors).length === 0 && error !== "Required") {
+        fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data[0].so[0].vbeln) {
+              setSoDetails(data);
+              if (
+                data[0].so[0].schemeStart === "0000-00-00" ||
+                data[0].so[0].schemeEnd === "0000-00-00"
+              ) {
+                props.setopenCreateForm(false);
+                snackbar.showError(
+                  "Please set Scheme start and Scheme end date!"
+                );
+                setSchemeEnd(null);
+                setSchemeStart(null);
+              } else {
+                setSchemeEnd(data[0].so[0].schemeEnd);
+                setSchemeStart(data[0].so[0].schemeStart);
+              }
             }
-          }
-        });
+          });
+      }
     }
   }, []);
 
@@ -84,14 +87,21 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     await GlobalFunctions.saveLog(userName, passWord, entryData);
   };
 
-  const saveReceipt = () => {
+  const saveReceipt = async () => {
+    // Check for formik errors
+    if (Object.keys(formik.errors).length > 0) {
+      return; // Exit the function if there are errors
+    }
+
+    setIsSubmitting(true); // Set submitting state to true
+
     const entryData = {
       vbeln: OrderId,
       pmt_req_typ: formik.values.repayType,
       werks: projectId,
-      building: soDetails[0].building,
-      unit: soDetails[0].flatno,
-      proj_name: soDetails[0].project,
+      building: soDetails[0]?.building,
+      unit: soDetails[0]?.flatno,
+      proj_name: soDetails[0]?.project,
       cust_name: custData.CustomerName,
       amount: formik.values.amount,
       remark: formik.values.remarks,
@@ -104,66 +114,40 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
-    console.log("formik.errors#############", formik.errors, error);
-    // eslint-disable-next-line eqeqeq
-    if (Object.keys(formik.errors).length === 0 && error !== "Required") {
-      fetch(
+
+    try {
+      const response = await fetch(
         process.env.REACT_APP_SERVER_URL + `/api/dashboard/preEmi/create_repay`,
         {
           method: "POST",
           body: formData,
         }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            saveLog();
-            snackbar.showSuccess(
-              "Pre EMI/ Rental receipt created successfully!"
-            );
-            setError("");
-            props.setopenCreateForm(false);
-            props.getTableData();
-          }
-        })
-        .catch((error) => {
-          if (error) {
-            snackbar.showError(
-              "Error while creating Pre EMI/ Rental receipt. Please try again!"
-            );
-            props.setopenCreateForm(false);
-          }
-        });
+      );
+      const data = await response.json();
+
+      if (data) {
+        await saveLog();
+        snackbar.showSuccess("Pre EMI/ Rental receipt created successfully!");
+        setError("");
+        props.setopenCreateForm(false);
+        props.getTableData();
+      }
+    } catch (error) {
+      snackbar.showError(
+        "Error while creating Pre EMI/ Rental receipt. Please try again!"
+      );
+      props.setopenCreateForm(false);
+    } finally {
+      setIsSubmitting(false); // Reset submitting state to false
+      props.setDisabledCreateBtn(false); // Enable the create button
     }
   };
-
-  useImperativeHandle(ref, () => ({
-    saveReceipt,
-  }));
 
   const validationSchema = yup.object({
     schemeStart: yup.string(),
     schemeEnd: yup.string(),
     repayType: yup.string().required("Required"),
-    schemeMonth: yup
-      .string()
-      .required("Required")
-      .test(
-        "is-date-in-range",
-        "Month should be in the range of the start scheme and end scheme.",
-        function (value) {
-          const inputDate = new Date(value);
-          const startDate = new Date(schemeStart);
-          const endDate = new Date(schemeEnd);
-          return (
-            inputDate >= startDate &&
-            inputDate <= endDate &&
-            !isNaN(inputDate) &&
-            !isNaN(startDate) &&
-            !isNaN(endDate)
-          );
-        }
-      ),
+    schemeMonth: yup.string().required("Required"),
     amount: yup.number().required("Required"),
     onBehalf: yup.string(),
     onBehalfPan: yup.string(),
@@ -182,11 +166,20 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       remarks: "",
     },
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      const data = values;
-      saveReceipt(data);
+    onSubmit: (values) => {
+      saveReceipt();
     },
   });
+
+  useImperativeHandle(ref, () => ({
+    saveReceipt: formik.handleSubmit,
+  }));
+
+  useEffect(() => {
+    props.setDisabledCreateBtn(
+      !(formik.isValid && formik.dirty) || isSubmitting
+    );
+  }, [formik.isValid, formik.dirty, isSubmitting, props]);
 
   useEffect(() => {
     const inputDate = new Date(formik.values.schemeMonth);
@@ -209,56 +202,19 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       isSameMonthAndYear(inputDate, startDate) ||
       isSameMonthAndYear(inputDate, endDate);
 
-    if (!isValidDate) {
-      formik.setFieldError(
-        "schemeMonth",
-        "Month should be in the range of the start scheme and end scheme."
-      );
-      snackbar.showError(
-        "Month should be in the range of the start scheme and end scheme."
-      );
-    }
+    // if (!isValidDate) {
+    //   formik.setFieldError(
+    //     "schemeMonth",
+    //     "Month should be in the range of the start scheme and end scheme."
+    //   );
+    //   snackbar.showError(
+    //     "Month should be in the range of the start scheme and end scheme."
+    //   );
+    // }
   }, [formik.values.schemeMonth, schemeStart, schemeEnd]);
 
-  // const handleFileUpload = (event) => {
-  //   const files1 = event.target.files;
-  //   const filesArray = Array.from(files1);
-  //   setFiles((prevArray) => prevArray.concat(filesArray));
-
-  //   setFiles([...files, ...filesArray]);
-  //   const finalFiles = [...files, ...filesArray];
-
-  //   // Convert each file to base64
-  //   Promise.all(finalFiles.map((file) => readFileAsBase64(file)))
-  //     .then((base64Array) => {
-  //       console.log("base64Array######", base64Array);
-  //       setSelectedFile(base64Array);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error reading files#######:", error);
-  //     });
-  // };
-
-  // const readFileAsBase64 = (file) => {
-  //   return new Promise((resolve, reject) => {
-  //     const reader = new FileReader();
-  //     const fileBlob = new Blob([file], { type: file.type });
-
-  //     reader.onload = () => {
-  //       const base64String = reader.result.split(",")[1];
-  //       resolve(base64String);
-  //     };
-
-  //     reader.onerror = (error) => {
-  //       reject(error);
-  //     };
-
-  //     reader.readAsDataURL(fileBlob);
-  //   });
-  // };
-
   return (
-    <formik>
+    <form onSubmit={formik.handleSubmit}>
       <Box sx={{ paddingTop: "1.5em" }}>
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
@@ -298,7 +254,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               required
             >
               <MenuItem> {"Select Repay Type"} </MenuItem>
-
               <MenuItem value={1} key="Pre EMI">
                 Pre EMI
               </MenuItem>
@@ -353,7 +308,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
-
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <InputField
@@ -368,7 +322,6 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
           </Grid>
         </Grid>
         <br />
-
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
             <Typography style={{ fontSize: "0.9em" }}>Remarks</Typography>
@@ -377,10 +330,9 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
               name="remarks"
               label="Remarks"
               style={{
-                width: "29.2em",
-                fontSize: "14px",
+                width: "23.5em",
                 padding: "0.5em",
-                fontWeight: "bold",
+                fontSize: "17px",
               }}
               value={formik.values.remarks}
               onChange={formik.handleChange}
@@ -391,7 +343,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
           </Grid>
         </Grid>
       </Box>
-    </formik>
+    </form>
   );
 });
 

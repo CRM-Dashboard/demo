@@ -130,41 +130,45 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     Data.append("passWord", passWord);
     Data.append("entryData", JSON.stringify(entryData));
 
-    fetch(
-      process.env.REACT_APP_SERVER_URL +
-        `/api/dashboard/interestWaiveOff/post_waiveint_create`,
-      {
-        method: "POST",
-        body: Data,
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          saveLog();
-          snackbar.showSuccess("Interest waived off created successfully!");
-          props.setopenCreateForm(false);
-          props.getTableData();
+    if (Object.keys(formik.errors).length === 0) {
+      props.setDisabledCreateBtn(true);
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          `/api/dashboard/interestWaiveOff/post_waiveint_create`,
+        {
+          method: "POST",
+          body: Data,
         }
-      })
-      .catch((error) => {
-        if (error) {
-          snackbar.showError("Error while creating. Please try again!");
-        }
-      });
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            saveLog();
+            snackbar.showSuccess("Interest waived off created successfully!");
+            props.setopenCreateForm(false);
+            props.getTableData();
+            props.setDisabledCreateBtn(false);
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            snackbar.showError("Error while creating. Please try again!");
+          }
+        });
+    }
   };
 
   useImperativeHandle(ref, () => ({
-    saveReceipt,
+    saveReceipt: formik.handleSubmit,
   }));
 
   const validationSchema = yup.object({
-    reason: yup.string(),
+    reason: yup.string().required("Required"),
     interestDueAmt: yup.number(),
     interestWaivedOff: yup.number(),
     waiverRequested: yup.number(),
     balanceInterest: yup.number(),
-    waiverAmt: yup.number(),
+    waiverAmt: yup.number().required("Required"),
     remarks: yup.string(),
   });
 
@@ -179,14 +183,13 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       remarks: "",
     },
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      const data = values;
-      saveReceipt(data);
+    onSubmit: (values) => {
+      saveReceipt();
     },
   });
 
   return !loading && reasons ? (
-    <formik>
+    <form onSubmit={formik.handleSubmit}>
       <Box sx={{ paddingTop: "1.5em" }}>
         <Grid container spacing={4}>
           <Grid item xs={4} sm={6} md={6}>
@@ -236,6 +239,8 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
               label="Waiver Amount"
               value={formik.values.waiverAmt}
               onChange={formik.handleChange}
+              error={Boolean(formik.errors.waiverAmt)}
+              helperText={formik.errors.waiverAmt}
             />
           </Grid>
         </Grid>
@@ -249,6 +254,8 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
               label="Reason"
               value={formik.values.reason}
               onChange={formik.handleChange}
+              error={Boolean(formik.errors.reason)}
+              helperText={formik.errors.reason}
             >
               <MenuItem value=""> Select Reason </MenuItem>
               {reasons?.map((rsn, index) => {
@@ -271,7 +278,12 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
               id="remarks"
               name="remarks"
               label="Remarks"
-              style={{ width: "40em", height: "3.2em" }}
+              style={{
+                width: "31.5em",
+                height: "3.2em",
+                padding: "0.5em",
+                fontSize: "17px",
+              }}
               value={formik.values.remarks}
               onChange={formik.handleChange}
             />
@@ -320,7 +332,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
           </Grid>
         </Grid>
       </Box>
-    </formik>
+    </form>
   ) : (
     <CircularScreenLoader isModal={true} />
   );

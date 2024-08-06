@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
+import moment from "moment";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdatePossession from "./UpdatePossession";
@@ -11,6 +12,7 @@ import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar
 
 export default function PossessionInfo() {
   const [possessionDetails, setPossessionDetails] = useState([]);
+  const [disableUpdateBtn, setDisableUpdateBtn] = useState(false);
   const [isPossessionInfoEditable, setIsPossessionInfoEditable] =
     useState(false);
 
@@ -61,6 +63,14 @@ export default function PossessionInfo() {
   const savePossessionDetails = () => {
     if (posRef.current) {
       posRef.current.savePossessionDetails();
+    }
+  };
+
+  const getFormattedDate = (date) => {
+    if (date !== "0000-00-00") {
+      return moment(date).format("DD-MM-YYYY");
+    } else {
+      return "0000-00-00";
     }
   };
 
@@ -162,7 +172,9 @@ export default function PossessionInfo() {
               <Typography style={titleStyle}>Possession date:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{possessionDetails.zzpasdt}</Typography>
+              <Typography>
+                {getFormattedDate(possessionDetails.zzpasdt)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -178,7 +190,9 @@ export default function PossessionInfo() {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{possessionDetails.zmaintdt}</Typography>
+              <Typography>
+                {getFormattedDate(possessionDetails.zmaintdt)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -192,7 +206,9 @@ export default function PossessionInfo() {
               <Typography style={titleStyle}>Warranty start date:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{possessionDetails?.zzwstdt}</Typography>
+              <Typography>
+                {getFormattedDate(possessionDetails?.zzwstdt)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -206,7 +222,9 @@ export default function PossessionInfo() {
               <Typography style={titleStyle}>Warranty end date:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{possessionDetails.zzwendt}</Typography>
+              <Typography>
+                {getFormattedDate(possessionDetails.zzwendt)}
+              </Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -224,6 +242,7 @@ export default function PossessionInfo() {
         primarySave={() => {
           savePossessionDetails();
         }}
+        disabled={disableUpdateBtn}
         secondarySave={() => {
           setIsPossessionInfoEditable(false);
         }}
@@ -232,6 +251,7 @@ export default function PossessionInfo() {
           ref={posRef}
           getData={getData}
           possessionDetails={possessionDetails}
+          setDisableUpdateBtn={setDisableUpdateBtn}
           setIsPossessionInfoEditable={setIsPossessionInfoEditable}
         />
       </CrmModal>

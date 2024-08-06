@@ -12,6 +12,7 @@ import CommercialProjects from "./CommercialProjects";
 import ChildCentricProjects from "./ChildCentricProjects";
 import homePageAction from "./HomePageReducer/HomePageAction";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import dashboardActions from "../Dashboard/DashboardReducer.js/DashboardActions";
 
 export default function HomePage() {
   const [value, setValue] = React.useState("one");
@@ -24,6 +25,10 @@ export default function HomePage() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  useEffect(() => {
+    dispatch(dashboardActions.setCrmId(""));
+  }, []);
 
   useEffect(() => {
     const formData = new FormData();

@@ -3,13 +3,12 @@ import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
 import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
+import moment from "moment";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
-export default function AgingReport() {
-  const [loading, setLoading] = useState(false);
-  const [graphData, setGraphData] = useState([]);
+export default function CancellationReport() {
+  const [data, setData] = useState([]);
 
   const reducerData = useSelector((state) => state);
   const crmId = reducerData?.dashboard?.crmId;
@@ -146,16 +145,15 @@ export default function AgingReport() {
     const modifiedResponse = res?.map((item) => {
       console.log("#########item", item?.bal_0_15);
       return [
-        item?.name,
+        moment(item?.reqRaiseon).format("DD-MM-YYYY"),
+        item?.orderId,
+        item?.name1,
         item?.arktx,
-        item?.bal_0_15,
-        item?.bal_15_30,
-        item?.bal_30_60,
-        item?.bal_60_90,
-        item?.bal_90_120,
-        item?.bal_120_150,
-        item?.bal_150_180,
-        item?.bal_180,
+        item?.cvbeln,
+        item?.creason,
+        item?.refund,
+        item?.remark,
+        item?.approver,
       ];
     });
     return modifiedResponse;
@@ -163,55 +161,43 @@ export default function AgingReport() {
 
   async function getData() {
     const formData = new FormData();
-    formData.append("crmId", crmId);
-    formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("projectId", projectId);
-
-    setLoading(true);
-
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/reports/aging", {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      "https://gera-crm-server.azurewebsites.net//api/reports/inactive_list",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => response.json())
-      .then((data) => {
-        setGraphData(modifyResponse(data));
-        setLoading(false);
+      .then((respData) => {
+        setData(modifyResponse(respData));
       })
-      .catch((error) => {
-        setLoading(false);
-      });
+      .catch(() => {});
   }
 
   const columns = [
+    { name: "Raised On" },
+    { name: "Order ID" },
     { name: "Name" },
-    { name: "Unit" },
     {
-      name: "0-15",
+      name: "Unit",
     },
     {
-      name: "15-30",
+      name: "Cancellation ID",
     },
     {
-      name: "30-60",
+      name: "Cancellation Reason",
     },
     {
-      name: "60-90",
+      name: "Refund",
     },
     {
-      name: "90-120",
+      name: "Remarks",
     },
-    {
-      name: "120-150",
-    },
-    {
-      name: "150-180",
-    },
-    {
-      name: "> 180",
-    },
+    { name: "Approver" },
   ];
 
   const options = {
@@ -235,13 +221,9 @@ export default function AgingReport() {
 
   return (
     <Grid sx={{ paddingTop: "0.5em" }}>
-      {!loading ? (
-        <ThemeProvider theme={() => getMuiTheme()}>
-          <Table data={graphData} columns={columns} options={options}></Table>
-        </ThemeProvider>
-      ) : (
-        <CircularScreenLoader />
-      )}
+      <ThemeProvider theme={() => getMuiTheme()}>
+        <Table data={data} columns={columns} options={options}></Table>
+      </ThemeProvider>
     </Grid>
   );
 }

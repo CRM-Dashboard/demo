@@ -20,6 +20,7 @@ import FileUploadAction from "../../Activity/FileUploader/FileReducer/FileUpload
 function FileUploader({
   callBack,
   requestNo,
+  selectedOrderId,
   setOpenFileUpload,
   setIsFileUploaded,
 }) {
@@ -53,11 +54,11 @@ function FileUploader({
         const blob = new Blob([file.buffer], { type: file.mimetype });
         formData.append("files", blob, file.originalname);
       });
-      const folder = `Cashback/${OrderId}/${requestNo}`;
+      const folder = `Cashback/${selectedOrderId}/${requestNo}`;
       formData.append("bucketName", "gera-crm");
       formData.append("folderName", folder);
 
-      if (OrderId && requestNo) {
+      if (selectedOrderId && requestNo) {
         fetch(apiUrl, {
           method: "POST",
           body: formData,

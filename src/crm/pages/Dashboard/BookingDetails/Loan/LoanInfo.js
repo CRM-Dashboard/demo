@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
+import moment from "moment";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import UpdateLoanDetails from "./UpdateLoanDetails";
@@ -13,6 +14,7 @@ export default function LoanInfo() {
   const [gcs, setGcs] = useState([]);
   const [mld, setMld] = useState([]);
   const [loanDetails, setLoanDetails] = useState([]);
+  const [disableUpdateBtn, setDisableUpdateBtn] = useState(false);
   const [isLoanInfoEditable, setIsLoanInfoEditable] = useState(false);
 
   const loanRef = useRef(null);
@@ -65,6 +67,14 @@ export default function LoanInfo() {
   const saveLoanDetails = () => {
     if (loanRef.current) {
       loanRef.current.saveLoanDetails();
+    }
+  };
+
+  const getFormattedDate = (date) => {
+    if (date !== "0000-00-00") {
+      return moment(date).format("DD-MM-YYYY");
+    } else {
+      return "0000-00-00";
     }
   };
 
@@ -152,7 +162,7 @@ export default function LoanInfo() {
               <Typography style={titleStyle}>Loan NOC Date</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{loanDetails.zzlnocdt}</Typography>
+              <Typography>{getFormattedDate(loanDetails.zzlnocdt)}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -166,7 +176,7 @@ export default function LoanInfo() {
               <Typography style={titleStyle}>Loan Sanction Date:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{loanDetails.loanSanDt}</Typography>
+              <Typography>{getFormattedDate(loanDetails.loanSanDt)}</Typography>
             </Grid>
           </Grid>
           <Grid
@@ -180,7 +190,9 @@ export default function LoanInfo() {
               <Typography style={titleStyle}>Loan Sanction Amount:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{loanDetails.zsancAmtDmbtr}</Typography>
+              <Typography>
+                {GlobalFunctions.getFormatedNumber(loanDetails.zsancAmtDmbtr)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -284,7 +296,9 @@ export default function LoanInfo() {
               <Typography style={titleStyle}>Disbursement Date:</Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{loanDetails.zdisbrsmntDate}</Typography>
+              <Typography>
+                {getFormattedDate(loanDetails.zdisbrsmntDate)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -360,6 +374,7 @@ export default function LoanInfo() {
         primarySave={() => {
           saveLoanDetails();
         }}
+        disabled={disableUpdateBtn}
         secondarySave={() => {
           setIsLoanInfoEditable(false);
         }}
@@ -370,6 +385,7 @@ export default function LoanInfo() {
           ref={loanRef}
           getData={getData}
           loanDetails={loanDetails}
+          setDisableUpdateBtn={setDisableUpdateBtn}
           setIsLoanInfoEditable={setIsLoanInfoEditable}
         />
       </CrmModal>

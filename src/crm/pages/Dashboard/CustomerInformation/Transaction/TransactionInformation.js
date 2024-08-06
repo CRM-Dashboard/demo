@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import { Grid, Typography, Avatar } from "@mui/material";
 import CrmModal from "../../../../components/crmModal/CrmModal";
+import GlobalFunctions from "../../../../utils/GlobalFunctions";
 import UpdateTransactionDetails from "./UpdateTransactionDetails";
 import DropdownConstants from "./../../../../utils/DropdownConstants";
 
@@ -153,7 +154,9 @@ export default function TransactionInformation() {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{customerInfo?.pendAmt}</Typography>
+              <Typography>
+                {GlobalFunctions.getFormatedNumber(customerInfo?.pendAmt)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -169,7 +172,9 @@ export default function TransactionInformation() {
               </Typography>
             </Grid>
             <Grid xs={4} sm={4} md={4}>
-              <Typography>{customerInfo?.pendGst}</Typography>
+              <Typography>
+                {GlobalFunctions.getFormatedNumber(customerInfo?.pendGst)}
+              </Typography>
             </Grid>
           </Grid>
           <Grid

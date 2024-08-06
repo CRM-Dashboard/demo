@@ -4,12 +4,12 @@ import Chart from "react-apexcharts";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+// import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function AgingBar() {
   const [xAxisKeys, setXAxisKeys] = useState([]);
   const [graphData, setGraphData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [dataLoad, setDataLoad] = useState(false);
 
   const reducerData = useSelector((state) => state);
@@ -40,7 +40,7 @@ export default function AgingBar() {
   }, {});
 
   async function getData() {
-    setLoading(true);
+    // setLoading(true);
 
     const keysToRemove = ["arktx", "name"];
 
@@ -76,11 +76,11 @@ export default function AgingBar() {
         }
 
         setXAxisKeys(extractKeys(data[0]));
-        setLoading(false);
+        // setLoading(false);
         setDataLoad(true);
       })
       .catch(() => {
-        setLoading(false);
+        // setLoading(false);
       });
   }
 
@@ -190,17 +190,17 @@ export default function AgingBar() {
     },
   };
 
-  return !loading &&
+  return (
+    //!loading &&
     dataLoad &&
     chartOptions.options &&
-    chartOptions.series.length > 0 ? (
-    <Chart
-      options={chartOptions.options}
-      series={chartOptions.series}
-      type="bar"
-      height="180%"
-    />
-  ) : (
-    <CircularScreenLoader />
+    chartOptions.series.length > 0 && (
+      <Chart
+        options={chartOptions.options}
+        series={chartOptions.series}
+        type="bar"
+        height="180%"
+      />
+    )
   );
 }

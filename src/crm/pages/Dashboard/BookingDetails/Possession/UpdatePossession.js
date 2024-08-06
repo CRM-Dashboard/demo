@@ -35,7 +35,7 @@ const UpdatePossession = forwardRef((props, ref) => {
   };
 
   const savePossessionDetails = () => {
-    console.log("#################foemik.values", formik.values);
+    props.setDisableUpdateBtn(true);
     const entryData = {
       possession: [
         {
@@ -66,6 +66,7 @@ const UpdatePossession = forwardRef((props, ref) => {
           saveLog();
           snackbar.showSuccess("Records updated successfully!");
           props.setIsPossessionInfoEditable(false);
+          props.setDisableUpdateBtn(false);
           props.getData();
         } else {
           snackbar.showError("Failed to update records!");

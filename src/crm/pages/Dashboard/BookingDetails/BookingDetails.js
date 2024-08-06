@@ -48,7 +48,7 @@ const BookingDetails = () => {
   const tabs = [
     {
       label: "TimeLine",
-      component: <Timeline />,
+      component: <Timeline unitData={unitData} />,
     },
     {
       label: "Registration Details",

@@ -77,6 +77,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
     }
 
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
+      props.setDisabledCreateBtn(true);
       const formData = new FormData();
       formData.append("orderId", orderId);
       formData.append("userName", userName);
@@ -93,6 +94,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
           if (data) {
             saveLog();
             snackbar.showSuccess("Activity created successfully!");
+            props.setDisabledCreateBtn(false);
             props.setopenCreateForm(false);
             props.getTableData();
           }
@@ -379,11 +381,11 @@ const CreateNewActivity = forwardRef((props, ref) => {
               name="remark"
               label="Remark"
               style={{
-                width: "25.5em",
+                width: "20.5em",
+                fontSize: "17px",
                 fontFamily: "Futura",
+                paddingTop: "0.3em",
                 paddingLeft: "0.5em",
-                paddingTop: "0.5em",
-                paddingRight: "0.5em",
               }}
               value={formik.values.remarks}
               onChange={(e) => {

@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useEffect } from "react";
+import moment from "moment";
 import { useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import Constants from "./../../../../utils/Constants";
@@ -13,6 +14,7 @@ import CircularScreenLoader from "../../../../components/circularScreenLoader/Ci
 export default function RegistrationInfo() {
   const [loading, setLoading] = useState(false);
   const [registerInfo, setRegisterInfo] = useState([]);
+  const [disableUpdateBtn, setDisableUpdateBtn] = useState(false);
   const [isRegInfoEditable, setIsRegInfoEditable] = useState(false);
 
   const regRef = useRef(null);
@@ -66,6 +68,14 @@ export default function RegistrationInfo() {
   const saveRegDetails = () => {
     if (regRef.current) {
       regRef.current.saveRegDetails();
+    }
+  };
+
+  const getFormattedDate = (date) => {
+    if (date !== "0000-00-00") {
+      return moment(date).format("DD-MM-YYYY");
+    } else {
+      return "0000-00-00";
     }
   };
 
@@ -180,6 +190,38 @@ export default function RegistrationInfo() {
               xs={8}
               sm={8}
               md={8}
+              sx={{ display: "flex", "&.MuiGrid-item": { paddingTop: "7px" } }}
+            >
+              <Grid xs={8} sm={8} md={8}>
+                <Typography style={titleStyle}>SDR Received On:</Typography>
+              </Grid>
+              <Grid xs={4} sm={4} md={4}>
+                <Typography>
+                  {getFormattedDate(registerInfo?.zstampDt)}
+                </Typography>
+              </Grid>
+            </Grid>
+
+            <Grid
+              item
+              xs={8}
+              sm={8}
+              md={8}
+              sx={{ display: "flex", "&.MuiGrid-item": { paddingTop: "7px" } }}
+            >
+              <Grid xs={8} sm={8} md={8}>
+                <Typography style={titleStyle}>SDR UTR Number</Typography>
+              </Grid>
+              <Grid xs={4} sm={4} md={4}>
+                <Typography>{registerInfo?.zstampUtr}</Typography>
+              </Grid>
+            </Grid>
+
+            <Grid
+              item
+              xs={8}
+              sm={8}
+              md={8}
               sx={{
                 display: "flex",
                 "&.MuiGrid-item": { paddingTop: "7px" },
@@ -191,7 +233,9 @@ export default function RegistrationInfo() {
                 </Typography>
               </Grid>
               <Grid xs={4} sm={4} md={4}>
-                <Typography>{registerInfo?.draftApprDt}</Typography>
+                <Typography>
+                  {getFormattedDate(registerInfo?.draftApprDt)}
+                </Typography>
               </Grid>
             </Grid>
             <Grid
@@ -205,7 +249,9 @@ export default function RegistrationInfo() {
                 <Typography style={titleStyle}>Registration Date:</Typography>
               </Grid>
               <Grid xs={4} sm={4} md={4}>
-                <Typography>{registerInfo?.zzregdt}</Typography>
+                <Typography>
+                  {getFormattedDate(registerInfo?.zzregdt)}
+                </Typography>
               </Grid>
             </Grid>
 
@@ -220,7 +266,9 @@ export default function RegistrationInfo() {
                 <Typography style={titleStyle}>Agreement Date:</Typography>
               </Grid>
               <Grid xs={4} sm={4} md={4}>
-                <Typography>{registerInfo?.zzagmdt}</Typography>
+                <Typography>
+                  {getFormattedDate(registerInfo?.zzagmdt)}
+                </Typography>
               </Grid>
             </Grid>
 
@@ -238,6 +286,7 @@ export default function RegistrationInfo() {
                 <Typography>{registerInfo?.zzregno}</Typography>
               </Grid>
             </Grid>
+
             <Grid
               item
               xs={8}
@@ -268,6 +317,7 @@ export default function RegistrationInfo() {
         }}
         primaryBtnText="Submit"
         SecondaryBtnText="Cancel"
+        disabled={disableUpdateBtn}
         primarySave={() => {
           saveRegDetails();
         }}
@@ -279,6 +329,7 @@ export default function RegistrationInfo() {
           ref={regRef}
           getData={getData}
           registerInfo={registerInfo}
+          setDisableUpdateBtn={setDisableUpdateBtn}
           setIsRegInfoEditable={setIsRegInfoEditable}
         />
       </CrmModal>

@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
+import moment from "moment";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { TableRow, TableCell, TableFooter } from "@mui/material";
@@ -160,13 +161,13 @@ export default function InterestDetails() {
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
           console.log("**********sumdata", accu, item.data);
-          return accu + item.data[4];
+          return accu + Number(item.data[4]?.replaceAll(",", ""));
         }, 0);
 
       let sumPaymentAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + item.data[5];
+          return accu + Number(item.data[5]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -284,14 +285,20 @@ export default function InterestDetails() {
       return [
         item?.SrNo,
         item?.MilestoneStage,
-        item?.InvoiceDate,
-        item?.DueDate,
-        item?.AmountDue,
-        item?.PaymentAmount,
-        item?.BalanceCF,
-        item?.PaymentDate,
+        item?.InvoiceDate === "0000-00-00"
+          ? ""
+          : moment(item?.InvoiceDate).format("DD-MM-YYYY"),
+        item?.DueDate === "0000-00-00"
+          ? ""
+          : moment(item?.DueDate).format("DD-MM-YYYY"),
+        GlobalFunctions.getFormatedNumber(item?.AmountDue),
+        GlobalFunctions.getFormatedNumber(item?.PaymentAmount),
+        GlobalFunctions.getFormatedNumber(item?.BalanceCF),
+        item?.PaymentDate === "0000-00-00"
+          ? ""
+          : moment(item?.PaymentDate).format("DD-MM-YYYY"),
         item?.ChequeNo,
-        item?.InterestAmount,
+        GlobalFunctions.getFormatedNumber(item?.InterestAmount),
         item?.Days,
       ];
     });

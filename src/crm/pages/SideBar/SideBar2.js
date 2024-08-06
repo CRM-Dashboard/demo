@@ -7,7 +7,7 @@ import {
   Drawer,
   Typography,
   Tooltip,
-  Badge,
+  // Badge,
   MenuItem,
 } from "@mui/material";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
@@ -25,7 +25,7 @@ import AudioCallIcon from "@mui/icons-material/Call";
 import SettingsIcon from "@mui/icons-material/SettingsSharp";
 import MailIcon from "@mui/icons-material/Mail";
 import EmailIcon from "@mui/icons-material/Email";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+// import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
 import PhoneBookIcon from "@mui/icons-material/InterpreterMode";
@@ -63,7 +63,9 @@ import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CashbackReport from "../Reports/CashbackReport/CashbackReport";
 import CrmModal from "../../components/crmModal/CrmModal";
 import Mails from "../Mails/Mails";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 import InputField from "../../components/inputField/InputField";
+import CancellationReport from "../Reports/CancellationReport/CancellationReport";
 
 const routes = [
   {
@@ -80,7 +82,7 @@ const routes = [
       {
         path: "/emailReport",
         to: "/crm/emailReport",
-        name: "Email Report",
+        name: "SAP Email",
         icon: <MailOutlineIcon />,
       },
       {
@@ -92,14 +94,20 @@ const routes = [
       {
         path: "/agingReport",
         to: "/crm/agingReport",
-        name: "Ageing Report",
+        name: "Ageing",
         icon: <EqualizerIcon />,
       },
       {
         path: "/cashBackReport",
         to: "/crm/cashBackReport",
-        name: "Cashback Report",
+        name: "Cashback",
         icon: <PaymentsIcon />,
+      },
+      {
+        path: "/cancellationReport",
+        to: "/crm/cancellationReport",
+        name: "Cancellation ",
+        icon: <EventBusyIcon />,
       },
     ],
   },
@@ -124,7 +132,7 @@ const routes = [
   {
     path: "/mails",
     to: "/crm/mails",
-    name: "Mail",
+    name: "Outlook Mail",
     icon: <EmailIcon />,
   },
 ];
@@ -548,11 +556,11 @@ const SideBar2 = () => {
               <DirectionsCarFilledIcon />
             </IconButton>
 
-            <Grid style={{ paddingRight: "0.8em" }}>
+            {/* <Grid style={{ paddingRight: "0.8em" }}>
               <Badge color="secondary" badgeContent={0} showZero>
                 <NotificationsIcon />
               </Badge>
-            </Grid>
+            </Grid> */}
 
             <IconButton
               size="large"
@@ -758,6 +766,10 @@ const SideBar2 = () => {
                 <Route path="serviceRequest" element={<ServiceRequest />} />
                 <Route path="agingReport" element={<AgingReport />} />
                 <Route path="cashBackReport" element={<CashbackReport />} />
+                <Route
+                  path="cancellationReport"
+                  element={<CancellationReport />}
+                />
               </Route>
             </Routes>
           </Grid>

@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
+import moment from "moment";
 import { animated, useSpring } from "react-spring";
 import { ThemeProvider } from "@mui/material/styles";
 import TableMuiTheme from "./../../../utils/TableMuiTheme";
@@ -76,12 +77,16 @@ export default function InvoiceTable() {
       return [
         "",
         item?.Milestone,
-        item.invoicedate,
+        moment(item.invoicedate).format("DD-MM-YYYY") !== "Invalid date"
+          ? moment(item.invoicedate).format("DD-MM-YYYY")
+          : "",
         item.pTerms,
-        item?.duedate,
-        item.netamount,
-        item?.gstamount,
-        item.totalamount,
+        moment(item?.duedate).format("DD-MM-YYYY") !== "Invalid date"
+          ? moment(item?.duedate).format("DD-MM-YYYY")
+          : "",
+        GlobalFunctions.formatToIndianNumber(item.netamount),
+        GlobalFunctions.formatToIndianNumber(item?.gstamount),
+        GlobalFunctions.formatToIndianNumber(item.totalamount),
       ];
     });
     return modifiedResponse;

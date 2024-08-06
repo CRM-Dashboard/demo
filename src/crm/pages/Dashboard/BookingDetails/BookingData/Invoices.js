@@ -244,9 +244,9 @@ export default function Invoices({ tableDetails, response, getFilteredData }) {
           {item?.flatno}
         </Typography>,
         item?.customerName,
-        item?.invUnit,
-        item?.invGst,
-        item?.invTot,
+        GlobalFunctions.getFormatedNumber(item?.invUnit),
+        GlobalFunctions.getFormatedNumber(item?.invGst),
+        GlobalFunctions.getFormatedNumber(item?.invTot),
         item?.invPer,
       ];
     });

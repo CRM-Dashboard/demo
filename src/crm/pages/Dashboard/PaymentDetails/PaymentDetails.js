@@ -4,6 +4,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
 import AddIcon from "@mui/icons-material/Add";
+import moment from "moment";
 import { Box, IconButton, Button, Grid, Typography } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -29,6 +30,7 @@ export default function PaymentDetails() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openCreateForm, setopenCreateForm] = useState(false);
   const [disabledSaveBtn, setDisabledSaveBtn] = useState(true);
+  const [disabledCreateBtn, setDisabledCreateBtn] = useState(false);
 
   const ref = useRef(null);
   const snackbar = UseCustomSnackbar();
@@ -54,7 +56,7 @@ export default function PaymentDetails() {
     const modifiedResponse = res?.map((item) => {
       return [
         "",
-        item?.CreatedOn,
+        moment(item?.CreatedOn).format("DD-MM-YYYY"),
         item?.Towards,
         item?.amountUnit,
         item?.amountGst,
@@ -62,7 +64,7 @@ export default function PaymentDetails() {
         <Typography sx={{ color: getColor(item?.status) }}>
           {item?.status}
         </Typography>,
-        item?.PaymentDate,
+        moment(item?.PaymentDate).format("DD-MM-YYYY"),
         item.UTRNumber,
         item.PaymentDate,
         item?.UTRNumber,
@@ -563,6 +565,7 @@ export default function PaymentDetails() {
             }}
             title="Create Payment Receipt"
             primaryBtnText="Create"
+            disabled={disabledCreateBtn}
             SecondaryBtnText="Close"
             secondarySave={() => {
               setopenCreateForm(false);
@@ -576,6 +579,7 @@ export default function PaymentDetails() {
               getTableData={getTableData}
               setopenCreateForm={setopenCreateForm}
               setDisabledSaveBtn={setDisabledSaveBtn}
+              setDisabledCreateBtn={setDisabledCreateBtn}
             />
           </CrmModal>
         </div>

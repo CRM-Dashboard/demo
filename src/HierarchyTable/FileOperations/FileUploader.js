@@ -1,7 +1,6 @@
 /* eslint-disable no-useless-concat */
 // import AWS from "aws-sdk";
-import { useState, useImperativeHandle } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import {
   List,
   Grid,
@@ -14,21 +13,14 @@ import {
 import { Delete } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
 import CloudUploadIcon from "@mui/icons-material/CloudUploadOutlined";
-import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
-import FileUploadAction from "../../Activity/FileUploader/FileReducer/FileUploadAction";
+import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+import FileUploadAction from "../../crm/pages/Activity/FileUploader/FileReducer/FileUploadAction";
 
-function FileUploader({ ref, requestNo, setOpenFileUpload, callBack }) {
-  // Create state to store file
+function FileUploader({ requestNo, setOpenFileUpload, callBack }) {
   const dispatch = useDispatch();
   const snackbar = UseCustomSnackbar();
-  const reducerData = useSelector((state) => state);
-  const OrderId = reducerData.searchBar.orderId;
 
   const [files, setFiles] = useState([]);
-
-  useImperativeHandle(ref, () => ({
-    uploadFile,
-  }));
 
   const uploadFile = async () => {
     if (files) {
@@ -51,11 +43,11 @@ function FileUploader({ ref, requestNo, setOpenFileUpload, callBack }) {
         const blob = new Blob([file.buffer], { type: file.mimetype });
         formData.append("files", blob, file.originalname);
       });
-      const folder = `Pre-EMI/${OrderId}/${requestNo}`;
+      const folder = `IT_Tracker/${requestNo}`;
       formData.append("bucketName", "gera-crm");
       formData.append("folderName", folder);
 
-      if (OrderId && requestNo) {
+      if (requestNo) {
         fetch(apiUrl, {
           method: "POST",
           body: formData,
@@ -103,6 +95,27 @@ function FileUploader({ ref, requestNo, setOpenFileUpload, callBack }) {
       reader.readAsArrayBuffer(file);
     });
   };
+  //   const handleFileChange = (event) => {
+  //     const fileList = [...files, ...Array.from(event.target.files)];
+  //     const readFiles = [];
+
+  //     fileList.forEach((file) => {
+  //       const reader = new FileReader();
+  //       reader.onload = (event) => {
+  //         readFiles.push({
+  //           originalname: file.name,
+  //           buffer: event.target.result,
+  //           mimetype: file.type,
+  //           size: file.size,
+  //         });
+  //         if (readFiles.length === fileList.length) {
+  //           console.log();
+  //           setFiles(readFiles);
+  //         }
+  //       };
+  //       reader.readAsArrayBuffer(file);
+  //     });
+  //   };
 
   const handleDeleteFile = (index) => {
     setFiles(files.filter((_, i) => i !== index));

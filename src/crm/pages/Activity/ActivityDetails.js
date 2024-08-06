@@ -12,6 +12,7 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import moment from "moment";
 import Updates from "./Updates";
 import PersonIcon from "@mui/icons-material/Person";
 import CreateNewActivity from "./CreateNewActivity";
@@ -34,6 +35,7 @@ export default function ActivityDetails() {
   const [selectedValues, setSelectedValues] = useState({});
   const [subActTypeData, setSubActTypeData] = useState([]);
   const [openCreateForm, setOpenCreateForm] = useState(false);
+  const [disabledCreateBtn, setDisabledCreateBtn] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const crmId = reducerData.dashboard.crmId;
@@ -324,6 +326,14 @@ export default function ActivityDetails() {
 
   const columns = [
     {
+      name: "Customer",
+      label: "Customer",
+    },
+    {
+      name: "Building",
+      label: "Building",
+    },
+    {
       name: "Date",
       label: "Date",
     },
@@ -369,7 +379,9 @@ export default function ActivityDetails() {
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.erdat,
+        item.customer,
+        item.maktx,
+        moment(item?.erdat).format("DD-MM-YYYY"),
         item.actTypTxt,
         item.actModeTxt,
         item.dmbtr,
@@ -489,6 +501,7 @@ export default function ActivityDetails() {
             primarySave={() => {
               createNewActivity();
             }}
+            disabled={disabledCreateBtn}
             secondarySave={() => {
               setOpenCreateForm(false);
             }}
@@ -501,6 +514,7 @@ export default function ActivityDetails() {
               actModeData={actModeData}
               getTableData={getTableData}
               subActTypeData={subActTypeData}
+              setDisabledCreateBtn={setDisabledCreateBtn}
             />
           </CrmModal>
         </div>

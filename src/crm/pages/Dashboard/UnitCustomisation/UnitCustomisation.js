@@ -41,7 +41,6 @@ const UnitCustomisation = () => {
         item?.project,
         item?.unit,
         item.customer,
-        item.kunnr,
         item.rejRsn,
         <IconButton
           style={{ color: "blue" }}
@@ -160,9 +159,6 @@ const UnitCustomisation = () => {
     },
     {
       name: "Customer",
-    },
-    {
-      name: "kunnr",
     },
     { name: "Rejection Reason" },
     { name: "Files" },

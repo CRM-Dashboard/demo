@@ -46,6 +46,7 @@ const UpdateSchemeDetails = forwardRef((props, ref) => {
 
   const saveSchemeDetails = () => {
     console.log("#################foemik.values", formik.values);
+    props.setDisableUpdateBtn(true);
     const entryData = {
       scheme: [
         {
@@ -79,6 +80,7 @@ const UpdateSchemeDetails = forwardRef((props, ref) => {
           saveLog();
           snackbar.showSuccess("Records updated successfully!");
           props.setIsSchemeInfoEditable(false);
+          props.setDisableUpdateBtn(false);
           props.getData();
         } else {
           snackbar.showError("Failed to update records!");
@@ -108,12 +110,14 @@ const UpdateSchemeDetails = forwardRef((props, ref) => {
   const formik = useFormik({
     initialValues: {
       scheme: props.schemeDetails?.scheme ? props.schemeDetails?.scheme : "",
-      schemeStart: props.schemeDetails?.schemeStart
-        ? props.schemeDetails?.schemeStart
-        : "",
-      schemeEnd: props.schemeDetails?.schemeEnd
-        ? props.schemeDetails?.schemeEnd
-        : "",
+      schemeStart:
+        props.schemeDetails?.schemeStart === "0000-00-00"
+          ? null
+          : props.schemeDetails?.schemeStart,
+      schemeEnd:
+        props.schemeDetails?.schemeEnd === "0000-00-00"
+          ? null
+          : props.schemeDetails?.schemeEnd,
       schemeCost: props.schemeDetails?.schemeCost
         ? props.schemeDetails?.schemeCost
         : "",

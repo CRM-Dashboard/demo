@@ -252,13 +252,13 @@ export default function Booking({ tableDetails, response, getFilteredData }) {
           {item?.flatno}
         </Typography>,
         item?.customerName,
-        item?.cvVal,
-        item?.gst,
+        GlobalFunctions.getFormatedNumber(item?.cvVal),
+        GlobalFunctions.getFormatedNumber(item?.gst),
         item?.gstPer,
-        item?.other,
-        item?.gstOther,
+        GlobalFunctions.getFormatedNumber(item?.other),
+        GlobalFunctions.getFormatedNumber(item?.gstOther),
         item?.gstOtherPer,
-        item?.allIncVal,
+        GlobalFunctions.getFormatedNumber(item?.allIncVal),
       ];
     });
     return modifiedResponse;

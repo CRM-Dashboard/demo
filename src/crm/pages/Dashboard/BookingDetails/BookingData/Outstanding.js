@@ -248,9 +248,9 @@ export default function Outstanding({
           {item?.flatno}
         </Typography>,
         item?.customerName,
-        item?.balUnit,
-        item?.balGst,
-        item?.balTot,
+        GlobalFunctions.getFormatedNumber(item?.balUnit),
+        GlobalFunctions.getFormatedNumber(item?.balGst),
+        GlobalFunctions.getFormatedNumber(item?.balTot),
         item?.balPer,
       ];
     });

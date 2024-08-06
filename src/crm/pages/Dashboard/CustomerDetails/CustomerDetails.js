@@ -32,6 +32,7 @@ export default function CustomerDetails() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const crmId = reducerData.dashboard.crmId;
+  const accountStatement = reducerData.searchBar.accountStatement;
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
 
   const getDetails = () => {
@@ -116,10 +117,10 @@ export default function CustomerDetails() {
 
   const getPaidAmt = () => {
     const bigNumber1 = parseFloat(
-      customerDetails?.ReceivedAmount?.replace(/,/g, "")
+      accountStatement?.ReceivedAmount?.replace(/,/g, "")
     );
     const bignumber2 = parseFloat(
-      customerDetails?.TDSAmount?.replace(/,/g, "")
+      accountStatement?.TDSAmount?.replace(/,/g, "")
     );
     const PaidAmt = bigNumber1 + bignumber2;
     return PaidAmt;
@@ -183,8 +184,12 @@ export default function CustomerDetails() {
   const circleInvoice = {
     series: [
       searchValueAvailable
-        ? getInvoicePercentage()
-        : customerDetails?.InvoicePercent,
+        ? getInvoicePercentage() !== undefined
+          ? getInvoicePercentage()
+          : 0
+        : customerDetails?.InvoicePercent !== undefined
+        ? customerDetails?.InvoicePercent
+        : 0,
     ],
 
     options: {
@@ -218,7 +223,13 @@ export default function CustomerDetails() {
 
   const circlePaid = {
     series: [
-      searchValueAvailable ? getPaidPercentage() : customerDetails?.PaidPercent,
+      searchValueAvailable
+        ? getPaidPercentage() !== undefined
+          ? getPaidPercentage()
+          : 0
+        : customerDetails?.PaidPercent !== undefined
+        ? customerDetails?.PaidPercent
+        : 0,
     ],
 
     options: {
@@ -256,8 +267,12 @@ export default function CustomerDetails() {
   const circleOut = {
     series: [
       searchValueAvailable
-        ? getOutstandingPercentage()
-        : customerDetails?.BalancePercent,
+        ? getOutstandingPercentage() !== undefined
+          ? getOutstandingPercentage()
+          : 0
+        : customerDetails?.BalancePercent !== undefined
+        ? customerDetails?.BalancePercent
+        : 0,
     ],
 
     options: {
@@ -296,8 +311,12 @@ export default function CustomerDetails() {
   const circleUp = {
     series: [
       searchValueAvailable
-        ? getUpcomingPercentage()
-        : customerDetails?.UpcomingPercent,
+        ? getUpcomingPercentage() !== undefined
+          ? getUpcomingPercentage()
+          : 0
+        : customerDetails?.UpcomingPercent !== undefined
+        ? customerDetails?.UpcomingPercent
+        : 0,
     ],
 
     options: {
@@ -432,7 +451,7 @@ export default function CustomerDetails() {
               <StatusCard
                 width="10em"
                 height="5.5em"
-                count={searchValueAvailable ? 1 : NoOfBookings}
+                count={searchValueAvailable ? 1 : customerDetails?.NoOfBookings} //NoOfBookings
                 title={OrderId ? "Booked" : "Booked Units"}
               />
             </Grid>
@@ -453,7 +472,11 @@ export default function CustomerDetails() {
               <StatusCard
                 width="10em"
                 height="5.5em"
-                count={searchValueAvailable ? numberOfCust : NoOfApplicants}
+                count={
+                  searchValueAvailable
+                    ? numberOfCust
+                    : customerDetails?.NoOfCustomers
+                } //NoOfApplicants
                 title={"Applicants"}
               />
             </Grid>
@@ -463,11 +486,17 @@ export default function CustomerDetails() {
                 height="5.5em"
                 count={
                   searchValueAvailable
-                    ? "₹" +
-                      GlobalFunctions.formatToIndianNumber(
-                        customerDetails.AgreementValue
-                      )
-                    : "₹" + customerDetails?.ConsiderationAmount + " Cr"
+                    ? GlobalFunctions.formatToIndianNumber(
+                        accountStatement.AgreementValue
+                      ) !== undefined
+                      ? "₹" +
+                        GlobalFunctions.formatToIndianNumber(
+                          accountStatement.AgreementValue
+                        )
+                      : "₹" + 0
+                    : customerDetails?.ConsiderationAmount !== undefined
+                    ? "₹" + customerDetails?.ConsiderationAmount + " Cr"
+                    : "₹" + 0
                 }
                 title={"Consideration Amount"}
               />
@@ -477,20 +506,31 @@ export default function CustomerDetails() {
                 width="14em"
                 height="5.5em"
                 icon={
-                  <Chart
-                    options={circleInvoice.options}
-                    series={circleInvoice.series}
-                    type="radialBar"
-                    height={110}
-                  />
+                  circleInvoice.options &&
+                  circleInvoice.series && (
+                    <Chart
+                      options={
+                        circleInvoice.options ? circleInvoice.options : ""
+                      }
+                      series={circleInvoice.series ? circleInvoice.series : ""}
+                      type="radialBar"
+                      height={110}
+                    />
+                  )
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" +
-                      GlobalFunctions.formatToIndianNumber(
-                        customerDetails.DueAmount
-                      )
-                    : "₹" + customerDetails?.InvoiceAmount + "Cr"
+                    ? GlobalFunctions.formatToIndianNumber(
+                        accountStatement.DueAmount
+                      ) !== undefined
+                      ? "₹" +
+                        GlobalFunctions.formatToIndianNumber(
+                          accountStatement.DueAmount
+                        )
+                      : "₹" + 0
+                    : customerDetails?.InvoiceAmount !== undefined
+                    ? "₹" + customerDetails?.InvoiceAmount + "Cr"
+                    : "₹" + 0
                 }
                 title="Invoiced Amount"
               />
@@ -500,20 +540,29 @@ export default function CustomerDetails() {
                 width="14em"
                 height="5.5em"
                 icon={
-                  <Chart
-                    options={circlePaid.options}
-                    series={circlePaid.series}
-                    type="radialBar"
-                    height={110}
-                  />
+                  circlePaid.options &&
+                  circlePaid.series && (
+                    <Chart
+                      options={circlePaid.options}
+                      series={circlePaid.series}
+                      type="radialBar"
+                      height={110}
+                    />
+                  )
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" +
-                      GlobalFunctions.formatToIndianNumber(
+                    ? GlobalFunctions.formatToIndianNumber(
                         getPaidAmt().toLocaleString()
-                      )
-                    : "₹" + customerDetails?.PaidAmount + "Cr"
+                      ) !== undefined
+                      ? "₹" +
+                        GlobalFunctions.formatToIndianNumber(
+                          getPaidAmt().toLocaleString()
+                        )
+                      : "₹" + 0
+                    : customerDetails?.PaidAmount !== undefined
+                    ? "₹" + customerDetails?.PaidAmount + "Cr"
+                    : "₹" + 0
                 }
                 title="Paid Amount"
               />
@@ -524,17 +573,24 @@ export default function CustomerDetails() {
                 width="14em"
                 height="5.5em"
                 icon={
-                  <Chart
-                    options={circleOut.options}
-                    series={circleOut.series}
-                    type="radialBar"
-                    height={110}
-                  />
+                  circleOut.options &&
+                  circleOut.series && (
+                    <Chart
+                      options={circleOut.options}
+                      series={circleOut.series}
+                      type="radialBar"
+                      height={110}
+                    />
+                  )
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" + customerDetails.BalanceAmount
-                    : "₹" + customerDetails?.BalanceAmount + "Cr"
+                    ? accountStatement.BalanceAmount !== undefined
+                      ? "₹" + accountStatement.BalanceAmount
+                      : "₹" + 0
+                    : customerDetails?.BalanceAmount !== undefined
+                    ? "₹" + customerDetails?.BalanceAmount + "Cr"
+                    : "₹" + 0
                 }
                 title="Outstanding Amount"
               />
@@ -544,17 +600,24 @@ export default function CustomerDetails() {
                 width="14em"
                 height="5.5em"
                 icon={
-                  <Chart
-                    options={circleUp.options}
-                    series={circleUp.series}
-                    type="radialBar"
-                    height={110}
-                  />
+                  circleUp.options &&
+                  circleUp.series && (
+                    <Chart
+                      options={circleUp.options}
+                      series={circleUp.series}
+                      type="radialBar"
+                      height={110}
+                    />
+                  )
                 }
                 count={
                   searchValueAvailable
-                    ? "₹" + customerDetails.PossessionBalance
-                    : "₹" + customerDetails?.UpcomingAmount + "Cr"
+                    ? accountStatement.PossessionBalance !== undefined
+                      ? "₹" + accountStatement.PossessionBalance
+                      : "₹" + 0
+                    : customerDetails?.UpcomingAmount !== undefined
+                    ? "₹" + customerDetails?.UpcomingAmount + "Cr"
+                    : "₹" + 0
                 }
                 title="Balance till possession"
               />
@@ -570,7 +633,7 @@ export default function CustomerDetails() {
           customerDetails={customerDetails}
           searchValueAvailable={searchValueAvailable}
         />
-
+        <TodayActivity />
         <Grid sx={{ marginLeft: "1%" }}>
           <Grid
             container
@@ -622,8 +685,6 @@ export default function CustomerDetails() {
             </Grid>
           </Grid>
         </Grid>
-
-        <TodayActivity />
       </>
     ) : (
       <CircularScreenLoader />

@@ -64,15 +64,47 @@ const allowAccessByRoles = (roles, name) => {
   return roles.some((obj) => obj.agrName === name);
 };
 
+// function formatToIndianNumber(numStr) {
+//   // Remove existing commas
+//   const numParts = numStr?.split(".");
+//   let intPart = numParts?.[0]?.replace(/,/g, "");
+//   const decimalPart = numParts?.length > 1 ? "." + numParts?.[1] : "";
+
+//   // Split the integer part into parts of 3 digits and remaining digits
+//   const lastThreeDigits = intPart?.slice(-3);
+//   const otherDigits = intPart?.slice(0, -3);
+
+//   // Add commas to the remaining digits every two digits
+//   const formattedOtherDigits = otherDigits?.replace(
+//     /\B(?=(\d{2})+(?!\d))/g,
+//     ","
+//   );
+
+//   // Combine formatted parts
+//   const formattedIntPart = otherDigits
+//     ? formattedOtherDigits + "," + lastThreeDigits
+//     : lastThreeDigits;
+
+//   return formattedIntPart + decimalPart;
+// }
+
 function formatToIndianNumber(numStr) {
   // Remove existing commas
-  const numParts = numStr?.split(".");
-  let intPart = numParts?.[0]?.replace(/,/g, "");
-  const decimalPart = numParts?.length > 1 ? "." + numParts?.[1] : "";
+  let numStrWithoutCommas = numStr?.replace(/,/g, "");
+
+  // Parse the input string as a number and round it off
+  let num = parseFloat(numStrWithoutCommas);
+  if (isNaN(num)) {
+    return ""; // Return an empty string if the input is not a valid number
+  }
+  num = Math.round(num);
+
+  // Convert the rounded number back to a string
+  const roundedNumStr = num.toString();
 
   // Split the integer part into parts of 3 digits and remaining digits
-  const lastThreeDigits = intPart?.slice(-3);
-  const otherDigits = intPart?.slice(0, -3);
+  const lastThreeDigits = roundedNumStr.slice(-3);
+  const otherDigits = roundedNumStr.slice(0, -3);
 
   // Add commas to the remaining digits every two digits
   const formattedOtherDigits = otherDigits?.replace(
@@ -85,13 +117,49 @@ function formatToIndianNumber(numStr) {
     ? formattedOtherDigits + "," + lastThreeDigits
     : lastThreeDigits;
 
-  return formattedIntPart + decimalPart;
+  return formattedIntPart;
+}
+
+function getFormatedNumber(num) {
+  // Round the number to the nearest integer
+  const roundedNum = Math.round(num);
+
+  // Convert the rounded number to a string
+  const roundedNumStr = roundedNum.toString();
+
+  // Split the integer part into parts of 3 digits and remaining digits
+  const lastThreeDigits = roundedNumStr.slice(-3);
+  const otherDigits = roundedNumStr.slice(0, -3);
+
+  // Add commas to the remaining digits every two digits
+  const formattedOtherDigits = otherDigits.replace(
+    /\B(?=(\d{2})+(?!\d))/g,
+    ","
+  );
+
+  // Combine formatted parts
+  const formattedIntPart = otherDigits
+    ? formattedOtherDigits + "," + lastThreeDigits
+    : lastThreeDigits;
+
+  return formattedIntPart;
+}
+
+function getRoundOffNumber(number) {
+  return Math.round(number);
+}
+
+function checkUndefined(number) {
+  return number !== undefined ? number : 0;
 }
 
 const exportDefault = {
   saveLog,
+  checkUndefined,
   getChangedValues,
+  getRoundOffNumber,
   getThemeBasedMode,
+  getFormatedNumber,
   allowAccessByRoles,
   getThemeBasedColour,
   formatToIndianNumber,

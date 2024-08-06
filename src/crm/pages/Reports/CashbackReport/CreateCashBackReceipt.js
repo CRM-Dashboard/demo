@@ -230,7 +230,11 @@ const CreateCashBackReceipt = forwardRef((props, ref) => {
           >
             Choose Files to Upload
           </Button>
-          ,
+          {!props.isFileUploaded && (
+            <Typography sx={{ fontSize: "14px", color: "red" }}>
+              File upload is mandatory
+            </Typography>
+          )}
         </Grid>
       </Box>
     </formik>

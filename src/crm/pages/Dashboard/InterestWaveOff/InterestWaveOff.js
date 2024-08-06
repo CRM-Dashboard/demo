@@ -1,7 +1,9 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
-import { Button } from "@mui/material";
+import moment from "moment";
+import { Button, Grid } from "@mui/material";
 import CreateInterestWaveOff from "./CreateInterestWaveOff";
 import CrmModal from "../../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
@@ -12,8 +14,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 export default function InterestWaveOff() {
   const [page, setPage] = useState(0);
   const [tableData, setTableData] = useState([]);
+  const [requestData, setRequestData] = useState([]);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openCreateForm, setopenCreateForm] = useState(false);
+  const [disabledCreateBtn, setDisabledCreateBtn] = useState(false);
 
   const ref = useRef(null);
   const reducerData = useSelector((state) => state);
@@ -183,7 +187,7 @@ export default function InterestWaveOff() {
       let sumAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + item.data[3];
+          return accu + Number(item.data[3]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -234,6 +238,16 @@ export default function InterestWaveOff() {
     },
   };
 
+  const reqoptions = {
+    selectableRows: "none",
+    elevation: 0,
+    print: true,
+    download: true,
+    search: true,
+    viewColumns: true,
+    filter: true,
+  };
+
   const columns = [
     {
       name: "Request Number",
@@ -257,14 +271,50 @@ export default function InterestWaveOff() {
     },
   ];
 
+  const ReqColumns = [
+    {
+      name: "Created On",
+      label: "Created On",
+    },
+    {
+      name: "Interest Amount",
+      label: "Interest Amount",
+    },
+    {
+      name: "Waive Amount",
+      label: "Waive Amount",
+    },
+    {
+      name: "Waive Reason",
+      label: "Waive Reason",
+    },
+    {
+      name: "Status",
+      label: "Status",
+    },
+  ];
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.vbeln,
-        item?.erdat,
+        moment(item?.erdat).format("DD-MM-YYYY"),
         item?.ernam,
-        item?.amount,
+        GlobalFunctions.getFormatedNumber(item?.amount),
         item?.reason,
+      ];
+    });
+    return modifiedResponse;
+  };
+
+  const modifyReqResponse = (res) => {
+    const modifiedResponse = res?.map((item) => {
+      return [
+        moment(item?.erdat).format("DD-MM-YYYY"), //createdon
+        GlobalFunctions.getFormatedNumber(item?.intAmt), // Interest amount
+        GlobalFunctions.getFormatedNumber(item?.waiveAmt), // Waive amount
+        item?.reasonTxt, // Waive Reason
+        item?.status, // Status
       ];
     });
     return modifiedResponse;
@@ -289,6 +339,7 @@ export default function InterestWaveOff() {
         if (data) {
           console.log("#data", data);
           setTableData(modifyResponse(data[0].waivedoff));
+          setRequestData(modifyReqResponse(data[0].requested));
         }
       });
   };
@@ -306,7 +357,23 @@ export default function InterestWaveOff() {
   return (
     <div style={{ marginTop: "1em" }}>
       <ThemeProvider theme={() => getMuiTheme()}>
-        <Table data={tableData} columns={columns} options={options}></Table>
+        <Grid>
+          <Table
+            title="Interest Waived off details"
+            data={tableData}
+            columns={columns}
+            options={options}
+          ></Table>
+        </Grid>
+        <Grid sx={{ marginTop: "1em" }}>
+          <Table
+            style={{ marginTop: "1em" }}
+            title="Interest Waive off requests"
+            data={requestData}
+            columns={ReqColumns}
+            options={reqoptions}
+          ></Table>
+        </Grid>
       </ThemeProvider>
       <CrmModal
         maxWidth="sm"
@@ -314,6 +381,7 @@ export default function InterestWaveOff() {
         handleShow={() => {
           setopenCreateForm(false);
         }}
+        disabled={disabledCreateBtn}
         primaryBtnText="Create"
         SecondaryBtnText="Close"
         secondarySave={() => {
@@ -328,6 +396,7 @@ export default function InterestWaveOff() {
           ref={ref}
           getTableData={getTableData}
           setopenCreateForm={setopenCreateForm}
+          setDisabledCreateBtn={setDisabledCreateBtn}
         />
       </CrmModal>
     </div>

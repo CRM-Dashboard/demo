@@ -5,6 +5,7 @@ import "./../Style.css";
 import { Grid } from "@mui/material";
 import { useSelector } from "react-redux";
 import { Typography } from "@mui/material";
+import GlobalFunction from "../../../../utils/GlobalFunctions";
 
 export default function CostSheet() {
   const [costInfo, setCostInfo] = useState([]);
@@ -55,32 +56,60 @@ export default function CostSheet() {
 
               <tr>
                 <td>{costInfo.maktx ? costInfo.maktx : "--"}</td>
-                <td>{costInfo.unitValue}</td>
+                <td>{GlobalFunction.getFormatedNumber(costInfo.unitValue)}</td>
               </tr>
 
               <tr>
                 <td>{costInfo.maktxPrk ? costInfo.maktxPrk : "--"}</td>
-                <td>{costInfo.car}</td>
+                <td>{GlobalFunction.getFormatedNumber(costInfo.car)}</td>
               </tr>
 
               <tr>
                 <td>{costInfo.maktxAdmin ? costInfo.maktxAdmin : "--"}</td>
-                <td>{costInfo.adminValue}</td>
+                <td>{GlobalFunction.getFormatedNumber(costInfo.adminValue)}</td>
               </tr>
 
               <tr>
                 <td>{costInfo.maktxEv ? costInfo.maktxEv : "--"}</td>
-                <td style={{ marginRight: "0" }}>{costInfo.evValue}</td>
+                <td style={{ marginRight: "0" }}>
+                  {GlobalFunction.getFormatedNumber(costInfo.evValue)}
+                </td>
+              </tr>
+
+              <tr>
+                <td>{"Unit GST"}</td>
+                <td style={{ marginRight: "0" }}>
+                  {GlobalFunction.getFormatedNumber(costInfo.gst) +
+                    " " +
+                    "(" +
+                    costInfo.gstPer +
+                    "%" +
+                    ")"}
+                </td>
+              </tr>
+
+              <tr>
+                <td>{"Other GST"}</td>
+                <td style={{ marginRight: "0" }}>
+                  {GlobalFunction.getFormatedNumber(costInfo.gstOther) +
+                    " " +
+                    "(" +
+                    costInfo.gstOtherPer +
+                    "%" +
+                    ")"}
+                </td>
               </tr>
 
               <tr>
                 <td></td>
                 <td>
-                  <label style={{ fontWeight: "bold", marginLeft: "-3em" }}>
-                    {" "}
-                    Total :{" "}
-                  </label>{" "}
-                  {costInfo.allIncVal}
+                  <tr>
+                    <label style={{ fontWeight: "bold", marginLeft: "-3em" }}>
+                      {" "}
+                      Total :{" "}
+                    </label>{" "}
+                    {GlobalFunction.getFormatedNumber(costInfo.allIncVal)}
+                  </tr>
                 </td>
               </tr>
             </table>
@@ -103,7 +132,7 @@ export default function CostSheet() {
               <tr>
                 <th style={{ height: "6.2em" }}>
                   <Typography style={{ fontWeight: "Bold", fontSize: "20px" }}>
-                    {costInfo.cvVal}
+                    {GlobalFunction.getFormatedNumber(costInfo.cvVal)}
                   </Typography>
                 </th>
               </tr>
@@ -128,7 +157,10 @@ export default function CostSheet() {
               <Grid sx={{ fontWeight: "bold" }}> Base Value </Grid>
             </td>
             <td>
-              <Grid> {costInfo.baseVal} </Grid>
+              <Grid>
+                {" "}
+                {GlobalFunction.getFormatedNumber(costInfo.baseVal)}{" "}
+              </Grid>
             </td>
           </tr>
           <tr>
@@ -136,7 +168,7 @@ export default function CostSheet() {
               <Grid sx={{ fontWeight: "bold" }}> MESB Value </Grid>
             </td>
             <td>
-              <Grid> {costInfo.mseb} </Grid>
+              <Grid> {GlobalFunction.getFormatedNumber(costInfo.mseb)} </Grid>
             </td>
           </tr>
           <tr> </tr>
@@ -144,7 +176,7 @@ export default function CostSheet() {
             <Grid sx={{ fontWeight: "bold" }}> PMC/PMRDA/PCMC Charges</Grid>
           </td>
           <td>
-            <Grid> {costInfo.pmc}</Grid>{" "}
+            <Grid> {GlobalFunction.getFormatedNumber(costInfo.pmc)}</Grid>{" "}
           </td>
           <tr>
             <td>
@@ -152,7 +184,10 @@ export default function CostSheet() {
             </td>
             <td>
               {" "}
-              <Grid> {costInfo.club} </Grid>{" "}
+              <Grid>
+                {" "}
+                {GlobalFunction.getFormatedNumber(costInfo.club)}{" "}
+              </Grid>{" "}
             </td>
           </tr>
           <tr>
@@ -160,7 +195,7 @@ export default function CostSheet() {
               <Grid sx={{ fontWeight: "bold" }}> Exclusive Club Charges</Grid>
             </td>
             <td>
-              <Grid> {costInfo.exclub} </Grid>{" "}
+              <Grid> {GlobalFunction.getFormatedNumber(costInfo.exclub)} </Grid>{" "}
             </td>
           </tr>
           <tr>
@@ -168,7 +203,10 @@ export default function CostSheet() {
               <Grid sx={{ fontWeight: "bold" }}> Provision Charges </Grid>
             </td>
             <td>
-              <Grid> {costInfo.provision} </Grid>{" "}
+              <Grid>
+                {" "}
+                {GlobalFunction.getFormatedNumber(costInfo.provision)}{" "}
+              </Grid>{" "}
             </td>
           </tr>
           <tr>
@@ -176,7 +214,7 @@ export default function CostSheet() {
               <Grid sx={{ fontWeight: "bold" }}> Garden Charges </Grid>
             </td>
             <td>
-              <Grid> {costInfo.garden}</Grid>{" "}
+              <Grid> {GlobalFunction.getFormatedNumber(costInfo.garden)}</Grid>{" "}
             </td>
           </tr>
 
@@ -191,7 +229,7 @@ export default function CostSheet() {
             </td>
             <td>
               {" "}
-              <Grid> {costInfo.car} </Grid>
+              <Grid> {GlobalFunction.getFormatedNumber(costInfo.car)} </Grid>
             </td>
           </tr>
 
@@ -205,7 +243,10 @@ export default function CostSheet() {
               <tr>
                 <td>
                   <Grid sx={{ fontWeight: "bold" }}> Admin charges </Grid>
-                  <Grid> {costInfo.admin} </Grid>
+                  <Grid>
+                    {" "}
+                    {GlobalFunction.getFormatedNumber(costInfo.admin)}{" "}
+                  </Grid>
                 </td>
                 <td />
                 <td />

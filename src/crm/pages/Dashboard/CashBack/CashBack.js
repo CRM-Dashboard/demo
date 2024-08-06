@@ -1,6 +1,8 @@
+/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Table from "mui-datatables";
+import moment from "moment";
 import { IconButton } from "@mui/material";
 import FileDetails from "./FileDetails";
 import CrmModal from "../../../components/crmModal/CrmModal";
@@ -174,7 +176,7 @@ export default function CashBack() {
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
           console.log("**********sumdata", accu, item.data);
-          return accu + item.data[2];
+          return accu + Number(item.data[2]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -245,8 +247,8 @@ export default function CashBack() {
     const modifiedResponse = res?.map((item) => {
       return [
         item?.createdBy,
-        item?.createdOn,
-        item?.amount,
+        moment(item?.createdOn).format("DD-MM-YYYY"),
+        GlobalFunctions.getFormatedNumber(item?.amount),
         item?.type,
         item?.status,
         item?.remark,

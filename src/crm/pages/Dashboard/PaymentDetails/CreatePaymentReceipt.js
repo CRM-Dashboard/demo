@@ -25,7 +25,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
-      USERNAME: userName.toUpperCase(),
+      USERNAME: userName?.toUpperCase(),
       UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
       UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
       OBJECT: "Create Payment Receipt",
@@ -52,6 +52,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
     };
 
     if (Object.keys(formik.errors).length === 0) {
+      props.setDisabledCreateBtn(true);
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
@@ -72,6 +73,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
             snackbar.showSuccess("Payment details created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();
+            props.setDisabledCreateBtn(false);
           } else {
             snackbar.showError("Something went wrong. Please try agin!");
           }
@@ -102,10 +104,10 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
     paymentAmount: Yup.number()
       .typeError("Enter Numbers Only.")
       .required("Required"),
-    bankName: Yup.string().required("Required"),
-    branchName: Yup.string().required("Required"),
-    bankCity: Yup.string().required("Required"),
-    remarks: Yup.string().required("Required"),
+    bankName: Yup.string(),
+    branchName: Yup.string(),
+    bankCity: Yup.string(),
+    remarks: Yup.string(),
   });
 
   const formik = useFormik({
@@ -237,6 +239,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
             helperText={
               formik.touched.paymentAmount && formik.errors.paymentAmount
             }
+            required
           />
         </Grid>
         <Grid item xs={12}>
@@ -292,14 +295,23 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
             id="remarks"
             name="remarks"
             label="Remarks"
-            style={{ width: "40em", height: "3.2em" }}
+            style={{
+              width: "31.5em",
+              height: "3em",
+              padding: "0.5em",
+              fontSize: "17px",
+            }}
             value={formik.values.remarks}
             onChange={formik.handleChange}
             error={formik.touched.remarks && Boolean(formik.errors.remarks)}
             helperText={formik.touched.remarks && formik.errors.remarks}
           />
           <Typography
-            sx={{ color: "red", fontSize: "13.5px", marginLeft: "0.2em" }}
+            sx={{
+              color: "red",
+              fontSize: "13.5px",
+              marginLeft: "0.2em",
+            }}
           >
             {formik.errors.remarks}
           </Typography>

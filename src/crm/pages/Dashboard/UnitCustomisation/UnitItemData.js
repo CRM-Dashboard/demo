@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, forwardRef } from "react";
 import MUIDataTable from "mui-datatables";
@@ -19,11 +20,6 @@ const UnitItemData = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const snackbar = UseCustomSnackbar();
-
-  const getLocaltionName = (data) => {
-    const latestLocation = locations?.filter((obj) => obj?.location === data);
-    return latestLocation[0]?.locTxt;
-  };
 
   const getTableData = () => {
     const formData = new FormData();
@@ -48,7 +44,7 @@ const UnitItemData = forwardRef((props, ref) => {
           const DataForTable = Data?.map((item) => {
             return [
               item?.category,
-              getLocaltionName(item?.location),
+              item?.locTxt,
               item?.changes,
               item?.amount,
               item?.feasible,
@@ -112,30 +108,37 @@ const UnitItemData = forwardRef((props, ref) => {
       "vbeln",
       "mandt",
     ];
+
     const updatedData = convertToArrayOfObjects(data, template);
 
-    const formData = new FormData();
-    formData.append("orderId", orderId);
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("entryData", JSON.stringify(updatedData));
-    fetch(
-      process.env.REACT_APP_SERVER_URL +
-        "/api/dashboard/createUnitCustomRequest",
-      {
-        method: "POST",
-        body: formData,
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          saveLog();
-          snackbar.showSuccess("Request Updated Successfully!");
-          props.setUniqueIdOfItemData("");
-          setBtnLoading(false);
+    if (updatedData) {
+      const formData = new FormData();
+      formData.append("orderId", orderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(updatedData));
+      fetch(
+        process.env.REACT_APP_SERVER_URL +
+          "/api/dashboard/createUnitCustomRequest",
+        {
+          method: "POST",
+          body: formData,
         }
-      });
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            saveLog();
+            snackbar.showSuccess("Request Updated Successfully!");
+            props.setUniqueIdOfItemData("");
+            setBtnLoading(false);
+          }
+        });
+    } else {
+      snackbar.showError(
+        "Please Add new row and add data into it then you can save!"
+      );
+    }
   };
 
   function convertToArrayOfObjects(data, template) {

@@ -9,7 +9,7 @@ function CrmDatePicker(props) {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
         sx={{ width: "100%" }}
-        format={props?.format || "YYYY-MM-DD"}
+        format={props?.format || "DD-MM-YYYY"}
         disablePast={props?.disablePast}
         minDate={props.minDate}
         maxDate={props.maxDate}

@@ -21,7 +21,7 @@ import CrmDatePicker from "../../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../../components/snackbar/UseCustomSnackBar";
 import moment from "moment";
 
-const Timeline = () => {
+const Timeline = ({ unitData }) => {
   const [map, setMap] = useState("");
   const [city, setCity] = useState("");
   const [venue, setVenue] = useState([]);
@@ -55,6 +55,7 @@ const Timeline = () => {
   };
 
   const sendInvitation = () => {
+    const formData = new FormData();
     const entryData = {
       date: moment(formik.values.date.$d).format("DD/MM/YYYY"),
       time: moment(formik.values.time.$d).format("HH:mm:ss"),
@@ -62,18 +63,16 @@ const Timeline = () => {
       haveli: formik.values.venue,
     };
 
-    fetch(
-      process.env.REACT_APP_SERVER_URL +
-        `/sap/bc/react/crm/mail?sap-client=250&vbeln=${OrderId}&mail=REGISTER_INVITE`,
-      {
-        method: "POST",
-        body: JSON.stringify(entryData),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    )
+    formData.append("orderId", OrderId);
+    formData.append("mailId", "REGISTER_INVITE");
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+    // process.env.REACT_APP_SERVER_URL + "/api/topBar/mail"
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/mail", {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => {
         return response;
       })
@@ -221,30 +220,32 @@ const Timeline = () => {
         ))}
       </VerticalTimeline>
 
-      <div
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          display: "flex",
-          margin: "2em",
-        }}
-      >
-        <button
+      {unitData.zzregdt === "0000-00-00" && (
+        <div
           style={{
-            borderRadius: "1.2em",
-            height: "2.6em",
-            width: "16em",
-            backgroundColor: "rgb(16, 204, 82)",
-            color: "white",
-          }}
-          onClick={() => {
-            setOpenForm(true);
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+            margin: "2em",
           }}
         >
-          {" "}
-          Registration Invitation
-        </button>
-      </div>
+          <button
+            style={{
+              borderRadius: "1.2em",
+              height: "2.6em",
+              width: "16em",
+              backgroundColor: "rgb(16, 204, 82)",
+              color: "white",
+            }}
+            onClick={() => {
+              setOpenForm(true);
+            }}
+          >
+            {" "}
+            Registration Invitation
+          </button>
+        </div>
+      )}
       {/* )} */}
 
       <CrmModal

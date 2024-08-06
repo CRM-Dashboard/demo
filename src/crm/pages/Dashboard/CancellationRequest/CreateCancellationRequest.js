@@ -13,9 +13,9 @@ import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 const CreateCancellationRequest = forwardRef((props, ref) => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState("");
   const [reasons, setReasons] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const snackbar = UseCustomSnackbar();
@@ -155,21 +155,21 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
     applicationDate: Yup.date(),
     cancellationRaisedOn: Yup.date(),
     customer: Yup.string(),
-    cancellationDeedSigned: Yup.string().required("Required"),
+    cancellationDeedSigned: Yup.string(),
     project: Yup.number(),
-    cancellationDeedDate: Yup.string().required("Required"),
+    cancellationDeedDate: Yup.string(),
     unitNumber: Yup.number(),
     handedToCrm: Yup.number(),
     consideration: Yup.number(),
     amountPaid: Yup.number(),
-    forfeitureAmount: Yup.number().required("Required"),
+    forfeitureAmount: Yup.number(),
     cashBackAmount: Yup.number(),
     totalForfeiture: Yup.number(),
     amountToBeRefund: Yup.number(),
     cancellationReason: Yup.string().required("Required"),
-    remark: Yup.string().required("Required"),
+    remark: Yup.string(),
     rejectionReason: Yup.string(),
-    transferSalesOrder: Yup.string().required("Required"),
+    transferSalesOrder: Yup.string(),
   });
 
   const formik = useFormik({
@@ -361,7 +361,6 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 onChange={formik.handleChange}
                 error={Boolean(formik.errors.cancellationDeedSigned)}
                 helperText={formik.errors.cancellationDeedSigned}
-                required
               >
                 <MenuItem value="" key="0">
                   {" "}
@@ -388,7 +387,6 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 }
                 error={Boolean(formik.errors.cancellationDeedDate)}
                 helperText={formik.errors.cancellationDeedDate}
-                required
               />
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
@@ -405,7 +403,6 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 }}
                 error={Boolean(formik.errors.forfeitureAmount)}
                 helperText={formik.errors.forfeitureAmount}
-                required
               />
             </Grid>
             <Grid item xs={2} sm={3} md={3}>
@@ -417,7 +414,6 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 error={Boolean(formik.errors.transferSalesOrder)}
                 helperText={formik.errors.transferSalesOrder}
                 onChange={formik.handleChange}
-                required
               />
             </Grid>
           </Grid>
@@ -446,9 +442,30 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 })}
               </InputField>
             </Grid>
+            <Grid item xs={2} sm={3} md={3}>
+              <Typography style={{ fontSize: "0.8em" }}>Remark</Typography>
+              <textarea
+                id="remark"
+                name="remark"
+                label="Remark"
+                style={{
+                  width: "19em",
+                  height: "3.2em",
+                  padding: "0.5em",
+                  fontSize: "17px",
+                }}
+                value={formik.values.remark}
+                onChange={formik.handleChange}
+              />
+              {error && (
+                <Typography style={{ color: "red", fontSize: "13px" }}>
+                  {error}
+                </Typography>
+              )}
+            </Grid>
           </Grid>
           <br />
-          <Grid container spacing={4}>
+          {/* <Grid container spacing={4}>
             <Grid item xs={2} sm={3} md={3}>
               <Typography style={{ fontSize: "0.8em" }}>Remark</Typography>
               <textarea
@@ -465,7 +482,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
                 </Typography>
               )}
             </Grid>
-          </Grid>
+          </Grid> */}
           <Grid sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Button
               sx={{

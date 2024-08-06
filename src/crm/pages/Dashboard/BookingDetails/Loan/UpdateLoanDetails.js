@@ -35,7 +35,7 @@ const UpdateLoanDetails = forwardRef((props, ref) => {
   };
 
   const saveLoanDetails = () => {
-    console.log("#################foemik.values", formik.values);
+    props.setDisableUpdateBtn(true);
     const entryData = {
       loan: [
         {
@@ -75,6 +75,7 @@ const UpdateLoanDetails = forwardRef((props, ref) => {
           saveLog();
           snackbar.showSuccess("Records updated successfully!");
           props.setIsLoanInfoEditable(false);
+          props.setDisableUpdateBtn(false);
           props.getData();
         } else {
           snackbar.showError("Failed to update records!");

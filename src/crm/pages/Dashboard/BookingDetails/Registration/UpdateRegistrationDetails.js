@@ -35,7 +35,7 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
   };
 
   const saveRegDetails = () => {
-    console.log("#################foemik.values", formik.values);
+    props.setDisableUpdateBtn(true);
     const entryData = {
       register: [
         {
@@ -47,6 +47,8 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
           zzregno: formik.values.regNo,
           zzhano: formik.values.zzhano,
           zzagmdt: formik.values.zzagmdt,
+          zstamp_utr: formik.values.zstampUtr,
+          zstamp_dt: formik.values.zstampDt,
         },
       ],
     };
@@ -67,6 +69,7 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
         if (data) {
           saveLog();
           snackbar.showSuccess("Records updated successfully!");
+          props.setDisableUpdateBtn(false);
           props.setIsRegInfoEditable(false);
           props.getData();
         } else {
@@ -90,6 +93,8 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
     zzagmdt: yup.date(), //Agreement date
     regNo: yup.number(),
     zzhano: yup.number(), //haveli number
+    zstampUtr: yup.string(),
+    zstampDt: yup.date(),
   });
 
   const formik = useFormik({
@@ -98,13 +103,24 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
         ? props?.registerInfo?.reckRate
         : "", //Ready Reckoner Rate,
       zstamp: props?.registerInfo?.zstamp ? props?.registerInfo?.zstamp : "", //SDR/ESBTR Received Amount,
-      draftApprDt: props?.registerInfo?.draftApprDt
-        ? props?.registerInfo?.draftApprDt
-        : dayjs(""), //Agreement Draft Accepted date
-      regDate: props?.registerInfo?.zzregdt ? props?.registerInfo?.zzregdt : "",
+      draftApprDt:
+        props?.registerInfo?.draftApprDt === "0000-00-00"
+          ? null
+          : props?.registerInfo?.draftApprDt,
+      regDate:
+        props?.registerInfo?.zzregdt === "0000-00-00"
+          ? null
+          : props?.registerInfo?.zzregdt,
       zzagmdt: props?.registerInfo?.zzagmdt ? props?.registerInfo?.zzagmdt : "", //Agreement date
       regNo: props?.registerInfo?.zzregno ? props?.registerInfo?.zzregno : "",
       zzhano: props?.registerInfo?.zzhano ? props?.registerInfo?.zzhano : "", //haveli number
+      zstampUtr: props?.registerInfo?.zstampUtr
+        ? props?.registerInfo?.zstampUtr
+        : props?.registerInfo?.zstampUtr,
+      zstampDt:
+        props?.registerInfo?.zstampDt === "0000-00-00"
+          ? null
+          : props?.registerInfo?.zstampDt,
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
@@ -137,6 +153,40 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
               label="SDR/ESBTR Received Amount"
               value={formik.values.zstamp}
               onChange={formik.handleChange}
+            />
+          </Grid>
+        </Grid>
+        <br />
+
+        <Grid>
+          <Grid>
+            <InputField
+              id="zstampUtr"
+              name="zstampUtr"
+              label="SDR UTR Number"
+              value={formik.values.zstampUtr}
+              onChange={formik.handleChange}
+            />
+          </Grid>
+        </Grid>
+        <br />
+
+        <Grid>
+          <Grid>
+            <CrmDatePicker
+              id="zstampDt"
+              name="zstampDt"
+              label="SDR Received On"
+              value={dayjs(formik.values.zstampDt)}
+              onChange={(value) => {
+                const formattedDate =
+                  value !== "0000-00-00"
+                    ? dayjs(value).format("YYYY-MM-DD")
+                    : dayjs("");
+                formik.setFieldValue("zstampDt", formattedDate, true);
+              }}
+              error={formik.touched.zstampDt && Boolean(formik.errors.zstampDt)}
+              helperText={formik.touched.zstampDt && formik.errors.zstampDt}
             />
           </Grid>
         </Grid>

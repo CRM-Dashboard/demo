@@ -23,6 +23,7 @@ import CancellationReport from "../crm/pages/Reports/CancellationReport/Cancella
 import Tasks from "../HierarchyTable/TaskManagement/Tasks";
 import Tickets from "../HierarchyTable/TicketManagement/Tickets";
 import Projects from "../HierarchyTable/ProjectManagement/Projects";
+import FileMovement from "../crm/pages/FileMovement/FileMovement";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -69,6 +70,7 @@ export default function Navigation() {
                 <Route path="/requestApproval" element={<ApprovalPage />} />
                 <Route path="/crm/*" element={<Layout />}>
                   <Route index element={<CustomerDetails />} />
+                  <Route path="fileMovement" element={<FileMovement />} />
                   <Route path="customerDetails" element={<CustomerDetails />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="callHistory" element={<CallHistory />} />

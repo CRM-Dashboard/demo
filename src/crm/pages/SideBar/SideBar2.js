@@ -63,9 +63,11 @@ import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CashbackReport from "../Reports/CashbackReport/CashbackReport";
 import CrmModal from "../../components/crmModal/CrmModal";
 import Mails from "../Mails/Mails";
+import FileOpenIcon from "@mui/icons-material/FileOpen";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import InputField from "../../components/inputField/InputField";
 import CancellationReport from "../Reports/CancellationReport/CancellationReport";
+import FileMovement from "../FileMovement/FileMovement";
 
 const routes = [
   {
@@ -73,6 +75,12 @@ const routes = [
     to: "/crm",
     name: "Dashboard",
     icon: <DashboardOutlinedIcon />,
+  },
+  {
+    path: "/fileMovement",
+    to: "/crm",
+    name: "File Movement",
+    icon: <FileOpenIcon />,
   },
   {
     path: "/Reports",
@@ -756,6 +764,7 @@ const SideBar2 = () => {
             <Routes>
               <Route path="/crm/*">
                 <Route index element={<CustomerDetails />} />
+                <Route path="fileMovement" element={<FileMovement />} />
                 <Route path="customerDetails" element={<CustomerDetails />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="callHistory" element={<CallHistory />} />

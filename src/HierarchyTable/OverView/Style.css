@@ -1,0 +1,54 @@
+.battery-container {
+  position: relative;
+  width: 80px;
+  height: 25px;
+  background-color: #e6e6e6;
+  border-radius: 5px;
+}
+
+.battery-body {
+  position: absolute;
+  top: 2.5px;
+  left: 5px;
+  width: 70px;
+  height: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.battery-fill {
+  width: 0%;
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 2px;
+}
+
+.battery-indicator {
+  position: absolute;
+  top: 7px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+
+.battery-percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: #4caf50;
+}
+
+.content-container {
+  background-color: var(--second-bg);
+  flex: 1;
+  /* top: 2%; */
+  margin-top: 2.5em;
+  position: relative;
+  height: "fit-content";
+  overflow-y: auto;
+}

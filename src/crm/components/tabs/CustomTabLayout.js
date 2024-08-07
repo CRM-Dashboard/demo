@@ -64,6 +64,7 @@ TabPanel.propTypes = {
   index: PropTypes.any.isRequired,
   value: PropTypes.any.isRequired,
 };
+
 function CustomTabLayout({
   tabPanels,
   hideTopBorder = false,
@@ -75,15 +76,18 @@ function CustomTabLayout({
   const [selectedIndex, setSelectedIndex] = React.useState();
   const [value, setValue] = React.useState(activeTab);
   const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleMenuItemClick = (event, index) => {
-    setValue(false);
-    setSelectedIndex(index - 9);
+    setValue(index);
+    setSelectedIndex(index);
     setAnchorEl(null);
     onTabChange(index);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -102,14 +106,6 @@ function CustomTabLayout({
     }
     onTabChange(newValue);
   };
-
-  function renderButtonTabs(id) {
-    return (
-      <Typography>
-        {tabPanels.slice(9, tabPanels.length)[id].component}
-      </Typography>
-    );
-  }
 
   return (
     <>
@@ -131,23 +127,26 @@ function CustomTabLayout({
         }}
       >
         <CrmTabs sx={{ padding: 0 }} value={value} onChange={handleChange}>
-          {tabPanels.length > 9
-            ? tabPanels.slice(0, 9).map((item) => (
+          {tabPanels.length > 8
+            ? tabPanels
+                .slice(0, 8)
+                .map((item, index) => (
+                  <ErpTab
+                    key={index}
+                    label={<Typography>{item.label}</Typography>}
+                    {...a11yProps(index)}
+                  />
+                ))
+            : tabPanels.map((item, index) => (
                 <ErpTab
-                  // disabled={item?.disabled}
-                  label={<Typography>{item.label}</Typography>}
-                  {...a11yProps(0)}
-                />
-              ))
-            : tabPanels.map((item) => (
-                <ErpTab
+                  key={index}
                   disabled={item?.disabled}
                   label={<Typography>{item.label}</Typography>}
-                  {...a11yProps(0)}
+                  {...a11yProps(index)}
                 />
               ))}
         </CrmTabs>
-        {tabPanels.length > 9 ? (
+        {tabPanels.length > 8 && (
           <>
             <Button
               disableRipple
@@ -158,7 +157,6 @@ function CustomTabLayout({
               onClick={handleClick}
               startIcon={<MenuOpen />}
             />
-
             <Menu
               id="basic-menu"
               anchorEl={anchorEl}
@@ -168,44 +166,45 @@ function CustomTabLayout({
                 "aria-labelledby": "basic-button",
               }}
             >
-              {tabPanels.slice(9, tabPanels.length).map((item, index) => (
+              {tabPanels.map((item, index) => (
                 <MenuItem
+                  key={index}
                   selected={index === selectedIndex}
-                  value={item.label}
-                  onClick={(event) => handleMenuItemClick(event, index + 9)}
+                  onClick={(event) => handleMenuItemClick(event, index)}
                   disabled={item?.disabled}
                 >
-                  <Typography> {item.label} </Typography>
+                  <Typography>{item.label}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </>
-        ) : (
-          ""
         )}
       </Box>
-      {tabPanels?.length > 0 ? (
+      {tabPanels?.length > 0 && (
         <div style={{ marginBottom: "1em" }}>
           <Box>
-            {selectedIndex !== undefined
-              ? renderButtonTabs(selectedIndex)
-              : tabPanels.map((item, index) => (
-                  <TabPanel value={value} index={index}>
-                    {item.component}
-                  </TabPanel>
-                ))}
+            {tabPanels.map((item, index) => (
+              <TabPanel key={index} value={value} index={index}>
+                {item.component}
+              </TabPanel>
+            ))}
           </Box>
         </div>
-      ) : (
-        ""
       )}
     </>
   );
 }
 CustomTabLayout.propTypes = {
   activeTab: PropTypes.number,
-  tabPanels: PropTypes.any.isRequired,
+  tabPanels: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      component: PropTypes.node.isRequired,
+      disabled: PropTypes.bool,
+    })
+  ).isRequired,
   hideTopBorder: PropTypes.bool,
   onTabChange: PropTypes.func,
 };
+
 export default CustomTabLayout;

@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-concat */
 // import AWS from "aws-sdk";
-import { useState } from "react";
+import { useState, useImperativeHandle } from "react";
 // import { useSelector } from "react-redux";
 import {
   List,
@@ -11,30 +11,56 @@ import {
   IconButton,
   ListItemText,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { Delete } from "@mui/icons-material";
+import GlobalFunctions from "./../../utils/GlobalFunctions";
 import CloudUploadIcon from "@mui/icons-material/CloudUploadOutlined";
-import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
-import FileUploadAction from "../../Activity/FileUploader/FileReducer/FileUploadAction";
+import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
+import FileUploadAction from "../Activity/FileUploader/FileReducer/FileUploadAction";
 
 function FileUploader({
-  callBack,
+  ref,
   requestNo,
-  selectedOrderId,
   setOpenFileUpload,
-  setIsFileUploaded,
+  callBack,
+  type,
+  setfileUploadType,
+  getData,
 }) {
   // Create state to store file
   const dispatch = useDispatch();
   const snackbar = UseCustomSnackbar();
-  // const reducerData = useSelector((state) => state);
+  const reducerData = useSelector((state) => state);
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
   // const OrderId = reducerData.searchBar.orderId;
 
   const [files, setFiles] = useState([]);
 
+  useImperativeHandle(ref, () => ({
+    uploadFile,
+  }));
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: requestNo,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Uploaded files for File Movements on AWS S3 Bucket.",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const uploadFile = async () => {
-    console.log("#######Inside File Upload- cashback", files);
-    if (files.length > 0) {
+    console.log("############files", files);
+    if (files) {
       const apiUrl =
         process.env.REACT_APP_SERVER_URL + "/api/activity/uploadFileToS3";
 
@@ -54,11 +80,11 @@ function FileUploader({
         const blob = new Blob([file.buffer], { type: file.mimetype });
         formData.append("files", blob, file.originalname);
       });
-      const folder = `Cashback/${selectedOrderId}/${requestNo}`;
+      const folder = `File-Movement/${requestNo}/${type}`;
       formData.append("bucketName", "gera-crm");
       formData.append("folderName", folder);
 
-      if (selectedOrderId && requestNo) {
+      if (requestNo) {
         fetch(apiUrl, {
           method: "POST",
           body: formData,
@@ -76,16 +102,14 @@ function FileUploader({
               dispatch(FileUploadAction.setUploadFileUrls(data));
               setOpenFileUpload(false);
               callBack(data.urls);
-              setIsFileUploaded(true);
+              saveLog();
+              getData();
+              setfileUploadType("");
               snackbar.showSuccess("Files Uploaded Successfully!");
             } else {
               alert("Error");
             }
           });
-      } else {
-        snackbar.showError(
-          "Please filter for a customer first, for which wanted to upload files!"
-        );
       }
     }
   };
@@ -111,27 +135,6 @@ function FileUploader({
       reader.readAsArrayBuffer(file);
     });
   };
-  //   const handleFileChange = (event) => {
-  //     const fileList = [...files, ...Array.from(event.target.files)];
-  //     const readFiles = [];
-
-  //     fileList.forEach((file) => {
-  //       const reader = new FileReader();
-  //       reader.onload = (event) => {
-  //         readFiles.push({
-  //           originalname: file.name,
-  //           buffer: event.target.result,
-  //           mimetype: file.type,
-  //           size: file.size,
-  //         });
-  //         if (readFiles.length === fileList.length) {
-  //           console.log();
-  //           setFiles(readFiles);
-  //         }
-  //       };
-  //       reader.readAsArrayBuffer(file);
-  //     });
-  //   };
 
   const handleDeleteFile = (index) => {
     setFiles(files.filter((_, i) => i !== index));
@@ -181,7 +184,9 @@ function FileUploader({
                 color="primary"
                 component="span"
                 disabled={files.length === 0}
-                onClick={uploadFile}
+                onClick={() => {
+                  uploadFile();
+                }}
               >
                 Upload Files
               </Button>

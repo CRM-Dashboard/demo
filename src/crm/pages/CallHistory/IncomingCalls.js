@@ -37,7 +37,7 @@ const CustomPagination = ({ callMeta, onPageChange }) => (
   </Grid>
 );
 
-export default function OutGoingCalls() {
+export default function IncomingCalls() {
   const [response, setResponse] = useState([]);
   const [callMeta, setCallMeta] = useState();
   const [tableData, setTableData] = useState([]);
@@ -127,10 +127,10 @@ export default function OutGoingCalls() {
   const getTableData = () => {
     setIsLoading(true);
 
-    const dataUrl = `${process.env.REACT_APP_SERVER_URL}/api/exotel/calls`;
+    const dataUrl = `${process.env.REACT_APP_SERVER_URL}/api/exotel/IncomingCalls`;
 
     const formData = new FormData();
-    formData.append("To", customerMobileNumber);
+    formData.append("From", customerMobileNumber);
 
     fetch(dataUrl, {
       method: "POST",

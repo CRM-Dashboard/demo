@@ -1,24 +1,29 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
-import Table from "mui-datatables";
-import { Box, IconButton } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
-import CallIcon from "@mui/icons-material/Call";
-import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
-import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import "./CustomersList.css";
+import Table from "mui-datatables";
+import { useDispatch } from "react-redux";
+import CallIcon from "@mui/icons-material/Call";
+import { Box, IconButton } from "@mui/material";
 import CustomerInfoCard from "./CustomerInfoCard";
+import GlobalFunctions from "../../../utils/GlobalFunctions";
+import { useSelector } from "react-redux/es/hooks/useSelector";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+import customerInfoAction from "../../Dashboard/CustomerInformation/CustomerInfoReducer/CustomerInfoAction";
 
 export default function CustomersList() {
+  const [sid, setSid] = useState(0);
   const [response, setResponse] = useState([]);
+  const [callAPI, setCallAPI] = useState(false);
+  const [stateData, setStateData] = useState([]);
   const [titleData, setTitleData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [occupations, setOccupation] = useState([]);
   const [countryData, setCountryData] = useState([]);
-  const [stateData, setStateData] = useState([]);
   const [customerInfo, setCutomerInfo] = useState("");
   const [openCustInfo, setOpenCustInfo] = useState(false);
   const [filteredResponse, setFilteredResponse] = useState([]);
@@ -26,7 +31,9 @@ export default function CustomersList() {
   const [customerMobileNumber, setCustomerMobileNumber] = useState("");
 
   const snackbar = UseCustomSnackbar();
+  const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
+  const Sid = reducerData.customerInfoReducer.custListSid;
   const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
@@ -63,6 +70,136 @@ export default function CustomersList() {
   //   return maskedNumber;
   // };
 
+  const getCallDetailsBySid = (sid) => {
+    return new Promise((resolve, reject) => {
+      if (sid) {
+        const apiUrl =
+          process.env.REACT_APP_SERVER_URL + "/api/exotel/callDetails";
+        const formData = new FormData();
+        formData.append("sid", sid);
+
+        fetch(apiUrl, { method: "POST", body: formData })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data) {
+              resolve(data.Calls);
+            } else {
+              reject(new Error("No data received"));
+            }
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      } else {
+        reject(new Error("SID is not provided"));
+      }
+    });
+  };
+
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: OrderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: `${userName} called to ${customerMobileNumber}`,
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
+  const saveCallDetailsAPI = (callDetails) => {
+    // process.env.REACT_APP_SERVER_URL
+    const apiUrl =
+      process.env.REACT_APP_SERVER_URL + "/api/topBar/saveCallDetails";
+
+    fetch(apiUrl, { method: "POST", body: callDetails })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          saveLog();
+          snackbar.showSuccess("Call Deatails save successfully!");
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError(
+            "Error while saving call details. Please try again!"
+          );
+        }
+      });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (callAPI && sid) {
+        const interval = setInterval(async () => {
+          if (callAPI && sid) {
+            try {
+              // Fetch status of sid here
+              const data = await getCallDetailsBySid(Sid); // Assuming getCallDetailsBySid is an asynchronous function
+
+              const sidData = data?.filter((data) => data.Sid === sid);
+              const status = sidData?.[0]?.Status; // Access the status from the first item of the filtered array
+              const recordingUrl = sidData?.[0]?.RecordingUrl;
+              console.log("status", status, recordingUrl);
+
+              if (status) {
+                setCallAPI(false);
+                // setOpenActivityModal(true);
+                clearInterval(interval); // Stop checking once flag is set to false
+                if (status == "completed") {
+                  console.log("call update api");
+                  const [dateStr, timeStr] =
+                    sidData?.[0]?.DateCreated.split(" ");
+                  const entryData = {
+                    SID: sidData?.[0]?.Sid,
+                    ERDAT: dateStr,
+                    UZEIT: timeStr,
+                    CALL_FROM: sidData?.[0]?.From,
+                    CALL_TO: sidData?.[0]?.To,
+                    PHONESID: sidData?.[0]?.PhoneNumberSid,
+                    STATUS: sidData?.[0]?.Status,
+                    START_TIME: sidData?.[0]?.StartTime,
+                    RECORDING_URL: sidData?.[0]?.RecordingUrl,
+                    VBELN: OrderId,
+                  };
+
+                  const callDatails = new FormData();
+                  callDatails.append("userName", userName);
+                  callDatails.append("passWord", passWord);
+                  callDatails.append("entryData", JSON.stringify(entryData));
+
+                  saveCallDetailsAPI(callDatails);
+                }
+              }
+            } catch (error) {
+              console.error("Error fetching status:", error);
+            }
+          }
+        }, 30000); // 30 seconds interval
+
+        return () => {
+          clearInterval(interval);
+          setCallAPI(false);
+          setSid(0);
+          dispatch(customerInfoAction.setCustomerInfoSid(""));
+        };
+      }
+    };
+
+    fetchData();
+  }, [callAPI]); // Adding dependencies 'callAPI' and 'sid' to re-run effect when they change
+
   useEffect(() => {
     const initiateOutgoingCall = async () => {
       if (customerMobileNumber !== "") {
@@ -70,25 +207,32 @@ export default function CustomersList() {
 
         formData.append("From", loggedInUser?.mobile);
         formData.append("To", customerMobileNumber);
-        formData.append("CallerId", "020-485-54946");
-        formData.append("Record", "true");
+        formData.append("CallerId", "020-485-55656");
+        formData.append("Record", true);
 
         const apiUrl =
           process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
 
         try {
-          const response = await fetch(apiUrl, {
+          fetch(apiUrl, {
             method: "POST",
             body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error(
-              `Error: ${response.status} - ${response.statusText}`
-            );
-          } else {
-            snackbar.showSuccess("Connecting to..." + customerMobileNumber);
-          }
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data) {
+                setCallAPI(true);
+                setSid(data.Call.Sid);
+                dispatch(customerInfoAction.setCustomerInfoSid(data.Call.Sid));
+                console.log("##########call API", data.Call);
+                snackbar.showSuccess("Connecting to..." + customerMobileNumber);
+              }
+            })
+            .catch((error) => {
+              throw new Error(
+                `Error: ${response.status} - ${response.statusText}`
+              );
+            });
         } catch (error) {
           snackbar.showError("Error while connecting. Please try again!");
         }

@@ -8,6 +8,9 @@ const accessConstants = {
   possessionAccess: "Z_REACT_POSSESSION_EDIT",
   loanAccess: "Z_REACT_LOAN_EDIT",
   schemeAccess: "Z_REACT_SCHEME_EDIT",
+  fileMovementSales: "Z_REACT_CRM_FILE_SALES",
+  fileMovementGateKeeper: "Z_REACT_CRM_FILE_GATE_KEEPER",
+  fileMovementRelManager: "Z_REACT_CRM_FILE_REL_MGR",
 };
 
 const exportDefault = { roleConstants, accessConstants };

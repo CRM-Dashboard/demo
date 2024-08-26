@@ -1,4 +1,3 @@
-/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Table from "mui-datatables";
@@ -9,23 +8,24 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
-export default function IncomingOrMissedCalls() {
+export default function SAPCallLogs() {
   const [tableData, setTableData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState([]);
 
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
-  const customerMobileNumber = reducerData?.dashboard?.customerContactNo;
+  const passWord = reducerData.LoginReducer.passWord;
+  const userName = reducerData.LoginReducer.userName;
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
-        item?.To,
-        item?.From,
-        item?.Status,
-        item?.StartTime,
-        item?.RecordingUrl,
+        item?.callTo,
+        item?.callFrom,
+        item?.status,
+        item?.startTime,
+        item?.recordingUrl,
       ];
     });
     return modifiedResponse;
@@ -55,7 +55,7 @@ export default function IncomingOrMissedCalls() {
         customBodyRenderLite: (dataIndex, rowIndex) => [
           <IconButton color="primary" size="small">
             <ReactPlayer
-              url={response[dataIndex]?.RecordingUrl}
+              url={response[dataIndex].recordingUrl}
               controls
               width="300px"
               height="50px"
@@ -68,23 +68,23 @@ export default function IncomingOrMissedCalls() {
 
   const getTableData = () => {
     setIsLoading(true);
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/exotel/calls", {
-      method: "GET",
+
+    const formData = new FormData();
+    formData.append("orderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topbar/getCallDetails", {
+      method: "POST",
+      body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          setResponse(data.Calls);
+          console.log("#########data", data);
+          setResponse(data);
           setIsLoading(false);
-          const calls = data.Calls.filter((data) => {
-            if (
-              data.Direction === "inbound" &&
-              data.To === "0" + customerMobileNumber
-            ) {
-              return data;
-            }
-          });
-          setTableData(modifyResponse(calls));
+          setTableData(modifyResponse(data));
         } else {
           setIsLoading(false);
         }

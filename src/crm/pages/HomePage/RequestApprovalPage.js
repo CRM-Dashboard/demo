@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { Grid } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Button } from "@mui/material";
+import "react-chat-elements/dist/main.css";
+import Typography from "@mui/material/Typography";
+import { MessageList, Input } from "react-chat-elements";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -42,6 +44,37 @@ function a11yProps(index) {
 
 export default function RequestApprovalPage() {
   const [value, setValue] = React.useState(0);
+  const [messages, setMessages] = useState([
+    {
+      position: "left",
+      type: "text",
+      text: "Hello, how are you?",
+      date: new Date(),
+    },
+    {
+      position: "left",
+      type: "text",
+      text: "I am fine, thank you!",
+      date: new Date(),
+    },
+  ]);
+
+  const [newMessage, setNewMessage] = useState("");
+
+  const handleSend = () => {
+    if (newMessage.trim() !== "") {
+      setMessages([
+        ...messages,
+        {
+          position: "right",
+          type: "text",
+          text: newMessage,
+          date: new Date(),
+        },
+      ]);
+      setNewMessage("");
+    }
+  };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -262,28 +295,47 @@ export default function RequestApprovalPage() {
         />
       </Tabs>
       <TabPanel value={value} index={0}>
-        <Grid style={{ display: "flex", height: "80vh" }}>
-          <Grid
-            style={{
-              width: "70vw",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-            }}
-          >
-            {" "}
-            Pre Emi / Rental{" "}
+        <Grid container spacing={2} style={{ display: "flex", height: "80vh" }}>
+          <Grid item sm={8} md={8} lg={8}>
+            <Grid
+              style={{
+                width: "70vw",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+              }}
+            >
+              {" "}
+              Pre Emi / Rental{" "}
+            </Grid>
+
+            <Grid
+              style={{
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "flex-end",
+              }}
+            >
+              {" "}
+              <Button>Approve</Button>{" "}
+            </Grid>
           </Grid>
-          <Grid
-            style={{
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "flex-end",
-            }}
-          >
-            {" "}
-            <Button>Approve</Button>{" "}
+
+          <Grid item sm={4} md={4} lg={4}>
+            <MessageList
+              className="message-list"
+              lockable={true}
+              toBottomHeight={"100%"}
+              dataSource={messages}
+            />
+            <Input
+              placeholder="Type here..."
+              multiline={false}
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              rightButtons={<button onClick={handleSend}>Send</button>}
+            />
           </Grid>
         </Grid>
       </TabPanel>

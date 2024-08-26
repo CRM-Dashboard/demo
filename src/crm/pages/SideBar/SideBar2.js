@@ -343,6 +343,21 @@ const SideBar2 = () => {
     });
   };
 
+  const saveCallLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: `${userName} called to ${customerMobileNumber}`,
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
   const saveCallDetailsAPI = (callDetails) => {
     // process.env.REACT_APP_SERVER_URL
     const apiUrl =
@@ -352,6 +367,7 @@ const SideBar2 = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
+          saveCallLog();
           snackbar.showSuccess("Call Deatails save successfully!");
         }
       })
@@ -369,7 +385,7 @@ const SideBar2 = () => {
       const formData = new FormData();
       formData.append("From", loggedInUser?.mobile);
       formData.append("To", customerMobileNumber);
-      formData.append("CallerId", "020-485-54946");
+      formData.append("CallerId", "020-485-55656");
       formData.append("Record", true);
       const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/exotel/make-call";
       fetch(apiUrl, { method: "POST", body: formData })

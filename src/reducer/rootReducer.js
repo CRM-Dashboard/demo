@@ -6,6 +6,7 @@ import SearchBarReducer from "../crm/pages/SearchBar/SearchBarReducer/SearchBarR
 import DashboardReducer from "../crm/pages/Dashboard/DashboardReducer.js/DashboardReducer";
 import FileUploadReducer from "../crm/pages/Activity/FileUploader/FileReducer/FileUploadReducer";
 import BookingReducer from "../crm/pages/Dashboard/BookingDetails/BookingData/BookingReducer/BookingReducer";
+import CustomerInfoReducer from "../crm/pages/Dashboard/CustomerInformation/CustomerInfoReducer/CustomerInfoReducer";
 
 const rootReducer = combineReducers({
   ThemeReducer,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   searchBar: SearchBarReducer,
   BookingReducer: BookingReducer,
   fileReducer: FileUploadReducer,
+  customerInfoReducer: CustomerInfoReducer,
 });
 
 export default rootReducer;

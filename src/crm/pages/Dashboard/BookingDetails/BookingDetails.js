@@ -10,11 +10,18 @@ import SellIcon from "@mui/icons-material/Sell";
 import { Typography, Grid } from "@mui/material";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import Crop54Icon from "@mui/icons-material/Crop54";
+import GarageIcon from "@mui/icons-material/Garage";
+import HeightIcon from "@mui/icons-material/Height";
+import CarCrashIcon from "@mui/icons-material/CarCrash";
 import PossessionInfo from "./Possession/PossessionInfo";
+import CarRepairIcon from "@mui/icons-material/CarRepair";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import RegistrationInfo from "./Registration/RegistrationInfo";
+import LocalParkingIcon from "@mui/icons-material/LocalParking";
 import BlindsClosedIcon from "@mui/icons-material/BlindsClosed";
 import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
+import EmojiTransportationIcon from "@mui/icons-material/EmojiTransportation";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 const BookingDetails = () => {
   const [unitData, setUnitData] = useState([]);
@@ -105,7 +112,7 @@ const BookingDetails = () => {
             alignSelf: "flex-start",
           }}
         >
-          <Grid>
+          <Grid sx={{ margin: "1em" }}>
             <div>
               <div
                 style={{
@@ -157,11 +164,11 @@ const BookingDetails = () => {
               >
                 <ApartmentIcon fontSize="small" />
 
-                <Grid container columns={12} sx={{ marginLeft: "0.2em" }}>
-                  <Grid item sm={8} md={8} lg={8}>
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography> Building: </Typography>
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography> {unitData?.building}</Typography>
                   </Grid>
                 </Grid>
@@ -175,11 +182,12 @@ const BookingDetails = () => {
               >
                 <Crop32Icon fontSize="small" />
 
-                <Grid container columns={12} sx={{ marginLeft: "0.2em" }}>
-                  <Grid item sm={8} md={8} lg={8}>
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    {" "}
                     <Typography>Carpet Area: </Typography>
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>
                       {unitData?.carea}
                       {unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."}
@@ -195,11 +203,11 @@ const BookingDetails = () => {
                 }}
               >
                 <Crop54Icon fontSize="small" />
-                <Grid container columns={12} sx={{ marginLeft: "0.2em" }}>
-                  <Grid item sm={8} md={8} lg={8}>
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>Saleable Area:</Typography>
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>
                       {unitData?.area}
                       {unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."}{" "}
@@ -215,11 +223,11 @@ const BookingDetails = () => {
                 }}
               >
                 <BlindsClosedIcon fontSize="small" />
-                <Grid container columns={12} sx={{ marginLeft: "0.2em" }}>
-                  <Grid item sm={8} md={8} lg={8}>
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>Floor:</Typography>
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>{unitData?.floor?.split(" ")[0]} </Typography>
                   </Grid>
                 </Grid>
@@ -232,15 +240,142 @@ const BookingDetails = () => {
                 }}
               >
                 <SellIcon fontSize="small" />
-                <Grid container columns={12} sx={{ marginLeft: "0.2em" }}>
-                  <Grid item sm={8} md={8} lg={8}>
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>Type:</Typography>
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
+                  <Grid item sm={6} md={6} lg={6}>
                     <Typography>{unitData?.class} </Typography>
                   </Grid>
                 </Grid>
               </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <LocalParkingIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking Type:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.prkType} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <EmojiTransportationIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking floor:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.flrText} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <CarCrashIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking location:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.parkinglocation} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <CarRepairIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking Area:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.parkingareatext} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <AccountBalanceWalletIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking Number:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.parkno} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <GarageIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking in Sq.mt.:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.parkaream2} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              <div
+                style={{
+                  paddingTop: "0.5em",
+                  display: "flex",
+                }}
+              >
+                <HeightIcon fontSize="small" />
+                <Grid container columns={12}>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>Parking height:</Typography>
+                  </Grid>
+                  <Grid item sm={6} md={6} lg={6}>
+                    <Typography>{unitData?.parkheight} </Typography>
+                  </Grid>
+                </Grid>
+              </div>
+
+              {/* // "prkType": "Single Covered Car Park", parking Type
+  //               "flrText": "GROUND FLOOR", parking floor
+  //               "parkinglocation": "", parking location
+  //               "parkingareatext": "",parking area
+  //               "parkno": "", parking no
+  //               "parkaream2": "",parking in m2
+  //               "parkheight": "",parking height */}
             </div>
 
             <></>

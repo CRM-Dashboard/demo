@@ -1,0 +1,14 @@
+.go-btn {
+  background-color: "#007FFF";
+  font-family: "futura";
+  border-radius: "5px";
+  font-size: "15px";
+  color: "white";
+  height: "3em";
+  width: "5em";
+}
+
+.go-btn:active {
+  border-color: "#007FFF";
+  color: "#007FFF";
+}

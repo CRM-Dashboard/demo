@@ -12,6 +12,7 @@ import {
   ListItemText,
   Autocomplete,
 } from "@mui/material";
+import Parking from "./Parking";
 import Booking from "./Booking";
 import Payment from "./Payment";
 import Invoices from "./Invoices";
@@ -317,6 +318,16 @@ export default function BookingData() {
       label: "Outstanding Details",
       component: (
         <Outstanding
+          tableDetails={tableData}
+          response={response}
+          getFilteredData={getFilteredData}
+        />
+      ),
+    },
+    {
+      label: "Parking Details",
+      component: (
+        <Parking
           tableDetails={tableData}
           response={response}
           getFilteredData={getFilteredData}

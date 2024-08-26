@@ -1,0 +1,12 @@
+.disabledBtn {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.cs-chat-container {
+  height: 500px;
+}
+
+.cs-main-container {
+  height: 500px;
+}

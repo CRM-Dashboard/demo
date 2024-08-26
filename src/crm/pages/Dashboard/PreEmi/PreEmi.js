@@ -493,11 +493,11 @@ export default function PreEmi() {
       });
   };
 
-  const UploadFile = () => {
-    if (fileRef.current) {
-      fileRef.current.uploadFile();
-    }
-  };
+  // const UploadFile = () => {
+  //   if (fileRef.current) {
+  //     fileRef.current.uploadFile();
+  //   }
+  // };
 
   return (
     <div style={{ marginTop: "1em" }}>

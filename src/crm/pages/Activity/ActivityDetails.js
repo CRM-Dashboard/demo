@@ -108,8 +108,8 @@ export default function ActivityDetails() {
       formData.append("entryData", JSON.stringify(entryData));
 
       fetch(
-        "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
-        // "http://localhost:5000/api/activity/createActivity",
+        // "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/createActivity`,
         { method: "POST", body: formData }
       )
         .then((response) => response.json())
@@ -403,8 +403,8 @@ export default function ActivityDetails() {
     formData.append("projectId", projectId);
     setLoading(true);
     fetch(
-      `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
-      // "http://localhost:5000/api/activity/getActivity",
+      // `https://gera-crm-server.azurewebsites.net//api/activity/getActivity`,
+      `${process.env.REACT_APP_SERVER_URL}/api/activity/getActivity`,
       { method: "POST", body: formData }
     )
       .then((response) => response.json())

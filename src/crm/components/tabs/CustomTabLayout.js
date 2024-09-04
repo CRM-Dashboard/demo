@@ -133,7 +133,11 @@ function CustomTabLayout({
                 .map((item, index) => (
                   <ErpTab
                     key={index}
-                    label={<Typography>{item.label}</Typography>}
+                    label={
+                      <Typography sx={{ fontSize: "14px" }}>
+                        {item.label}
+                      </Typography>
+                    }
                     {...a11yProps(index)}
                   />
                 ))
@@ -141,7 +145,11 @@ function CustomTabLayout({
                 <ErpTab
                   key={index}
                   disabled={item?.disabled}
-                  label={<Typography>{item.label}</Typography>}
+                  label={
+                    <Typography sx={{ fontSize: "14px" }}>
+                      {item.label}
+                    </Typography>
+                  }
                   {...a11yProps(index)}
                 />
               ))}
@@ -173,7 +181,9 @@ function CustomTabLayout({
                   onClick={(event) => handleMenuItemClick(event, index)}
                   disabled={item?.disabled}
                 >
-                  <Typography>{item.label}</Typography>
+                  <Typography sx={{ fontSize: "14px" }}>
+                    {item.label}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>

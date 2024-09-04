@@ -2,12 +2,12 @@
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../crm/components/inputField/InputField";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 
-const CreateNewTicket = forwardRef((props, ref) => {
+const CreateNewChange = forwardRef((props, ref) => {
   const [error, setError] = useState("Required");
 
   const reducerData = useSelector((state) => state);
@@ -15,21 +15,22 @@ const CreateNewTicket = forwardRef((props, ref) => {
   const userName = reducerData.LoginReducer.userName;
   const snackbar = UseCustomSnackbar();
 
-  const createTicket = () => {
+  const createChange = () => {
     const entryData = {
       PROJECT: [],
       TASK: [],
-      TICKET: [
+      TICKET: [],
+      CHANGE: [
         {
           projectId: formik.values.projectId,
-          category: formik.values.category,
-          ticketDesc: formik.values.ticketDescription,
-          remark: formik.values.remark,
+          trkorr: formik.values.requestNumber,
+          ddText: formik.values.changeDescription,
+          requester: formik.values.requester,
+          notes: formik.values.notes,
         },
       ],
     };
-
-    if (!formik.values.remark) {
+    if (!formik.values.notes) {
       setError("Required");
     } else {
       setError("");
@@ -40,8 +41,8 @@ const CreateNewTicket = forwardRef((props, ref) => {
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
 
+    //process.env.REACT_APP_SERVER_URL +
     if (Object.keys(formik.errors).length === 0 && error !== "Required") {
-      // process.env.REACT_APP_SERVER_URL
       fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
         method: "POST",
         body: formData,
@@ -49,8 +50,8 @@ const CreateNewTicket = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            snackbar.showSuccess("Task created successfully!");
-            props.setOpenCreateTicket(false);
+            snackbar.showSuccess("Change created successfully!");
+            props.setOpenCreateChange(false);
             props.getTableData();
           }
         })
@@ -65,27 +66,27 @@ const CreateNewTicket = forwardRef((props, ref) => {
   };
 
   useImperativeHandle(ref, () => ({
-    createTicket,
+    createChange,
   }));
 
   const validationSchema = yup.object({
-    ticketDescription: yup.string().required("Required"),
-    category: yup.string().required("Required"),
     projectId: yup.string().required("Required"),
-    remark: yup.string().required("Required"),
+    requestNumber: yup.number().required("Required"),
+    changeDescription: yup.string().required("Required"),
+    notes: yup.string().required("Required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      ticketDescription: "",
-      category: "",
       projectId: "",
-      remark: "",
+      requestNumber: "",
+      changeDescription: "",
+      Notes: "",
     },
     validationSchema,
     onSubmit: (values, { resetForm }) => {
       const data = values;
-      createTicket(data);
+      createChange(data);
     },
   });
 
@@ -103,29 +104,26 @@ const CreateNewTicket = forwardRef((props, ref) => {
             <Typography
               sx={{ marginLeft: "1em", fontWeight: "bold", fontSize: "25px" }}
             >
-              New Ticket
+              New Change Request
             </Typography>
           </Grid>
         </Grid>
         <br />
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}>
-              {" "}
-              Ticket Description{" "}
-            </Typography>
+            <Typography sx={{ marginLeft: "1em" }}> Request Number </Typography>
           </Grid>
           <Grid item xs={6} sm={8} md={8}>
             <InputField
-              id="ticketDescription"
-              name="ticketDescription"
-              label="Ticket Description"
-              value={formik.values.ticketDescription}
+              id="requestNumber"
+              name="requestNumber"
+              label="Request Number"
+              value={formik.values.requestNumber}
               onChange={(e) => {
-                formik.setFieldValue("ticketDescription", e.target.value);
+                formik.setFieldValue("requestNumber", e.target.value);
               }}
-              error={Boolean(formik.errors.ticketDescription)}
-              helperText={formik.errors.ticketDescription}
+              error={Boolean(formik.errors.requestNumber)}
+              helperText={formik.errors.requestNumber}
               required
             />
           </Grid>
@@ -163,38 +161,36 @@ const CreateNewTicket = forwardRef((props, ref) => {
         <br />
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}> Category </Typography>
+            <Typography sx={{ marginLeft: "1em" }}>
+              {" "}
+              Change Description{" "}
+            </Typography>
           </Grid>
           <Grid item xs={6} sm={8} md={8}>
             <InputField
-              select
-              id="category"
-              name="category"
-              label="Category"
-              value={formik.values.category}
+              id="changeDescription"
+              name="changeDescription"
+              label="Change Description"
+              value={formik.values.changeDescription}
               onChange={(e) => {
-                formik.setFieldValue("category", e.target.value);
+                formik.setFieldValue("changeDescription", e.target.value);
               }}
-              error={Boolean(formik.errors.category)}
-              helperText={formik.errors.category}
+              error={Boolean(formik.errors.changeDescription)}
+              helperText={formik.errors.changeDescription}
               required
-            >
-              {props?.categories?.map((data) => {
-                return <MenuItem value={data.categ}> {data.categTxt}</MenuItem>;
-              })}
-            </InputField>
+            />
           </Grid>
         </Grid>
         <br />
         <Grid container spacing={4}>
           <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}> Remarks </Typography>
+            <Typography sx={{ marginLeft: "1em" }}> Notes </Typography>
           </Grid>
           <Grid item xs={6} sm={8} md={8}>
             <textarea
-              id="remark"
-              name="remark"
-              label="Remark"
+              id="notes"
+              name="notes"
+              label="Notes"
               style={{
                 width: "25.5em",
                 fontFamily: "Futura",
@@ -202,10 +198,9 @@ const CreateNewTicket = forwardRef((props, ref) => {
                 paddingTop: "0.5em",
                 paddingRight: "0.5em",
               }}
-              value={formik.values.remarks}
+              value={formik.values.notes}
               onChange={(e) => {
-                // formik.handleChange();
-                formik.setFieldValue("remark", e.target.value);
+                formik.setFieldValue("notes", e.target.value);
                 setError("");
               }}
             />
@@ -221,4 +216,4 @@ const CreateNewTicket = forwardRef((props, ref) => {
   );
 });
 
-export default CreateNewTicket;
+export default CreateNewChange;

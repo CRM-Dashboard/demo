@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import PreEmi from "./PreEmi/PreEmi";
 import CashBack from "./CashBack/CashBack";
+import SAPEmail from "./SAPEmail/SAPEmail";
+import OutlookMails from "./OutlookMails/OutlookMails";
 import BookingDetails from "./BookingDetails/BookingDetails";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import CustomersList from "./CustomerInformation/CustomersList";
@@ -73,6 +75,14 @@ function Dashboard() {
     {
       label: "Unit Customisation",
       component: <UnitCustomisation />,
+    },
+    {
+      label: "SAP Email",
+      component: <SAPEmail />,
+    },
+    {
+      label: "Outlook Email",
+      component: <OutlookMails />,
     },
   ];
 

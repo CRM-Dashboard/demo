@@ -51,9 +51,9 @@ export default function LoginPage() {
 
   const callBack = (data) => {
     if (data.status === "200") {
-      snackbar.showSuccess("Logs created successfully!");
+      console.log("Logs created successfully!");
     } else {
-      snackbar.showError("Failed to create log!");
+      console.log("Failed to create log!");
     }
   };
 

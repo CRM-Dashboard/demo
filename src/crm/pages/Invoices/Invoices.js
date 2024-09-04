@@ -55,6 +55,8 @@ export default function Invoices() {
     const modifiedResponse = res?.map((item) => {
       return [
         "",
+        item?.arktx,
+        item?.customerName,
         moment(item.billingDate).format("DD-MM-YYYY"),
         item?.Milestone,
         item.pTerms,
@@ -144,6 +146,8 @@ export default function Invoices() {
           ],
       },
     },
+    { name: "Unit", label: "Unit" },
+    { name: " Customer Name", label: "Customer Name" },
     {
       name: "Invoice Date",
       label: "Invoice Date",
@@ -272,7 +276,7 @@ export default function Invoices() {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("mails".JSON.stringify(arrForMail));
+    formData.append("mails", JSON.stringify(arrForMail));
 
     fetch(process.env.REACT_APP_SERVER_URL + `/api/invoices/so_invoices_mail`, {
       method: "POST",
@@ -336,12 +340,12 @@ export default function Invoices() {
     },
     customTableBodyFooterRender: (opts) => {
       const startIndex = page * rowsPerPage;
-      const endIndex = (page + 6) * rowsPerPage;
+      const endIndex = (page + 8) * rowsPerPage;
 
       let sumGstAmount = opts.data
         .slice(startIndex, endIndex)
         .reduce((accu, item) => {
-          return accu + Number(item.data[6]?.replaceAll(",", ""));
+          return accu + Number(item.data[8]?.replaceAll(",", ""));
         }, 0);
 
       return (
@@ -366,6 +370,10 @@ export default function Invoices() {
                           Total
                         </TableCell>
                       );
+                    } else if (col.name === "Unit") {
+                      return <TableCell key={index}>{}</TableCell>;
+                    } else if (col.name === "Customere Name") {
+                      return <TableCell key={index}>{}</TableCell>;
                     } else if (col.name === "Milestone") {
                       return <TableCell key={index}>{}</TableCell>;
                     } else if (col.name === "Terms") {
@@ -493,6 +501,7 @@ export default function Invoices() {
               color: GlobalFunctions.getThemeBasedDatailsColour(
                 reducerData.ThemeReducer.mode
               ),
+              fontSize: "smaller",
             },
           },
         },
@@ -551,9 +560,15 @@ export default function Invoices() {
                       }}
                     />
                   </Grid>
-                  <Grid item sm={4} md={4} lg={4}>
-                    <Button
-                      sx={{ backgroundColor: "green", color: "white" }}
+                  <Grid item sm={4} md={4} lg={4} sx={{ marginTop: "0.5em" }}>
+                    <button
+                      style={{
+                        width: "5em",
+                        height: "2.2em",
+                        color: "white",
+                        borderRadius: "4px",
+                        backgroundColor: "green",
+                      }}
                       disabled={!fromDate && !toDate}
                       onClick={() => {
                         getTableData();
@@ -561,7 +576,7 @@ export default function Invoices() {
                     >
                       {" "}
                       Go{" "}
-                    </Button>
+                    </button>
                   </Grid>
                 </Grid>
               }

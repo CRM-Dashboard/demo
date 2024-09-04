@@ -1,21 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
-import dayjs from "dayjs";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import * as yup from "yup";
 import { useFormik } from "formik";
+import { useSelector } from "react-redux/es/hooks/useSelector";
 import { Grid, Box, Typography, MenuItem } from "@mui/material";
 import InputField from "../../crm/components/inputField/InputField";
-import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 
 const CreateNewProject = forwardRef((props, ref) => {
   const [error, setError] = useState("Required");
+  const [currentManager, setCurrentManager] = useState();
 
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -31,11 +25,10 @@ const CreateNewProject = forwardRef((props, ref) => {
           progress: "",
           projectName: formik.values.projName,
           projectDesc: formik.values.projDescription,
-          projectMgr: formik.values.projManager,
+          projectMgrId: formik.values.projManager,
+          projectMgr: currentManager,
           priority: formik.values.priority,
-          stage: formik.values.stage,
-          status: formik.values.status,
-          startDt: formik.values.startDate,
+          category: formik.values.projCateg,
           remark: formik.values.remark,
         },
       ],
@@ -65,10 +58,10 @@ const CreateNewProject = forwardRef((props, ref) => {
             snackbar.showSuccess("Project created successfully!");
             props.setOpenCreateForm(false);
             props.getTableData();
+            setCurrentManager([]);
           }
         })
         .catch((error) => {
-          console.log("########error", error);
           if (error) {
             snackbar.showError(
               "Error while creating activity. Please try again!"
@@ -86,10 +79,8 @@ const CreateNewProject = forwardRef((props, ref) => {
     projName: yup.string().required("Required"),
     projDescription: yup.string().required("Required"),
     projManager: yup.string().required("Required"),
+    projCateg: yup.string().required("Required"),
     priority: yup.string().required("Required"),
-    stage: yup.string().required("Required"),
-    status: yup.number().required("Required"),
-    startDate: yup.date().required("Required"),
     remark: yup.string().required("Required"),
   });
 
@@ -98,10 +89,8 @@ const CreateNewProject = forwardRef((props, ref) => {
       projName: "",
       projDescription: "",
       projManager: "",
+      projCateg: "",
       priority: "",
-      stage: "",
-      status: "",
-      startDate: " ",
       remark: "",
     },
     validationSchema,
@@ -110,10 +99,6 @@ const CreateNewProject = forwardRef((props, ref) => {
       createProject(data);
     },
   });
-
-  useEffect(() => {
-    console.log("statuses@@@@@@", props.statuses);
-  }, []);
 
   return (
     <formik>
@@ -131,6 +116,39 @@ const CreateNewProject = forwardRef((props, ref) => {
             >
               New Project
             </Typography>
+          </Grid>
+        </Grid>
+        <br />
+        <Grid container spacing={4}>
+          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
+            <Typography sx={{ marginLeft: "1em" }}>
+              {" "}
+              Project Category{" "}
+            </Typography>
+          </Grid>
+          <Grid item xs={6} sm={8} md={8}>
+            <InputField
+              select
+              id="projCateg"
+              name="projCateg"
+              label="Project Category"
+              value={formik.values.projCateg}
+              onChange={(e) => {
+                formik.setFieldValue("projCateg", e.target.value);
+              }}
+              error={Boolean(formik.errors.projCateg)}
+              helperText={formik.errors.projCateg}
+              required
+            >
+              {props?.categories?.map((data) => {
+                return (
+                  <MenuItem value={data?.categ} key={data?.categTxt}>
+                    {" "}
+                    {data?.categTxt}
+                  </MenuItem>
+                );
+              })}
+            </InputField>
           </Grid>
         </Grid>
         <br />
@@ -186,6 +204,7 @@ const CreateNewProject = forwardRef((props, ref) => {
           </Grid>
           <Grid item xs={6} sm={8} md={8}>
             <InputField
+              select
               id="projManager"
               name="projManager"
               label="Project Manager"
@@ -197,14 +216,20 @@ const CreateNewProject = forwardRef((props, ref) => {
               helperText={formik.errors.projManager}
               required
             >
-              {/* {subActData?.map((data) => {
+              {props?.users?.map((data) => {
                 return (
-                  <MenuItem value={data.actSubtyp}>
+                  <MenuItem
+                    value={data?.bname}
+                    key={data?.bname}
+                    onClick={() => {
+                      setCurrentManager(data?.name);
+                    }}
+                  >
                     {" "}
-                    {data.actSubtypTxt}
+                    {data?.name}
                   </MenuItem>
                 );
-              })} */}
+              })}
             </InputField>
           </Grid>
         </Grid>
@@ -233,73 +258,6 @@ const CreateNewProject = forwardRef((props, ref) => {
                 );
               })}
             </InputField>
-          </Grid>
-        </Grid>
-        <br />
-        <Grid container spacing={4}>
-          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}> Stage</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} md={8}>
-            <InputField
-              select
-              id="stage"
-              name="stage"
-              label="Stage"
-              value={formik.values.stage}
-              onChange={formik.handleChange}
-              error={Boolean(formik.errors.stage)}
-              helperText={formik.errors.stage}
-            >
-              {props?.stages?.map((data) => {
-                return <MenuItem value={data.stage}> {data.stageTxt}</MenuItem>;
-              })}
-            </InputField>
-          </Grid>
-        </Grid>
-        <br />
-        <Grid container spacing={4}>
-          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}> Status </Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} md={8}>
-            <InputField
-              select
-              id="status"
-              name="status"
-              label="Status"
-              value={formik.values.status}
-              onChange={formik.handleChange}
-              error={Boolean(formik.errors.status)}
-              helperText={formik.errors.status}
-            >
-              {props?.statuses?.map((data) => {
-                return (
-                  <MenuItem value={data.status}> {data.statusTxt}</MenuItem>
-                );
-              })}
-            </InputField>
-          </Grid>
-        </Grid>
-        <br />
-        <Grid container spacing={4}>
-          <Grid item xs={2} sm={4} md={4} sx={{ display: "flex" }}>
-            <Typography sx={{ marginLeft: "1em" }}> Start Date</Typography>
-          </Grid>
-          <Grid item xs={6} sm={8} md={8}>
-            <CrmDatePicker
-              id="startDate"
-              name="startDate"
-              label="Start Date"
-              value={dayjs(formik.values.startDate)}
-              onChange={(value) =>
-                formik.setFieldValue("startDate", value, true)
-              }
-              error={
-                formik.touched.startDate && Boolean(formik.errors.startDate)
-              }
-              helperText={formik.errors.startDate}
-            />
           </Grid>
         </Grid>
         <br />

@@ -24,14 +24,12 @@ import PrintIcon from "@mui/icons-material/Print";
 import AudioCallIcon from "@mui/icons-material/Call";
 import SettingsIcon from "@mui/icons-material/SettingsSharp";
 import MailIcon from "@mui/icons-material/Mail";
-import EmailIcon from "@mui/icons-material/Email";
 // import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
 import PhoneBookIcon from "@mui/icons-material/InterpreterMode";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
 import CustomerDetails from "../Dashboard/CustomerDetails/CustomerDetails";
@@ -62,7 +60,6 @@ import searchBarAction from "./../SearchBar/SearchBarReducer/SearchBarActions";
 import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CashbackReport from "../Reports/CashbackReport/CashbackReport";
 import CrmModal from "../../components/crmModal/CrmModal";
-import Mails from "../Mails/Mails";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import InputField from "../../components/inputField/InputField";
@@ -87,12 +84,6 @@ const routes = [
     name: "Reports",
     icon: <SummarizeIcon />,
     subRoutes: [
-      {
-        path: "/emailReport",
-        to: "/crm/emailReport",
-        name: "SAP Email",
-        icon: <MailOutlineIcon />,
-      },
       {
         path: "/serviceRequest",
         to: "/crm/serviceRequest",
@@ -136,12 +127,6 @@ const routes = [
     to: "/crm/activities",
     name: "Activity",
     icon: <AutoStoriesIcon />,
-  },
-  {
-    path: "/mails",
-    to: "/crm/mails",
-    name: "Outlook Mail",
-    icon: <EmailIcon />,
   },
 ];
 
@@ -292,14 +277,10 @@ const SideBar2 = () => {
     formData.append("passWord", passWord);
     formData.append("projectId", projectId);
 
-    fetch(
-      process.env.REACT_APP_SERVER_URL + `/api/activity/getActivity`,
-      // "http://localhost:5000/api/activity/getActivity",
-      {
-        method: "POST",
-        body: formData,
-      }
-    )
+    fetch(`${process.env.REACT_APP_SERVER_URL}/api/activity/getActivity`, {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data[0].actdata) {
@@ -556,9 +537,10 @@ const SideBar2 = () => {
             <Typography
               gutterBottom
               style={{
+                fontSize: "14px",
                 marginTop: "0.6em",
-                whiteSpace: "nowrap",
                 overflow: "hidden",
+                whiteSpace: "nowrap",
                 textOverflow: "ellipsis",
               }}
             >
@@ -644,7 +626,7 @@ const SideBar2 = () => {
 
         <motion.div
           animate={{
-            width: isOpen ? "200px" : "45px",
+            width: isOpen ? "200px" : "68px",
 
             transition: {
               duration: 0.5,
@@ -726,10 +708,22 @@ const SideBar2 = () => {
                   to={`/crm/crm${route.path}`}
                   key={index}
                   className="link"
+                  style={
+                    route.name === "Dashboard" || route.name === "File Movement"
+                      ? { padding: "5px 6px" }
+                      : { padding: "5px 11px" }
+                  }
                   activeclassname="active"
                   // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginRight: "0.5em",
+                    }}
                     onClick={() => {
                       if (route.path === "/dashboard") {
                         setShouldShowCustomerList(!shouldShowCustomerList);
@@ -738,7 +732,28 @@ const SideBar2 = () => {
                       navigate(`/crm/crm${route.path}`);
                     }}
                   >
-                    {route.icon}
+                    <Grid>{route.icon}</Grid>
+                    {!isOpen && (
+                      <Grid
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            textAlign: "center",
+                            fontSize: "11px",
+                            gap: "7px",
+                          }}
+                        >
+                          {" "}
+                          {route.name}
+                        </Typography>
+                      </Grid>
+                    )}
                   </div>
                   <AnimatePresence>
                     {isOpen && (
@@ -758,7 +773,7 @@ const SideBar2 = () => {
                           navigate(`/crm/crm${route.path}`);
                         }}
                       >
-                        <Typography>{route.name}</Typography>
+                        {route.name}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -786,7 +801,7 @@ const SideBar2 = () => {
                 <Route path="callHistory" element={<CallHistory />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="activities" element={<Activities />} />
-                <Route path="mails" element={<Mails />} />
+
                 <Route path="emailReport" element={<EmailReport />} />
                 <Route path="serviceRequest" element={<ServiceRequest />} />
                 <Route path="agingReport" element={<AgingReport />} />

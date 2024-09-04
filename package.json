@@ -6,6 +6,7 @@
   "dependencies": {
     "@aws-amplify/core": "^6.3.2",
     "@canvasjs/react-stockcharts": "^1.0.0",
+    "@chatscope/chat-ui-kit-react": "^2.0.3",
     "@emotion/styled": "^11.11.0",
     "@maxstudener/react-mui-daterange-picker": "^0.0.2",
     "@mui/icons-material": "^5.14.16",
@@ -31,6 +32,7 @@
     "react": "^18.2.0",
     "react-aad-msal": "^2.3.5",
     "react-apexcharts": "^1.4.1",
+    "react-chat-elements": "^12.0.15",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.11",
     "react-gauge-chart": "^0.4.1",
@@ -55,7 +57,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy": "https://gera-crm-server.azurewebsites.net/",
+  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": [
       "react-app",

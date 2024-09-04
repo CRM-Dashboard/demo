@@ -1,10 +1,10 @@
+/* eslint-disable no-useless-concat */
 /* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import MUIDataTable from "mui-datatables";
-import CreateNewTicket from "./CreateNewTicket";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
@@ -19,22 +19,24 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
+import CreateNewChange from "./CreateNewChange";
 import FileDetails from "../FileOperations/FileDetails";
 import FileUploader from "../FileOperations/FileUploader";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
 
-const Tickets = ({ data }) => {
+const Changes = ({ data }) => {
   const [users, setUsers] = useState([]);
-  const [projects, setProjects] = useState([]);
-  const [ticketId, setTicketId] = useState();
+  const [changeNo, setChangeNo] = useState();
   const [loading, setLoading] = useState([]);
-  const [treeData, setTreeData] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState();
   const [response, setResponse] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [fileIndex, setFileIndex] = useState(0);
   const [tableData, setTableData] = useState([]);
+  const [changeTypes, setChangeTypes] = useState([]);
   const [priorities, setPriorities] = useState([]);
   const [categories, setCategories] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -45,9 +47,9 @@ const Tickets = ({ data }) => {
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
-  const [openCreateTicket, setOpenCreateTicket] = useState(false);
+  const [openCreateChange, setOpenCreateChange] = useState(false);
 
-  const ticketRef = useRef();
+  const changeRef = useRef();
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -78,39 +80,43 @@ const Tickets = ({ data }) => {
   const modifyResponse = (data) => {
     const DataForTable = data?.map((item) => {
       return [
-        item.category,
-        item.ticketDesc,
-        item.status,
-        item.priority,
-        item.assigned,
-        item.fsavd,
-        item.fsedd,
-        item.planDays,
-        item.startDt,
-        item.endDt,
-        item.actDays,
-        item.remark,
+        item?.ddtext,
+        item?.changeType,
+        item?.assigned,
+        item?.requester,
+        item?.module_sys,
+        item?.status,
+        item?.priority,
+        item?.fsavd,
+        item?.fsedd,
+        item?.planDays,
+        item?.startDt,
+        item?.endDt,
+        item?.actDays,
+        item?.tester,
+        item?.objects,
+        item?.notes,
         <IconButton
           style={{ color: "blue" }}
           onClick={() => {
             setOpenShowFiles(true);
-            setTicketId(item?.ticketId);
+            setChangeNo(item?.changeNo);
             setProjectId(item?.projectId);
             setFileUrlReqNo(item?.projectId);
           }}
         >
           <InsertDriveFileIcon />
         </IconButton>,
-        item.projectId,
-        item.ticketId,
+        item?.projectId,
+        item?.changeNo,
       ];
     });
     return DataForTable;
   };
 
-  const createNewTicket = () => {
-    if (ticketRef.current) {
-      ticketRef.current.createTicket();
+  const createNewChange = () => {
+    if (changeRef.current) {
+      changeRef.current.createChange();
     }
   };
 
@@ -130,11 +136,13 @@ const Tickets = ({ data }) => {
         if (data?.length > 0) {
           setResponse(data[0]);
           setUsers(data[0].user);
+          setModules(data[0].module);
           setProjects(data[0].project);
-          setProjectData(data[0].ticket);
+          setProjectData(data[0].change);
           setCategories(data[0].category);
-          setStatuses(data[0].ticketStatus);
-          setTableData(modifyResponse(data[0].ticket));
+          setChangeTypes(data[0].changeTyp);
+          setStatuses(data[0].projectStatus);
+          setTableData(modifyResponse(data[0].change));
           setPriorities(data[0].projectPriority);
           setLoading(false);
         }
@@ -143,14 +151,15 @@ const Tickets = ({ data }) => {
 
   const getFilesCount = () => {
     const formData = new FormData();
-    formData.append("reqNo", ticketId);
+    formData.append("reqNo", changeNo);
     formData.append("orderId", projectId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("process", "TRACKER");
     fetch(
-      process.env.REACT_APP_SERVER_URL + "/api/activity/getFileUrlsByReqNo",
-      // "http://localhost:5000/api/activity/getFileUrlsByReqNo",
+      // "https://gera-crm-server.azurewebsites.net//api/activity/getFileUrlsByReqNo",
+      `${process.env.REACT_APP_SERVER_URL}` +
+        "/api/activity/getFileUrlsByReqNo",
       {
         method: "POST",
         body: formData,
@@ -169,17 +178,16 @@ const Tickets = ({ data }) => {
 
   const handleRowClick = (rowData, rowMeta) => {
     setSelectedRows(projectData?.[rowMeta?.rowIndex]);
-    setTicketId(tableData?.[rowMeta?.rowIndex]?.[14]);
-    setProjectId(tableData?.[rowMeta?.rowIndex]?.[13]);
+    setChangeNo(tableData?.[rowMeta?.rowIndex]?.[18]);
+    setProjectId(tableData?.[rowMeta?.rowIndex]?.[17]);
 
     const Id = tableData[rowMeta?.rowIndex]?.[6];
 
-    const selectedTicket = response?.tree?.filter((data) => {
+    const selectedChangeReq = response?.tree?.filter((data) => {
       if (data.projectId === projectId) {
         return data;
       }
     });
-    setTreeData(selectedTicket?.ticket);
   };
 
   const options = {
@@ -203,8 +211,8 @@ const Tickets = ({ data }) => {
       <Button
         color="secondary"
         onClick={() => {
-          const idsToDelete = response.ticket.filter((row) => {
-            if (row.ticketId === ticketId) {
+          const idsToDelete = response.change.filter((row) => {
+            if (row.changeNo === changeNo) {
               return row;
             }
           });
@@ -260,43 +268,43 @@ const Tickets = ({ data }) => {
 
   const columns = [
     {
-      name: "Category",
+      name: "Change Description",
+    },
+    {
+      name: "Change Type",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => [
           <Select
             sx={{
               "& .MuiOutlinedInput-input": {
                 padding: "4.5px 14px",
-                fontSize: "0.8rem",
-                // backgroundColor: getStatusColor(tableData[dataIndex][0]),
-                // color: "white",
                 width: "8em",
+                fontSize: "0.7rem",
               },
             }}
-            id="category"
-            name="category"
-            value={tableData[dataIndex][0]}
+            id="changeTyp"
+            name="changeTyp"
+            value={tableData[dataIndex][1]}
             onChange={(e) => {
               const row = projectData[dataIndex];
-              row.category = e.target.value;
+              row.changeType = e.target.value;
 
               setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 0);
+              handleCellEdit(e, rowIndex, 1);
             }}
           >
-            {categories.map((data) => {
+            {changeTypes.map((data) => {
               return (
                 <MenuItem
-                  value={data.categ}
-                  // sx={{
-                  //   "&.MuiButtonBase-root": {
-                  //     backgroundColor: getStatusColor(data.categTxt),
-                  //     color: "white",
-                  //   },
-                  // }}
+                  value={data.change}
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      fontSize: "0.7rem",
+                    },
+                  }}
                 >
                   {" "}
-                  {data.categTxt}
+                  {data.changeTxt}
                 </MenuItem>
               );
             })}
@@ -305,15 +313,84 @@ const Tickets = ({ data }) => {
       },
     },
     {
-      name: "Ticket Description",
+      name: "Assigned To",
       options: {
-        customBodyRender: (value, tableMeta) => (
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => handleCellEdit(e, tableMeta.rowIndex, 1)}
-          />
-        ),
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <Select
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                padding: "4.5px 14px",
+                fontSize: "0.7rem",
+                width: "8em",
+              },
+            }}
+            id="assigned"
+            name="assigned"
+            value={tableData[dataIndex][2]}
+            onChange={(e) => {
+              const row = projectData[dataIndex];
+              row.assigned = e.target.value;
+
+              setRowToUpdate(row);
+              handleCellEdit(e, rowIndex, 2);
+            }}
+          >
+            {users.map((data) => {
+              return (
+                <MenuItem
+                  value={data.bname}
+                  sx={{
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  {" "}
+                  {data.name}
+                </MenuItem>
+              );
+            })}
+          </Select>,
+        ],
+      },
+    },
+    { name: "Requester" },
+    {
+      name: "Module",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <Select
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                padding: "4.5px 14px",
+                fontSize: "0.7rem",
+                width: "17em",
+              },
+            }}
+            id="module"
+            name="module"
+            value={tableData[dataIndex][4]}
+            onChange={(e) => {
+              const row = projectData[dataIndex];
+              row.module_sys = e.target.value;
+
+              setRowToUpdate(row);
+              handleCellEdit(e, rowIndex, 4);
+            }}
+          >
+            {modules.map((data) => {
+              return (
+                <MenuItem
+                  value={data.module}
+                  sx={{
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  {" "}
+                  {data.moduleTxt}
+                </MenuItem>
+              );
+            })}
+          </Select>,
+        ],
       },
     },
     {
@@ -324,7 +401,7 @@ const Tickets = ({ data }) => {
             sx={{
               "& .MuiOutlinedInput-input": {
                 padding: "4.5px 14px",
-                backgroundColor: getStatusColor(tableData[dataIndex][2]),
+                backgroundColor: getStatusColor(tableData[dataIndex][5]),
                 color: "white",
                 width: "8em",
                 fontSize: "0.7rem",
@@ -332,13 +409,13 @@ const Tickets = ({ data }) => {
             }}
             id="status"
             name="status"
-            value={tableData[dataIndex][2]}
+            value={tableData[dataIndex][5]}
             onChange={(e) => {
               const row = projectData[dataIndex];
               row.status = e.target.value;
 
               setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 2);
+              handleCellEdit(e, rowIndex, 5);
             }}
           >
             {statuses.map((data) => {
@@ -372,20 +449,20 @@ const Tickets = ({ data }) => {
                 padding: "6.5px 14px 5px 14px",
                 font: "-webkit-control",
                 color: "white",
-                backgroundColor: getPriorityColor(tableData[dataIndex][3]),
+                backgroundColor: getPriorityColor(tableData[dataIndex][6]),
                 fontSize: "0.7rem",
                 width: "6em",
               },
             }}
             id="priority"
             name="priority"
-            value={tableData[dataIndex][3]}
+            value={tableData[dataIndex][6]}
             onChange={(e) => {
               const row = projectData[dataIndex];
               row.priority = e.target.value;
 
               setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 3);
+              handleCellEdit(e, rowIndex, 6);
             }}
           >
             {priorities.map((data) => {
@@ -410,48 +487,6 @@ const Tickets = ({ data }) => {
       },
     },
     {
-      name: "Assigned To",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                // backgroundColor: getStatusColor(tableData[dataIndex][4]),
-                // color: "white",
-                width: "8em",
-              },
-            }}
-            id="assigned"
-            name="assigned"
-            value={tableData[dataIndex][4]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.assigned = e.target.value;
-
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 4);
-            }}
-          >
-            {users.map((data) => {
-              return (
-                <MenuItem
-                  value={data.bname}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.name}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
       name: "Plan Start",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => (
@@ -465,16 +500,16 @@ const Tickets = ({ data }) => {
             id={`planStart-${dataIndex}`}
             name="planStart"
             value={
-              tableData[dataIndex][5] === "0000-00-00"
+              tableData[dataIndex][7] === "0000-00-00"
                 ? ""
-                : dayjs(tableData[dataIndex][5])
+                : dayjs(tableData[dataIndex][7])
             }
             onChange={(date) => {
               const row = projectData[dataIndex];
               row.fsavd = dayjs(date).format("YYYYMMDD");
 
               setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 5);
+              handleDateChange(date, rowIndex, 7);
             }}
           />
         ),
@@ -494,16 +529,16 @@ const Tickets = ({ data }) => {
             id={`planEnd-${dataIndex}`}
             name="planEnd"
             value={
-              tableData[dataIndex][6] === "0000-00-00"
+              tableData[dataIndex][8] === "0000-00-00"
                 ? ""
-                : dayjs(tableData[dataIndex][6])
+                : dayjs(tableData[dataIndex][8])
             }
             onChange={(date) => {
               const row = projectData[dataIndex];
               row.fsedd = dayjs(date).format("YYYYMMDD");
 
               setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 6);
+              handleDateChange(date, rowIndex, 8);
             }}
           />
         ),
@@ -524,16 +559,16 @@ const Tickets = ({ data }) => {
             id={`actualStart-${dataIndex}`}
             name="actualStart"
             value={
-              tableData[dataIndex][8] === "0000-00-00"
+              tableData[dataIndex][10] === "0000-00-00"
                 ? ""
-                : dayjs(tableData[dataIndex][8])
+                : dayjs(tableData[dataIndex][10])
             }
             onChange={(date) => {
               const row = projectData[dataIndex];
               row.startDt = dayjs(date).format("YYYYMMDD");
 
               setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 8);
+              handleDateChange(date, rowIndex, 10);
             }}
           />
         ),
@@ -553,30 +588,69 @@ const Tickets = ({ data }) => {
             id={`actualEnd-${dataIndex}`}
             name="actualEnd"
             value={
-              tableData[dataIndex][9] === "0000-00-00"
+              tableData[dataIndex][11] === "0000-00-00"
                 ? ""
-                : dayjs(tableData[dataIndex][9])
+                : dayjs(tableData[dataIndex][11])
             }
             onChange={(date) => {
               const row = projectData[dataIndex];
               row.endDt = dayjs(date).format("YYYYMMDD");
               setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 9);
+              handleDateChange(date, rowIndex, 11);
             }}
           />
         ),
       },
     },
     { name: "Actual Days" },
-    { name: "Remark" },
+    {
+      name: "Tester",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <Select
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                padding: "4.5px 14px",
+                fontSize: "0.7rem",
+                width: "8em",
+              },
+            }}
+            id="tester"
+            name="tester"
+            value={tableData[dataIndex][13]}
+            onChange={(e) => {
+              const row = projectData[dataIndex];
+              row.tester = e.target.value;
+
+              setRowToUpdate(row);
+              handleCellEdit(e, rowIndex, 13);
+            }}
+          >
+            {users.map((data) => {
+              return (
+                <MenuItem
+                  value={data.bname}
+                  sx={{
+                    fontSize: "0.7rem",
+                  }}
+                >
+                  {" "}
+                  {data.name}
+                </MenuItem>
+              );
+            })}
+          </Select>,
+        ],
+      },
+    },
+    { name: "Technical Objects" },
+    { name: "Notes" },
     { name: "Files" },
   ];
 
-  const updateTicket = (updatedData) => {
+  const updateChangeRequest = (updatedData) => {
     const entryData = {
-      PROJECT: [],
-      TASK: [],
-      TICKET: [updatedData],
+      CHANGE: [updatedData],
     };
 
     const formData = new FormData();
@@ -585,7 +659,6 @@ const Tickets = ({ data }) => {
     formData.append("entryData", JSON.stringify(entryData));
 
     if (Object.keys(updatedData).length > 0) {
-      // process.env.REACT_APP_SERVER_URL
       fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
         method: "POST",
         body: formData,
@@ -593,7 +666,7 @@ const Tickets = ({ data }) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            snackbar.showSuccess("Ticket updated successfully!");
+            snackbar.showSuccess("Change updated successfully!");
             setRowToUpdate("");
             getTableData();
           }
@@ -601,7 +674,7 @@ const Tickets = ({ data }) => {
         .catch((error) => {
           if (error) {
             snackbar.showError(
-              "Error while updating ticket. Please try again!"
+              "Error while updating change. Please try again!"
             );
           }
         });
@@ -612,7 +685,7 @@ const Tickets = ({ data }) => {
 
   useEffect(() => {
     if (Object.keys(rowToUpdate).length > 1) {
-      updateTicket(rowToUpdate);
+      updateChangeRequest(rowToUpdate);
     }
   }, [rowToUpdate]);
 
@@ -622,12 +695,11 @@ const Tickets = ({ data }) => {
 
   const saveUrls = (fileUrls) => {
     const entryData = [];
-
     var Index = fileIndex;
     // eslint-disable-next-line array-callback-return
     fileUrls?.map((obj) => {
       entryData.push({
-        DOKNR: ticketId, //projectId /taskId/Ticketid
+        DOKNR: changeNo, //projectId /taskId/Ticketid
         REFERENCE: projectId, //projectId
         LO_INDEX: Index + 1,
         PROCESS: "TRACKER",
@@ -661,14 +733,10 @@ const Tickets = ({ data }) => {
   };
 
   const handleDelete = () => {
-    // eslint-disable-next-line no-use-before-define
-
     var data = dataToDelete;
 
     const entryData = {
-      PROJECT: [],
-      TASK: [],
-      TICKET: data,
+      CHANGE: data,
     };
 
     const formdata = new FormData();
@@ -686,14 +754,16 @@ const Tickets = ({ data }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          snackbar.showSuccess("Ticket deleted successfully!");
+          snackbar.showSuccess("Change deleted successfully!");
           setOpenModal(false);
           getTableData();
         }
       })
       .catch((error) => {
         if (error) {
-          snackbar.showError("Error while deleting Ticket. Please try again!");
+          snackbar.showError(
+            "Error while deleting change Request. Please try again!"
+          );
           setOpenModal(false);
         }
       });
@@ -708,7 +778,7 @@ const Tickets = ({ data }) => {
           disableFocusRipple
           size="sm"
           onClick={() => {
-            setOpenCreateTicket(true);
+            setOpenCreateChange(true);
           }}
           sx={{
             margin: "0.2em",
@@ -718,7 +788,7 @@ const Tickets = ({ data }) => {
             },
           }}
         >
-          New Ticket
+          New Change
         </Button>
         <Button
           variant="contained"
@@ -778,29 +848,29 @@ const Tickets = ({ data }) => {
       </CrmModal>
       <CrmModal
         maxWidth="sm"
-        show={openCreateTicket}
+        show={openCreateChange}
         handleShow={() => {
-          setOpenCreateTicket(false);
+          setOpenCreateChange(false);
         }}
         primaryBtnText="Save"
         primarySave={() => {
-          createNewTicket();
+          createNewChange();
         }}
         SecondaryBtnText="Close"
         secondarySave={() => {
-          setOpenCreateTicket(false);
+          setOpenCreateChange(false);
         }}
       >
-        <CreateNewTicket
+        <CreateNewChange
           projects={projects}
           users={users}
-          ref={ticketRef}
+          ref={changeRef}
           // statuses={statuses}
           // priorities={priorities}
           categories={categories}
           selectedRows={selectedRows}
           getTableData={getTableData}
-          setOpenCreateTicket={setOpenCreateTicket}
+          setOpenCreateChange={setOpenCreateChange}
         />
       </CrmModal>
       <CrmModal
@@ -827,20 +897,20 @@ const Tickets = ({ data }) => {
           setOpenShowFiles(false);
           setFileUrlReqNo("");
           setProjectId("");
-          setTicketId("");
+          setChangeNo("");
         }}
         SecondaryBtnText="Close"
         secondarySave={() => {
           setOpenShowFiles(false);
           setFileUrlReqNo("");
           setProjectId("");
-          setTicketId("");
+          setChangeNo("");
         }}
       >
-        <FileDetails fileUrlReqNo={fileUrlReqNo} taskNo={ticketId} />
+        <FileDetails fileUrlReqNo={fileUrlReqNo} taskNo={changeNo} />
       </CrmModal>
     </>
   );
 };
 
-export default Tickets;
+export default Changes;

@@ -28,6 +28,12 @@ function CrmDatePicker(props) {
               "&.MuiButtonBase-root": {
                 backgroundColor: "#7252D3",
                 color: "#FFFFFF",
+                height: props.buttonBase && props.buttonBase,
+                width: props.buttonBase && props.buttonBase,
+              },
+              "& .MuiSvgIcon-root": {
+                height: props.iconHeight && props.iconHeight,
+                width: props.iconWidth && props.iconWidth,
               },
             },
           },
@@ -40,7 +46,9 @@ function CrmDatePicker(props) {
             },
             sx: {
               "& .MuiInputBase-root": {
-                height: 45,
+                height: props.height ? props.height : 45,
+                fontSize: props.fontSize && props.fontSize,
+                width: props.width && props.width,
               },
               "& .MuiInputLabel-root": {
                 color: "gray",

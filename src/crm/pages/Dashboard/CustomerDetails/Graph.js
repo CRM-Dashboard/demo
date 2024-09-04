@@ -22,7 +22,7 @@ function Graph() {
     return data?.map((item) => item.Amt);
   }
 
-  useEffect(() => {
+  const getData = () => {
     setLoading(true);
     const formData = new FormData();
     reducerData?.searchBar?.searchKey
@@ -48,7 +48,15 @@ function Graph() {
       .catch(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    getData();
   }, []);
+
+  useEffect(() => {
+    getData();
+  }, [orderId]);
 
   const options = {
     animationEnabled: true,

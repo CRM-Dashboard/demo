@@ -16,14 +16,10 @@ import CircularScreenLoader from "../../../components/circularScreenLoader/Circu
 import TodayActivity from "./TodayActivity";
 
 export default function CustomerDetails() {
-  const [customerDetails, setCustomerDetails] = useState("");
+  const [customerDetails, setCustomerDetails] = useState();
   const [loading, setLoading] = useState(false);
   const [numberOfCust, setNumberOfCust] = useState(0);
-  const [NoOfBookings, setNoOfBookings] = useState(0);
-  const [NoOfApplicants, setNoOfApplicants] = useState(0);
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
-  const [NoOfRegistrations, setNoOfRegistrations] = useState(0);
-  const [NoOfPossession, setNoOfPossession] = useState(0);
 
   const dispatch = useDispatch();
   const reducerData = useSelector((state) => state);
@@ -36,8 +32,8 @@ export default function CustomerDetails() {
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
 
   const getDetails = () => {
-    setLoading(true);
-    if (projectId !== "undefined" || projectId) {
+    // setLoading(true);
+    if (projectId) {
       const formData = new FormData();
       formData.append("projectId", projectId);
       formData.append("userName", userName);
@@ -82,7 +78,7 @@ export default function CustomerDetails() {
   }, [reducerData.searchBar.accountStatement]);
 
   useEffect(() => {
-    setLoading(true);
+    // setLoading(true);
 
     if (
       reducerData?.searchBar?.accountStatement &&
@@ -92,7 +88,7 @@ export default function CustomerDetails() {
       setLoading(false);
     }
 
-    if (projectId !== "undefined") {
+    if (projectId !== "undefined" && OrderId) {
       const formData = new FormData();
       formData.append("projectId", projectId);
       formData.append("userName", userName);
@@ -127,22 +123,39 @@ export default function CustomerDetails() {
   };
 
   const getInvoicePercentage = () => {
-    const considerationAmount = parseFloat(
-      customerDetails?.AgreementValue?.replace(/,/g, "")
-    );
-    const invoiceAmount = parseFloat(
-      customerDetails?.DueAmount?.replace(/,/g, "")
-    );
-
+    var invoiceAmount;
+    var considerationAmount;
+    if (searchValueAvailable) {
+      considerationAmount = parseFloat(
+        accountStatement.AgreementValue?.replace(/,/g, "")
+      );
+      invoiceAmount = parseFloat(
+        accountStatement?.DueAmount?.replace(/,/g, "")
+      );
+    } else {
+      considerationAmount = parseFloat(
+        customerDetails?.AgreementValue?.replace(/,/g, "")
+      );
+      invoiceAmount = parseFloat(customerDetails?.DueAmount?.replace(/,/g, ""));
+    }
     const percentage = ((invoiceAmount / considerationAmount) * 100).toFixed(1);
     return percentage;
   };
 
   const getPaidPercentage = () => {
-    const paidAmount = getPaidAmt();
-    const invoiceAmount = parseFloat(
-      customerDetails?.DueAmount?.replace(/,/g, "")
-    );
+    var paidAmount;
+    var invoiceAmount;
+    if (searchValueAvailable) {
+      paidAmount = parseFloat(
+        accountStatement?.AgreementValue?.replace(/,/g, "")
+      );
+      invoiceAmount = parseFloat(
+        accountStatement?.DueAmount?.replace(/,/g, "")
+      );
+    } else {
+      paidAmount = getPaidAmt();
+      invoiceAmount = parseFloat(customerDetails?.DueAmount?.replace(/,/g, ""));
+    }
 
     const percentage = ((paidAmount / invoiceAmount) * 100).toFixed(1);
     return percentage;
@@ -167,12 +180,23 @@ export default function CustomerDetails() {
   };
 
   const getUpcomingPercentage = () => {
-    const considerationAmount = parseFloat(
-      customerDetails?.AgreementValue?.replace(/,/g, "")
-    );
-    const upcomingAmount = parseFloat(
-      customerDetails.PossessionBalance?.replace(/,/g, "")
-    );
+    var considerationAmount;
+    var upcomingAmount;
+    if (searchValueAvailable) {
+      considerationAmount = parseFloat(
+        accountStatement?.AgreementValue?.replace(/,/g, "")
+      );
+      upcomingAmount = parseFloat(
+        accountStatement.PossessionBalance?.replace(/,/g, "")
+      );
+    } else {
+      considerationAmount = parseFloat(
+        customerDetails?.AgreementValue?.replace(/,/g, "")
+      );
+      upcomingAmount = parseFloat(
+        customerDetails.PossessionBalance?.replace(/,/g, "")
+      );
+    }
 
     const percentage = ((upcomingAmount / considerationAmount) * 100).toFixed(
       1
@@ -200,7 +224,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "50%",
+            size: "40%",
           },
           dataLabels: {
             showOn: "always",
@@ -210,7 +234,7 @@ export default function CustomerDetails() {
               fontSize: "11px",
             },
             value: {
-              offsetY: -1,
+              offsetY: 1,
               color: "#111",
               fontSize: "11px",
               show: true,
@@ -243,7 +267,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "50%",
+            size: "40%",
           },
           dataLabels: {
             showOn: "always",
@@ -286,7 +310,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "50%",
+            size: "40%",
           },
 
           dataLabels: {
@@ -329,9 +353,9 @@ export default function CustomerDetails() {
       },
       plotOptions: {
         radialBar: {
-          // hollow: {
-          //   size: "50%",
-          // },
+          hollow: {
+            size: "40%",
+          },
 
           dataLabels: {
             showOn: "always",
@@ -372,48 +396,17 @@ export default function CustomerDetails() {
     }, 5); // Interval duration set to 1 second
   }
 
-  useEffect(() => {
-    if (customerDetails?.NoOfBookings) {
-      displayIncreasingNumbers(
-        0,
-        customerDetails.NoOfBookings,
-        setNoOfBookings
-      );
-    }
-    if (customerDetails?.NoOfCustomers) {
-      displayIncreasingNumbers(
-        0,
-        customerDetails.NoOfCustomers,
-        setNoOfApplicants
-      );
-    }
-    if (customerDetails?.NoOfRegistration) {
-      displayIncreasingNumbers(
-        0,
-        customerDetails.NoOfRegistration,
-        setNoOfRegistrations
-      );
-    }
-    if (customerDetails?.NoOfPossession) {
-      displayIncreasingNumbers(
-        0,
-        customerDetails.NoOfPossession,
-        setNoOfPossession
-      );
-    }
-  }, [customerDetails]);
-
   const showCustomerDetails = () => {
     return !loading &&
       customerDetails &&
-      circleInvoice.series &&
-      circleInvoice.options &&
-      circleOut.series &&
-      circleOut.options &&
-      circleUp.series &&
-      circleUp.options &&
-      circlePaid.series &&
-      circlePaid.options &&
+      // circleInvoice.series &&
+      // circleInvoice.options &&
+      // circleOut.series &&
+      // circleOut.options &&
+      // circleUp.series &&
+      // circleUp.options &&
+      // circlePaid.series &&
+      // circlePaid.options &&
       projectId ? (
       <>
         {/* for div = style={{ height: "12em" }} */}
@@ -514,7 +507,8 @@ export default function CustomerDetails() {
                       }
                       series={circleInvoice.series ? circleInvoice.series : ""}
                       type="radialBar"
-                      height={110}
+                      height={100}
+                      width={100}
                     />
                   )
                 }
@@ -546,7 +540,8 @@ export default function CustomerDetails() {
                       options={circlePaid.options}
                       series={circlePaid.series}
                       type="radialBar"
-                      height={110}
+                      height={100}
+                      width={100}
                     />
                   )
                 }
@@ -579,7 +574,8 @@ export default function CustomerDetails() {
                       options={circleOut.options}
                       series={circleOut.series}
                       type="radialBar"
-                      height={110}
+                      height={100}
+                      width={100}
                     />
                   )
                 }
@@ -606,7 +602,8 @@ export default function CustomerDetails() {
                       options={circleUp.options}
                       series={circleUp.series}
                       type="radialBar"
-                      height={110}
+                      height={100}
+                      width={100}
                     />
                   )
                 }

@@ -4,7 +4,6 @@ import Chart from "react-apexcharts";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
-// import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function AgingBar() {
   const [xAxisKeys, setXAxisKeys] = useState([]);
@@ -23,16 +22,16 @@ export default function AgingBar() {
 
   function extractKeys(object) {
     return Object.keys(object)
-      .filter((key) => key !== "orderId")
+      .filter((key) => key !== "VBELN")
       .map((key) => {
-        const replacedKey = key.replace(/^bal_/, "").replace(/_/g, "-");
+        const replacedKey = key.replace(/^BAL_/, "").replace(/_/g, "-");
         return replacedKey === "180" ? ">180" : replacedKey;
       });
   }
 
   const sumObject = graphData.reduce((sum, obj) => {
     Object.entries(obj).forEach(([key, value]) => {
-      if (key !== "orderId") {
+      if (key !== "VBELN") {
         sum[key] = (sum[key] || 0) + value;
       }
     });
@@ -42,7 +41,7 @@ export default function AgingBar() {
   async function getData() {
     // setLoading(true);
 
-    const keysToRemove = ["arktx", "name"];
+    const keysToRemove = ["BAL_VAL", "ARKTX", "NAME"];
 
     // Function to remove specified keys from each object in the array
     function removeKeys(array, keys) {
@@ -67,15 +66,17 @@ export default function AgingBar() {
       .then((response) => response.json())
       .then((data) => {
         if (OrderId) {
-          const dataToSet = data?.filter((obj) => obj.orderId === OrderId);
+          const dataToSet = data?.[0]?.AGING.filter(
+            (obj) => obj.VBELN === OrderId
+          );
           const updatedArray = removeKeys(dataToSet, keysToRemove);
           setGraphData(updatedArray);
         } else {
-          const updatedArray = removeKeys(data, keysToRemove);
+          const updatedArray = removeKeys(data?.[0]?.AGING, keysToRemove);
           setGraphData(updatedArray);
         }
 
-        setXAxisKeys(extractKeys(data[0]));
+        setXAxisKeys(extractKeys(data?.[0]?.AGING?.[0]));
         // setLoading(false);
         setDataLoad(true);
       })
@@ -86,7 +87,7 @@ export default function AgingBar() {
 
   useEffect(() => {
     getData();
-  }, [projectId]);
+  }, [projectId, OrderId]);
 
   const handleClick = () => {
     navigate(`/crm/crm/agingReport`);

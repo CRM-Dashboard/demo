@@ -2,22 +2,25 @@
 import * as React from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { Grid, Typography } from "@mui/material";
 import AllProjects from "./AllProjects";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import OnGoingProjects from "./OnGoingProjects";
 import CompletedProjects from "./CompletedProjects";
 import CommercialProjects from "./CommercialProjects";
+import { useDispatch, useSelector } from "react-redux";
 import ChildCentricProjects from "./ChildCentricProjects";
+import { Grid, Typography, Tooltip, IconButton } from "@mui/material";
 import homePageAction from "./HomePageReducer/HomePageAction";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import dashboardActions from "../Dashboard/DashboardReducer.js/DashboardActions";
 
 export default function HomePage() {
   const [value, setValue] = React.useState("one");
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -71,7 +74,18 @@ export default function HomePage() {
           alignItems="center"
           alignContent="center"
         >
-          <div></div>
+          <div>
+            {" "}
+            <Tooltip title="Change Selected Project">
+              <IconButton size="md" sx={{ marginBottom: "0.8em" }}>
+                <ArrowBackIcon
+                  onClick={() => {
+                    navigate("/menus");
+                  }}
+                />
+              </IconButton>
+            </Tooltip>{" "}
+          </div>
           <Tabs
             value={value}
             onChange={handleChange}

@@ -2,6 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from "react";
 import moment from "moment";
+import dayjs from "dayjs";
 import MUIDataTable from "mui-datatables";
 import { useSelector } from "react-redux";
 import CreateNewProject from "./CreateNewProject";
@@ -9,6 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FileDetails from "../FileOperations/FileDetails";
 import FileUploader from "../FileOperations/FileUploader";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { DateRangePicker } from "@maxstudener/react-mui-daterange-picker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
@@ -20,17 +22,19 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
+import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import CircularScreenLoader from "../../crm/components/circularScreenLoader/CircularScreenLoader";
+import CircularProgressWithLabel from "../../crm/components/CircularProgressWithLabel/circularProgressWithLabel";
 
 const Projects = () => {
   const [users, setUsers] = useState([]);
   const [file, setFile] = useState(null);
   const [stages, setStages] = useState([]);
-
   const [statuses, setStatuses] = useState([]);
   const [projectId, setProjectId] = useState();
   const [loading, setLoading] = useState(false);
   const [fileIndex, setFileIndex] = useState(0);
+  const [categories, setCategory] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [priorities, setPriorities] = useState([]);
   const [openModal, setOpenModal] = useState(false);
@@ -58,7 +62,6 @@ const Projects = () => {
 
   const saveUrls = (fileUrls) => {
     const entryData = [];
-    console.log("################fileIndex", fileIndex);
     var Index = fileIndex;
     // eslint-disable-next-line array-callback-return
     fileUrls?.map((obj) => {
@@ -94,8 +97,6 @@ const Projects = () => {
           setProjectId("");
         }
       });
-
-    console.log("data*************", entryData);
   };
 
   const getFilesCount = () => {
@@ -116,17 +117,16 @@ const Projects = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          console.log("##############data.data.length", data.data.length, data);
           const maxLoIndex = data?.data?.reduce((max, current) => {
             return current.loIndex > max ? current.loIndex : max;
           }, -Infinity);
-          setFileIndex(maxLoIndex);
+          setFileIndex(data.data.length === 0 ? data.data.length : maxLoIndex);
         }
       });
   };
 
   const handleRowClick = (rowData, rowMeta) => {
-    setProjectId(rowData?.[7]);
+    setProjectId(rowData?.[16]);
     setSelectedRows(projectData[rowMeta?.rowIndex]);
   };
 
@@ -175,7 +175,6 @@ const Projects = () => {
   };
 
   const options = {
-    // expandableRows: true,
     pagination: false,
     print: false,
     download: false,
@@ -183,7 +182,6 @@ const Projects = () => {
     filter: false,
     viewColumns: false,
     selectableRows: "single",
-    // renderExpandableRow,
     hideToolbar: true,
     columnOptions: {
       display: "false",
@@ -219,21 +217,63 @@ const Projects = () => {
   };
 
   const columns = [
+    // { name: "Rank" },
+    {
+      name: "Category",
+    },
     {
       name: "Name",
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => handleCellEdit(e, tableMeta.rowIndex, 0)}
-          />
-        ),
-      },
     },
     "Description",
-    "Start Date",
     "Project Manager",
+    {
+      name: "Priority",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <Select
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                padding: "6.5px 14px 5px 14px",
+                font: "-webkit-control",
+                color: "white",
+                backgroundColor: getPriorityColor(tableData[dataIndex][4]),
+                fontSize: "0.7rem",
+                width: "6em",
+              },
+            }}
+            id="priority"
+            name="priority"
+            value={tableData[dataIndex][4]}
+            onChange={(e) => {
+              const row = projectData[dataIndex];
+              row.priority = e.target.value;
+              delete row.task;
+              delete row.ticket;
+              setRowToUpdate(row);
+              handleCellEdit(e, rowIndex, 4);
+            }}
+          >
+            {priorities.map((data) => {
+              return (
+                <MenuItem
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      backgroundColor: getPriorityColor(data.priority),
+                      color: "white",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                  value={data.priority}
+                >
+                  {" "}
+                  {data.priority}
+                </MenuItem>
+              );
+            })}
+          </Select>,
+        ],
+      },
+    },
     {
       name: "Status",
       options: {
@@ -243,22 +283,22 @@ const Projects = () => {
               "& .MuiOutlinedInput-input": {
                 padding: "6.5px 14px 5px 14px",
                 font: "-webkit-control",
-                backgroundColor: getStatusColor(tableData[dataIndex][4]),
+                backgroundColor: getStatusColor(tableData[dataIndex][5]),
                 color: "white",
-                width: "8em",
+                width: "7em",
+                fontSize: "0.7rem",
               },
             }}
             id="status"
             name="status"
-            value={tableData[dataIndex][4]}
+            value={tableData[dataIndex][5]}
             onChange={(e) => {
               const row = projectData[dataIndex];
               row.status = e.target.value;
-              delete row.tasks;
-              // console.log("rowToUpdate$$$$$$$$$$", row);
-              setRowToUpdate(row);
+              delete row.task;
 
-              handleCellEdit(e, rowIndex, 4);
+              setRowToUpdate(row);
+              handleCellEdit(e, rowIndex, 5);
             }}
           >
             {statuses.map((data) => {
@@ -269,6 +309,7 @@ const Projects = () => {
                     "&.MuiButtonBase-root": {
                       backgroundColor: getStatusColor(data.status),
                       color: "white",
+                      fontSize: "0.8rem",
                     },
                   }}
                 >
@@ -281,7 +322,182 @@ const Projects = () => {
         ],
       },
     },
-    "Progress",
+    {
+      name: "Stage",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <Select
+            sx={{
+              "& .MuiOutlinedInput-input": {
+                backgroundColor: getStageColor(tableData[dataIndex][6]),
+                color: "white",
+                padding: "6.5px 14px 5px 14px",
+                font: "-webkit-control",
+                fontSize: "0.7rem",
+                width: "15.5em",
+              },
+            }}
+            id="stage"
+            name="stage"
+            value={tableData[dataIndex][6]}
+            onChange={(e) => {
+              const row = projectData[dataIndex];
+              row.stage = e.target.value;
+              delete row.task;
+              delete row.ticket;
+              setRowToUpdate(row);
+
+              handleCellEdit(e, rowIndex, 6);
+            }}
+          >
+            {stages.map((data) => {
+              return (
+                <MenuItem
+                  value={data.stage}
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      backgroundColor: getStageColor(data.stage),
+                      color: "white",
+                      fontSize: "0.8rem",
+                    },
+                  }}
+                >
+                  {" "}
+                  {data.stageTxt}
+                </MenuItem>
+              );
+            })}
+          </Select>,
+        ],
+      },
+    },
+    { name: "Progress" },
+    {
+      name: "Plan Start",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => (
+          <CrmDatePicker
+            height={28}
+            width={125}
+            iconHeight={"0.6em"}
+            iconWidth={"0.6em"}
+            fontSize={"0.7rem"}
+            buttonBase={"1em"}
+            id={`planStart-${dataIndex}`}
+            name="planStart"
+            value={
+              tableData[dataIndex][8] === "0000-00-00"
+                ? ""
+                : dayjs(tableData[dataIndex][8])
+            }
+            onChange={(date) => {
+              const row = projectData[dataIndex];
+              row.fsavd = dayjs(date).format("YYYYMMDD");
+              delete row.task;
+              delete row.ticket;
+
+              setRowToUpdate(row);
+              handleDateChange(date, rowIndex, 8);
+            }}
+          />
+        ),
+      },
+    },
+    {
+      name: "Plan End",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => (
+          <CrmDatePicker
+            height={28}
+            width={125}
+            iconHeight={"0.6em"}
+            iconWidth={"0.6em"}
+            fontSize={"0.7rem"}
+            buttonBase={"1em"}
+            id={`planEnd-${dataIndex}`}
+            name="planEnd"
+            value={
+              tableData[dataIndex][9] === "0000-00-00"
+                ? ""
+                : dayjs(tableData[dataIndex][9])
+            }
+            onChange={(date) => {
+              const row = projectData[dataIndex];
+              row.fsedd = dayjs(date).format("YYYYMMDD");
+              delete row.task;
+              delete row.ticket;
+
+              setRowToUpdate(row);
+              handleDateChange(date, rowIndex, 9);
+            }}
+          />
+        ),
+      },
+    },
+    { name: "Plan Days" },
+    {
+      name: "Actual Start",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => (
+          <CrmDatePicker
+            height={28}
+            width={125}
+            iconHeight={"0.6em"}
+            iconWidth={"0.6em"}
+            fontSize={"0.7rem"}
+            buttonBase={"1em"}
+            id={`actualStart-${dataIndex}`}
+            name="actualStart"
+            value={
+              tableData[dataIndex][11] === "0000-00-00"
+                ? ""
+                : dayjs(tableData[dataIndex][11])
+            }
+            onChange={(date) => {
+              const row = projectData[dataIndex];
+              row.startDt = dayjs(date).format("YYYYMMDD");
+              delete row.task;
+              delete row.ticket;
+
+              setRowToUpdate(row);
+              handleDateChange(date, rowIndex, 11);
+            }}
+          />
+        ),
+      },
+    },
+    {
+      name: "Actual End",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => (
+          <CrmDatePicker
+            height={28}
+            width={125}
+            iconHeight={"0.6em"}
+            iconWidth={"0.6em"}
+            fontSize={"0.7rem"}
+            buttonBase={"1em"}
+            id={`actualEnd-${dataIndex}`}
+            name="actualEnd"
+            value={
+              tableData[dataIndex][12] === "0000-00-00"
+                ? ""
+                : dayjs(tableData[dataIndex][12])
+            }
+            onChange={(date) => {
+              const row = projectData[dataIndex];
+              row.endDt = dayjs(date).format("YYYYMMDD");
+              delete row.task;
+              delete row.ticket;
+
+              setRowToUpdate(row);
+              handleDateChange(date, rowIndex, 12);
+            }}
+          />
+        ),
+      },
+    },
+    { name: "Actual Days" },
     { name: "Files" },
   ];
 
@@ -302,31 +518,60 @@ const Projects = () => {
     }
   };
 
+  const getStageColor = (status) => {
+    switch (status) {
+      case "1":
+        return "#D8BFD8";
+      case "2":
+        return "#DDA0DD";
+      case "3":
+        return "#EE82EE";
+      case "4":
+        return "#662d91";
+      case "5":
+        return "#720e9e";
+      case "6":
+        return "#800080";
+      default:
+        return "inherit";
+    }
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "LOW":
+        return "#89CFF0";
+      case "MEDIUM":
+        return "#0066b2";
+      case "HIGH":
+        return "#0000FF";
+      default:
+        return "inherit";
+    }
+  };
+
   useEffect(() => {
-    // console.log(
-    //   "$$$$$$$$$$Object.keys(rowToUpdate).length > 0",
-    //   Object.keys(rowToUpdate)
-    // );
     if (Object.keys(rowToUpdate).length > 1) {
       updateProject(rowToUpdate);
     }
   }, [rowToUpdate]);
 
   const updateProject = (updatedData) => {
-    // console.log("updatedData!!!!!!!!!!!", updatedData);
     const entryData = {
       PROJECT: [updatedData],
-      TASK: [],
-      TICKET: [],
     };
-    // if (Object.keys(data).length > 0) {
+
     const formData = new FormData();
 
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
 
-    fetch("/api/activity/createProject", { method: "POST", body: formData })
+    // process.env.REACT_APP_SERVER_URL
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
+      method: "POST",
+      body: formData,
+    })
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -338,20 +583,15 @@ const Projects = () => {
         }
       })
       .catch((error) => {
-        // console.log("########error", error);
         if (error) {
           snackbar.showError(
             "Error while updating activity. Please try again!"
           );
         }
       });
-    // } else {
-    //   snackbar.showError("Something went wrong!");
-    // }
   };
 
   const createNewProject = () => {
-    console.log("######createNewProject");
     if (ref.current) {
       ref.current.createProject();
     }
@@ -369,18 +609,21 @@ const Projects = () => {
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
       return [
+        // item.rank,
+        item.categTxt,
         item.projectName,
         item.projectDesc,
-        item.startDt,
         item.projectMgr,
+        item.priority,
         item.status,
-        <div class="battery-container">
-          <div class="battery-body">
-            <div class="battery-fill"></div>
-          </div>
-          <div class="battery-indicator"></div>
-          <div class="battery-percentage">0%</div>
-        </div>,
+        item.stage,
+        <CircularProgressWithLabel value={item?.progress} />,
+        item.fsavd,
+        item.fsedd,
+        item.planDays,
+        item.startDt,
+        item.endDt,
+        item.actDays,
         <IconButton
           style={{ color: "blue" }}
           onClick={() => {
@@ -402,15 +645,20 @@ const Projects = () => {
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     setLoading(true);
-    fetch(`/api/activity/getProjectTracker`, { method: "POST", body: formData })
+    fetch(
+      // `https://gera-crm-server.azurewebsites.net//api/activity/getProjectTracker`,
+      `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTracker`,
+      { method: "POST", body: formData }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data.length > 0) {
           setUsers(data[0].user);
-          setProjectData(data[0].tree);
+          setProjectData(data[0].project);
+          setCategory(data[0].category);
           setStages(data[0].projectStage);
           setStatuses(data[0].projectStatus);
-          setTableData(modifyResponse(data[0].tree));
+          setTableData(modifyResponse(data[0].project));
           setPriorities(data[0].projectPriority);
           setLoading(false);
         }
@@ -421,6 +669,13 @@ const Projects = () => {
     getTableData();
   }, []);
 
+  const handleDateChange = (date, rowIndex, colIndex) => {
+    const newData = [...tableData];
+    const formattedDate = dayjs(date).format("YYYY-MM-DD");
+    newData[rowIndex][colIndex] = formattedDate;
+    setTableData(newData);
+  };
+
   const handleCellEdit = (e, rowIndex, colIndex) => {
     const newData = [...tableData];
     newData[rowIndex][colIndex] = e.target.value; // Update the Name field value
@@ -429,6 +684,27 @@ const Projects = () => {
     // if (colIndex == 4) {
     // }
   };
+
+  const getMuiTheme = () =>
+    createTheme({
+      components: {
+        MUIDataTableBodyCell: {
+          styleOverrides: {
+            root: {
+              fontSize: "0.7rem",
+            },
+          },
+        },
+        MUIDataTableHeadCell: {
+          styleOverrides: {
+            data: {
+              fontSize: "0.8rem",
+              fontWeight: "bold",
+            },
+          },
+        },
+      },
+    });
 
   return (
     <>
@@ -456,6 +732,8 @@ const Projects = () => {
               "&.MuiButton-root": {
                 textTransform: "none",
                 backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
               },
             }}
           >
@@ -471,6 +749,8 @@ const Projects = () => {
               "&.MuiButton-root": {
                 textTransform: "none",
                 backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
               },
             }}
             disabled={!projectId}
@@ -484,7 +764,9 @@ const Projects = () => {
         </div>
       </div>
       {!loading ? (
-        <MUIDataTable data={tableData} columns={columns} options={options} />
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <MUIDataTable data={tableData} columns={columns} options={options} />
+        </ThemeProvider>
       ) : (
         <CircularScreenLoader />
       )}
@@ -528,10 +810,12 @@ const Projects = () => {
         }}
       >
         <CreateNewProject
+          ref={ref}
+          users={users}
           stages={stages}
           statuses={statuses}
+          categories={categories}
           priorities={priorities}
-          ref={ref}
           getTableData={getTableData}
           setOpenCreateForm={setOpenCreateForm}
         />

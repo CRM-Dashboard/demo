@@ -1,22 +1,20 @@
-/* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import moment from "moment";
 import Table from "mui-datatables";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Typography } from "@mui/material";
 
-export default function TodayActivity() {
+export default function SAPEmail() {
   const [tableData, setTableData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
-  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData.dashboard.project.projectId;
+  const EmailID = reducerData?.dashboard?.customerEmailId;
 
   const getMuiTheme = () =>
     createTheme({
@@ -144,112 +142,78 @@ export default function TodayActivity() {
 
   const options = {
     selectableRows: "none",
-    rowsPerPage: 100,
     elevation: 0,
     print: true,
     download: true,
     search: true,
     viewColumns: true,
     filter: true,
-    filterType: "dropdown",
-    responsive: "standard",
   };
 
   const columns = [
+    {
+      name: "Title",
+      label: "Title",
+    },
+    {
+      name: "Sender",
+      label: "Sender",
+    },
+    {
+      name: "Recepient",
+      label: "Recepient",
+    },
     {
       name: "Date",
       label: "Date",
     },
     {
-      name: "Activity Type",
-      label: "Activity Type",
-    },
-    {
-      name: "Mode",
-      label: "Mode",
-    },
-    {
-      name: "Amount",
-      label: "Amount",
-    },
-    {
-      name: "Action",
-      label: "Action",
-    },
-    {
-      name: "Remarks",
-      label: "Remarks",
-    },
-    {
       name: "Time",
       label: "Time",
-    },
-    {
-      name: "Status",
-      label: "Status",
     },
   ];
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
-      return [
-        item?.erdat,
-        item.actTypTxt,
-        item.actModeTxt,
-        item.dmbtr,
-        item.action,
-        item.remark,
-        item.pltac,
-        item.compInd === "X" ? "X" : "Open",
-      ];
+      return [item?.Title, item?.Sender, item.Recepient, item.Date, item.Time];
     });
     return modifiedResponse;
   };
 
-  const getTableData = () => {
-    const formData = new FormData();
-    formData.append("crmId", crmId);
-    formData.append("orderId", OrderId);
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("projectId", projectId);
-
-    fetch(`${process.env.REACT_APP_SERVER_URL}/api/activity/getActivity`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data[0]?.actdata) {
-          const todayActivity = data[0]?.actdata?.filter(
-            (act) => act.erdat === moment(new Date()).format("YYYY-MM-DD")
-          );
-          setTableData(modifyResponse(todayActivity));
-        }
-      });
-  };
-
   useEffect(() => {
-    getTableData();
-  }, []);
+    setIsLoading(true);
+    if (OrderId) {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("emailId", EmailID);
 
-  return (
-    tableData.length > 0 && (
-      <div style={{ marginTop: "1em" }}>
-        <ThemeProvider theme={() => getMuiTheme()}>
-          <Table
-            data={tableData}
-            columns={columns}
-            options={options}
-            title={
-              <Typography sx={{ fontWeight: "Bold" }}>
-                {" "}
-                Today's Activity
-              </Typography>
-            }
-          ></Table>
-        </ThemeProvider>
-      </div>
-    )
+      fetch(process.env.REACT_APP_SERVER_URL + `/api/reports/maillog`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.Emails) {
+            setTableData(modifyResponse(data.Emails));
+            setIsLoading(false);
+          } else {
+            setIsLoading(false);
+          }
+        });
+    } else {
+      setTableData([]);
+      setIsLoading(false);
+    }
+  }, [OrderId]);
+
+  return !isLoading ? (
+    <div style={{ marginTop: "1em" }}>
+      <ThemeProvider theme={() => getMuiTheme()}>
+        <Table data={tableData} columns={columns} options={options}></Table>
+      </ThemeProvider>
+    </div>
+  ) : (
+    <CircularScreenLoader />
   );
 }

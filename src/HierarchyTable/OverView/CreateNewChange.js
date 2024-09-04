@@ -18,32 +18,34 @@ const CreateNewChange = forwardRef((props, ref) => {
   const snackbar = UseCustomSnackbar();
 
   const createChange = () => {
-    const entryData = {
-      PROJECT: [],
-      TASK: [],
-      TICKET: [],
-      CHANGE: [
-        {
-          projectId: props.selectedRows.projectId,
-          trkorr: formik.values.requestNumber,
-          ddText: formik.values.changeDescription,
-          requester: formik.values.requester,
-          priority: formik.values.priority,
-          status: formik.values.status,
-          requestDt: formik.values.requestDate,
-          planStartDt: formik.values.planStartDate,
-          planEndDt: formik.values.planEndDate,
-          actStartDt: formik.values.actionStartDate,
-          actEndDt: formik.values.actionEndDate,
-          assigned: formik.values.assignedTo,
-          changeType: formik.values.changeType,
-          moduleSys: formik.values.module,
-          objects: formik.values.object,
-          tester: formik.values.tester,
-          notes: formik.values.notes,
-        },
-      ],
-    };
+    const entryData = [
+      {
+        PROJECT: [],
+        TASK: [],
+        TICKET: [],
+        CHANGE: [
+          {
+            projectId: props.selectedRows.projectId,
+            trkorr: formik.values.requestNumber,
+            ddText: formik.values.changeDescription,
+            requester: formik.values.requester,
+            priority: formik.values.priority,
+            status: formik.values.status,
+            requestDt: formik.values.requestDate,
+            planStartDt: formik.values.planStartDate,
+            planEndDt: formik.values.planEndDate,
+            actStartDt: formik.values.actionStartDate,
+            actEndDt: formik.values.actionEndDate,
+            assigned: formik.values.assignedTo,
+            changeType: formik.values.changeType,
+            moduleSys: formik.values.module,
+            objects: formik.values.object,
+            tester: formik.values.tester,
+            notes: formik.values.notes,
+          },
+        ],
+      },
+    ];
 
     if (!formik.values.notes) {
       setError("Required");

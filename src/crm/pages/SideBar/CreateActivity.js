@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-concat */
 /* eslint-disable no-unreachable */
 /* eslint-disable eqeqeq */
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -410,8 +411,8 @@ const CreateActivity = forwardRef((props, ref) => {
     formData.append("entryData", JSON.stringify(dataToSave));
 
     fetch(
-      "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
-      // "http://localhost:5000/api/activity/createActivity",
+      // "https://gera-crm-server.azurewebsites.net//api/activity/createActivity",
+      `${process.env.REACT_APP_SERVER_URL}/api/activity/createActivity`,
       { method: "POST", body: formData }
     )
       .then((response) => response.json())

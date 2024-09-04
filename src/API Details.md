@@ -133,15 +133,3 @@ latest:
 
 latest:
 api/exotel/make-call
-
-## Knowlarity:
-
-Account SID: mobileprogramming1
-
-Account Subdomain: api.exotel.com
-
-API Key: 3466f10b135ae555706ca14fc2ef2e0d200ad0362fb5b150
-
-API Token:fd096332b8bc7cadd5df773003cfb45fffa34c4e51274149
-
-KYC docs are pending...

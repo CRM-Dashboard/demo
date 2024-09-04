@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 // import { FaAngleDown } from "react-icons/fa";
+import { Grid, Typography } from "@mui/material";
 import "./SideBar2.css";
 import FaAngleDown from "@mui/icons-material/KeyboardArrowDownSharp";
 import { NavLink } from "react-router-dom";
@@ -57,13 +58,56 @@ const Sidebar2Menus = ({ color, route, showAnimation, isOpen, setIsOpen }) => {
     <>
       <div
         className="menu"
-        style={{ padding: "0.4em 0.4em 0.8em", cursor: "pointer" }}
+        style={
+          isOpen
+            ? {
+                justifyContent: "space-between",
+                padding: "0.4em 0.4em 0.8em",
+                cursor: "pointer",
+              }
+            : {
+                padding: "0.4em 0.4em 0.8em",
+                cursor: "pointer",
+                justifyContent: "center",
+              }
+        }
         onClick={toggleMenu}
       >
         <div className="menu_item">
-          <div className="icon" style={{ cursor: "pointer" }}>
+          <Grid
+            className="icon"
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             {route.icon}
-          </div>
+
+            {!isOpen && (
+              <Grid
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    fontSize: "8.5px",
+                    gap: "7px",
+                  }}
+                >
+                  {" "}
+                  {route.name}
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
           <AnimatePresence>
             {isOpen && (
               <motion.div

@@ -17,11 +17,11 @@ import Stepper from "@mui/material/Stepper";
 import { Button, Paper } from "@mui/material";
 import Constants from "./../../utils/Constants";
 import StepLabel from "@mui/material/StepLabel";
-import { Grid } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import StepContent from "@mui/material/StepContent";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
+import { Grid, Avatar, Drawer, ButtonGroup } from "@mui/material";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import LabelWithCheckbox from "../../components/labelWithCheckBox/LabelWithCheckBox";
@@ -116,13 +116,14 @@ export default function FileMovement() {
   const [activeStep, setActiveStep] = useState(0);
   const [newMessage, setNewMessage] = useState("");
   const [checkedItems, setCheckedItems] = useState(
-    Array(checklistItems.length).fill(false)
+    Array(checklistItems?.length).fill(false)
   );
   const [checkListData, setCheckListData] = useState();
   const [currentOrderId, setCurrentOrderId] = useState();
   const [fileUploadType, setfileUploadType] = useState();
   const [currentStepData, setCurrentStepData] = useState([]);
   const [openFileUpload, setOpenFileUpload] = useState(false);
+  const [selectedDataset, setSelectedDataset] = useState([]);
   const [checks, setChecks] = useState({
     CHECK_1: "",
     CHECK_2: "",
@@ -145,6 +146,25 @@ export default function FileMovement() {
     CHECK_19: "",
   });
   const [allChecked, setAllChecked] = useState(false);
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
+  const [isFileDrawerOpen, setIsFileDrawerOpen] = useState(false);
+  const [nonConfRecordSet, setNonConfRecords] = useState([]);
+  const [confRecordSet, setConfRecords] = useState([]);
+
+  // Toggle the drawer open/close state
+  const toggleChatDrawer = (open) => (event) => {
+    setIsChatDrawerOpen(open);
+  };
+
+  const toggleFileDrawer = (open) => (event) => {
+    setIsFileDrawerOpen(open);
+  };
+
+  // Function to switch datasets
+  const switchDataset = (dataset) => {
+    setCurrentOrderId("");
+    setSelectedDataset(dataset);
+  };
 
   const ref = useRef(null);
   const fileRef = useRef(null);
@@ -218,7 +238,6 @@ export default function FileMovement() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          console.log("#########checklistdata", data);
           setCheckListData(data[0]);
         }
       });
@@ -279,14 +298,12 @@ export default function FileMovement() {
           snackbar.showSuccess("CheckList Submitted SuccessFully");
         }
       });
-
-    console.log("Updated checklist Data**********:", updatedData);
   };
 
   const handleNext = (index) => {
     //Handeled Continue Button
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    if (index === steps.length - 1) {
+    if (index === steps?.length - 1) {
       handleFinish();
       savCurrentStepByIdAndAction("CRM", "A");
       saveChats("Files have been Approved by CRM Manager!");
@@ -331,14 +348,23 @@ export default function FileMovement() {
     }
   };
 
-  const getTableData = () => {
+  const getTableData = (orderIdForConfirmedRecords) => {
     setLoading(true);
     const formData = new FormData();
     formData.append("crmId", crmId);
-    formData.append("orderId", OrderId);
+    if (orderIdForConfirmedRecords) {
+      formData.append("orderId", orderIdForConfirmedRecords);
+    } else {
+      formData.append("orderId", "");
+    }
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("projectId", projectId);
+    // formData.append("projectId", projectId);
+    if (orderIdForConfirmedRecords) {
+      formData.append("file", "C");
+    } else {
+      formData.append("file", "NC");
+    }
 
     fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so_list", {
       method: "POST",
@@ -347,16 +373,37 @@ export default function FileMovement() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
+          if (orderIdForConfirmedRecords) {
+            const confRecords = data[0]?.orderdata.filter((data) => {
+              if (data.confStatus === "Confirmed") {
+                return data;
+              }
+            });
+            setSelectedDataset(confRecords);
+            setConfRecords(confRecords);
+          } else {
+            const nonConfRecords = data[0]?.orderdata.filter((data) => {
+              if (data.confStatus !== "Confirmed") {
+                return data;
+              }
+            });
+            setSelectedDataset(nonConfRecords);
+            setNonConfRecords(nonConfRecords);
+          }
+
           setResponse(data[0]?.orderdata);
-          const nonConfRecords = data[0]?.orderdata.filter((data) => {
-            if (data.confStatus !== "Confirmed") {
-              return data;
-            }
-          });
-          // setCurrentOrderId(nonConfRecords[0].orderId);
-          getCurrentStep(nonConfRecords[0].orderId);
-          setTableData(nonConfRecords);
-          console.log("##############nonConfRecords", nonConfRecords);
+
+          setTableData(data[0]?.orderdata);
+
+          // setCurrentOrderId(2100006103);
+          // const index = data[0]?.orderdata?.findIndex(
+          //   (order) => order.orderId === "2100006103"
+          // );
+          // setValue(index);
+          // console.log("#################index", index);
+          // getCurrentStep(data[0]?.orderdata[0].orderId);
+
+          // console.log("##############nonConfRecords", nonConfRecords);
           setLoading(false);
         }
       })
@@ -425,7 +472,7 @@ export default function FileMovement() {
             ...item,
             sentTime: timeAgo(item.erdat, item.uzeit),
           }));
-          console.log("############chats", updatedData);
+
           setMessages(updatedData);
         }
       });
@@ -455,7 +502,6 @@ export default function FileMovement() {
         if (data) {
           getChats();
           setNewMessage("");
-          console.log("############chats", data);
         }
       });
   };
@@ -479,12 +525,15 @@ export default function FileMovement() {
   }, []);
 
   useEffect(() => {
-    // getTableData();
     getCheckList();
     getChats();
     getCurrentStep();
     // OrderId ? updateTableData() : getTableData();
   }, [OrderId, currentOrderId]);
+
+  useEffect(() => {
+    getTableData();
+  }, [crmId, OrderId]);
 
   const handleSend = () => {
     if (newMessage?.trim() !== "") {
@@ -554,7 +603,7 @@ export default function FileMovement() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          setFileIndex(data.data.length);
+          setFileIndex(data?.data?.length);
         }
       });
   };
@@ -733,12 +782,11 @@ export default function FileMovement() {
   };
 
   const getCurrentStep = (id) => {
-    console.log("############currentOrderId", currentOrderId || id);
     if (currentOrderId || id) {
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("orderId", currentOrderId || id);
+      formData.append("orderId", id ? id : currentOrderId);
 
       fetch(
         process.env.REACT_APP_SERVER_URL + "/api/fileMovement/getFileRelease",
@@ -752,16 +800,15 @@ export default function FileMovement() {
         })
         .then((data) => {
           if (data) {
-            console.log("#@@@@@@@@@@@@@@@currentstep", data[0].CURRENT_STEP);
             setCurrentStepData(data[0].STEP_DATA);
             if (data?.[0]?.CURRENT_STEP) {
               const latestStep = data?.[0]?.CURRENT_STEP.replace("0", "");
-              console.log("currenStep!!!!!!!!!!!", latestStep, latestStep - 1);
+
               setActiveStep(latestStep - 1);
             }
-            snackbar.showSuccess(
-              <Typography> Get Current step status Successfully!</Typography>
-            );
+            // snackbar.showSuccess(
+            //   <Typography> Get Current step status Successfully!</Typography>
+            // );
           }
           // getTableData();
         })
@@ -781,7 +828,6 @@ export default function FileMovement() {
         return data;
       }
     });
-    console.log("###############currentActiveData", currentActiveData);
 
     const entryData = activeStep === 0 ? [] : [currentActiveData[0]];
 
@@ -863,177 +909,367 @@ export default function FileMovement() {
 
   return loading ? (
     <CircularScreenLoader />
-  ) : tableData.length > 0 ? (
-    <Box
-      sx={{
-        flexGrow: 1,
-        bgcolor: "background.paper",
-        display: "flex",
-        height: "90vh",
-        overflowY: "scroll",
-      }}
-    >
-      <Tabs
-        orientation="vertical"
-        variant="scrollable"
-        value={value}
-        onChange={handleChange}
-        aria-label="Vertical tabs example"
-        sx={{ borderRight: 1, borderColor: "divider" }}
+  ) : tableData?.length > 0 ? (
+    <>
+      <ButtonGroup variant="contained">
+        <Button onClick={() => switchDataset(nonConfRecordSet)}>Pending</Button>
+        <Button disabled={!OrderId} onClick={() => getTableData(OrderId)}>
+          Confirmed
+        </Button>
+      </ButtonGroup>
+      <Box
+        sx={{
+          flexGrow: 1,
+          bgcolor: "background.paper",
+          display: "flex",
+          height: "70vh",
+          overflowY: "scroll",
+          marginTop: "1em",
+        }}
       >
-        {tableData?.map((tabData, index) => {
-          return (
-            <Tab
-              onClick={() => {
-                setCurrentOrderId(tabData.orderId);
-              }}
-              label={
-                <Box
-                  sx={{
-                    justifyContent: "center",
-                    display: "flex",
-                    width: "20em",
-                    margin: "0.5em",
-                    "&.MuiButtonBase-root": {
-                      "text-transform": "capitalize",
-                    },
-                  }}
-                >
-                  <div style={{ margin: "1em" }}>
-                    <div style={{ fontSize: "0.8em" }}>
-                      {tabData?.customerName}
-                    </div>
-
-                    <div style={{ fontSize: "0.8em" }}>{tabData?.property}</div>
-
-                    <div style={{ fontSize: "1em" }}>{tabData?.building}</div>
-
-                    <div style={{ fontSize: "1em" }}>{tabData?.flatno}</div>
-                  </div>
-                </Box>
-              }
-              {...a11yProps(index)}
-            />
-          );
-        })}
-      </Tabs>
-      <TabPanel>
-        <Grid
-          container
-          spacing={2}
-          style={{
-            height: "100vh",
-            "&.MuiGrid-item": { paddingLeft: "0px" },
-            display: "flex",
-            flexDirection: "column",
-            // marginTop: "1em",
-            backgroundColor: "white",
-            paddingBottom: "2em",
-            alignItems: "flex-start",
-            justifyContent: "left",
-            border: "1px solid white",
-            borderRadius: "18px",
-            position: "sticky",
-            // top: "4em",
-            alignSelf: "flex-start",
+        {/* <Tabs
+          orientation="vertical"
+          variant="scrollable"
+          value={value}
+          onChange={handleChange}
+          aria-label="Vertical tabs example"
+          sx={{
+            "& .Mui-selected": {
+              backgroundColor: "#4D7AFF", // Apply the background color for selected tab
+              color: "#ffffff", // Apply the color for selected tab
+            },
+            textTransform: "capitalize", // To make the text capitalized
+            borderRight: 1,
+            borderColor: "divider",
           }}
         >
-          <Grid item sm={7} md={7} lg={7}>
+          {selectedDataset?.map((tabData, index) => {
+            return (
+              <Tab
+                // sx={{
+                //   "& .Mui-selected": {
+                //     backgroundColor: "#4D7AFF", // Apply the background color for selected tab
+                //     color: "#ffffff", // Apply the color for selected tab
+                //   },
+                // }}
+                onClick={() => {
+                  setCurrentOrderId(tabData.orderId);
+                }}
+                label={
+                  <Box
+                    sx={{
+                      justifyContent: "center",
+                      display: "flex",
+                      width: "18em",
+                      margin: "0.5em",
+                      "&.MuiButtonBase-root": {
+                        "text-transform": "capitalize",
+                      },
+                      // "&.Mui-selected": {
+                      //   backgroundColor: "#4D7AFF", // Apply the background color for selected tab
+                      //   color: "#ffffff", // Apply the color for selected tab
+                      // },
+                    }}
+                  >
+                    <div style={{ margin: "0.5em" }}>
+                      <div style={{ fontSize: "0.8em", color: "#909090" }}>
+                        {" "}
+                        {tabData?.project}
+                      </div>
+
+                      <div style={{ fontSize: "0.8em", color: "#ffffff" }}>
+                        {tabData?.property +
+                          "  " +
+                          tabData?.building +
+                          "-" +
+                          tabData?.flatno}
+                      </div>
+                      <div style={{ fontSize: "0.8em", color: "#ffffff" }}>
+                        {tabData?.customerName}
+                      </div>
+                    </div>
+                  </Box>
+                }
+                {...a11yProps(index)}
+              />
+            );
+          })}
+        </Tabs> */}
+        <Tabs
+          orientation="vertical"
+          variant="scrollable"
+          value={value}
+          onChange={handleChange}
+          aria-label="Vertical tabs example"
+          sx={{
+            borderRight: 1,
+            borderColor: "divider",
+          }}
+        >
+          {selectedDataset?.map((tabData, index) => {
+            const isActive = value === index; // Check if the tab is active
+
+            return (
+              <Tab
+                key={index}
+                onClick={() => {
+                  setCurrentOrderId(tabData.orderId);
+                }}
+                label={
+                  <Box
+                    sx={{
+                      justifyContent: "center",
+                      display: "flex",
+                      width: "18em",
+                      margin: "0.5em",
+                      backgroundColor: isActive ? "#4D7AFF" : "#ffffff", // Active tab blue background, inactive tab white background
+                      color: isActive ? "#ffffff" : "#000000", // Active tab white text, inactive tab black text
+                      "&.MuiButtonBase-root": {
+                        "text-transform": "capitalize",
+                      },
+                    }}
+                  >
+                    <div style={{ margin: "0.5em" }}>
+                      <div
+                        style={{
+                          fontSize: "0.8em",
+                          color: isActive ? "#ffffff" : "#000000",
+                        }}
+                      >
+                        {tabData?.project}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "0.8em",
+                          color: isActive ? "#ffffff" : "#000000",
+                        }}
+                      >
+                        {tabData?.property +
+                          "  " +
+                          tabData?.building +
+                          "-" +
+                          tabData?.flatno}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: "0.8em",
+                          color: isActive ? "#ffffff" : "#000000",
+                        }}
+                      >
+                        {tabData?.customerName}
+                      </div>
+                    </div>
+                  </Box>
+                }
+                {...a11yProps(index)}
+              />
+            );
+          })}
+        </Tabs>
+
+        {currentOrderId && (
+          <TabPanel>
             <Grid
+              container
+              columns={12}
+              columnSpacing={1}
               style={{
-                width: "50vw",
+                height: "100vh",
+                "&.MuiGrid-item": { paddingLeft: "0px" },
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "flex-start",
+                // marginTop: "1em",
+                backgroundColor: "white",
+                // paddingBottom: "2em",
                 alignItems: "flex-start",
-                fontWeight: "bold",
-                marginLeft: "3em  ",
+                justifyContent: "left",
+                border: "1px solid white",
+                borderRadius: "18px",
+                position: "sticky",
+                // top: "4em",
+                alignSelf: "flex-start",
               }}
             >
-              {" "}
-              File Movement
-            </Grid>
+              <Grid item sm={8} md={8} lg={8}>
+                <Grid
+                  style={{
+                    width: "60vw",
+                    display: "flex",
+                    // flexDirection: "column",
+                    justifyContent: "flex-start",
+                    alignItems: "flex-start",
+                    fontWeight: "bold",
+                    // marginLeft: "3em  ",
+                  }}
+                >
+                  {" "}
+                  File Movement
+                </Grid>
 
-            {/* //Stepper */}
-            <Box sx={{ maxWidth: 400 }}>
-              <Stepper activeStep={activeStep} orientation="vertical">
-                {steps.map((step, index) => (
-                  <Step key={step.label}>
-                    <StepLabel
-                      optional={
-                        index === 2 ? (
-                          <Typography variant="caption">Last step</Typography>
-                        ) : null
-                      }
+                {/* //Stepper */}
+                {selectedDataset.length > 0 && (
+                  <Box>
+                    <Stepper activeStep={activeStep} orientation="vertical">
+                      {steps.map((step, index) => (
+                        <Step key={step.label}>
+                          <StepLabel
+                            optional={
+                              index === 2 ? (
+                                <Typography variant="caption">
+                                  Last step
+                                </Typography>
+                              ) : null
+                            }
+                          >
+                            {step.label}
+                          </StepLabel>
+                          <StepContent>
+                            {/* <Typography>{step.description}</Typography> */}
+                            {getTabDetails(step.label)}
+                            <Box sx={{ mb: 2 }}>
+                              <div>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => {
+                                    handleNext(index);
+                                  }}
+                                  sx={{ mt: 1, mr: 1 }}
+                                  disabled={shouldButtonDisable(index)}
+                                >
+                                  {index === steps?.length - 1
+                                    ? "Finish"
+                                    : "Continue"}
+                                </Button>
+                                {index === 1 && (
+                                  <Button
+                                    disabled={index === 2}
+                                    onClick={() => {
+                                      handleSaveChecklist();
+                                    }}
+                                    sx={{ mt: 1, mr: 1 }}
+                                  >
+                                    Save
+                                  </Button>
+                                )}
+                                <Button
+                                  disabled={index === 0}
+                                  onClick={() => {
+                                    handleBack(index);
+                                  }}
+                                  // sx={{ mt: 1, mr: 1 }}
+                                >
+                                  Back
+                                </Button>
+                                {index === steps?.length - 1 && (
+                                  <Button
+                                    disabled={index === 0}
+                                    onClick={() => {
+                                      handleBackToSales(index);
+                                    }}
+                                    sx={{ mt: 1, mr: 1 }}
+                                  >
+                                    Back To Sales
+                                  </Button>
+                                )}
+                              </div>
+                            </Box>
+                          </StepContent>
+                        </Step>
+                      ))}
+                    </Stepper>
+                    {activeStep === steps?.length && (
+                      <Paper square elevation={0}>
+                        {" "}
+                        {/*sx={{ p: 3 }}*/}
+                        <Typography>
+                          All steps completed - you&apos;re finished
+                        </Typography>
+                        <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+                          Reset
+                        </Button>
+                      </Paper>
+                    )}
+                  </Box>
+                )}
+              </Grid>
+
+              {currentOrderId && (
+                <Grid item sm={4} md={4} lg={4}>
+                  <Grid
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end", // Align items to the right
+                      position: "absolute", // Pin it to the right edge
+                      right: "0", // Ensure it's at the right edge
+                      top: "0",
+                    }}
+                  >
+                    <Avatar
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        cursor: "pointer",
+                        marginRight: "1em",
+                        backgroundColor: "white",
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+                      }}
                     >
-                      {step.label}
-                    </StepLabel>
-                    <StepContent>
-                      {/* <Typography>{step.description}</Typography> */}
-                      {getTabDetails(step.label)}
-                      <Box sx={{ mb: 2 }}>
-                        <div>
-                          <Button
-                            variant="contained"
-                            onClick={() => {
-                              handleNext(index);
-                            }}
-                            sx={{ mt: 1, mr: 1 }}
-                            disabled={shouldButtonDisable(index)}
-                          >
-                            {index === steps.length - 1 ? "Finish" : "Continue"}
-                          </Button>
-                          {index === 1 && (
-                            <Button
-                              disabled={index === 2}
-                              onClick={() => {
-                                handleSaveChecklist();
-                              }}
-                              sx={{ mt: 1, mr: 1 }}
-                            >
-                              Save
-                            </Button>
-                          )}
-                          <Button
-                            disabled={index === 0}
-                            onClick={() => {
-                              handleBack(index);
-                            }}
-                            sx={{ mt: 1, mr: 1 }}
-                          >
-                            Back
-                          </Button>
-                          {index === steps.length - 1 && (
-                            <Button
-                              disabled={index === 0}
-                              onClick={() => {
-                                handleBackToSales(index);
-                              }}
-                              sx={{ mt: 1, mr: 1 }}
-                            >
-                              Back To Sales
-                            </Button>
-                          )}
-                        </div>
-                      </Box>
-                    </StepContent>
-                  </Step>
-                ))}
-              </Stepper>
-              {activeStep === steps.length && (
-                <Paper square elevation={0} sx={{ p: 3 }}>
-                  <Typography>
-                    All steps completed - you&apos;re finished
-                  </Typography>
-                  <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-                    Reset
-                  </Button>
-                </Paper>
+                      <img
+                        alt="folderImg"
+                        src={require("../../../assets/folderImage.png")}
+                        style={{ width: "30px", height: "30px" }}
+                        onClick={() => {
+                          setIsFileDrawerOpen(true);
+                        }}
+                      />
+                    </Avatar>
+                    <Avatar
+                      sx={{
+                        width: 50,
+                        height: 50,
+                        cursor: "pointer",
+                        marginRight: "1em",
+                        backgroundColor: "white",
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      <img
+                        alt="chatImg"
+                        src={require("../../../assets/chatImage.png")}
+                        style={{ width: "32px", height: "32px" }}
+                        onClick={() => {
+                          setIsChatDrawerOpen(true);
+                        }}
+                      />
+                    </Avatar>
+                  </Grid>
+                </Grid>
               )}
-            </Box>
-          </Grid>
-
-          <Grid item sm={5} md={5} lg={5} sx={{ paddingTop: "0em" }}>
+            </Grid>
+          </TabPanel>
+        )}
+        {/* File Details */}
+        <Drawer
+          sx={{
+            // MuiPaper-root
+            "& .MuiDrawer-paper": {
+              width: "30%",
+              top: "65px",
+            },
+          }}
+          anchor="right"
+          open={isFileDrawerOpen}
+          onClose={toggleFileDrawer(false)}
+        >
+          <div
+            style={{ padding: 16 }}
+            role="presentation"
+            onClick={toggleFileDrawer(false)}
+            onKeyDown={toggleFileDrawer(false)}
+          >
             <Grid
               sx={{
                 border: "1px solid gray",
@@ -1047,83 +1283,97 @@ export default function FileMovement() {
                 activeStep={activeStep}
               />
             </Grid>
+          </div>
+        </Drawer>
+        {/* Chat Details */}
+        <Drawer
+          sx={{
+            // MuiPaper-root
+            "& .MuiDrawer-paper": {
+              width: "30%",
+              top: "65px",
+            },
+          }}
+          anchor="right"
+          open={isChatDrawerOpen}
+          onClose={toggleChatDrawer(false)}
+        >
+          <Grid
+            sx={{
+              // marginTop: "0.5em",
+              border: "1px solid gray",
+              borderRadius: "0.5em",
+              // margin: "0.5em",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <MainContainer>
+              <ChatContainer style={{ height: "100%" }}>
+                <></>
+                <MessageList>
+                  {messages.map((msg, index) => {
+                    // Determine if a MessageSeparator should be rendered
+                    const showSeparator =
+                      index === 0 || messages[index - 1].erdat !== msg.erdat;
 
-            <Grid
-              sx={{
-                marginTop: "0.5em",
-                border: "1px solid gray",
-                borderRadius: "1em",
-                padding: "0.5em",
-              }}
-            >
-              <MainContainer>
-                <ChatContainer style={{ height: "300px" }}>
-                  <></>
-                  <MessageList>
-                    {messages.map((msg, index) => {
-                      // Determine if a MessageSeparator should be rendered
-                      const showSeparator =
-                        index === 0 || messages[index - 1].erdat !== msg.erdat;
-
-                      return (
-                        <React.Fragment key={index}>
-                          {showSeparator && (
-                            <MessageSeparator
-                              content={formatDateTime(msg.erdat, msg.uzeit)}
-                            />
-                          )}
-                          <Message
-                            model={{
-                              direction: "outgoing",
-                              position: "last",
-                              message: `~${msg.name}\n${msg.remark}`,
-                              sentTime: msg.sentTime,
-                              sender: msg.ernam,
-                            }}
+                    return (
+                      <React.Fragment key={index}>
+                        {showSeparator && (
+                          <MessageSeparator
+                            content={formatDateTime(msg.erdat, msg.uzeit)}
                           />
-                        </React.Fragment>
-                      );
-                    })}
-                  </MessageList>
-                  <MessageInput
-                    autoFocus
-                    attachButton="false"
-                    value={newMessage}
-                    onSend={handleSend}
-                    onChange={(event) => {
-                      console.log("##########e.target.value", event);
-                      setNewMessage(event);
-                    }}
-                    placeholder="Type message here"
-                  />
-                </ChatContainer>
-              </MainContainer>
-            </Grid>
+                        )}
+                        <Message
+                          model={{
+                            direction: "outgoing",
+                            position: "last",
+                            message: `~${msg.name}\n${msg.remark}`,
+                            sentTime: msg.sentTime,
+                            sender: msg.ernam,
+                          }}
+                        />
+                      </React.Fragment>
+                    );
+                  })}
+                </MessageList>
+                <MessageInput
+                  autoFocus
+                  attachButton="false"
+                  value={newMessage}
+                  onSend={handleSend}
+                  onChange={(event) => {
+                    setNewMessage(event);
+                  }}
+                  placeholder="Type message here"
+                />
+              </ChatContainer>
+            </MainContainer>
           </Grid>
-        </Grid>
-      </TabPanel>
-      <CrmModal
-        maxWidth="sm"
-        show={openFileUpload}
-        handleShow={() => {
-          setOpenFileUpload(false);
-        }}
-        SecondaryBtnText="Close"
-        secondarySave={() => {
-          setOpenFileUpload(false);
-        }}
-      >
-        <FileUploader
-          ref={fileRef}
-          requestNo={currentOrderId}
-          setOpenFileUpload={setOpenFileUpload}
-          callBack={saveUrls}
-          type={fileUploadType}
-          setfileUploadType={setfileUploadType}
-          getData={getData}
-        />
-      </CrmModal>
-    </Box>
+        </Drawer>
+        <CrmModal
+          maxWidth="sm"
+          show={openFileUpload}
+          handleShow={() => {
+            setOpenFileUpload(false);
+          }}
+          SecondaryBtnText="Close"
+          secondarySave={() => {
+            setOpenFileUpload(false);
+          }}
+        >
+          <FileUploader
+            ref={fileRef}
+            requestNo={currentOrderId}
+            setOpenFileUpload={setOpenFileUpload}
+            callBack={saveUrls}
+            type={fileUploadType}
+            setfileUploadType={setfileUploadType}
+            getData={getData}
+          />
+        </CrmModal>
+      </Box>
+    </>
   ) : (
     <Grid
       sx={{

@@ -244,7 +244,7 @@ export default function MiniDrawer() {
         >
           <Routes>
             <Route path="/tracker/*">
-              <Route index element={<HomePage />} />
+              <Route index element={<ITHierarchyDashboard />} />
               <Route path="task" element={<Tasks />} />
               <Route path="tickets" element={<Tickets />} />
               <Route path="changes" element={<Changes />} />

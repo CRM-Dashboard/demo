@@ -15,8 +15,10 @@ import GlobalFunctions from "./../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
+import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 const FileDetails = forwardRef((props, ref) => {
+  const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [fileObjectToDelete, setFileObjectToDelete] = useState({});
@@ -173,11 +175,6 @@ const FileDetails = forwardRef((props, ref) => {
               src={require("./../../../assets/pdfIcon.png")}
               style={{ height: "1.5em", width: "1.5em", margin: "0.1em" }}
               onClick={() => {
-                console.log(
-                  "##########[dataIndex][1]",
-                  tableData[dataIndex][1]
-                );
-
                 window.open(tableData[dataIndex][1], "_blank");
               }}
             />
@@ -202,8 +199,8 @@ const FileDetails = forwardRef((props, ref) => {
     footer: false,
     pagination: false,
     responsive: "standard",
-    tableBodyHeight: "250px", // Set the height of the table body
-    tableBodyMaxHeight: "", // Optionally, set a max height
+    // tableBodyHeight: "250px", // Set the height of the table body
+    // tableBodyMaxHeight: "", // Optionally, set a max height
     fixedHeader: true, // Make the header sticky
     fixedSelectColumn: true,
   };
@@ -269,7 +266,8 @@ const FileDetails = forwardRef((props, ref) => {
   }));
 
   const getData = () => {
-    console.log("&&&&&&&&&&&&props.fileUrlReqNo", props.fileUrlReqNo);
+    setLoading(true);
+
     const formData = new FormData();
     formData.append("reqNo", props.fileUrlReqNo);
     formData.append("orderId", props.fileUrlReqNo);
@@ -286,7 +284,6 @@ const FileDetails = forwardRef((props, ref) => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          console.log("!!!!!!!!!!!!!!!fileurldata", data);
           const modifiedResponse = data?.data?.map((item) => {
             return [
               item.filename,
@@ -304,8 +301,10 @@ const FileDetails = forwardRef((props, ref) => {
               ),
             ];
           });
-
           setTableData(modifiedResponse);
+          setLoading(false);
+        } else {
+          setLoading(false);
         }
       });
   };
@@ -322,9 +321,13 @@ const FileDetails = forwardRef((props, ref) => {
         flexDirection: "row-reverse",
       }}
     >
-      <ThemeProvider theme={() => getMuiTheme()}>
-        <Table data={tableData} columns={columns} options={options}></Table>
-      </ThemeProvider>
+      {!loading ? (
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <Table data={tableData} columns={columns} options={options}></Table>
+        </ThemeProvider>
+      ) : (
+        <CircularScreenLoader />
+      )}
 
       <CrmModal
         maxWidth="sm"

@@ -30,6 +30,7 @@ const CreateNewProject = forwardRef((props, ref) => {
           priority: formik.values.priority,
           category: formik.values.projCateg,
           remark: formik.values.remark,
+          //mailInd:"X" While sending mail for every tab project/ task/ ticket/change
         },
       ],
       TASK: [],

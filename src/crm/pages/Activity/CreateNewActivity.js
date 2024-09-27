@@ -38,7 +38,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
   const projectId = reducerData?.dashboard?.project?.projectId;
   const snackbar = UseCustomSnackbar();
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
@@ -48,7 +48,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
       OBJECT: "Create Activity",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -93,7 +93,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            saveLog();
+            saveLog(entryData);
             snackbar.showSuccess("Activity created successfully!");
             props.setDisabledCreateBtn(false);
             props.setopenCreateForm(false);

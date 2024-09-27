@@ -10,12 +10,30 @@ import "./SearchBar.css";
 export default function SearchBar() {
   const [results, setResults] = useState([]);
   const [searchData, setSearchData] = useState("");
+  const [debouncedValue, setDebouncedValue] = useState(searchData);
 
   const dashboardReducer = useSelector((state) => state);
   const passWord = dashboardReducer.LoginReducer.passWord;
   const userName = dashboardReducer.LoginReducer.userName;
-  const projectId = dashboardReducer?.dashboard?.project?.projectId;
+  // const projectId = dashboardReducer?.dashboard?.project?.projectId;
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(searchData);
+    }, 1500); // 500ms delay
+
+    // Cleanup timeout if value changes within the delay
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchData]);
+
+  useEffect(() => {
+    if (debouncedValue) {
+      handleChange(debouncedValue);
+    }
+  }, [debouncedValue]);
 
   useEffect(() => {
     setSearchData(dashboardReducer?.searchBar?.searchKey);
@@ -30,28 +48,26 @@ export default function SearchBar() {
       dispatch(dashboardAction.setCustomerEmailID(""));
     } else {
       setSearchData(value);
-      if (projectId) {
-        const formData = new FormData();
-        formData.append("projectId", projectId);
-        formData.append("userName", userName);
-        formData.append("passWord", passWord);
+      const formData = new FormData();
+      formData.append("projectId", userName);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
 
-        fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/search", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => response.json())
-          .then((json) => {
-            const results = json?.filter((customer) => {
-              return (
-                value &&
-                (customer?.name.toLowerCase().includes(value.toLowerCase()) ||
-                  customer?.unit.toLowerCase().includes(value.toLowerCase()))
-              );
-            });
-            setResults(results);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/search", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          const results = json?.filter((customer) => {
+            return (
+              value &&
+              (customer?.name.toLowerCase().includes(value.toLowerCase()) ||
+                customer?.unit.toLowerCase().includes(value.toLowerCase()))
+            );
           });
-      }
+          setResults(results);
+        });
     }
   };
 
@@ -68,6 +84,7 @@ export default function SearchBar() {
 
     const formData = new FormData();
     formData.append("orderId", result.orderId);
+    formData.append("crmId", "");
 
     fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/soa", {
       method: "POST",
@@ -102,7 +119,8 @@ export default function SearchBar() {
         size="small"
         value={searchData}
         placeholder="Search here..."
-        onChange={(e) => handleChange(e.target.value)}
+        // onChange={(e) => handleChange(e.target.value)}
+        onChange={(e) => setSearchData(e.target.value)}
         label="Search"
       ></input>
       <Grid>

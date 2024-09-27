@@ -5,8 +5,8 @@ import HomePageReducer from "../crm/pages/HomePage/HomePageReducer/HomePageReduc
 import SearchBarReducer from "../crm/pages/SearchBar/SearchBarReducer/SearchBarReducer";
 import DashboardReducer from "../crm/pages/Dashboard/DashboardReducer.js/DashboardReducer";
 import FileUploadReducer from "../crm/pages/Activity/FileUploader/FileReducer/FileUploadReducer";
-import BookingReducer from "../crm/pages/Dashboard/BookingDetails/BookingData/BookingReducer/BookingReducer";
 import CustomerInfoReducer from "../crm/pages/Dashboard/CustomerInformation/CustomerInfoReducer/CustomerInfoReducer";
+import BookingReducer from "../crm/pages/Reports/BookingReport/BookingDetails/BookingData/BookingReducer/BookingReducer";
 
 const rootReducer = combineReducers({
   ThemeReducer,

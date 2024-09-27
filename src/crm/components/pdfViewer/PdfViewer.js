@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import GlobalFunctions from "./../../utils/GlobalFunctions";
 import { useSpring, animated } from "react-spring";
+import GlobalFunctions from "./../../utils/GlobalFunctions";
+import UseCustomSnackbar from "../snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 const PDFViewer = ({ url, formdata, object }) => {
@@ -10,6 +11,7 @@ const PDFViewer = ({ url, formdata, object }) => {
   const [pdfUrl, setPdfUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -39,7 +41,17 @@ const PDFViewer = ({ url, formdata, object }) => {
       .then(async (data) => {
         saveLog();
         setLoading(true);
-        setPdfData(data);
+        const pdfContent =
+          data?.ArchCertPrint && data.ArchCertPrint.length > 0
+            ? data.ArchCertPrint[0]
+            : data;
+
+        // Check if the content has a length greater than 0 (assuming pdfContent is a string or array)
+        if (pdfContent && pdfContent.length > 0) {
+          setPdfData(pdfContent);
+        } else {
+          snackbar.showError("No PDF Available!");
+        }
       })
       .catch((error) => {
         setLoading(false);
@@ -48,6 +60,8 @@ const PDFViewer = ({ url, formdata, object }) => {
 
   useEffect(() => {
     // Convert the base64 string to a Uint8Array
+    console.log("#########pdfData", pdfData);
+
     const pdfBytes = atob([pdfData]);
     const pdfArray = new Uint8Array(pdfBytes.length);
     for (let i = 0; i < pdfBytes.length; i++) {

@@ -54,6 +54,41 @@ const Tickets = ({ data }) => {
   const userName = reducerData.LoginReducer.userName;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
+  const sendMail = () => {
+    const entryData = {
+      PROJECT: [],
+      TASK: [],
+      TICKET: [
+        {
+          ...selectedRows,
+          mailInd: "X",
+        },
+      ],
+    };
+
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+
+    // process.env.REACT_APP_SERVER_URL
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess("Send Mail successfully!");
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError("Error while Sending Mail. Please try again!");
+        }
+      });
+  };
+
   const getMuiTheme = () =>
     createTheme({
       components: {
@@ -715,6 +750,8 @@ const Tickets = ({ data }) => {
             "&.MuiButton-root": {
               textTransform: "none",
               backgroundColor: "#228B22",
+              height: "2em",
+              fontSize: "0.8rem",
             },
           }}
         >
@@ -730,6 +767,8 @@ const Tickets = ({ data }) => {
             "&.MuiButton-root": {
               textTransform: "none",
               backgroundColor: "#228B22",
+              height: "2em",
+              fontSize: "0.8rem",
             },
           }}
           disabled={!projectId}
@@ -739,6 +778,27 @@ const Tickets = ({ data }) => {
           }}
         >
           Choose Files to Upload
+        </Button>
+        <Button
+          variant="contained"
+          disableElevation
+          disableFocusRipple
+          size="small"
+          sx={{
+            margin: "0.2em",
+            "&.MuiButton-root": {
+              textTransform: "none",
+              backgroundColor: "#228B22",
+              height: "2em",
+              fontSize: "0.8rem",
+            },
+          }}
+          disabled={!projectId}
+          onClick={() => {
+            sendMail();
+          }}
+        >
+          Send Mail
         </Button>
       </div>
 

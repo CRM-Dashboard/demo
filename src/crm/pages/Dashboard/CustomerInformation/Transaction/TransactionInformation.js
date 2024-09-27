@@ -39,7 +39,7 @@ export default function TransactionInformation() {
   const getUpdatedData = () => {
     // setLoading(true);
     const formData = new FormData();
-    formData.append("crmId", crmId);
+    !orderId && formData.append("crmId", crmId);
     formData.append("orderId", orderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);

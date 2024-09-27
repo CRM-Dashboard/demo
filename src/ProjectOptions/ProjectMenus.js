@@ -44,7 +44,8 @@ export default function ProjectMenus() {
                 : "non-clickable-grid"
             }
             onClick={() => {
-              navigate("/menus/home");
+              // navigate("/menus/home");
+              navigate("/crm/crm/dashboard");
             }}
           >
             {" "}
@@ -80,7 +81,7 @@ export default function ProjectMenus() {
                 : "non-clickable-grid"
             }
             onClick={() => {
-              navigate("./table");
+              navigate("/tracker/Dashboard");
             }}
           >
             {" "}

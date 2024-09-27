@@ -178,7 +178,7 @@ export default function InvoiceTable() {
       label: "Total Amount",
     },
     {
-      label: "Action",
+      label: "Invoice Certificate",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => [
           <IconButton color="primary" size="small">
@@ -191,6 +191,30 @@ export default function InvoiceTable() {
                 setURL(
                   process.env.REACT_APP_SERVER_URL +
                     "/api/dashboard/invoice_print"
+                );
+                setFormData({ method: "POST", body: formData });
+                setOpenModal(true);
+              }}
+              fontSize="inherit"
+            />
+          </IconButton>,
+        ],
+      },
+    },
+    {
+      label: "Architect Certificate",
+      options: {
+        customBodyRenderLite: (dataIndex, rowIndex) => [
+          <IconButton color="primary" size="small">
+            <PictureAsPdfIcon
+              onClick={() => {
+                const formData = new FormData();
+                formData.append("invoiceNumber", response[dataIndex].vbeln); //3130016274
+                formData.append("userName", userName);
+                formData.append("passWord", passWord);
+                setURL(
+                  process.env.REACT_APP_SERVER_URL +
+                    "/api/dashboard/archCertificate_print"
                 );
                 setFormData({ method: "POST", body: formData });
                 setOpenModal(true);

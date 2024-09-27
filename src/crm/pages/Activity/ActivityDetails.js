@@ -53,7 +53,7 @@ export default function ActivityDetails() {
     setAnchorEl(null);
   };
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: OrderId,
@@ -63,7 +63,7 @@ export default function ActivityDetails() {
       OBJECT: "Update Activity",
       CHANGEIND: "U",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -115,7 +115,7 @@ export default function ActivityDetails() {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            saveLog();
+            saveLog(entryData);
             snackbar.showSuccess("Activity updated successfully!");
             getTableData();
           }
@@ -396,7 +396,7 @@ export default function ActivityDetails() {
 
   const getTableData = () => {
     const formData = new FormData();
-    formData.append("crmId", crmId);
+    !OrderId && formData.append("crmId", crmId);
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);

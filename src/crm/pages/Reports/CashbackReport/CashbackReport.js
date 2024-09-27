@@ -3,11 +3,12 @@ import React, { useEffect, useState, useRef } from "react";
 import Table from "mui-datatables";
 import { useSelector } from "react-redux";
 import FileUploader from "./FileUploader";
-import { Grid, Button, IconButton } from "@mui/material";
+import { Grid, Button, IconButton, MenuItem, Checkbox } from "@mui/material";
 import CreateCashBackReceipt from "./CreateCashBackReceipt";
 import CrmModal from "../../../components/crmModal/CrmModal";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import InputField from "../../../components/inputField/InputField";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import LabelWithCheckbox from "../../../components/labelWithCheckBox/LabelWithCheckBox";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
@@ -21,6 +22,8 @@ export default function CashbackReport() {
   const [cashbackId, setCashbackId] = useState("");
   const [dataToUpdate, setDataToUpdate] = useState([]);
   const [selectedOrderId, setSelectedOrderId] = useState();
+  const [projectData, setProjectData] = useState([]);
+  const [selectedProjects, setSelectedProjects] = useState([]);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openCreateForm, setopenCreateForm] = useState(false);
@@ -31,7 +34,7 @@ export default function CashbackReport() {
   const OrderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData.dashboard.project.projectId;
+  // const projectId = reducerData.dashboard.project.projectId;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
   const getMuiTheme = () =>
@@ -189,7 +192,7 @@ export default function CashbackReport() {
   async function getData() {
     setLoading(true);
     const formData = new FormData();
-    formData.append("projectId", projectId);
+    formData.append("projectId", selectedProjects.toString());
     formData.append("orderId", OrderId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
@@ -363,16 +366,132 @@ export default function CashbackReport() {
     ],
   };
 
-  useEffect(() => {
-    getData();
-  }, [OrderId, projectId]);
+  const getProjectData = () => {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/project", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setProjectData(data.ProjectList);
+      });
+  };
+
+  const handleProjectSelection = (event) => {
+    const value = event.target.value;
+    setSelectedProjects(typeof value === "string" ? value.split(",") : value);
+    console.log(
+      "###########selected projects",
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
 
   useEffect(() => {
-    getData();
+    getProjectData();
+    // getData();
   }, []);
 
   return (
     <Grid sx={{ paddingTop: "0.5em" }}>
+      <Grid
+        container
+        spacing={2}
+        columnSpacing={2}
+        columns={12}
+        sx={{
+          paddingLeft: "0.5em",
+          paddingRight: "0.5em",
+          paddingBottom: "0.5em",
+          marginTop: "0.5em",
+          marginLeft: "0.01em",
+          marginRight: "1em",
+          backgroundColor: "white",
+        }}
+      >
+        <Grid item xs={4} sm={4} lg={4} md={4}>
+          <InputField
+            select
+            label={"Project"}
+            value={selectedProjects}
+            onChange={handleProjectSelection}
+            SelectProps={{
+              multiple: true,
+              renderValue: (selected) =>
+                selected
+                  .map(
+                    (id) =>
+                      projectData.find((project) => project.projectId === id)
+                        ?.name
+                  )
+                  .join(", "), // Shows project names as comma-separated values
+            }}
+          >
+            <MenuItem value="">
+              <em>Select Project</em>
+            </MenuItem>
+
+            {projectData?.map((project) => (
+              <MenuItem key={project?.projectId} value={project?.projectId}>
+                <Checkbox
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      padding: "0px",
+                      paddingRight: "9px",
+                    },
+                  }}
+                  checked={selectedProjects.indexOf(project?.projectId) > -1}
+                />
+                {project?.name}
+              </MenuItem>
+            ))}
+          </InputField>
+        </Grid>
+        <Grid item xs={4} sm={4} lg={4} md={4} />
+        <Grid
+          item
+          xs={4}
+          sm={4}
+          lg={4}
+          md={4}
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Button
+            disabled={selectedProjects?.toString()?.trim()?.length === 0}
+            variant="contained"
+            onClick={() => {
+              // [
+              //   "Registration_status",
+              //   "Confirmation_status",
+              //   "Possession_status",
+              // ].map((group) => {
+              //   console.log(
+              //     "####################status codes",
+              //     getSelectedStatusCodes(group)
+              //   );
+              // });
+              // console.log(
+              //   "############# selectddata",
+              //   selectedProjects,
+              //   selectedCrmIds
+              // );
+              // getSelectedStatusCodes();
+              getData();
+            }}
+          >
+            {" "}
+            Apply{" "}
+          </Button>
+        </Grid>
+      </Grid>
+      <br />
+
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
           <Table data={tableData} columns={columns} options={options}></Table>

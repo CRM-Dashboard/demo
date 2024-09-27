@@ -50,7 +50,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
           .then((response) => response.json())
           .then((data) => {
             if (data[0].so[0].vbeln) {
-              setSoDetails(data);
+              setSoDetails(data[0]);
               if (
                 data[0].so[0].schemeStart === "0000-00-00" ||
                 data[0].so[0].schemeEnd === "0000-00-00"
@@ -71,7 +71,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
     }
   }, []);
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: OrderId,
@@ -81,7 +81,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       OBJECT: "Create Pre Emi / Rental Assurance",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -99,9 +99,9 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       vbeln: OrderId,
       pmt_req_typ: formik.values.repayType,
       werks: projectId,
-      building: soDetails[0]?.building,
-      unit: soDetails[0]?.flatno,
-      proj_name: soDetails[0]?.project,
+      building: soDetails.so[0]?.building,
+      unit: soDetails.so[0]?.flatno,
+      proj_name: soDetails.so[0]?.project,
       cust_name: custData.CustomerName,
       amount: formik.values.amount,
       remark: formik.values.remarks,
@@ -126,7 +126,7 @@ const CreatePreEmiReceipt = forwardRef((props, ref) => {
       const data = await response.json();
 
       if (data) {
-        await saveLog();
+        await saveLog(entryData);
         snackbar.showSuccess("Pre EMI/ Rental receipt created successfully!");
         setError("");
         props.setopenCreateForm(false);

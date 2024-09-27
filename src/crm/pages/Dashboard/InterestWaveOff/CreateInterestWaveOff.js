@@ -80,7 +80,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
     getData();
   }, [orderId]);
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
@@ -90,7 +90,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
       OBJECT: "Create Interest Waveoff Request",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -143,7 +143,7 @@ const CreateInterestWaveOff = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            saveLog();
+            saveLog(entryData);
             snackbar.showSuccess("Interest waived off created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();

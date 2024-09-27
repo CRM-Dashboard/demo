@@ -4,54 +4,100 @@ import React, { useState, useEffect } from "react";
 import Graph from "./Graph";
 import "./CustomerDetails.css";
 import Chart from "react-apexcharts";
-import { Grid } from "@mui/material";
-import AgingGraph from "./AgingGraph";
 import { useDispatch } from "react-redux";
-import HappinessIndexDonut from "./HappinessIndexDonut";
+import TodayActivity from "./TodayActivity";
+import TodaysBirthday from "./TodaysBirthday";
+import { useNavigate } from "react-router-dom";
+import Accordion from "@mui/material/Accordion";
+import { Grid, Typography } from "@mui/material";
+import AcceptancePending from "./AcceptancePending";
+import RegistrationPending from "./RegistrationPending";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import AccordionActions from "@mui/material/AccordionActions";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
-import TodayActivity from "./TodayActivity";
 
 export default function CustomerDetails() {
-  const [customerDetails, setCustomerDetails] = useState();
+  const [unitData, setUnitData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [birthdayData, setBirthdayData] = useState();
   const [numberOfCust, setNumberOfCust] = useState(0);
+  const [customerDetails, setCustomerDetails] = useState();
+  const [acceptancePendingData, setAcceptancePendingData] = useState([]);
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
+  const [registrationPendingData, setReistrationPendingData] = useState([]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const reducerData = useSelector((state) => state);
+  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData?.searchBar?.orderId;
-  const projectId = reducerData?.dashboard?.project?.projectId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const crmId = reducerData.dashboard.crmId;
+  const projectId = reducerData?.dashboard?.project?.projectId;
   const accountStatement = reducerData.searchBar.accountStatement;
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
 
   const getDetails = () => {
     // setLoading(true);
-    if (projectId) {
+    // if (projectId) {
+    const formData = new FormData();
+    if (OrderId && !crmId) {
+      formData.append("orderId", OrderId);
+      formData.append("crmId", "");
+    }
+    if (!OrderId && crmId) {
+      formData.append("orderId", "");
+      formData.append("crmId", crmId);
+    }
+    if (OrderId && crmId) {
+      formData.append("orderId", OrderId);
+      formData.append("crmId", "");
+    }
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    // !OrderId && formData.append("crmId", crmId);
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/summary", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setCustomerDetails(data[0].summary[0]);
+        setBirthdayData(data[0]);
+        setAcceptancePendingData(data[0].acceptancePending);
+        setReistrationPendingData(data[0].registrationPending);
+
+        if (
+          reducerData.dashboard.shouldShowSentimentAnalysis &&
+          reducerData?.dashboard?.shouldShowHappinessMeter
+        ) {
+          setLoading(false);
+        }
+      });
+    // }
+  };
+
+  const getBookingDetails = () => {
+    if (OrderId) {
       const formData = new FormData();
-      formData.append("projectId", projectId);
+      formData.append("orderId", OrderId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("crmId", crmId);
-      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/summary", {
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
         method: "POST",
         body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
-          setCustomerDetails(data[0]);
-
-          if (
-            reducerData.dashboard.shouldShowSentimentAnalysis &&
-            reducerData?.dashboard?.shouldShowHappinessMeter
-          ) {
-            setLoading(false);
+          if (data[0].so[0].vbeln) {
+            setUnitData(data[0].so[0]);
+            // setLoading(false);
           }
         });
     }
@@ -78,6 +124,15 @@ export default function CustomerDetails() {
   }, [reducerData.searchBar.accountStatement]);
 
   useEffect(() => {
+    getBookingDetails();
+    getDetails();
+  }, [OrderId]);
+
+  useEffect(() => {
+    getBookingDetails();
+  }, []);
+
+  useEffect(() => {
     // setLoading(true);
 
     if (
@@ -88,13 +143,13 @@ export default function CustomerDetails() {
       setLoading(false);
     }
 
-    if (projectId !== "undefined" && OrderId) {
+    if (OrderId) {
       const formData = new FormData();
-      formData.append("projectId", projectId);
+      !OrderId && formData.append("crmId", crmId);
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("orderId", OrderId);
-      formData.append("crmId", crmId);
+
       fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
         method: "POST",
         body: formData,
@@ -218,13 +273,13 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: "50%",
+        height: "100%",
         type: "radialBar",
       },
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "40%",
+            size: "50%",
           },
           dataLabels: {
             showOn: "always",
@@ -258,7 +313,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: "50%",
+        height: "100%",
         type: "radialBar",
       },
       fill: {
@@ -267,7 +322,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "40%",
+            size: "50%",
           },
           dataLabels: {
             showOn: "always",
@@ -301,7 +356,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: "50%",
+        height: "100%",
         type: "radialBar",
       },
       fill: {
@@ -310,7 +365,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "40%",
+            size: "50%",
           },
 
           dataLabels: {
@@ -345,7 +400,7 @@ export default function CustomerDetails() {
 
     options: {
       chart: {
-        height: "50%",
+        height: "100%",
         type: "radialBar",
       },
       fill: {
@@ -354,7 +409,7 @@ export default function CustomerDetails() {
       plotOptions: {
         radialBar: {
           hollow: {
-            size: "40%",
+            size: "50%",
           },
 
           dataLabels: {
@@ -376,29 +431,212 @@ export default function CustomerDetails() {
     },
   };
 
-  function displayIncreasingNumbers(
-    currentVal,
-    targetNumber,
-    updatingFunction
-  ) {
-    let currentNumber = currentVal;
+  // function displayIncreasingNumbers(
+  //   currentVal,
+  //   targetNumber,
+  //   updatingFunction
+  // ) {
+  //   let currentNumber = currentVal;
 
-    const intervalId = setInterval(() => {
-      updatingFunction(() => {
-        currentNumber = currentNumber + 1;
+  //   const intervalId = setInterval(() => {
+  //     updatingFunction(() => {
+  //       currentNumber = currentNumber + 1;
 
-        if (currentNumber === targetNumber) {
-          clearInterval(intervalId);
-        }
+  //       if (currentNumber === targetNumber) {
+  //         clearInterval(intervalId);
+  //       }
 
-        return currentNumber;
-      });
-    }, 5); // Interval duration set to 1 second
-  }
+  //       return currentNumber;
+  //     });
+  //   }, 5); // Interval duration set to 1 second
+  // }
+
+  const CardData = {
+    column1: [
+      {
+        gridStyle: { cursor: "pointer" },
+        onClickHandle: () => {}, //navigate("/crm/crm/bookingReport"
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.cvVal
+          : customerDetails?.cvVal + "Cr",
+        title: "Consideration Amount",
+      },
+      {
+        gridStyle: { cursor: "pointer" },
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.gstVal
+          : customerDetails?.gstVal + "Cr",
+        title: "GST Value",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.otherVal
+          : customerDetails?.otherVal + "Cr",
+        title: "Other Amount",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.otherGstVal
+          : customerDetails?.otherGstVal + "Cr",
+        title: "Other GST Value",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.totalVal
+          : customerDetails?.totalVal + "Cr",
+        title: "Total Value",
+      },
+    ],
+    column2: [
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.invCvVal
+          : customerDetails?.invCvVal + "Cr",
+        title: "Invoice Amount",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.invGstVal
+          : customerDetails?.invGstVal + "Cr",
+        title: "Invoice GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.invOthVal
+          : customerDetails?.invOthVal + "Cr",
+        title: "Other Invoice Amount",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.invOthGstVal
+          : customerDetails?.invOthGstVal + "Cr",
+        title: "Other Invoice GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.invTotalVal
+          : customerDetails?.invTotalVal + "Cr",
+        title: "Total Invoice Amount",
+      },
+    ],
+    column3: [
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.paidCvVal
+          : customerDetails?.paidCvVal + "Cr",
+        title: "Paid Amount",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.paidGstVal
+          : customerDetails?.paidGstVal + "Cr",
+        title: "Paid GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.paidOthVal
+          : customerDetails?.paidOthVal + "Cr",
+        title: "Other Paid Amount ",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.paidOthGstVal
+          : customerDetails?.paidOthGstVal + "Cr",
+        title: "Other Paid GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.paidTotalVal
+          : customerDetails?.paidTotalVal + "Cr",
+        title: "Total Paid Amount",
+      },
+    ],
+    column4: [
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.balCvVal
+          : customerDetails?.balCvVal + "Cr",
+        title: "Balance Amount",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.balGstVal
+          : customerDetails?.balGstVal + "Cr",
+        title: "Balance GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.balOthVal
+          : customerDetails?.balOthVal + "Cr",
+        title: "Other Balance Amount ",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.balOthGstVal
+          : customerDetails?.balOthGstVal + "Cr",
+        title: "Other Balance GST",
+      },
+      {
+        gridStyle: {},
+        onClickHandle: () => {},
+        count: searchValueAvailable
+          ? "₹" + customerDetails?.balTotalVal
+          : customerDetails?.balTotalVal + "Cr",
+        title: "Total Balance Amount",
+      },
+    ],
+  };
+
+  const getDetailsWithCards = (style, onClickHandle, count, title) => {
+    return (
+      <Grid style={style && style} onClick={onClickHandle && onClickHandle}>
+        <StatusCard
+          width="10em"
+          height="8em"
+          count={count && count}
+          title={title && title}
+        />
+      </Grid>
+    );
+  };
 
   const showCustomerDetails = () => {
-    return !loading &&
-      customerDetails &&
+    return !loading && customerDetails ? (
       // circleInvoice.series &&
       // circleInvoice.options &&
       // circleOut.series &&
@@ -407,19 +645,17 @@ export default function CustomerDetails() {
       // circleUp.options &&
       // circlePaid.series &&
       // circlePaid.options &&
-      projectId ? (
       <>
         {/* for div = style={{ height: "12em" }} */}
-        <Grid sx={{ marginLeft: "1%" }}>
+        <Grid sx={{ marginLeft: "2em" }}>
           <Grid
             container
-            rowSpacing={1}
             columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-            columns={14}
+            columns={12}
             style={{
               display: "flex",
               cursor: "",
-              marginTop: "2em",
+              marginTop: "1em",
 
               "&.MuiGrid-item": {
                 paddingTop: "0em",
@@ -427,211 +663,462 @@ export default function CustomerDetails() {
               },
             }}
           >
-            <Grid
-              xs={2}
-              sm={2}
-              lg={2}
-              md={2}
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                dispatch(
-                  dashboardActions.setShouldShowBookingDetails(
-                    !reducerData.dashboard.shouldShowBookingDetails
-                  )
-                );
-              }}
-            >
-              <StatusCard
-                width="10em"
-                height="5.5em"
-                count={searchValueAvailable ? 1 : customerDetails?.NoOfBookings} //NoOfBookings
-                title={OrderId ? "Booked" : "Booked Units"}
-              />
+            <Grid xs={8} sm={8} lg={8} md={8}>
+              <Grid
+                container
+                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+                columns={12}
+                sx={{ display: "flex" }}
+              >
+                <Grid
+                  xs={3}
+                  sm={3}
+                  lg={3}
+                  md={3}
+                  // sx={{ marginLeft: "1em" }}
+                  index
+                >
+                  {CardData?.column1?.map((card) => {
+                    const style = card.style;
+                    const handleClick = card.onClickHandle;
+                    const count = card.count;
+                    const title = card.title;
+                    return getDetailsWithCards(
+                      style,
+                      handleClick,
+                      count,
+                      title
+                    );
+                  })}
+                </Grid>
+                <Grid xs={3} sm={3} lg={3} md={3} index>
+                  {CardData?.column2?.map((card) => {
+                    const style = card.style;
+                    const handleClick = card.onClickHandle;
+                    const count = card.count;
+                    const title = card.title;
+                    return getDetailsWithCards(
+                      style,
+                      handleClick,
+                      count,
+                      title
+                    );
+                  })}
+                </Grid>
+                <Grid xs={3} sm={3} lg={3} md={3} index>
+                  {CardData?.column3?.map((card) => {
+                    const style = card.style;
+                    const handleClick = card.onClickHandle;
+                    const count = card.count;
+                    const title = card.title;
+                    return getDetailsWithCards(
+                      style,
+                      handleClick,
+                      count,
+                      title
+                    );
+                  })}
+                </Grid>
+                <Grid xs={3} sm={3} lg={3} md={3} index>
+                  {CardData?.column4?.map((card) => {
+                    const style = card.style;
+                    const handleClick = card.onClickHandle;
+                    const count = card.count;
+                    const title = card.title;
+                    return getDetailsWithCards(
+                      style,
+                      handleClick,
+                      count,
+                      title
+                    );
+                  })}
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid
-              xs={2}
-              sm={2}
-              lg={2}
-              md={2}
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                dispatch(
-                  dashboardActions.setShouldShowCustDetails(
-                    !reducerData.dashboard.shouldShowCustData
-                  )
-                );
-              }}
-            >
-              <StatusCard
-                width="10em"
-                height="5.5em"
-                count={
-                  searchValueAvailable
-                    ? numberOfCust
-                    : customerDetails?.NoOfCustomers
-                } //NoOfApplicants
-                title={"Applicants"}
-              />
+            <Grid xs={4} sm={4} lg={4} md={4}>
+              <Grid
+                container
+                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+                columns={12}
+                sx={{ display: "flex", paddingLeft: "1em" }}
+              >
+                <Grid
+                  xs={4}
+                  sm={4}
+                  lg={4}
+                  md={4}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    // dispatch(
+                    //   dashboardActions.setShouldShowBookingDetails(
+                    //     !reducerData.dashboard.shouldShowBookingDetails
+                    //   )
+                    // );
+                    navigate("/crm/crm/bookingReport");
+                  }}
+                >
+                  <StatusCard
+                    width="10em"
+                    height="12em"
+                    count={
+                      searchValueAvailable ? 1 : customerDetails?.NoOfBookings
+                    } //NoOfBookings
+                    title={OrderId ? "Booked" : "Booked Units"}
+                  />
+                </Grid>
+                <Grid
+                  xs={4}
+                  sm={4}
+                  lg={4}
+                  md={4}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    dispatch(
+                      dashboardActions.setShouldShowCustDetails(
+                        !reducerData.dashboard.shouldShowCustData
+                      )
+                    );
+                  }}
+                >
+                  <StatusCard
+                    width="10em"
+                    height="8em"
+                    count={
+                      searchValueAvailable
+                        ? numberOfCust
+                        : customerDetails?.NoOfCustomers
+                    } //NoOfApplicants
+                    title={"Applicants"}
+                  />
+                </Grid>
+                <Grid
+                  xs={4}
+                  sm={4}
+                  lg={4}
+                  md={4}
+                  // style={{ cursor: "pointer" }}
+                  // onClick={() => {
+                  //   dispatch(
+                  //     dashboardActions.setShouldShowBookingDetails(
+                  //       !reducerData.dashboard.shouldShowBookingDetails
+                  //     )
+                  //   );
+                  // }}
+                >
+                  <StatusCard
+                    width="10em"
+                    height="8em"
+                    count={
+                      searchValueAvailable ? 0 : customerDetails?.NoOfRegPending
+                    } //NoOfBookings
+                    title={"Pending Registration"}
+                  />
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+                columns={12}
+                style={{
+                  display: "flex",
+                  paddingTop: "0.4em",
+                }}
+              >
+                <Grid
+                  xs={6}
+                  sm={6}
+                  lg={6}
+                  md={6}
+                  item
+                  // sx={{
+                  //   "&.MuiGrid-item": {
+                  //     paddingLeft: "0.7em",
+                  //   },
+                  // }}
+                >
+                  <StatusCard
+                    width="14em"
+                    height="10em"
+                    icon={
+                      circleInvoice.options &&
+                      circleInvoice.series && (
+                        <Chart
+                          options={
+                            circleInvoice.options ? circleInvoice.options : ""
+                          }
+                          series={
+                            circleInvoice.series ? circleInvoice.series : ""
+                          }
+                          type="radialBar"
+                          height={120}
+                          width={120}
+                        />
+                      )
+                    }
+                    count={
+                      searchValueAvailable
+                        ? GlobalFunctions.formatToIndianNumber(
+                            accountStatement.DueAmount
+                          ) !== undefined
+                          ? "₹" +
+                            GlobalFunctions.formatToIndianNumber(
+                              accountStatement.DueAmount
+                            )
+                          : "₹" + 0
+                        : customerDetails?.InvoiceAmount !== undefined
+                        ? "₹" + customerDetails?.InvoiceAmount + "Cr"
+                        : "₹" + 0
+                    }
+                    title="Invoiced Amount"
+                  />
+                </Grid>
+                <Grid
+                  xs={6}
+                  sm={6}
+                  lg={6}
+                  md={6}
+                  item
+                  sx={{
+                    "&.MuiGrid-item": {
+                      paddingLeft: "0.5em",
+                    },
+                  }}
+                >
+                  <StatusCard
+                    width="14em"
+                    height="8em"
+                    icon={
+                      circlePaid.options &&
+                      circlePaid.series && (
+                        <Chart
+                          options={circlePaid.options}
+                          series={circlePaid.series}
+                          type="radialBar"
+                          height={120}
+                          width={120}
+                        />
+                      )
+                    }
+                    count={
+                      searchValueAvailable
+                        ? GlobalFunctions.formatToIndianNumber(
+                            getPaidAmt().toLocaleString()
+                          ) !== undefined
+                          ? "₹" +
+                            GlobalFunctions.formatToIndianNumber(
+                              getPaidAmt().toLocaleString()
+                            )
+                          : "₹" + 0
+                        : customerDetails?.PaidAmount !== undefined
+                        ? "₹" + customerDetails?.PaidAmount + "Cr"
+                        : "₹" + 0
+                    }
+                    title="Paid Amount"
+                  />
+                  {/* </Grid> */}
+                </Grid>
+              </Grid>
+              <Grid
+                container
+                rowSpacing={1}
+                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+                columns={12}
+                style={{ display: "flex" }}
+              >
+                <Grid
+                  xs={6}
+                  sm={6}
+                  lg={6}
+                  md={6}
+                  item
+                  // sx={{
+                  //   "&.MuiGrid-item": {
+                  //     paddingLeft: "0em",
+                  //   },
+                  // }}
+                >
+                  <StatusCard
+                    width="14em"
+                    height="8em"
+                    icon={
+                      circleOut.options &&
+                      circleOut.series && (
+                        <Chart
+                          options={circleOut.options}
+                          series={circleOut.series}
+                          type="radialBar"
+                          height={120}
+                          width={120}
+                        />
+                      )
+                    }
+                    count={
+                      searchValueAvailable
+                        ? accountStatement.BalanceAmount !== undefined
+                          ? "₹" + accountStatement.BalanceAmount
+                          : "₹" + 0
+                        : customerDetails?.BalanceAmount !== undefined
+                        ? "₹" + customerDetails?.BalanceAmount + "Cr"
+                        : "₹" + 0
+                    }
+                    title="Outstanding Amount"
+                  />
+                </Grid>
+                <Grid
+                  xs={6}
+                  sm={6}
+                  lg={6}
+                  md={6}
+                  item
+                  sx={{
+                    "&.MuiGrid-item": {
+                      paddingLeft: "0.5em",
+                    },
+                  }}
+                >
+                  <StatusCard
+                    width="14em"
+                    height="8em"
+                    icon={
+                      circleUp.options &&
+                      circleUp.series && (
+                        <Chart
+                          options={circleUp.options}
+                          series={circleUp.series}
+                          type="radialBar"
+                          height={120}
+                          width={120}
+                        />
+                      )
+                    }
+                    count={
+                      searchValueAvailable
+                        ? accountStatement.PossessionBalance !== undefined
+                          ? "₹" + accountStatement.PossessionBalance
+                          : "₹" + 0
+                        : customerDetails?.UpcomingAmount !== undefined
+                        ? "₹" + customerDetails?.UpcomingAmount + "Cr"
+                        : "₹" + 0
+                    }
+                    title="Balance till possession"
+                  />
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid xs={2} sm={2} lg={2} md={2}>
-              <StatusCard
-                width="12.5em"
-                height="5.5em"
-                count={
-                  searchValueAvailable
-                    ? GlobalFunctions.formatToIndianNumber(
-                        accountStatement.AgreementValue
-                      ) !== undefined
-                      ? "₹" +
-                        GlobalFunctions.formatToIndianNumber(
-                          accountStatement.AgreementValue
-                        )
-                      : "₹" + 0
-                    : customerDetails?.ConsiderationAmount !== undefined
-                    ? "₹" + customerDetails?.ConsiderationAmount + " Cr"
-                    : "₹" + 0
-                }
-                title={"Consideration Amount"}
-              />
-            </Grid>
-            <Grid xs={2} sm={2} lg={2} md={2}>
-              <StatusCard
-                width="14em"
-                height="5.5em"
-                icon={
-                  circleInvoice.options &&
-                  circleInvoice.series && (
-                    <Chart
-                      options={
-                        circleInvoice.options ? circleInvoice.options : ""
-                      }
-                      series={circleInvoice.series ? circleInvoice.series : ""}
-                      type="radialBar"
-                      height={100}
-                      width={100}
-                    />
-                  )
-                }
-                count={
-                  searchValueAvailable
-                    ? GlobalFunctions.formatToIndianNumber(
-                        accountStatement.DueAmount
-                      ) !== undefined
-                      ? "₹" +
-                        GlobalFunctions.formatToIndianNumber(
-                          accountStatement.DueAmount
-                        )
-                      : "₹" + 0
-                    : customerDetails?.InvoiceAmount !== undefined
-                    ? "₹" + customerDetails?.InvoiceAmount + "Cr"
-                    : "₹" + 0
-                }
-                title="Invoiced Amount"
-              />
-            </Grid>
-            <Grid xs={2} sm={2} lg={2} md={2}>
-              <StatusCard
-                width="14em"
-                height="5.5em"
-                icon={
-                  circlePaid.options &&
-                  circlePaid.series && (
-                    <Chart
-                      options={circlePaid.options}
-                      series={circlePaid.series}
-                      type="radialBar"
-                      height={100}
-                      width={100}
-                    />
-                  )
-                }
-                count={
-                  searchValueAvailable
-                    ? GlobalFunctions.formatToIndianNumber(
-                        getPaidAmt().toLocaleString()
-                      ) !== undefined
-                      ? "₹" +
-                        GlobalFunctions.formatToIndianNumber(
-                          getPaidAmt().toLocaleString()
-                        )
-                      : "₹" + 0
-                    : customerDetails?.PaidAmount !== undefined
-                    ? "₹" + customerDetails?.PaidAmount + "Cr"
-                    : "₹" + 0
-                }
-                title="Paid Amount"
-              />
-              {/* </Grid> */}
-            </Grid>
-            <Grid xs={2} sm={2} lg={2} md={2}>
-              <StatusCard
-                width="14em"
-                height="5.5em"
-                icon={
-                  circleOut.options &&
-                  circleOut.series && (
-                    <Chart
-                      options={circleOut.options}
-                      series={circleOut.series}
-                      type="radialBar"
-                      height={100}
-                      width={100}
-                    />
-                  )
-                }
-                count={
-                  searchValueAvailable
-                    ? accountStatement.BalanceAmount !== undefined
-                      ? "₹" + accountStatement.BalanceAmount
-                      : "₹" + 0
-                    : customerDetails?.BalanceAmount !== undefined
-                    ? "₹" + customerDetails?.BalanceAmount + "Cr"
-                    : "₹" + 0
-                }
-                title="Outstanding Amount"
-              />
-            </Grid>
-            <Grid xs={2} sm={2} lg={2} md={2}>
-              <StatusCard
-                width="14em"
-                height="5.5em"
-                icon={
-                  circleUp.options &&
-                  circleUp.series && (
-                    <Chart
-                      options={circleUp.options}
-                      series={circleUp.series}
-                      type="radialBar"
-                      height={100}
-                      width={100}
-                    />
-                  )
-                }
-                count={
-                  searchValueAvailable
-                    ? accountStatement.PossessionBalance !== undefined
-                      ? "₹" + accountStatement.PossessionBalance
-                      : "₹" + 0
-                    : customerDetails?.UpcomingAmount !== undefined
-                    ? "₹" + customerDetails?.UpcomingAmount + "Cr"
-                    : "₹" + 0
-                }
-                title="Balance till possession"
-              />
-            </Grid>
+
             {/* </Grid> */}
 
             {/* </Grid> */}
           </Grid>
         </Grid>
 
+        {/* Happiness meter and sentimental analysis */}
+        {/* 
         <HappinessIndexDonut
           circleUp={circleUp}
           customerDetails={customerDetails}
           searchValueAvailable={searchValueAvailable}
-        />
-        <TodayActivity />
-        <Grid sx={{ marginLeft: "1%" }}>
+        /> */}
+
+        <Grid container columns={12} columnSpacing={1}>
+          <Grid item sm={6} md={6} lg={6} xs={6}>
+            <Accordion
+              sx={{
+                "&.MuiAccordionSummary-root": {
+                  minHeight: "21px",
+                  paddingTop: "1em",
+                },
+              }}
+              defaultExpanded
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  File Acceptance Pending
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {" "}
+                <AcceptancePending
+                  tableData={acceptancePendingData}
+                  setLoading={setLoading}
+                />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+
+          <Grid item sm={6} md={6} lg={6} xs={6}>
+            <Accordion defaultExpanded>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  Registration Pending
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <RegistrationPending
+                  tableData={registrationPendingData}
+                  setLoading={setLoading}
+                />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        </Grid>
+
+        <Grid
+          container
+          columns={12}
+          columnSpacing={1}
+          sx={{ marginTop: "1em" }}
+        >
+          <Grid item sm={6} md={6} lg={6} xs={6}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  Today's Activity
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {" "}
+                <TodayActivity />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+
+          <Grid item sm={6} md={6} lg={6} xs={6}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  Today's BirthDay / Anniversary
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <TodaysBirthday data={birthdayData} />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        </Grid>
+
+        {/* <Grid sx={{ height: "20em" }}>
+          {OrderId ? <BookingDetails unitData={unitData} /> : <BookingData />}
+        </Grid> */}
+
+        {/* Ageing Graph and Projectf3 Graph */}
+        {/* <Grid sx={{ marginLeft: "1%" }}>
           <Grid
             container
             rowSpacing={1}
@@ -681,7 +1168,7 @@ export default function CustomerDetails() {
               <Graph />
             </Grid>
           </Grid>
-        </Grid>
+        </Grid> */}
       </>
     ) : (
       <CircularScreenLoader />

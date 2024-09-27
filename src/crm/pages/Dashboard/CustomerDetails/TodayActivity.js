@@ -6,7 +6,6 @@ import Table from "mui-datatables";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Typography } from "@mui/material";
 
 export default function TodayActivity() {
   const [tableData, setTableData] = useState([]);
@@ -101,6 +100,10 @@ export default function TodayActivity() {
         },
         MUIDataTableHeadCell: {
           styleOverrides: {
+            data: {
+              fontSize: "0.8rem",
+              fontWeight: "bold",
+            },
             root: {
               backgroundColor: GlobalFunctions.getThemeBasedMode(
                 reducerData.ThemeReducer.mode
@@ -114,6 +117,7 @@ export default function TodayActivity() {
         MUIDataTableBodyCell: {
           styleOverrides: {
             root: {
+              fontSize: "0.7rem",
               backgroundColor: GlobalFunctions.getThemeBasedMode(
                 reducerData.ThemeReducer.mode
               ),
@@ -143,14 +147,15 @@ export default function TodayActivity() {
     });
 
   const options = {
+    pagination: false,
     selectableRows: "none",
     rowsPerPage: 100,
     elevation: 0,
-    print: true,
-    download: true,
-    search: true,
-    viewColumns: true,
-    filter: true,
+    print: false,
+    download: false,
+    search: false,
+    viewColumns: false,
+    filter: false,
     filterType: "dropdown",
     responsive: "standard",
   };
@@ -235,19 +240,9 @@ export default function TodayActivity() {
 
   return (
     tableData.length > 0 && (
-      <div style={{ marginTop: "1em" }}>
+      <div>
         <ThemeProvider theme={() => getMuiTheme()}>
-          <Table
-            data={tableData}
-            columns={columns}
-            options={options}
-            title={
-              <Typography sx={{ fontWeight: "Bold" }}>
-                {" "}
-                Today's Activity
-              </Typography>
-            }
-          ></Table>
+          <Table data={tableData} columns={columns} options={options}></Table>
         </ThemeProvider>
       </div>
     )

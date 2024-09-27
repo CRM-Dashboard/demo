@@ -2,21 +2,85 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button, Grid, Typography, Divider } from "@mui/material";
+// import { Configuration, OpenAIApi } from "openai";
 import "./Style.css";
 
 function Mails() {
   const reducerData = useSelector((state) => state);
   const customerEmailId = reducerData.dashboard.customerEmailId;
 
+  // const [prompt, setPrompt] = useState("");
+  // const [result, setResult] = useState("");
+  // const [loading, setLoading] = useState(false);
+  const [mailData, setMailData] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [nextDataLink, setNextDataLink] = useState("");
-  const [mailData, setMailData] = useState([]);
+  // const [shouldGenerateReply, setShouldGenerateReply] = useState(false);
+
+  // const configuration = new Configuration({
+  //   apikey: process.env.REACT_APP_OPENAI_API_KEY,
+  // });
+
+  // const openai = new OpenAIApi(configuration);
+
+  // const handleClick = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await openai.createCompletion({
+  //       model: "text-davinsi-003",
+  //       prompt: prompt,
+  //       temperature: 0.5,
+  //       max_tokens: 100,
+  //     });
+  //     setResult(response.data.choices[0].text);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  //   setLoading(false);
+  // };
 
   useEffect(() => {
     if (tableData?.[0]) {
       setMailData(tableData?.[0]?.body?.content);
     }
   }, [tableData]);
+
+  // function htmlToText(html) {
+  //   // Create a new temporary element to hold the HTML
+  //   const tempDiv = document.createElement("div");
+  //   tempDiv.innerHTML = html;
+  //   // Extract the text content
+  //   return tempDiv.textContent || tempDiv.innerText || "";
+  // }
+
+  // const getGeneratedResult = () => {
+  //   if (prompt) {
+  //     const formData = new FormData();
+  //     const finaldata = htmlToText(prompt);
+  //     formData.append("prompt", JSON.stringify(finaldata));
+
+  //     fetch(
+  //       process.env.REACT_APP_SERVER_URL +
+  //         `/api/activity/generateOpenAIResponse`,
+  //       {
+  //         method: "POST",
+  //         body: formData,
+  //       }
+  //     )
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         console.log("############data", data);
+  //         setResult(data);
+  //       })
+  //       .catch((error) => {
+  //         console.log("##########error", error);
+  //       });
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getGeneratedResult();
+  // }, [prompt]);
 
   const getMailDetails = () => {
     if (customerEmailId) {
@@ -93,6 +157,34 @@ function Mails() {
         </Button>
       </Grid>
       {/* {tableData?.length > 0 ? */}
+      {/* {shouldGenerateReply ? (
+        <Grid
+          sx={{
+            justifyContent: "centre",
+            alignItems: "center",
+            height: "50vh",
+            width: "100vw",
+          }}
+        >
+          <Grid
+            sx={{
+              height: "20em",
+              width: "20em",
+              border: "1px solid black",
+              borderRadius: "5px",
+            }}
+          >
+            <Button
+              onClick={() => {
+                getGeneratedResult();
+              }}
+            >
+              Generate
+            </Button>
+            <Typography>{result}</Typography>
+          </Grid>
+        </Grid>
+      ) : ( */}
       <Grid sx={{ marginLeft: "1%" }}>
         <Grid
           container
@@ -161,6 +253,8 @@ function Mails() {
                         wordBreak: "break-all",
                       }}
                       onClick={() => {
+                        // setShouldGenerateReply(true);
+                        // setPrompt(mailData?.bodyPreview);
                         console.log(
                           "mailData?.body?.content",
                           mailData?.body?.content
@@ -217,6 +311,7 @@ function Mails() {
           </Grid>
         </Grid>
       </Grid>
+      {/* )} */}
       {/* : "" } */}
     </>
   );

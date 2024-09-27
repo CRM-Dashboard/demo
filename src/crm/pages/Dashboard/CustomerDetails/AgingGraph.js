@@ -54,7 +54,7 @@ export default function AgingBar() {
     }
 
     const formData = new FormData();
-    formData.append("crmId", crmId);
+    !OrderId && formData.append("crmId", crmId);
     formData.append("orderId", OrderId);
     formData.append("projectId", projectId);
     formData.append("userName", userName);

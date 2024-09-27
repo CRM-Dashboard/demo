@@ -23,11 +23,18 @@ const StatusCard = (props) => {
   return (
     <Grid
       className="status-card"
-      style={{ height: "80%" }}
+      style={{ height: "90%" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Grid className="status-card__info" style={{ color: textColor }}>
+      <Grid
+        className="status-card__info"
+        style={
+          props.icon
+            ? { color: textColor, textAlign: "left" }
+            : { color: textColor, textAlign: "center", padding: "0.1em" }
+        }
+      >
         <h3 style={{ fontSize: "1.1rem", color: textColor }}>{props.count}</h3>
         <span style={{ wordBreak: "break-all" }}>
           <Typography style={{ wordBreak: "break-all", fontSize: "0.6rem" }}>
@@ -35,9 +42,13 @@ const StatusCard = (props) => {
           </Typography>
         </span>
       </Grid>
-      <Grid className="status-card__icon">
-        <h5>{props.icon}</h5>
-      </Grid>
+      {props.icon ? (
+        <Grid className="status-card__icon">
+          <h5>{props.icon}</h5>
+        </Grid>
+      ) : (
+        <></>
+      )}
     </Grid>
   );
 };

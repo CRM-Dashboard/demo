@@ -58,7 +58,7 @@ const CreateUnitCustomReq = forwardRef((props, ref) => {
     setData(newData);
   };
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
@@ -68,7 +68,7 @@ const CreateUnitCustomReq = forwardRef((props, ref) => {
       OBJECT: "Create Unit Customisation Request",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -96,7 +96,7 @@ const CreateUnitCustomReq = forwardRef((props, ref) => {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          saveLog();
+          saveLog(updatedData);
           snackbar.showSuccess("Request Created Successfully!");
           props.setCanCreateReq(false);
           setBtnLoading(false);

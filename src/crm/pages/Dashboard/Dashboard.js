@@ -4,13 +4,13 @@ import PreEmi from "./PreEmi/PreEmi";
 import CashBack from "./CashBack/CashBack";
 import SAPEmail from "./SAPEmail/SAPEmail";
 import OutlookMails from "./OutlookMails/OutlookMails";
-import BookingDetails from "./BookingDetails/BookingDetails";
+// import BookingDetails from "./BookingDetails/BookingDetails";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import CustomersList from "./CustomerInformation/CustomersList";
 import CustomerDetails from "./CustomerDetails/CustomerDetails";
 import InterestWaveOff from "./InterestWaveOff/InterestWaveOff";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import BookingData from "./BookingDetails/BookingData/BookingData";
+// import BookingData from "./BookingDetails/BookingData/BookingData";
 import CustomTabLayout from "../../components/tabs/CustomTabLayout";
 import InvoiceTable from "../Dashboard/InvoiceDetails/InvoiceTable";
 import UnitCustomisation from "./UnitCustomisation/UnitCustomisation";
@@ -24,7 +24,7 @@ function Dashboard() {
   const [shouldShowBookingDetails, setShouldShowBookingDetails] = useState("");
 
   const reducerData = useSelector((state) => state);
-  const orderId = reducerData?.searchBar.orderId;
+  // const orderId = reducerData?.searchBar.orderId;
 
   useEffect(() => {
     setShoudldShowCustomerList(reducerData.dashboard.shouldShowCustData);
@@ -45,15 +45,15 @@ function Dashboard() {
     },
 
     {
-      label: "Invoice Details",
+      label: "Invoice ",
       component: <InvoiceTable />,
     },
     {
-      label: "Payment Details",
+      label: "Payment ",
       component: <PaymentDetails />,
     },
     {
-      label: "Interest Details",
+      label: "Interest ",
       component: <InterestDetails />,
     },
     {
@@ -65,7 +65,7 @@ function Dashboard() {
       component: <CashBack />,
     },
     {
-      label: "Interest Waveoff",
+      label: "Interest Waiveoff",
       component: <InterestWaveOff />,
     },
     {
@@ -106,11 +106,14 @@ function Dashboard() {
             <CustomTabLayout tabPanels={tabs} /> // Dashboard Data
           ) : shoudldShowCustomerList ? (
             <CustomersList /> // Applicants Data
-          ) : orderId ? (
-            <BookingDetails />
           ) : (
-            <BookingData />
-          ) //Booking details if orderId set
+            <></>
+          )
+          // : orderId ? (
+          //   <BookingDetails />
+          // ) : (
+          //   <BookingData />
+          // ) //Booking details if orderId set
         }
       </ThemeProvider>
     </Box>

@@ -47,7 +47,6 @@ const Projects = () => {
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openCreateForm, setOpenCreateForm] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
-
   const [shouldShowDateRange, setShouldShowDateRange] = useState("");
 
   const reducerData = useSelector((state) => state);
@@ -59,6 +58,40 @@ const Projects = () => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
+
+  const sendMail = () => {
+    const entryData = {
+      PROJECT: [
+        {
+          ...selectedRows,
+          mailInd: "X",
+        },
+      ],
+      TASK: [],
+      TICKET: [],
+    };
+
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess("Send Mail successfully!");
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError("Error while sending mail!");
+        }
+      });
+  };
 
   const saveUrls = (fileUrls) => {
     const entryData = [];
@@ -126,7 +159,7 @@ const Projects = () => {
   };
 
   const handleRowClick = (rowData, rowMeta) => {
-    setProjectId(rowData?.[16]);
+    setProjectId(rowData?.[15]);
     setSelectedRows(projectData[rowMeta?.rowIndex]);
   };
 
@@ -154,10 +187,13 @@ const Projects = () => {
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
 
-    fetch("/api/activity/deleteProjectDetails", {
-      method: "POST",
-      body: formData,
-    })
+    fetch(
+      process.env.REACT_APP_SERVER_URL + "/api/activity/deleteProjectDetails",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data) {
@@ -760,6 +796,27 @@ const Projects = () => {
             }}
           >
             Choose Files to Upload
+          </Button>
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            sx={{
+              margin: "0.2em",
+              "&.MuiButton-root": {
+                textTransform: "none",
+                backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
+              },
+            }}
+            disabled={!projectId}
+            onClick={() => {
+              sendMail();
+            }}
+          >
+            Send Mail
           </Button>
         </div>
       </div>

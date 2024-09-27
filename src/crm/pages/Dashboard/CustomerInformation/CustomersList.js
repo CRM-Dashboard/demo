@@ -39,7 +39,7 @@ export default function CustomersList() {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
-  const projectId = reducerData?.dashboard?.project?.projectId;
+  // const projectId = reducerData?.dashboard?.project?.projectId;
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
@@ -244,39 +244,39 @@ export default function CustomersList() {
 
   const getTableData = () => {
     setIsLoading(true);
-    if (projectId) {
-      const formData = new FormData();
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-      formData.append("projectId", projectId);
-      formData.append("orderId", OrderId);
-      formData.append("crmId", crmId);
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            setTitleData(data[0].titledata);
-            setCountryData(data[0].countrydata);
-            setOccupation(data[0].occupationdata);
-            setStateData(data[0].statedata);
-            setResponse(data[0]?.customerdata);
-            setIsLoading(false);
-            setTableData(modifyResponse(data[0]?.customerdata));
-            if (OrderId) {
-              const filteredArray = data[0]?.customerdata?.filter(
-                (obj) => obj.orderId === OrderId
-              );
-              setFilteredResponse(filteredArray);
-              setFilteredCustomers(modifyResponse(filteredArray));
-            }
-          } else {
-            setIsLoading(false);
+    // if (projectId) {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    // formData.append("projectId", projectId);
+    formData.append("orderId", OrderId);
+    !OrderId && formData.append("crmId", crmId);
+    fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getcustomer`, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          setTitleData(data[0].titledata);
+          setCountryData(data[0].countrydata);
+          setOccupation(data[0].occupationdata);
+          setStateData(data[0].statedata);
+          setResponse(data[0]?.customerdata);
+          setIsLoading(false);
+          setTableData(modifyResponse(data[0]?.customerdata));
+          if (OrderId) {
+            const filteredArray = data[0]?.customerdata?.filter(
+              (obj) => obj.orderId === OrderId
+            );
+            setFilteredResponse(filteredArray);
+            setFilteredCustomers(modifyResponse(filteredArray));
           }
-        });
-    }
+        } else {
+          setIsLoading(false);
+        }
+      });
+    // }
   };
 
   useEffect(() => {

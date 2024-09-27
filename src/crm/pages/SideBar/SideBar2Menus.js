@@ -147,7 +147,11 @@ const Sidebar2Menus = ({ color, route, showAnimation, isOpen, setIsOpen }) => {
           >
             {route.subRoutes.map((subRoute, i) => (
               <motion.div variants={menuItemAnimation} key={i} custom={i}>
-                <NavLink to={`/crm/crm${subRoute.path}`} className="link">
+                <NavLink
+                  to={`/crm/crm${subRoute.path}`}
+                  style={{ paddingleft: "0.6em", paddingTop: "0.5em" }}
+                  className="link"
+                >
                   <div
                     className="icon"
                     style={{ cursor: "pointer" }}

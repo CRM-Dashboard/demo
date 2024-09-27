@@ -2,14 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import {
-  Box,
-  Drawer,
-  Typography,
-  Tooltip,
-  // Badge,
-  MenuItem,
-} from "@mui/material";
+import { Box, Drawer, Typography, Tooltip, MenuItem } from "@mui/material";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AnimatePresence, motion } from "framer-motion";
@@ -27,6 +20,7 @@ import MailIcon from "@mui/icons-material/Mail";
 // import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import PhoneBookIcon from "@mui/icons-material/InterpreterMode";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import SummarizeIcon from "@mui/icons-material/Summarize";
@@ -65,6 +59,7 @@ import EventBusyIcon from "@mui/icons-material/EventBusy";
 import InputField from "../../components/inputField/InputField";
 import CancellationReport from "../Reports/CancellationReport/CancellationReport";
 import FileMovement from "../FileMovement/FileMovement";
+import BookingReport from "../Reports/BookingReport/BookingReport";
 
 const routes = [
   {
@@ -107,6 +102,12 @@ const routes = [
         to: "/crm/cancellationReport",
         name: "Cancellation ",
         icon: <EventBusyIcon />,
+      },
+      {
+        path: "/bookingReport",
+        to: "/crm/bookingReport",
+        name: "Bookings ",
+        icon: <LibraryBooksIcon />,
       },
     ],
   },
@@ -170,10 +171,6 @@ const SideBar2 = () => {
   );
   const customerMobileNumber = reducerData?.dashboard?.customerContactNo;
   const shouldShowMenus = reducerData?.searchBar?.orderId ? true : false;
-  const projectName =
-    reducerData?.dashboard?.project?.name_hdr +
-    " - " +
-    reducerData?.dashboard?.project?.name_item;
 
   useEffect(() => {
     dispatch(dashboardActions.setShouldShowCustDetails(false));
@@ -254,7 +251,7 @@ const SideBar2 = () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    formData.append("projectId", projectId);
+    formData.append("crmId", crmId);
 
     fetch(process.env.REACT_APP_SERVER_URL + `/api/dashboard/getCrmManager`, {
       method: "POST",
@@ -520,7 +517,8 @@ const SideBar2 = () => {
             <IconButton
               color="inherit"
               onClick={() => {
-                navigate("/menus/home");
+                // navigate("/menus/home");
+                navigate("/menus");
                 dispatch(searchbarActions.setSearchKey(""));
                 dispatch(searchbarActions.setOrderId(""));
                 dispatch(searchbarActions.setAccountStmt({}));
@@ -534,7 +532,7 @@ const SideBar2 = () => {
               <HomeIcon />
             </IconButton>
 
-            <Typography
+            {/* <Typography
               gutterBottom
               style={{
                 fontSize: "14px",
@@ -545,7 +543,7 @@ const SideBar2 = () => {
               }}
             >
               {projectName}
-            </Typography>
+            </Typography> */}
 
             <Grid style={{ flexGrow: 1, position: "relative" }}>
               <SearchBar />
@@ -810,6 +808,7 @@ const SideBar2 = () => {
                   path="cancellationReport"
                   element={<CancellationReport />}
                 />
+                <Route path="bookingReport" element={<BookingReport />} />
               </Route>
             </Routes>
           </Grid>

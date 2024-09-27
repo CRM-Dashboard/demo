@@ -20,11 +20,12 @@
   align-items: center;
   justify-content: center;
   z-index: 1;
+  padding-right: 1em;
 }
 
 .status-card__info {
   flex-grow: 1;
-  text-align: left;
+  /* text-align: left; */
   z-index: 1;
   text-transform: capitalize;
 }

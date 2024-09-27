@@ -44,6 +44,7 @@ export default function Invoices() {
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData?.searchBar?.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData?.dashboard?.project?.projectId;
@@ -272,6 +273,22 @@ export default function Invoices() {
   //   getTableData();
   // }, [reducerData.searchBar.orderId]);
 
+  const saveLog = async () => {
+    const now = new Date();
+    const entryData = {
+      OBJECTID: orderId,
+      USERNAME: userName.toUpperCase(),
+      UDATE: now.toISOString().slice(0, 10).replace(/-/g, "-"),
+      UTIME: now.toLocaleTimeString("en-GB", { hour12: false }), //24 hrs time
+      OBJECT: "Send invoice mail",
+      CHANGEIND: "",
+      VALUE_OLD: {},
+      VALUE_NEW: {},
+    };
+
+    await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
   const sendMails = () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -290,6 +307,7 @@ export default function Invoices() {
           snackbar.showSuccess(
             <Typography> Sent Mail(s) Successfully!</Typography>
           );
+          saveLog();
           setArrForMail([]);
         }
       })

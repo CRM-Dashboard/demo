@@ -70,7 +70,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
     return data[0]?.creason;
   };
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
@@ -80,7 +80,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
       OBJECT: "Create Cancellation Request",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -135,7 +135,7 @@ const CreateCancellationRequest = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            saveLog();
+            saveLog(entryData);
             snackbar.showSuccess("Cancellation request created successfully!");
             formik.resetForm();
           }

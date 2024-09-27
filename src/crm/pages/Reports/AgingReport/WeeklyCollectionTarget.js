@@ -5,9 +5,10 @@ import "./Style.css";
 import dayjs from "dayjs";
 import Table from "mui-datatables";
 import { useSelector } from "react-redux";
-import { Grid, MenuItem, Select, Button } from "@mui/material";
 import GlobalFunctions from "../../../utils/GlobalFunctions";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import InputField from "../../../components/inputField/InputField";
+import { Grid, MenuItem, Select, Button, Checkbox } from "@mui/material";
 import CrmDatePicker from "../../../components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
@@ -20,6 +21,8 @@ export default function WeeklyCollectionTarget() {
   const [graphData, setGraphData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [subCategoryData, setSubCategoryData] = useState([]);
+  const [projectData, setProjectData] = useState([]);
+  const [selectedProjects, setSelectedProjects] = useState([]);
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -295,7 +298,7 @@ export default function WeeklyCollectionTarget() {
 
     var apiUrl = process.env.REACT_APP_SERVER_URL + "/api/reports/aging";
 
-    // setLoading(true);
+    setLoading(true);
     if (month) {
       fetch(apiUrl, {
         method: "POST",
@@ -319,6 +322,7 @@ export default function WeeklyCollectionTarget() {
           setLoading(false);
         });
     } else {
+      setLoading(false);
       snackbar.showError("To get data please select month first!");
     }
   }
@@ -598,12 +602,135 @@ export default function WeeklyCollectionTarget() {
     ],
   };
 
+  // useEffect(() => {
+  //   getData();
+  // }, [OrderId, projectId, crmId]);
+
+  const getProjectData = () => {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/project", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setProjectData(data.ProjectList);
+      });
+  };
+
+  const handleProjectSelection = (event) => {
+    const value = event.target.value;
+    setSelectedProjects(typeof value === "string" ? value.split(",") : value);
+    console.log(
+      "###########selected projects",
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
   useEffect(() => {
-    getData();
-  }, [OrderId, projectId, crmId]);
+    getProjectData();
+    // getData();
+  }, []);
 
   return (
     <Grid sx={{ paddingTop: "0.5em", overflowX: "auto" }}>
+      <Grid
+        container
+        spacing={2}
+        columnSpacing={2}
+        columns={12}
+        sx={{
+          paddingLeft: "0.5em",
+          paddingRight: "0.5em",
+          paddingBottom: "0.5em",
+          marginTop: "0.5em",
+          marginLeft: "0.01em",
+          marginRight: "1em",
+          backgroundColor: "white",
+        }}
+      >
+        <Grid item xs={4} sm={4} lg={4} md={4}>
+          <InputField
+            select
+            label={"Project"}
+            value={selectedProjects}
+            onChange={handleProjectSelection}
+            SelectProps={{
+              multiple: true,
+              renderValue: (selected) =>
+                selected
+                  .map(
+                    (id) =>
+                      projectData.find((project) => project.projectId === id)
+                        ?.name
+                  )
+                  .join(", "), // Shows project names as comma-separated values
+            }}
+          >
+            <MenuItem value="">
+              <em>Select Project</em>
+            </MenuItem>
+
+            {projectData?.map((project) => (
+              <MenuItem key={project?.projectId} value={project?.projectId}>
+                <Checkbox
+                  sx={{
+                    "&.MuiButtonBase-root": {
+                      padding: "0px",
+                      paddingRight: "9px",
+                    },
+                  }}
+                  checked={selectedProjects.indexOf(project?.projectId) > -1}
+                />
+                {project?.name}
+              </MenuItem>
+            ))}
+          </InputField>
+        </Grid>
+        <Grid item xs={4} sm={4} lg={4} md={4} />
+        {/* <Grid
+          item
+          xs={4}
+          sm={4}
+          lg={4}
+          md={4}
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "flex-end",
+          }}
+        >
+          <Button
+            disabled={selectedProjects?.toString()?.trim()?.length === 0}
+            variant="contained"
+            onClick={() => {
+              // [
+              //   "Registration_status",
+              //   "Confirmation_status",
+              //   "Possession_status",
+              // ].map((group) => {
+              //   console.log(
+              //     "####################status codes",
+              //     getSelectedStatusCodes(group)
+              //   );
+              // });
+              // console.log(
+              //   "############# selectddata",
+              //   selectedProjects,
+              //   selectedCrmIds
+              // );
+              // getSelectedStatusCodes();
+              getData();
+            }}
+          >
+            {" "}
+            Apply{" "}
+          </Button>
+        </Grid> */}
+      </Grid>
+      <br />
       {!loading ? (
         <ThemeProvider theme={getMuiTheme}>
           <Table
@@ -633,7 +760,7 @@ export default function WeeklyCollectionTarget() {
                   />
                 </Grid>
                 <Grid item sm={6} md={6} lg={6}>
-                  <button
+                  <Button
                     style={{
                       backgroundColor: "#007FFF",
                       fontFamily: "futura",
@@ -644,12 +771,16 @@ export default function WeeklyCollectionTarget() {
                       height: "2.2em",
                       width: "4.5em",
                     }}
+                    // sx={ selectedProjects?.toString()?.trim()?.length === 0 ? {} : {}}
+                    disabled={
+                      selectedProjects?.toString()?.trim()?.length === 0
+                    }
                     onClick={() => {
                       getData();
                     }}
                   >
                     Go
-                  </button>
+                  </Button>
                 </Grid>
               </Grid>
             }

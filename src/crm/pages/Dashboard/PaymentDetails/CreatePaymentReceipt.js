@@ -21,7 +21,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
 
-  const saveLog = async () => {
+  const saveLog = async (data) => {
     const now = new Date();
     const entryData = {
       OBJECTID: orderId,
@@ -31,7 +31,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
       OBJECT: "Create Payment Receipt",
       CHANGEIND: "I",
       VALUE_OLD: {},
-      VALUE_NEW: {},
+      VALUE_NEW: data,
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
@@ -69,7 +69,7 @@ const CreatePaymentReceipt = forwardRef((props, ref) => {
         .then((response) => response.json())
         .then((data) => {
           if (!data.error) {
-            saveLog();
+            saveLog(entryData);
             snackbar.showSuccess("Payment details created successfully!");
             props.setopenCreateForm(false);
             props.getTableData();

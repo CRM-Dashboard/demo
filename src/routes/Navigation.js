@@ -25,6 +25,7 @@ import ITHierarchyDashboard from "../HierarchyTable/Dashboard/Dashboard";
 import CustomerDetails from "../crm/pages/Dashboard/CustomerDetails/CustomerDetails";
 import CancellationReport from "../crm/pages/Reports/CancellationReport/CancellationReport";
 import Changes from "../HierarchyTable/ChangeManagement/Changes";
+import ProtectedRoute from "./ProtectedRoute";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -58,9 +59,12 @@ export default function Navigation() {
             <div className="layout__content-main">
               <Routes>
                 <Route path="/" element={<LoginPage />} />
-                <Route path="/menus" element={<ProjectMenus />} />
-                <Route path="/menus/home" element={<HomePage />} />
-                <Route path="/*" element={<TrackerLayout />}>
+                <Route
+                  path="/menus"
+                  element={<ProtectedRoute element={<ProjectMenus />} />}
+                />
+                <Route path="/menus/home" element={<ProtectedRoute element={<HomePage />} />} />
+                <Route path="/*" element={<ProtectedRoute element={<TrackerLayout />} />}>
                   {/* <Route index element={<HierarchyTable />} /> */}
                   <Route path="task" element={<Tasks />} />
                   <Route path="tickets" element={<Tickets />} />
@@ -69,9 +73,9 @@ export default function Navigation() {
                   <Route path="dashboard" element={<ITHierarchyDashboard />} />
                 </Route>
                 {/* <Route path="/menus/table" element={<HierarchyTable />} /> */}
-                <Route path="/menus/table" element={<Sidebar />} />
-                <Route path="/requestApproval" element={<ApprovalPage />} />
-                <Route path="/crm/*" element={<Layout />}>
+                <Route path="/menus/table" element={<ProtectedRoute element={<Sidebar />} />} />
+                <Route path="/requestApproval" element={<ProtectedRoute element={<ApprovalPage />} />} />
+                <Route path="/crm/*" element={<ProtectedRoute element={<Layout />} />}>
                   <Route index element={<CustomerDetails />} />
                   <Route path="fileMovement" element={<FileMovement />} />
                   <Route path="customerDetails" element={<CustomerDetails />} />

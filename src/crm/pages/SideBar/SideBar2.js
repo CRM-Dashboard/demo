@@ -2,7 +2,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
-import { Box, Drawer, Typography, Tooltip, MenuItem } from "@mui/material";
+import {
+  Box,
+  Drawer,
+  Typography,
+  Tooltip,
+  MenuItem,
+  Badge,
+  Menu,
+} from "@mui/material";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,7 +25,7 @@ import PrintIcon from "@mui/icons-material/Print";
 import AudioCallIcon from "@mui/icons-material/Call";
 import SettingsIcon from "@mui/icons-material/SettingsSharp";
 import MailIcon from "@mui/icons-material/Mail";
-// import NotificationsIcon from "@mui/icons-material/Notifications";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
@@ -60,6 +68,12 @@ import InputField from "../../components/inputField/InputField";
 import CancellationReport from "../Reports/CancellationReport/CancellationReport";
 import FileMovement from "../FileMovement/FileMovement";
 import BookingReport from "../Reports/BookingReport/BookingReport";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import Divider from "@mui/material/Divider";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
 
 const routes = [
   {
@@ -164,6 +178,42 @@ const SideBar2 = () => {
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData.dashboard.project.projectId;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
+
+  const [showList, setShowList] = React.useState(false);
+
+  function timeAgo(dateString, timeString) {
+    // Combine the date and time strings into a single ISO string
+    const dateTime = new Date(`${dateString}T${timeString}Z`);
+
+    // Get the current date and time
+    const now = new Date();
+
+    // Calculate the difference in milliseconds
+    const diffInMs = now - dateTime;
+
+    // Convert the difference to minutes, hours, and days
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    // Return the appropriate string based on the time difference
+    if (diffInMinutes < 1) {
+      return "just now";
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
+    } else if (diffInHours < 24) {
+      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
+    } else {
+      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
+    }
+  }
+
+  const toggleList = () => {
+    setShowList((prev) => !prev);
+  };
+  const handleClose = () => {
+    setShowList(false);
+  };
 
   const snackbar = UseCustomSnackbar();
   const color = GlobalFunctions.getThemeBasedColour(
@@ -560,11 +610,16 @@ const SideBar2 = () => {
               <DirectionsCarFilledIcon />
             </IconButton>
 
-            {/* <Grid style={{ paddingRight: "0.8em" }}>
-              <Badge color="secondary" badgeContent={0} showZero>
+            <Grid style={{ paddingRight: "0.8em" }}>
+              <Badge
+                onClick={toggleList}
+                color="secondary"
+                badgeContent={0}
+                showZero
+              >
                 <NotificationsIcon />
               </Badge>
-            </Grid> */}
+            </Grid>
 
             <IconButton
               size="large"
@@ -619,6 +674,79 @@ const SideBar2 = () => {
             >
               <SettingsIcon />
             </IconButton>
+            {showList && (
+              <div style={{}}>
+                {/* <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={toggleList}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton> */}
+                <Menu
+                  style={{ marginTop: "50px" }}
+                  id="menu-appbar"
+                  anchorEl={showList}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(showList)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={handleClose}>
+                    <Grid container>
+                      <Grid item
+                        md={2}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 50,
+                            height: 50,
+                            cursor: "pointer",
+                            marginRight: "1em",
+                            backgroundColor: "white",
+                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+                          }}
+                        >
+                          <img
+                            alt="chatImg"
+                            src={require("../../../assets/notification.webp")}
+                            style={{ width: "45px", height: "45px" }}
+                          // onClick={() => {
+                          //   setIsChatDrawerOpen(true);
+                          // }}
+                          />
+                        </Avatar>
+
+                      </Grid>
+                      <Grid item md={10}>
+                        <Typography>
+                          <strong>Vishal Jaiswal </strong>
+                        </Typography>
+                        <Typography> Approved by CRM Manager <small>{timeAgo("2024-10-02", "10:30:00")}</small> </Typography>
+                      </Grid>
+                      <Grid item md={12}>
+                        {" "}
+
+                      </Grid>
+                    </Grid>
+
+                  </MenuItem>
+                  <MenuItem sx={{ width: "500px" }} onClick={handleClose}>
+                    My account
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
           </Toolbar>
         </AppBar>
 
@@ -712,7 +840,7 @@ const SideBar2 = () => {
                       : { padding: "5px 11px" }
                   }
                   activeclassname="active"
-                  // isActive={() => route.path === "/dashboard" &&  }
+                // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
                     style={{

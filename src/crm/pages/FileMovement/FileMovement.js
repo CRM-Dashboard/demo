@@ -759,26 +759,54 @@ export default function FileMovement() {
     }
   };
 
+  // const shouldButtonDisable = (index) => {
+  //   if (index === 1) {
+  //     return (
+  //       !allChecked &&
+  //       GlobalFunctions.allowAccessByRoles(
+  //         accessRoles,
+  //         accessConstants.fileMovementGateKeeper
+  //       )
+  //     );
+  //   } else if (index === 0) {
+  //     return GlobalFunctions.allowAccessByRoles(
+  //       accessRoles,
+  //       accessConstants.fileMovementSales
+  //     );
+  //   } else if (index === 2) {
+  //     return GlobalFunctions.allowAccessByRoles(
+  //       accessRoles,
+  //       accessConstants.fileMovementRelManager
+  //     );
+  //   }
+  // };
+
   const shouldButtonDisable = (index) => {
     if (index === 1) {
+      // For index 1: If allChecked is true or the role check is false, button should not be disabled (return false).
       return (
-        !allChecked &&
-        GlobalFunctions.allowAccessByRoles(
+        !allChecked ||
+        !GlobalFunctions.allowAccessByRoles(
           accessRoles,
           accessConstants.fileMovementGateKeeper
         )
       );
     } else if (index === 0) {
+      // For index 0: If role check is true, button should not be disabled (return false).
       return !GlobalFunctions.allowAccessByRoles(
         accessRoles,
         accessConstants.fileMovementSales
       );
     } else if (index === 2) {
+      // For index 2: If role check is true, button should not be disabled (return false).
       return !GlobalFunctions.allowAccessByRoles(
         accessRoles,
         accessConstants.fileMovementRelManager
       );
     }
+
+    // Default return in case the index does not match any of the expected cases.
+    return true;
   };
 
   const getCurrentStep = (id) => {

@@ -271,16 +271,16 @@ const Tasks = () => {
   const columns = [
     {
       name: "Task Description",
-      options: {
-        customBodyRender: (value, tableMeta) => (
-          <input
-            type="text"
-            style={{ fontSize: "0.7rem" }}
-            value={value}
-            onChange={(e) => handleCellEdit(e, tableMeta?.rowIndex, 0)}
-          />
-        ),
-      },
+      // options: {
+      //   customBodyRender: (value, tableMeta) => (
+      //     <input
+      //       type="text"
+      //       style={{ fontSize: "0.7rem" }}
+      //       value={value}
+      //       onChange={(e) => handleCellEdit(e, tableMeta?.rowIndex, 0)}
+      //     />
+      //   ),
+      // },
     },
     {
       name: "Type",

@@ -28,9 +28,11 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import ITHierarchyDashboard from "../Dashboard/Dashboard";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import Tickets from "../TicketManagement/Tickets";
 import Changes from "../ChangeManagement/Changes";
+import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import CoverPage from "../CoverPage/CoverPage";
 
 const drawerWidth = 240;
 
@@ -105,7 +107,12 @@ const routes = [
     name: "Dashboard",
     icon: <DashboardIcon />,
   },
-
+  // {
+  //   path: "coverPage",
+  //   to: "/coverPage",
+  //   name: "CoverPage",
+  //   icon: <ViewTimelineIcon />,
+  // },
   {
     path: "overView",
     to: "/tracker",
@@ -251,6 +258,7 @@ export default function MiniDrawer() {
               <Route path="project" element={<Projects />} />
               <Route path="overview" element={<HomePage />} />
               <Route path="dashboard" element={<ITHierarchyDashboard />} />
+              {/* <Route path="coverPage" element={<CoverPage />} /> */}
             </Route>
           </Routes>
         </Grid>

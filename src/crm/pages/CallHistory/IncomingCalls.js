@@ -6,9 +6,10 @@ import ReactPlayer from "react-player";
 import { IconButton, Grid } from "@mui/material";
 import GlobalFunctions from "../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 const CustomPagination = ({ callMeta, onPageChange }) => (
@@ -41,11 +42,36 @@ export default function IncomingCalls() {
   const [response, setResponse] = useState([]);
   const [callMeta, setCallMeta] = useState();
   const [tableData, setTableData] = useState([]);
+  const [recordingId, setRecordingId] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [recordingUrl, setRecordingUrl] = useState("");
 
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
   const customerMobileNumber = reducerData?.dashboard?.customerContactNo;
+
+  const playRecording = async (recordingURL) => {
+    try {
+      // const recordingId = recordingURL.replace("https://", "");
+      // Fetch the recording stream from your backend API
+      const formData = new FormData();
+      formData.append("base_url", recordingURL.replace("https://", ""));
+      const response = await fetch(
+        process.env.REACT_APP_SERVER_URL + `/api/exotel/recording`,
+        { method: "POST", body: formData }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch recording");
+      }
+
+      // Create an object URL for the stream
+      const stream = await response.blob();
+      const audioUrl = URL.createObjectURL(stream);
+      setRecordingUrl(audioUrl);
+    } catch (error) {
+      console.error("Error playing recording:", error);
+    }
+  };
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
@@ -77,18 +103,26 @@ export default function IncomingCalls() {
       name: "Start Time",
       label: "Start Time",
     },
-
     {
-      label: "Action",
+      label: "Call Recordings",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => [
           <IconButton color="primary" size="small">
-            <ReactPlayer
-              url={response[dataIndex]?.RecordingUrl}
-              controls
-              width="300px"
-              height="50px"
-            />
+            {recordingId === response[dataIndex]?.RecordingUrl ? (
+              <ReactPlayer
+                url={recordingUrl}
+                controls
+                width="300px"
+                height="50px"
+              />
+            ) : (
+              <PlayCircleOutlineIcon
+                onClick={() => {
+                  setRecordingId(response[dataIndex]?.RecordingUrl);
+                  playRecording(response[dataIndex]?.RecordingUrl);
+                }}
+              />
+            )}
           </IconButton>,
         ],
       },

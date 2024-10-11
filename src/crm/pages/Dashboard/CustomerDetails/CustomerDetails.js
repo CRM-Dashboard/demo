@@ -113,19 +113,19 @@ export default function CustomerDetails() {
 
   useEffect(() => {
     if (reducerData?.searchBar?.accountStatement) {
-      if (Object.keys(reducerData?.searchBar?.accountStatement).length !== 0) {
-        setCustomerDetails(reducerData?.searchBar?.accountStatement);
-      } else {
-        getDetails();
-      }
-    } else {
+      //   if (Object.keys(reducerData?.searchBar?.accountStatement).length !== 0) {
+      //     setCustomerDetails(reducerData?.searchBar?.accountStatement);
+      //   } else {
+      //     getDetails();
+      //   }
+      // } else {
       getDetails();
     }
   }, [reducerData.searchBar.accountStatement]);
 
   useEffect(() => {
-    getBookingDetails();
     getDetails();
+    getBookingDetails();
   }, [OrderId]);
 
   useEffect(() => {
@@ -457,40 +457,42 @@ export default function CustomerDetails() {
         gridStyle: { cursor: "pointer" },
         onClickHandle: () => {}, //navigate("/crm/crm/bookingReport"
         count: searchValueAvailable
-          ? "₹" + customerDetails?.cvVal
-          : customerDetails?.cvVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.cvVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.cvVal) + "Cr",
         title: "Consideration Amount",
       },
       {
         gridStyle: { cursor: "pointer" },
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.gstVal
-          : customerDetails?.gstVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.gstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.gstVal) + "Cr",
         title: "GST Value",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.otherVal
-          : customerDetails?.otherVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.otherVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.otherVal) + "Cr",
         title: "Other Amount",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.otherGstVal
-          : customerDetails?.otherGstVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.otherGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.otherGstVal) +
+            "Cr",
         title: "Other GST Value",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.totalVal
-          : customerDetails?.totalVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.totalVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.totalVal) + "Cr",
         title: "Total Value",
       },
     ],
@@ -499,40 +501,46 @@ export default function CustomerDetails() {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.invCvVal
-          : customerDetails?.invCvVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.invCvVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.invCvVal) + "Cr",
         title: "Invoice Amount",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.invGstVal
-          : customerDetails?.invGstVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.invGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.invGstVal) +
+            "Cr",
         title: "Invoice GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.invOthVal
-          : customerDetails?.invOthVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.invOthVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.invOthVal) +
+            "Cr",
         title: "Other Invoice Amount",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.invOthGstVal
-          : customerDetails?.invOthGstVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.invOthGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.invOthGstVal) +
+            "Cr",
         title: "Other Invoice GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.invTotalVal
-          : customerDetails?.invTotalVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.invTotalVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.invTotalVal) +
+            "Cr",
         title: "Total Invoice Amount",
       },
     ],
@@ -541,40 +549,47 @@ export default function CustomerDetails() {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.paidCvVal
-          : customerDetails?.paidCvVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.paidCvVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.paidCvVal) +
+            "Cr",
         title: "Paid Amount",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.paidGstVal
-          : customerDetails?.paidGstVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.paidGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.paidGstVal) +
+            "Cr",
         title: "Paid GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.paidOthVal
-          : customerDetails?.paidOthVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.paidOthVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.paidOthVal) +
+            "Cr",
         title: "Other Paid Amount ",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.paidOthGstVal
-          : customerDetails?.paidOthGstVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.paidOthGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.paidOthGstVal) +
+            "Cr",
         title: "Other Paid GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.paidTotalVal
-          : customerDetails?.paidTotalVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.paidTotalVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.paidTotalVal) +
+            "Cr",
         title: "Total Paid Amount",
       },
     ],
@@ -583,40 +598,46 @@ export default function CustomerDetails() {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.balCvVal
-          : customerDetails?.balCvVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.balCvVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.balCvVal) + "Cr",
         title: "Balance Amount",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.balGstVal
-          : customerDetails?.balGstVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.balGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.balGstVal) +
+            "Cr",
         title: "Balance GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.balOthVal
-          : customerDetails?.balOthVal + "Cr",
+          ? "₹" + GlobalFunctions.getFormatedNumber(customerDetails?.balOthVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.balOthVal) +
+            "Cr",
         title: "Other Balance Amount ",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.balOthGstVal
-          : customerDetails?.balOthGstVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.balOthGstVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.balOthGstVal) +
+            "Cr",
         title: "Other Balance GST",
       },
       {
         gridStyle: {},
         onClickHandle: () => {},
         count: searchValueAvailable
-          ? "₹" + customerDetails?.balTotalVal
-          : customerDetails?.balTotalVal + "Cr",
+          ? "₹" +
+            GlobalFunctions.getFormatedNumber(customerDetails?.balTotalVal)
+          : GlobalFunctions.getFormatedNumber(customerDetails?.balTotalVal) +
+            "Cr",
         title: "Total Balance Amount",
       },
     ],
@@ -760,9 +781,7 @@ export default function CustomerDetails() {
                   <StatusCard
                     width="10em"
                     height="12em"
-                    count={
-                      searchValueAvailable ? 1 : customerDetails?.NoOfBookings
-                    } //NoOfBookings
+                    count={searchValueAvailable ? 1 : customerDetails?.orderCnt} //NoOfBookings
                     title={OrderId ? "Booked" : "Booked Units"}
                   />
                 </Grid>
@@ -786,7 +805,7 @@ export default function CustomerDetails() {
                     count={
                       searchValueAvailable
                         ? numberOfCust
-                        : customerDetails?.NoOfCustomers
+                        : customerDetails?.customerCnt
                     } //NoOfApplicants
                     title={"Applicants"}
                   />
@@ -808,9 +827,7 @@ export default function CustomerDetails() {
                   <StatusCard
                     width="10em"
                     height="8em"
-                    count={
-                      searchValueAvailable ? 0 : customerDetails?.NoOfRegPending
-                    } //NoOfBookings
+                    count={customerDetails?.regCnt} //NoOfBookings
                     title={"Pending Registration"}
                   />
                 </Grid>
@@ -910,7 +927,11 @@ export default function CustomerDetails() {
                             )
                           : "₹" + 0
                         : customerDetails?.PaidAmount !== undefined
-                        ? "₹" + customerDetails?.PaidAmount + "Cr"
+                        ? "₹" +
+                          GlobalFunctions.formatToIndianNumber(
+                            customerDetails?.PaidAmount
+                          ) +
+                          "Cr"
                         : "₹" + 0
                     }
                     title="Paid Amount"
@@ -955,10 +976,17 @@ export default function CustomerDetails() {
                     count={
                       searchValueAvailable
                         ? accountStatement.BalanceAmount !== undefined
-                          ? "₹" + accountStatement.BalanceAmount
+                          ? "₹" +
+                            GlobalFunctions.formatToIndianNumber(
+                              accountStatement.BalanceAmount
+                            )
                           : "₹" + 0
                         : customerDetails?.BalanceAmount !== undefined
-                        ? "₹" + customerDetails?.BalanceAmount + "Cr"
+                        ? "₹" +
+                          GlobalFunctions.formatToIndianNumber(
+                            customerDetails?.BalanceAmount
+                          ) +
+                          "Cr"
                         : "₹" + 0
                     }
                     title="Outstanding Amount"
@@ -994,7 +1022,10 @@ export default function CustomerDetails() {
                     count={
                       searchValueAvailable
                         ? accountStatement.PossessionBalance !== undefined
-                          ? "₹" + accountStatement.PossessionBalance
+                          ? "₹" +
+                            GlobalFunctions.formatToIndianNumber(
+                              accountStatement.PossessionBalance
+                            )
                           : "₹" + 0
                         : customerDetails?.UpcomingAmount !== undefined
                         ? "₹" + customerDetails?.UpcomingAmount + "Cr"

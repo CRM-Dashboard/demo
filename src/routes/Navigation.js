@@ -24,6 +24,7 @@ import CashbackReport from "../crm/pages/Reports/CashbackReport/CashbackReport";
 import ITHierarchyDashboard from "../HierarchyTable/Dashboard/Dashboard";
 import CustomerDetails from "../crm/pages/Dashboard/CustomerDetails/CustomerDetails";
 import CancellationReport from "../crm/pages/Reports/CancellationReport/CancellationReport";
+import Notification from "../crm/pages/Notification/Notification"
 import Changes from "../HierarchyTable/ChangeManagement/Changes";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -78,6 +79,8 @@ export default function Navigation() {
                 <Route path="/crm/*" element={<ProtectedRoute element={<Layout />} />}>
                   <Route index element={<CustomerDetails />} />
                   <Route path="fileMovement" element={<FileMovement />} />
+                  {/* <Route path="notification" element={<h1>sgdgg</h1>} />ßßßßßßßß */}
+                  <Route path="notification" element={<Notification />} />
                   <Route path="customerDetails" element={<CustomerDetails />} />
                   <Route path="dashboard" element={<Dashboard />} />
                   <Route path="callHistory" element={<CallHistory />} />

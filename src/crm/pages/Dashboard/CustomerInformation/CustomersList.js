@@ -13,6 +13,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import UseCustomSnackbar from "../../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 import customerInfoAction from "../../Dashboard/CustomerInformation/CustomerInfoReducer/CustomerInfoAction";
+import axios from "axios";
 
 export default function CustomersList() {
   const [sid, setSid] = useState(0);
@@ -158,6 +159,13 @@ export default function CustomersList() {
                 // setOpenActivityModal(true);
                 clearInterval(interval); // Stop checking once flag is set to false
                 if (status == "completed") {
+
+                  const uploadToS3 = await axios.post(process.env.REACT_APP_SERVER_URL + "/api/exotel/upload-to-s3", {
+                    fileUrl: sidData?.[0]?.RecordingUrl
+                  })
+
+                  console.log("uploadToS3", uploadToS3)
+
                   console.log("call update api");
                   const [dateStr, timeStr] =
                     sidData?.[0]?.DateCreated.split(" ");
@@ -565,21 +573,21 @@ export default function CustomersList() {
             <ThemeProvider theme={() => getMuiTheme()}>
               {reducerData?.searchBar?.searchKey
                 ? filteredCustomers && (
-                    <Table
-                      sx={{ height: "10px", overflow: "hidden" }}
-                      data={filteredCustomers}
-                      columns={columns}
-                      options={options}
-                    ></Table>
-                  )
+                  <Table
+                    sx={{ height: "10px", overflow: "hidden" }}
+                    data={filteredCustomers}
+                    columns={columns}
+                    options={options}
+                  ></Table>
+                )
                 : tableData && (
-                    <Table
-                      sx={{ height: "10px", overflow: "hidden" }}
-                      data={tableData}
-                      columns={columns}
-                      options={options}
-                    ></Table>
-                  )}
+                  <Table
+                    sx={{ height: "10px", overflow: "hidden" }}
+                    data={tableData}
+                    columns={columns}
+                    options={options}
+                  ></Table>
+                )}
             </ThemeProvider>
           ) : (
             <CustomerInfoCard

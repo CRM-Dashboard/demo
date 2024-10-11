@@ -74,6 +74,8 @@ import Divider from "@mui/material/Divider";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
+import Notification from "../Notification/Notification";
+
 
 const routes = [
   {
@@ -922,6 +924,7 @@ const SideBar2 = () => {
               <Route path="/crm/*">
                 <Route index element={<CustomerDetails />} />
                 <Route path="fileMovement" element={<FileMovement />} />
+                <Route path="notification" element={<Notification />} />
                 <Route path="customerDetails" element={<CustomerDetails />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="callHistory" element={<CallHistory />} />

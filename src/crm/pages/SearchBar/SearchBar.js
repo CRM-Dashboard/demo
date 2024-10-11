@@ -11,7 +11,6 @@ export default function SearchBar() {
   const [results, setResults] = useState([]);
   const [searchData, setSearchData] = useState("");
   const [debouncedValue, setDebouncedValue] = useState(searchData);
-
   const dashboardReducer = useSelector((state) => state);
   const passWord = dashboardReducer.LoginReducer.passWord;
   const userName = dashboardReducer.LoginReducer.userName;

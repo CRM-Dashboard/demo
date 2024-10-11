@@ -35,7 +35,7 @@ const StatusCard = (props) => {
             : { color: textColor, textAlign: "center", padding: "0.1em" }
         }
       >
-        <h3 style={{ fontSize: "1.1rem", color: textColor }}>{props.count}</h3>
+        <h3 style={{ fontSize: "0.9rem", color: textColor }}>{props.count}</h3>
         <span style={{ wordBreak: "break-all" }}>
           <Typography style={{ wordBreak: "break-all", fontSize: "0.6rem" }}>
             {props.title}

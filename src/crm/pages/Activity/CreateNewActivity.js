@@ -149,6 +149,8 @@ const CreateNewActivity = forwardRef((props, ref) => {
     const subData = props.subActTypeData?.filter((data) => {
       return data.actTyp == formik.values.activityType;
     });
+
+    console.log("############subData", subData);
     setSubActData(subData);
   }, [formik.values.activityType]);
 

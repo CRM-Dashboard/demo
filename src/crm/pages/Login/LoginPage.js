@@ -21,30 +21,34 @@ export default function LoginPage() {
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
 
-  const getLoggedInUserDetails = async () => {
+  const getLoggedInUserDetails = () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("password", password);
 
-    const apiUrl = `${process.env.REACT_APP_SERVER_URL}/api/loggedInUserDetails`;
+    const apiUrl =
+      process.env.REACT_APP_SERVER_URL + "/api/loggedInUserDetails";
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        body: formData,
+    fetch(apiUrl, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess(`Welcome ${data[0]?.user[0].name}`);
+          dispatch(loginActions.setLoggedInUserDetails(data[0]?.user[0]));
+          dispatch(loginActions.setAccessRoles(data[0]?.roles));
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          setError("Please Enter Valid Credentials!");
+          snackbar.showError("Something went wrong! Please try again!");
+        }
       });
-      const data = await response.json();
-      if (data) {
-
-        localStorage.setItem("user", JSON.stringify(data));
-        snackbar.showSuccess(`Welcome ${data[0]?.user[0].name}`);
-        dispatch(loginActions.setLoggedInUserDetails(data[0]?.user[0]));
-        dispatch(loginActions.setAccessRoles(data[0]?.roles));
-      }
-    } catch (error) {
-      snackbar.showError("Something went wrong! Please try again!");
-    }
   };
+
   const callBack = (data) => {
     if (data.status === "200") {
       console.log("Logs created successfully!");
@@ -69,32 +73,34 @@ export default function LoginPage() {
     await GlobalFunctions.saveLog(userName, password, entryData, callBack);
   };
 
-  const shouldAllowUserLogin = async () => {
+  const shouldAllowUserLogin = () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("password", password);
 
-    const apiUrl = `${process.env.REACT_APP_SERVER_URL}/api/login`;
+    const apiUrl = process.env.REACT_APP_SERVER_URL + "/api/login";
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        body: formData,
+    fetch(apiUrl, {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          // snackbar.showSuccess("Logged in successfully!");
+          navigate("./menus");
+          dispatch(loginActions.setPassword(password));
+          dispatch(loginActions.setUserName(userName));
+          getLoggedInUserDetails();
+          saveLog();
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          setError("Please Enter Valid Credentials!");
+          snackbar.showError("Error while Loggin in. Please try again!");
+        }
       });
-      const data = await response.json();
-      if (data) {
-        localStorage.setItem("user", JSON.stringify(data));
-        dispatch(loginActions.setPassword(password));
-        dispatch(loginActions.setUserName(userName));
-
-        await getLoggedInUserDetails(); // Ensure details are fetched before navigation
-        saveLog();
-        navigate("./menus");
-      }
-    } catch (error) {
-      setError("Please Enter Valid Credentials!");
-      snackbar.showError("Error while Logging in. Please try again!");
-    }
   };
 
   return (
@@ -107,6 +113,27 @@ export default function LoginPage() {
         height: "100vh",
       }}
     >
+      {/* <Grid
+            sx={{
+              border: "1px solid #d5d6d8",
+              "&.MuiGrid-item": {
+                padding: "1.5em",
+                paddingRight: "0.5em",
+              },
+              "&.MuiGrid-root": {
+                border: "none",
+              },
+            }}
+            item
+            xl={7}
+            lg={7}
+            md={7}
+          >
+            <img
+              style={{ width: "100%" }}
+              src={require("./../../../assets/CRM_login.jpg")}
+            ></img>
+          </Grid> */}
       <Grid
         item
         xl={5}
@@ -114,6 +141,13 @@ export default function LoginPage() {
         md={5}
         sx={{
           padding: "3em",
+          "&.MuiGrid-item": {
+            padding: "1.5em",
+            paddingRight: "0.5em",
+          },
+          "&.MuiGrid-root": {
+            border: "none",
+          },
           background: "#fff",
           border: "1px solid #d5d6d8",
         }}
@@ -130,100 +164,175 @@ export default function LoginPage() {
           <img
             style={{ width: "50%", paddingTop: "5%" }}
             src={require("./../../../assets/gera_logo.jpg")}
-          />
+          ></img>
+        </Grid>
+        <Grid
+          style={{
+            justifyContent: "center",
+            display: "flex",
+            margin: "0",
+            width: "100%",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: "1.5em",
+              fontFamily: "Futura",
+              color: "#4a4e63",
+              opacity: "0.8",
+              paddingTop: "0.2em",
+              marginBottom: "0",
+              letterSpacing: "0",
+            }}
+          >
+            {" "}
+          </Typography>
         </Grid>
         <Grid
           style={{
             width: "100%",
             display: "flex",
             flexDirection: "column",
+            flexWrap: "NoWrap",
             paddingTop: "1.5em",
             paddingLeft: "1em",
             paddingRight: "1em",
           }}
         >
-          <TextField
-            onChange={(e) => {
-              setUserName(e.target.value);
-              setError("");
-            }}
-            value={userName}
-            label="Username"
-            variant="filled"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                shouldAllowUserLogin();
-              }
-            }}
-            fullWidth
-          />
-          <TextField
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setError("");
-            }}
-            value={password}
-            label="Password"
-            type={passwordVisible ? "text" : "password"}
-            variant="filled"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                shouldAllowUserLogin();
-              }
-            }}
-            fullWidth
-          />
+          <Grid sx={{ paddingTop: "1em" }}>
+            <Grid
+              sx={{
+                display: "flex",
+                position: "relative",
+                flexWrap: "wrap",
+                alignItems: "stretch",
+                width: "100%",
+                marginRight: "1em",
+              }}
+            >
+              <TextField
+                onChange={(e) => {
+                  setUserName(e.target.value);
+                  setError("");
+                }}
+                // helperText="Please enter your name"
+                id="filled-basic"
+                value={userName}
+                label="Username"
+                variant="filled"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    shouldAllowUserLogin();
+                  }
+                }}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid
+          className="row w-100 d-flex noMargin"
+          style={{
+            flexDirection: "column",
+            flexWrap: "NoWrap",
+            paddingTop: "1.5em",
+            paddingLeft: "1em",
+            paddingRight: "1em",
+          }}
+        >
+          <Grid style={{ paddingTop: "1em", position: "relative" }}>
+            <Grid
+              sx={{
+                display: "flex",
+                position: "relative",
+                flexWrap: "wrap",
+                alignItems: "stretch",
+                width: "100%",
+              }}
+            >
+              <TextField
+                // helperText="Please enter your name"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError("");
+                }}
+                value={password}
+                id="pswd"
+                label="Password"
+                type={passwordVisible ? "text" : "password"}
+                variant="filled"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    shouldAllowUserLogin();
+                  }
+                }}
+                fullWidth
+              />
+              <Grid
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "flex-end",
+                  paddingBottom: "0.5em",
+                  paddingRight: "-1em",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPasswordVisible(!passwordVisible);
+                  }}
+                  style={{
+                    position: "absolute",
+                  }}
+                >
+                  {passwordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                </button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+        {error && (
           <Grid
             style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              paddingBottom: "0.5em",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => setPasswordVisible(!passwordVisible)}
-              style={{
-                position: "absolute",
-              }}
-            >
-              {passwordVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
-            </button>
-          </Grid>
-          {error && (
-            <Grid
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                paddingTop: "1.5em",
-                color: "Red",
-              }}
-            >
-              <Typography>{error}</Typography>
-            </Grid>
-          )}
-          <Grid
-            sx={{
+              width: "100%",
               display: "flex",
               justifyContent: "center",
-              flexDirection: "row",
-              width: "100%",
-              padding: error ? "2.7em" : "4.2em",
+              paddingTop: "1.5em",
+              color: "Red",
             }}
           >
-            <Button
-              style={{
-                borderRadius: "2em",
-                width: "70%",
-                backgroundColor: "orange",
-                color: "white",
-              }}
-              onClick={shouldAllowUserLogin}
-            >
-              Login
-            </Button>
+            <Typography>{error}</Typography>
           </Grid>
+        )}
+        <Grid
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "row",
+            width: "100%",
+            padding: error ? "2.7em" : "4.2em",
+          }}
+        >
+          <Button
+            style={{
+              borderRadius: "2em",
+              border: "none",
+              width: "70%",
+              backgroundColor: "orange",
+              color: "white",
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                shouldAllowUserLogin();
+              }
+            }}
+            onClick={() => {
+              shouldAllowUserLogin();
+            }}
+          >
+            Login
+          </Button>
         </Grid>
       </Grid>
     </Grid>

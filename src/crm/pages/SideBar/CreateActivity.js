@@ -206,9 +206,11 @@ const CreateActivity = forwardRef((props, ref) => {
             value={value}
             onChange={(e) => {
               handleCellEdit(e, tableMeta.rowIndex, 1);
+              console.log("#######props.subActTypeData", props.subActTypeData);
               const subData = props.subActTypeData?.filter((data) => {
                 return data.actTyp == e.target.value;
               });
+              console.log("#######props.subActTypeData", props.subActTypeData);
               setSubActData(subData);
               // Clear sub-activity value if activity changes
               // handleCellEdit({ target: { value: "" } }, tableMeta.rowIndex, 2);
@@ -513,7 +515,7 @@ const CreateActivity = forwardRef((props, ref) => {
   return (
     <div style={{ marginTop: "1em" }}>
       <MUIDataTable
-        title={"Create Activity"}
+        title={"Create Activity "}
         data={data}
         columns={columns}
         options={options}

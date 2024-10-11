@@ -13,10 +13,13 @@ import UseCustomSnackbar from "../../../../../components/snackbar/UseCustomSnack
 const UpdateRegistrationDetails = forwardRef((props, ref) => {
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
+  const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const orderId = reducerData.searchBar.orderId;
   const projectId = reducerData?.dashboard?.project?.projectId;
+  const customerEmailId = reducerData.dashboard.customerEmailId;
+  const salesOrderNumber =
+    reducerData.searchBar.accountStatement.SalesOrderNumber;
 
   const saveLog = async () => {
     const now = new Date();
@@ -32,6 +35,35 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
     };
 
     await GlobalFunctions.saveLog(userName, passWord, entryData);
+  };
+
+  const updateSAPBooking = () => {
+    const formData = new FormData();
+
+    formData.append("salesOrderNumber", salesOrderNumber);
+
+    fetch(
+      process.env.REACT_APP_SERVER_URL + "/api/dashboard/updateSAPBooking",
+      {
+        method: "POST",
+        body: formData,
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          saveLog();
+          snackbar.showSuccess("Records updated successfully!");
+          props.setDisableUpdateBtn(false);
+          props.setIsRegInfoEditable(false);
+          props.getData();
+        } else {
+          snackbar.showError("Failed to update records!");
+        }
+      })
+      .catch((error) => {
+        console.error("There was a problem with updating records", error);
+      });
   };
 
   const saveRegDetails = () => {
@@ -65,15 +97,12 @@ const UpdateRegistrationDetails = forwardRef((props, ref) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data) {
-          saveLog();
-          snackbar.showSuccess("Records updated successfully!");
-          props.setDisableUpdateBtn(false);
-          props.setIsRegInfoEditable(false);
-          props.getData();
-        } else {
-          snackbar.showError("Failed to update records!");
-        }
+        // saveLog();
+        // snackbar.showSuccess("Records updated successfully!");
+        // props.setDisableUpdateBtn(false);
+        // props.setIsRegInfoEditable(false);
+        updateSAPBooking();
+        // props.getData();
       })
       .catch((error) => {
         console.error("There was a problem with updating records", error);

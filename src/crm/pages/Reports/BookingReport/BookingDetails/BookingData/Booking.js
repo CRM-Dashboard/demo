@@ -260,7 +260,7 @@ export default function Booking({ tableDetails, response, getFilteredData }) {
     search: true,
     elevation: 0,
     download: true,
-    rowsPerPage: tableData?.length,
+    rowsPerPage: 100, //tableData?.length,
     pagination: false,
     viewColumns: true,
     stickyHeader: true,

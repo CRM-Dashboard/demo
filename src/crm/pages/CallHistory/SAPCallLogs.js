@@ -6,12 +6,15 @@ import { Box, IconButton, Grid } from "@mui/material";
 import GlobalFunctions from "../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
 
 export default function SAPCallLogs() {
-  const [tableData, setTableData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [recordingId, setRecordingId] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const [recordingUrl, setRecordingUrl] = useState("");
 
   const reducerData = useSelector((state) => state);
   const orderId = reducerData.searchBar.orderId;
@@ -29,6 +32,29 @@ export default function SAPCallLogs() {
       ];
     });
     return modifiedResponse;
+  };
+
+  const playRecording = async (recordingURL) => {
+    try {
+      // const recordingId = recordingURL.replace("https://", "");
+      // Fetch the recording stream from your backend API
+      const formData = new FormData();
+      formData.append("base_url", recordingURL.replace("https://", ""));
+      const response = await fetch(
+        process.env.REACT_APP_SERVER_URL + `/api/exotel/recording`,
+        { method: "POST", body: formData }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch recording");
+      }
+
+      // Create an object URL for the stream
+      const stream = await response.blob();
+      const audioUrl = URL.createObjectURL(stream);
+      setRecordingUrl(audioUrl);
+    } catch (error) {
+      console.error("Error playing recording:", error);
+    }
   };
 
   const columns = [
@@ -50,17 +76,28 @@ export default function SAPCallLogs() {
     },
 
     {
-      label: "Action",
+      label: "Call Recordings",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => [
-          <IconButton color="primary" size="small">
-            <ReactPlayer
-              url={response[dataIndex].recordingUrl}
-              controls
-              width="300px"
-              height="50px"
-            />
-          </IconButton>,
+          response[dataIndex]?.recordingUrl && (
+            <IconButton color="primary" size="small">
+              {recordingId === response[dataIndex]?.recordingUrl ? (
+                <ReactPlayer
+                  url={recordingUrl}
+                  controls
+                  width="300px"
+                  height="50px"
+                />
+              ) : (
+                <PlayCircleOutlineIcon
+                  onClick={() => {
+                    setRecordingId(response[dataIndex]?.recordingUrl);
+                    playRecording(response[dataIndex]?.recordingUrl);
+                  }}
+                />
+              )}
+            </IconButton>
+          ),
         ],
       },
     },

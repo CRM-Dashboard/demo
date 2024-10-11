@@ -166,6 +166,7 @@ export default function CustomersList() {
 
                   console.log("uploadToS3", uploadToS3)
 
+                  //CODE TO UPLOAD Recording URL TO S3 AND USE THAT URL TO SAVE IN SAP
                   console.log("call update api");
                   const [dateStr, timeStr] =
                     sidData?.[0]?.DateCreated.split(" ");
@@ -178,6 +179,7 @@ export default function CustomersList() {
                     PHONESID: sidData?.[0]?.PhoneNumberSid,
                     STATUS: sidData?.[0]?.Status,
                     START_TIME: sidData?.[0]?.StartTime,
+                    S3_URL: "",
                     RECORDING_URL: sidData?.[0]?.RecordingUrl,
                     VBELN: OrderId,
                   };

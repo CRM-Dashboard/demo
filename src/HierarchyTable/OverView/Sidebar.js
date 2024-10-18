@@ -37,6 +37,7 @@ import CoverPage from "../CoverPage/CoverPage";
 import ITExpensesAndBudget from "../ITExpensesAndBudget/ITExpensesAndBudget";
 import Usage from "../Usage/Usage";
 import DataUsageIcon from "@mui/icons-material/DataUsage";
+// import CoverPage from "../CoverPage/CoverPage";
 
 const drawerWidth = 240;
 

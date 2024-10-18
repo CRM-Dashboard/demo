@@ -9,19 +9,21 @@ import React, {
 import "./Style.css";
 import Table from "mui-datatables";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton, Box, Typography } from "@mui/material";
+import { IconButton, Box, Typography, Button } from "@mui/material";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "./../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
+import axios from "axios";
 
 const FileDetails = forwardRef((props, ref) => {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [fileObjectToDelete, setFileObjectToDelete] = useState({});
+  const [files, setFiles] = useState([]); // To store the files array
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -313,16 +315,119 @@ const FileDetails = forwardRef((props, ref) => {
     getData();
   }, [props.fileUrlReqNo, props.activeStep]);
 
+  const uploadFilesToBackend = async (fileList, folderName) => {
+    const formData = new FormData();
+
+    fileList.forEach((file) => {
+      formData.append('files', file.fileBlob, file.name);
+    });
+
+    formData.append('folderName', folderName);
+
+    const url = process.env.REACT_APP_SERVER_URL + `/api/exotel/upload-to-s3/file-movement`
+
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('Files uploaded:', response.data);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+
+  const getFilesFromBackend = async () => {
+    try {
+      const url = `${process.env.REACT_APP_SERVER_URL + "/api/fileMovement/getDmsFile"}`;
+      const formData = new FormData();
+      formData.append("doknr", "WORLD_612A_2100002355");
+      formData.append("dokar", "FLE");
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+
+      // Fetching the data as an ArrayBuffer
+      const response = await axios.post(url, formData, {
+        responseType: 'arraybuffer', // Get binary data
+      });
+      console.log("response", response)
+
+      // Convert ArrayBuffer to a string
+      const decoder = new TextDecoder('utf-8');
+      const responseText = decoder.decode(response.data); // Decoding arraybuffer to string
+
+      console.log("responseText", responseText)
+
+      // Try parsing the string as JSON (if the server responds with JSON)
+      const jsonResponse = JSON.parse(responseText);
+      console.log("jsonResponse", jsonResponse)
+
+      // Assuming the parsed JSON contains DMS_S3 files
+      const fileList = jsonResponse?.DMS_S3?.map((file) => {
+        const blob = new Blob([file.file], { type: file.type }); // Create Blob from binary data
+
+        return {
+          name: file.name,
+          type: file.type,
+          s3Bucket: file.s3Bucket,
+          fileBlob: blob, // Blob object for each file
+        };
+      });
+
+      await uploadFilesToBackend(fileList, "fileMovement")
+
+      console.log('Converted fileList:', fileList);
+
+      setFiles(fileList); // Store the file list
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    console.log("hhhdfdfd", files)
+  }, [files])
+
+  const handleViewFileFromSap = async () => {
+
+    const url = `${process.env.REACT_APP_SERVER_URL + "/api/fileMovement/getDmsFile"}`
+
+    const formData = new FormData();
+    formData.append("doknr", "WORLD_612A_2100002355")
+    formData.append("dokar", "FLE")
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    try {
+      // const res = (await axios.post(url, formData)).data;
+      const res = await getFilesFromBackend();
+      console.log("***res***", files)
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  // Fetch multiple files from your backend
+
+
   return (
     <div
       style={{
         justifyContent: "flex-end",
         alignItems: "flex-end",
         flexDirection: "row-reverse",
+
       }}
     >
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
+          {props.isConfirmedClicked && <Button variant="contained" onClick={handleViewFileFromSap}>View file from SAP</Button>}
           <Table data={tableData} columns={columns} options={options}></Table>
         </ThemeProvider>
       ) : (

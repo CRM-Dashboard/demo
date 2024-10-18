@@ -3,6 +3,7 @@
 /* eslint-disable react/jsx-no-duplicate-props */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable array-callback-return */
+
 import React, { useState, useEffect, useRef } from "react";
 import "./Style.css";
 import axios from "axios";
@@ -16,10 +17,11 @@ import FileUploader from "./FileUploader";
 import { useSelector } from "react-redux";
 import "react-chat-elements/dist/main.css";
 import Stepper from "@mui/material/Stepper";
+// import { Button, Paper, MenuItem } from "@mui/material";
 import Constants from "./../../utils/Constants";
 import StepLabel from "@mui/material/StepLabel";
 import Typography from "@mui/material/Typography";
-import StepContent from "@mui/material/StepContent";
+// import StepContent from "@mui/material/StepContent";
 import { Button, Paper, MenuItem } from "@mui/material";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
@@ -37,6 +39,8 @@ import {
   MessageSeparator,
 } from "@chatscope/chat-ui-kit-react";
 import CircularScreenLoader from "../../components/circularScreenLoader/CircularScreenLoader";
+import { StepContent } from "@mui/material";
+// import axios from "axios";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -198,6 +202,9 @@ export default function FileMovement() {
   const [nonConfRecordSet, setNonConfRecords] = useState([]);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [isFileDrawerOpen, setIsFileDrawerOpen] = useState(false);
+
+  const [isConfirmedClicked, setIsConfirmClicked] = useState(false)
+
 
   // Toggle the drawer open/close state
   const toggleChatDrawer = (open) => (event) => {
@@ -389,21 +396,21 @@ export default function FileMovement() {
     const updatedData = [
       step == 0
         ? {
-            ...checkListData,
-            ...rmChecks,
-            ...checks,
-            SALEID: userName.toUpperCase(),
-            GATEID: selectedCrm,
-            VBELN: currentOrderId,
-          }
+          ...checkListData,
+          ...rmChecks,
+          ...checks,
+          SALEID: userName.toUpperCase(),
+          GATEID: selectedCrm,
+          VBELN: currentOrderId,
+        }
         : {
-            ...checkListData,
-            ...rmChecks,
-            ...checks,
-            SALEID: userName.toUpperCase(),
-            CRMID: selectedRm,
-            VBELN: currentOrderId,
-          },
+          ...checkListData,
+          ...rmChecks,
+          ...checks,
+          SALEID: userName.toUpperCase(),
+          CRMID: selectedRm,
+          VBELN: currentOrderId,
+        },
     ];
     console.log("##########final data", updatedData);
     const formData = new FormData();
@@ -655,9 +662,10 @@ export default function FileMovement() {
       ).data;
 
       if (res) {
-        console.log("sytem notificato created successfully", res);
+        console.log("sytem notificato created successfully", res)
       }
     } catch (error) {
+
       console.log(error, "err");
     }
   };
@@ -1190,8 +1198,8 @@ export default function FileMovement() {
   ) : tableData?.length > 0 ? (
     <>
       <ButtonGroup variant="contained">
-        <Button onClick={() => switchDataset(nonConfRecordSet)}>Pending</Button>
-        <Button disabled={!OrderId} onClick={() => getTableData(OrderId)}>
+        <Button onClick={() => { switchDataset(nonConfRecordSet); setIsConfirmClicked(false) }}>Pending</Button>
+        <Button disabled={!OrderId} onClick={() => { getTableData(OrderId); setIsConfirmClicked(true) }}>
           Confirmed
         </Button>
       </ButtonGroup>
@@ -1418,8 +1426,8 @@ export default function FileMovement() {
                                     index === steps?.length - 1
                                       ? shouldButtonDisable(2)
                                       : index == 1
-                                      ? shouldButtonDisable(1)
-                                      : shouldButtonDisable(0)
+                                        ? shouldButtonDisable(1)
+                                        : shouldButtonDisable(0)
                                   }
                                 >
                                   {index === steps?.length - 1
@@ -1470,7 +1478,7 @@ export default function FileMovement() {
                                     onClick={() => {
                                       handleBack(index);
                                     }}
-                                    // sx={{ mt: 1, mr: 1 }}
+                                  // sx={{ mt: 1, mr: 1 }}
                                   >
                                     Back
                                   </Button>
@@ -1612,6 +1620,7 @@ export default function FileMovement() {
               }}
             >
               <FileDetails
+                isConfirmedClicked={isConfirmedClicked}
                 fileUrlReqNo={currentOrderId}
                 ref={ref}
                 activeStep={activeStep}

@@ -75,6 +75,9 @@ import CancellationReport from "../Reports/CancellationReport/CancellationReport
 import Notification from "./../../pages/Notification/Notification";
 import BookingReport from "../Reports/BookingReport/BookingReport";
 import Avatar from "@mui/material/Avatar";
+// import Notification from "../Notification/Notification";
+import FileMovementReport from "../Reports/FileMovementReport/FileMovementReport";
+
 
 const routes = [
   {
@@ -122,6 +125,12 @@ const routes = [
         path: "/bookingReport",
         to: "/crm/bookingReport",
         name: "Bookings ",
+        icon: <LibraryBooksIcon />,
+      },
+      {
+        path: "/fileMovementReport",
+        to: "/crm/fileMovementReport",
+        name: "File Movement Report",
         icon: <LibraryBooksIcon />,
       },
     ],
@@ -1001,7 +1010,7 @@ const SideBar2 = () => {
                       : { padding: "5px 11px" }
                   }
                   activeclassname="active"
-                  // isActive={() => route.path === "/dashboard" &&  }
+                // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
                     style={{
@@ -1100,6 +1109,7 @@ const SideBar2 = () => {
                   element={<CancellationReport />}
                 />
                 <Route path="bookingReport" element={<BookingReport />} />
+                <Route path="fileMovementReport" element={<FileMovementReport></FileMovementReport>} />
               </Route>
             </Routes>
           </Grid>

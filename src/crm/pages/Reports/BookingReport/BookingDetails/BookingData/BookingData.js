@@ -195,8 +195,14 @@ export default function BookingData() {
     );
   };
 
+  console.log("selecteProject", selectedProjects);
+  console.log("selectedCrm", selectedCrmIds)
+
   useEffect(() => {
-    getTableData();
+    if (selectedProjects || selectedCrmIds) {
+      // getTableData();
+    }
+
   }, [crmId]);
 
   useEffect(() => {

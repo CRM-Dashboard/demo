@@ -28,7 +28,7 @@ const composedEnhancers = compose(
 );
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
-const store = createStore(persistedReducer, composedEnhancers);
+export const store = createStore(persistedReducer, composedEnhancers);
 const persistor = persistStore(store);
 
 // const store = createStore(

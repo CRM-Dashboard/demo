@@ -74,7 +74,7 @@ import InputField from "../../components/inputField/InputField";
 import CancellationReport from "../Reports/CancellationReport/CancellationReport";
 import Notification from "./../../pages/Notification/Notification";
 import BookingReport from "../Reports/BookingReport/BookingReport";
-import Avatar from "@mui/material/Avatar";
+// import Avatar from "@mui/material/Avatar";
 // import Notification from "../Notification/Notification";
 import FileMovementReport from "../Reports/FileMovementReport/FileMovementReport";
 
@@ -167,7 +167,7 @@ const SideBar2 = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [activityData, setActivityData] = useState({});
   const [openSideBar, setOpenSideBar] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications] = useState([]);
   const [showSendMail, setShowSendMail] = useState(false);
   const [subActTypeData, setSubActTypeData] = useState([]);
   const [showPrintMenus, setShowPrintMenus] = useState(false);

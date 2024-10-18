@@ -33,7 +33,7 @@ const CreateActivity = forwardRef((props, ref) => {
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const activityInfo = reducerData.searchBar.activityData;
-  const projectId = reducerData?.dashboard?.project?.projectId;
+  const projectId = reducerData?.dashboard?.project;
 
   const [data, setData] = useState([]);
   const [subActData, setSubActData] = useState({});

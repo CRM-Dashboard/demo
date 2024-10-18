@@ -2,19 +2,19 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
-
 import moment from "moment";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import GlobalFunctions from "../../utils/GlobalFunctions";
 import axios from "axios";
-import CrmModal from "../crmModal/CrmModal";
+import CrmModal from "../../components/crmModal/CrmModal";
 import CreateCustomNotification from "./CreateCustomNotification";
 import { Button } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import WarningIcon from "@mui/icons-material/Warning";
 import CancelIcon from "@mui/icons-material/Cancel";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 const CustomNotification = () => {
   const [tableData, setTableData] = useState([]);
   const [openCreateNotification, setOpenCreateNotification] = useState(false);
@@ -233,6 +233,19 @@ const CustomNotification = () => {
     return modifiedResponse;
   };
 
+  const filterAndCombineByCategoryTxt = (data, categoryText) => {
+    const { unread, latest, notify } = data;
+
+    // Filter each array and combine them into one array
+    const filteredArray = [
+      ...unread.filter((item) => item.categoryTxt === categoryText),
+      ...latest.filter((item) => item.categoryTxt === categoryText),
+      ...notify.filter((item) => item.categoryTxt === categoryText),
+    ];
+    console.log("@@@@@@@@@@filteredArray", filteredArray);
+
+    return filteredArray;
+  };
   const getData = async () => {
     if (OrderId) {
       const formData = new FormData();
@@ -247,7 +260,14 @@ const CustomNotification = () => {
             formData
           )
         ).data;
-        setTableData(modifyResponse(res));
+
+        const data = res[0];
+        console.log("@@@@@@@@@@@res", res);
+
+        const filteredData = filterAndCombineByCategoryTxt(data, "Custom");
+        console.log("#######filteredData", filteredData);
+
+        setTableData(modifyResponse(filteredData));
       } catch (error) {
         console.log(error, "err");
       }

@@ -45,6 +45,7 @@ export default function SearchBar() {
       dispatch(searchbarActions.setOrderId(""));
       dispatch(dashboardAction.setCustomerContactNumber(""));
       dispatch(dashboardAction.setCustomerEmailID(""));
+      dispatch(dashboardAction.setProjectId(""));
     } else {
       setSearchData(value);
       const formData = new FormData();
@@ -70,7 +71,28 @@ export default function SearchBar() {
     }
   };
 
+  const getProjectId = (orderId) => {
+    if (orderId) {
+      const formData = new FormData();
+      formData.append("orderId", orderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/so", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data[0].so[0].vbeln) {
+            dispatch(dashboardAction.setProjectId(data[0].so[0].werks));
+            // setLoading(false);
+          }
+        });
+    }
+  };
+
   const handleClick = (result) => {
+    getProjectId(result.orderId);
     setSearchData(result.name + "  -  " + result.unit);
     dispatch(searchbarActions.setOrderId(result.orderId));
     dispatch(dashboardAction.setCustomerContactNumber(result.MobileNo));

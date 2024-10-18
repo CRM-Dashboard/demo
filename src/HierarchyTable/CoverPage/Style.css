@@ -1,0 +1,30 @@
+.vertical-timeline::before {
+  left: 0; /* Shift the vertical line to the left */
+}
+
+.vertical-timeline-element--right {
+  margin-left: 0; /* Align the elements closer to the left */
+  padding-left: 0; /* Remove left padding */
+  width: calc(100% - 20px); /* Adjust the width to utilize more space */
+}
+
+.vertical-timeline-element-content {
+  margin-left: 0 !important; /* Make sure content is aligned properly */
+  width: 100%; /* Ensure content takes full width */
+}
+
+.vertical-timeline-element-content-arrow {
+  left: 10px; /* Adjust the arrow position */
+}
+
+/* If you need to reduce the gap between the elements and timeline */
+.vertical-timeline-element-date {
+  right: -100px; /* Adjust this value based on your design */
+}
+.vertical-timeline-element-icon {
+  left: 16% !important;
+}
+
+.vertical-timeline.vertical-timeline--two-columns:before {
+  left: 16%;
+}

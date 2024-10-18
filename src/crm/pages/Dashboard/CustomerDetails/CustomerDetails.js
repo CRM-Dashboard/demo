@@ -5,6 +5,7 @@ import Graph from "./Graph";
 import "./CustomerDetails.css";
 import Chart from "react-apexcharts";
 import { useDispatch } from "react-redux";
+import Table from "mui-datatables";
 import TodayActivity from "./TodayActivity";
 import TodaysBirthday from "./TodaysBirthday";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +19,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import GlobalFunctions from "./../../../utils/GlobalFunctions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
@@ -25,8 +27,10 @@ import CircularScreenLoader from "../../../components/circularScreenLoader/Circu
 export default function CustomerDetails() {
   const [unitData, setUnitData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [response, setTableResponse] = useState([]);
   const [birthdayData, setBirthdayData] = useState();
   const [numberOfCust, setNumberOfCust] = useState(0);
+  const [ndcTableData, setNdcTableData] = useState([]);
   const [customerDetails, setCustomerDetails] = useState();
   const [acceptancePendingData, setAcceptancePendingData] = useState([]);
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
@@ -96,6 +100,7 @@ export default function CustomerDetails() {
         .then((response) => response.json())
         .then((data) => {
           if (data[0].so[0].vbeln) {
+            dispatch(dashboardActions.setProjectId(data[0].so[0].werks));
             setUnitData(data[0].so[0]);
             // setLoading(false);
           }
@@ -103,8 +108,279 @@ export default function CustomerDetails() {
     }
   };
 
+  const modifyResponse = (res) => {
+    const modifiedResponse = res?.map((item) => {
+      return [
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.head}
+          </Typography>
+        ) : (
+          item?.head
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.payable}
+          </Typography>
+        ) : (
+          item?.payable
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.invoiced}
+          </Typography>
+        ) : (
+          item?.invoiced
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.payment}
+          </Typography>
+        ) : (
+          item?.payment
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.tds}
+          </Typography>
+        ) : (
+          item?.tds
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.totalPayment}
+          </Typography>
+        ) : (
+          item?.totalPayment
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.credit}
+          </Typography>
+        ) : (
+          item?.credit
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.outstanding}
+          </Typography>
+        ) : (
+          item?.outstanding
+        ),
+        item?.head === "Sub Total 1" ||
+        item?.head === "Sub Total 2" ||
+        item?.head === "Grand Total" ? (
+          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+            {item?.unbilled}
+          </Typography>
+        ) : (
+          item?.unbilled
+        ),
+      ];
+    });
+    return modifiedResponse;
+  };
+
+  const columns = [
+    {
+      name: "Heads",
+    },
+    {
+      name: "Total Value(A)",
+    },
+    {
+      name: "Invoiced Raised Till Date(B)",
+    },
+    {
+      name: "Amount Received Till Date",
+    },
+    {
+      name: "TDS Paid Till Date",
+    },
+    {
+      name: "Total (Payment Received + TDS ) (C)",
+    },
+    {
+      name: "Credit Notes / Discounts (D)",
+    },
+    {
+      name: "Current Due (B-C-D)",
+    },
+    {
+      name: "Balance Invoice To Be Raised (A-B) ",
+    },
+  ];
+  const getMuiTheme = () =>
+    createTheme({
+      components: {
+        MuiIconButton: {
+          styleOverrides: {
+            root: {
+              color: "Blue",
+            },
+          },
+        },
+        MUIDataTableToolbar: {
+          styleOverrides: {
+            root: {
+              backgroundColor: GlobalFunctions.getThemeBasedMode(
+                reducerData.ThemeReducer.mode
+              ),
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MuiTablePagination: {
+          styleOverrides: {
+            selectLabel: {
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+            selectIcon: {
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+            displayedRows: {
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MuiSelect: {
+          styleOverrides: {
+            select: {
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MuiTableRow: {
+          styleOverrides: {
+            footer: {
+              backgroundColor: GlobalFunctions.getThemeBasedMode(
+                reducerData.ThemeReducer.mode
+              ),
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MUIDataTableHeadRow: {
+          styleOverrides: {
+            root: {
+              backgroundColor: GlobalFunctions.getThemeBasedMode(
+                reducerData.ThemeReducer.mode
+              ),
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MUIDataTableHeadCell: {
+          styleOverrides: {
+            root: {
+              backgroundColor: GlobalFunctions.getThemeBasedMode(
+                reducerData.ThemeReducer.mode
+              ),
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+            data: {
+              fontWeight: "bold",
+            },
+          },
+        },
+        MUIDataTableBodyCell: {
+          styleOverrides: {
+            root: {
+              backgroundColor: GlobalFunctions.getThemeBasedMode(
+                reducerData.ThemeReducer.mode
+              ),
+              color: GlobalFunctions.getThemeBasedDatailsColour(
+                reducerData.ThemeReducer.mode
+              ),
+            },
+          },
+        },
+        MuiTableCell: {
+          styleOverrides: {
+            root: {
+              paddingTop: 0,
+              paddingBottom: 0,
+              lineHeight: "1.3em",
+            },
+          },
+        },
+        MuiCheckbox: {
+          styleOverrides: {
+            root: {
+              padding: 0,
+            },
+          },
+        },
+      },
+    });
+
+  const options = {
+    selectableRows: "none",
+    rowsPerPage: ndcTableData?.length,
+    pagination: false,
+    elevation: 0,
+    print: false,
+    download: false,
+    search: false,
+    viewColumns: false,
+    filter: false,
+  };
+
+  const getNdcReportDetails = () => {
+    if (OrderId) {
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      crmId && formData.append("crmId", crmId);
+      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getNdcData", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setTableResponse(data);
+          setNdcTableData(modifyResponse(data));
+          console.log("##########ndc data", data);
+        });
+    }
+  };
+
   useEffect(() => {
     getDetails();
+    getNdcReportDetails();
   }, [crmId]);
 
   useEffect(() => {
@@ -126,10 +402,12 @@ export default function CustomerDetails() {
   useEffect(() => {
     getDetails();
     getBookingDetails();
+    getNdcReportDetails();
   }, [OrderId]);
 
   useEffect(() => {
     getBookingDetails();
+    getNdcReportDetails();
   }, []);
 
   useEffect(() => {
@@ -668,11 +946,8 @@ export default function CustomerDetails() {
       // circlePaid.options &&
       <>
         {/* for div = style={{ height: "12em" }} */}
-        <Grid sx={{ marginLeft: "2em" }}>
+        <Grid>
           <Grid
-            container
-            columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-            columns={12}
             style={{
               display: "flex",
               cursor: "",
@@ -684,7 +959,7 @@ export default function CustomerDetails() {
               },
             }}
           >
-            <Grid xs={8} sm={8} lg={8} md={8}>
+            {/* <Grid xs={8} sm={8} lg={8} md={8}>
               <Grid
                 container
                 columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
@@ -755,293 +1030,280 @@ export default function CustomerDetails() {
                   })}
                 </Grid>
               </Grid>
-            </Grid>
-            <Grid xs={4} sm={4} lg={4} md={4}>
+            </Grid> */}
+
+            <Grid
+              container
+              columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
+              columns={14}
+              sx={{ display: "flex", paddingLeft: "1em" }}
+            >
               <Grid
-                container
-                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-                columns={12}
-                sx={{ display: "flex", paddingLeft: "1em" }}
-              >
-                <Grid
-                  xs={4}
-                  sm={4}
-                  lg={4}
-                  md={4}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    // dispatch(
-                    //   dashboardActions.setShouldShowBookingDetails(
-                    //     !reducerData.dashboard.shouldShowBookingDetails
-                    //   )
-                    // );
-                    navigate("/crm/crm/bookingReport");
-                  }}
-                >
-                  <StatusCard
-                    width="10em"
-                    height="12em"
-                    count={searchValueAvailable ? 1 : customerDetails?.orderCnt} //NoOfBookings
-                    title={OrderId ? "Booked" : "Booked Units"}
-                  />
-                </Grid>
-                <Grid
-                  xs={4}
-                  sm={4}
-                  lg={4}
-                  md={4}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => {
-                    dispatch(
-                      dashboardActions.setShouldShowCustDetails(
-                        !reducerData.dashboard.shouldShowCustData
-                      )
-                    );
-                  }}
-                >
-                  <StatusCard
-                    width="10em"
-                    height="8em"
-                    count={
-                      searchValueAvailable
-                        ? numberOfCust
-                        : customerDetails?.customerCnt
-                    } //NoOfApplicants
-                    title={"Applicants"}
-                  />
-                </Grid>
-                <Grid
-                  xs={4}
-                  sm={4}
-                  lg={4}
-                  md={4}
-                  // style={{ cursor: "pointer" }}
-                  // onClick={() => {
-                  //   dispatch(
-                  //     dashboardActions.setShouldShowBookingDetails(
-                  //       !reducerData.dashboard.shouldShowBookingDetails
-                  //     )
-                  //   );
-                  // }}
-                >
-                  <StatusCard
-                    width="10em"
-                    height="8em"
-                    count={customerDetails?.regCnt} //NoOfBookings
-                    title={"Pending Registration"}
-                  />
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-                columns={12}
-                style={{
-                  display: "flex",
-                  paddingTop: "0.4em",
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  // dispatch(
+                  //   dashboardActions.setShouldShowBookingDetails(
+                  //     !reducerData.dashboard.shouldShowBookingDetails
+                  //   )
+                  // );
+                  navigate("/crm/crm/bookingReport");
                 }}
               >
-                <Grid
-                  xs={6}
-                  sm={6}
-                  lg={6}
-                  md={6}
-                  item
-                  // sx={{
-                  //   "&.MuiGrid-item": {
-                  //     paddingLeft: "0.7em",
-                  //   },
-                  // }}
-                >
-                  <StatusCard
-                    width="14em"
-                    height="10em"
-                    icon={
-                      circleInvoice.options &&
-                      circleInvoice.series && (
-                        <Chart
-                          options={
-                            circleInvoice.options ? circleInvoice.options : ""
-                          }
-                          series={
-                            circleInvoice.series ? circleInvoice.series : ""
-                          }
-                          type="radialBar"
-                          height={120}
-                          width={120}
-                        />
-                      )
-                    }
-                    count={
-                      searchValueAvailable
-                        ? GlobalFunctions.formatToIndianNumber(
-                            accountStatement.DueAmount
-                          ) !== undefined
-                          ? "₹" +
-                            GlobalFunctions.formatToIndianNumber(
-                              accountStatement.DueAmount
-                            )
-                          : "₹" + 0
-                        : customerDetails?.InvoiceAmount !== undefined
-                        ? "₹" + customerDetails?.InvoiceAmount + "Cr"
-                        : "₹" + 0
-                    }
-                    title="Invoiced Amount"
-                  />
-                </Grid>
-                <Grid
-                  xs={6}
-                  sm={6}
-                  lg={6}
-                  md={6}
-                  item
-                  sx={{
-                    "&.MuiGrid-item": {
-                      paddingLeft: "0.5em",
-                    },
-                  }}
-                >
-                  <StatusCard
-                    width="14em"
-                    height="8em"
-                    icon={
-                      circlePaid.options &&
-                      circlePaid.series && (
-                        <Chart
-                          options={circlePaid.options}
-                          series={circlePaid.series}
-                          type="radialBar"
-                          height={120}
-                          width={120}
-                        />
-                      )
-                    }
-                    count={
-                      searchValueAvailable
-                        ? GlobalFunctions.formatToIndianNumber(
-                            getPaidAmt().toLocaleString()
-                          ) !== undefined
-                          ? "₹" +
-                            GlobalFunctions.formatToIndianNumber(
-                              getPaidAmt().toLocaleString()
-                            )
-                          : "₹" + 0
-                        : customerDetails?.PaidAmount !== undefined
-                        ? "₹" +
-                          GlobalFunctions.formatToIndianNumber(
-                            customerDetails?.PaidAmount
-                          ) +
-                          "Cr"
-                        : "₹" + 0
-                    }
-                    title="Paid Amount"
-                  />
-                  {/* </Grid> */}
-                </Grid>
+                <StatusCard
+                  width="10em"
+                  height="12em"
+                  count={searchValueAvailable ? 1 : customerDetails?.orderCnt} //NoOfBookings
+                  title={OrderId ? "Booked" : "Booked Units"}
+                />
               </Grid>
               <Grid
-                container
-                rowSpacing={1}
-                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-                columns={12}
-                style={{ display: "flex" }}
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  dispatch(
+                    dashboardActions.setShouldShowCustDetails(
+                      !reducerData.dashboard.shouldShowCustData
+                    )
+                  );
+                }}
               >
-                <Grid
-                  xs={6}
-                  sm={6}
-                  lg={6}
-                  md={6}
-                  item
-                  // sx={{
-                  //   "&.MuiGrid-item": {
-                  //     paddingLeft: "0em",
-                  //   },
-                  // }}
-                >
-                  <StatusCard
-                    width="14em"
-                    height="8em"
-                    icon={
-                      circleOut.options &&
-                      circleOut.series && (
-                        <Chart
-                          options={circleOut.options}
-                          series={circleOut.series}
-                          type="radialBar"
-                          height={120}
-                          width={120}
-                        />
-                      )
-                    }
-                    count={
-                      searchValueAvailable
-                        ? accountStatement.BalanceAmount !== undefined
-                          ? "₹" +
-                            GlobalFunctions.formatToIndianNumber(
-                              accountStatement.BalanceAmount
-                            )
-                          : "₹" + 0
-                        : customerDetails?.BalanceAmount !== undefined
+                <StatusCard
+                  width="10em"
+                  height="8em"
+                  count={
+                    searchValueAvailable
+                      ? numberOfCust
+                      : customerDetails?.customerCnt
+                  } //NoOfApplicants
+                  title={"Applicants"}
+                />
+              </Grid>
+              <Grid
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                // style={{ cursor: "pointer" }}
+                // onClick={() => {
+                //   dispatch(
+                //     dashboardActions.setShouldShowBookingDetails(
+                //       !reducerData.dashboard.shouldShowBookingDetails
+                //     )
+                //   );
+                // }}
+              >
+                <StatusCard
+                  width="10em"
+                  height="8em"
+                  count={customerDetails?.regCnt} //NoOfBookings
+                  title={"Pending Registration"}
+                />
+              </Grid>
+
+              <Grid
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                item
+                sx={{
+                  "&.MuiGrid-item": {
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <StatusCard
+                  icon={
+                    circleInvoice.options &&
+                    circleInvoice.series && (
+                      <Chart
+                        options={
+                          circleInvoice.options ? circleInvoice.options : ""
+                        }
+                        series={
+                          circleInvoice.series ? circleInvoice.series : ""
+                        }
+                        type="radialBar"
+                        height={120}
+                        width={120}
+                      />
+                    )
+                  }
+                  count={
+                    searchValueAvailable
+                      ? GlobalFunctions.formatToIndianNumber(
+                          accountStatement.DueAmount
+                        ) !== undefined
                         ? "₹" +
                           GlobalFunctions.formatToIndianNumber(
-                            customerDetails?.BalanceAmount
-                          ) +
-                          "Cr"
+                            accountStatement.DueAmount
+                          )
                         : "₹" + 0
-                    }
-                    title="Outstanding Amount"
-                  />
-                </Grid>
-                <Grid
-                  xs={6}
-                  sm={6}
-                  lg={6}
-                  md={6}
-                  item
-                  sx={{
-                    "&.MuiGrid-item": {
-                      paddingLeft: "0.5em",
-                    },
-                  }}
-                >
-                  <StatusCard
-                    width="14em"
-                    height="8em"
-                    icon={
-                      circleUp.options &&
-                      circleUp.series && (
-                        <Chart
-                          options={circleUp.options}
-                          series={circleUp.series}
-                          type="radialBar"
-                          height={120}
-                          width={120}
-                        />
-                      )
-                    }
-                    count={
-                      searchValueAvailable
-                        ? accountStatement.PossessionBalance !== undefined
-                          ? "₹" +
-                            GlobalFunctions.formatToIndianNumber(
-                              accountStatement.PossessionBalance
-                            )
-                          : "₹" + 0
-                        : customerDetails?.UpcomingAmount !== undefined
-                        ? "₹" + customerDetails?.UpcomingAmount + "Cr"
+                      : customerDetails?.InvoiceAmount !== undefined
+                      ? "₹" + customerDetails?.InvoiceAmount + "Cr"
+                      : "₹" + 0
+                  }
+                  title="Invoiced Amount"
+                />
+              </Grid>
+              <Grid
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                item
+                sx={{
+                  "&.MuiGrid-item": {
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <StatusCard
+                  width="14em"
+                  height="8em"
+                  icon={
+                    circlePaid.options &&
+                    circlePaid.series && (
+                      <Chart
+                        options={circlePaid.options}
+                        series={circlePaid.series}
+                        type="radialBar"
+                        height={120}
+                        width={120}
+                      />
+                    )
+                  }
+                  count={
+                    searchValueAvailable
+                      ? GlobalFunctions.formatToIndianNumber(
+                          getPaidAmt().toLocaleString()
+                        ) !== undefined
+                        ? "₹" +
+                          GlobalFunctions.formatToIndianNumber(
+                            getPaidAmt().toLocaleString()
+                          )
                         : "₹" + 0
-                    }
-                    title="Balance till possession"
-                  />
-                </Grid>
+                      : customerDetails?.PaidAmount !== undefined
+                      ? "₹" +
+                        GlobalFunctions.formatToIndianNumber(
+                          customerDetails?.PaidAmount
+                        ) +
+                        "Cr"
+                      : "₹" + 0
+                  }
+                  title="Paid Amount"
+                />
+                {/* </Grid> */}
+              </Grid>
+
+              <Grid
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                item
+                sx={{
+                  "&.MuiGrid-item": {
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <StatusCard
+                  width="14em"
+                  height="8em"
+                  icon={
+                    circleOut.options &&
+                    circleOut.series && (
+                      <Chart
+                        options={circleOut.options}
+                        series={circleOut.series}
+                        type="radialBar"
+                        height={120}
+                        width={120}
+                      />
+                    )
+                  }
+                  count={
+                    searchValueAvailable
+                      ? accountStatement.BalanceAmount !== undefined
+                        ? "₹" +
+                          GlobalFunctions.formatToIndianNumber(
+                            accountStatement.BalanceAmount
+                          )
+                        : "₹" + 0
+                      : customerDetails?.BalanceAmount !== undefined
+                      ? "₹" +
+                        GlobalFunctions.formatToIndianNumber(
+                          customerDetails?.BalanceAmount
+                        ) +
+                        "Cr"
+                      : "₹" + 0
+                  }
+                  title="Outstanding Amount"
+                />
+              </Grid>
+              <Grid
+                xs={2}
+                sm={2}
+                lg={2}
+                md={2}
+                item
+                sx={{
+                  "&.MuiGrid-item": {
+                    paddingLeft: "0em",
+                  },
+                }}
+              >
+                <StatusCard
+                  width="14em"
+                  height="8em"
+                  icon={
+                    circleUp.options &&
+                    circleUp.series && (
+                      <Chart
+                        options={circleUp.options}
+                        series={circleUp.series}
+                        type="radialBar"
+                        height={120}
+                        width={120}
+                      />
+                    )
+                  }
+                  count={
+                    searchValueAvailable
+                      ? accountStatement.PossessionBalance !== undefined
+                        ? "₹" +
+                          GlobalFunctions.formatToIndianNumber(
+                            accountStatement.PossessionBalance
+                          )
+                        : "₹" + 0
+                      : customerDetails?.UpcomingAmount !== undefined
+                      ? "₹" + customerDetails?.UpcomingAmount + "Cr"
+                      : "₹" + 0
+                  }
+                  title="Balance till possession"
+                />
               </Grid>
             </Grid>
-
-            {/* </Grid> */}
-
-            {/* </Grid> */}
           </Grid>
         </Grid>
+
+        <div style={{ marginTop: "1em", marginBottom: "1em" }}>
+          <ThemeProvider theme={() => getMuiTheme()}>
+            <Table
+              data={ndcTableData}
+              columns={columns}
+              options={options}
+            ></Table>
+          </ThemeProvider>
+        </div>
 
         {/* Happiness meter and sentimental analysis */}
         {/* 

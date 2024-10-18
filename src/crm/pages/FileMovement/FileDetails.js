@@ -332,9 +332,6 @@ const FileDetails = forwardRef((props, ref) => {
       <CrmModal
         maxWidth="sm"
         show={openDeleteModal}
-        handleShow={() => {
-          setOpenDeleteModal(false);
-        }}
         primaryBtnText="Yes"
         SecondaryBtnText="No"
         primarySave={() => {

@@ -1,21 +1,23 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
-import moment from "moment";
 import Table from "mui-datatables";
-import GlobalFunctions from "../../../utils/GlobalFunctions";
+import moment from "moment";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import GlobalFunctions from "../../utils/GlobalFunctions";
+import axios from "axios";
+import InfoIcon from "@mui/icons-material/Info";
+import WarningIcon from "@mui/icons-material/Warning";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-export default function TodayActivity() {
+const AllNotification = () => {
   const [tableData, setTableData] = useState([]);
-
   const reducerData = useSelector((state) => state);
-  const crmId = reducerData.dashboard.crmId;
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData.dashboard.project;
 
   const getMuiTheme = () =>
     createTheme({
@@ -100,10 +102,6 @@ export default function TodayActivity() {
         },
         MUIDataTableHeadCell: {
           styleOverrides: {
-            data: {
-              fontSize: "0.8rem",
-              fontWeight: "bold",
-            },
             root: {
               backgroundColor: GlobalFunctions.getThemeBasedMode(
                 reducerData.ThemeReducer.mode
@@ -117,7 +115,6 @@ export default function TodayActivity() {
         MUIDataTableBodyCell: {
           styleOverrides: {
             root: {
-              fontSize: "0.7rem",
               backgroundColor: GlobalFunctions.getThemeBasedMode(
                 reducerData.ThemeReducer.mode
               ),
@@ -147,7 +144,6 @@ export default function TodayActivity() {
     });
 
   const options = {
-    pagination: false,
     selectableRows: "none",
     rowsPerPage: 100,
     elevation: 0,
@@ -166,85 +162,91 @@ export default function TodayActivity() {
       label: "Date",
     },
     {
-      name: "Activity Type",
-      label: "Activity Type",
-    },
-    {
-      name: "Mode",
-      label: "Mode",
-    },
-    {
-      name: "Amount",
-      label: "Amount",
-    },
-    {
-      name: "Action",
-      label: "Action",
-    },
-    {
-      name: "Remarks",
-      label: "Remarks",
+      name: "CreatedBy",
+      label: "CreatedBy",
     },
     {
       name: "Time",
       label: "Time",
     },
     {
-      name: "Status",
-      label: "Status",
+      name: "Message",
+      label: "Message",
+    },
+    {
+      name: "AssignTo",
+      label: "AssignTo",
     },
   ];
 
+  const addIcon = (type) => {
+    if (type === "I") {
+      return <InfoIcon sx={{ color: "#0288d1" }} />;
+    }
+    if (type === "S") {
+      return <CheckCircleIcon sx={{ color: "#388e3c" }} />;
+    }
+    if (type === "W") {
+      return <WarningIcon color="secondary" sx={{ color: "#f57c00" }} />;
+    }
+    if (type === "E") {
+      return <CancelIcon sx={{ color: "#d32f2f" }} />;
+    }
+  };
+
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
+      const icon = addIcon(item?.type);
+
       return [
-        item?.erdat,
-        item.actTypTxt,
-        item.actModeTxt,
-        item.dmbtr,
-        item.action,
-        item.remark,
-        item.pltac,
-        item.compInd === "X" ? "X" : "Open",
+        moment(item?.createdOn).format("DD-MM-YYYY"),
+        item?.createdBy,
+        item?.uzeit,
+        <>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {icon} {item?.message}
+          </div>
+        </>,
+        item?.assigned,
       ];
     });
     return modifiedResponse;
   };
 
-  const getTableData = () => {
-    const formData = new FormData();
-    formData.append("crmId", crmId);
-    formData.append("orderId", OrderId);
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("projectId", projectId);
+  const getData = async () => {
+    if (OrderId) {
+      const formData = new FormData();
+      formData.append("orderId", OrderId);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
 
-    fetch(`${process.env.REACT_APP_SERVER_URL}/api/activity/getActivity`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data[0]?.actdata) {
-          const todayActivity = data[0]?.actdata?.filter(
-            (act) => act.erdat === moment(new Date()).format("YYYY-MM-DD")
-          );
-          setTableData(modifyResponse(todayActivity));
-        }
-      });
+      try {
+        const res = (
+          await axios.post(
+            process.env.REACT_APP_SERVER_URL + `/api/topBar/getNotification`,
+            formData
+          )
+        ).data;
+        setTableData(modifyResponse(res[0].notify));
+      } catch (error) {
+        console.log(error, "err");
+      }
+    }
   };
 
   useEffect(() => {
-    getTableData();
-  }, []);
+    getData();
+  }, [OrderId]);
 
   return (
-    tableData.length > 0 && (
-      <div>
+    <>
+      <div style={{ marginTop: "1em" }}>
         <ThemeProvider theme={() => getMuiTheme()}>
           <Table data={tableData} columns={columns} options={options}></Table>
         </ThemeProvider>
       </div>
-    )
+    </>
   );
-}
+};
+
+export default AllNotification;

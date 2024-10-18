@@ -11,7 +11,12 @@ import {
   Badge,
   Menu,
 } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
+import WarningIcon from "@mui/icons-material/Warning";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FaBars from "@mui/icons-material/HorizontalSplitSharp";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import { AnimatePresence, motion } from "framer-motion";
 import SearchBar from "../SearchBar/SearchBar";
@@ -61,21 +66,15 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import searchBarAction from "./../SearchBar/SearchBarReducer/SearchBarActions";
 import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 import CashbackReport from "../Reports/CashbackReport/CashbackReport";
-import CrmModal from "../../components/crmModal/CrmModal";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
+import FileMovement from "../FileMovement/FileMovement";
+import CrmModal from "../../components/crmModal/CrmModal";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import InputField from "../../components/inputField/InputField";
 import CancellationReport from "../Reports/CancellationReport/CancellationReport";
-import FileMovement from "../FileMovement/FileMovement";
+import Notification from "./../../pages/Notification/Notification";
 import BookingReport from "../Reports/BookingReport/BookingReport";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import Divider from "@mui/material/Divider";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
-import Notification from "../Notification/Notification";
-
 
 const routes = [
   {
@@ -159,9 +158,12 @@ const SideBar2 = () => {
   const [disabledBtn, setDisabledBtn] = useState(true);
   const [activityData, setActivityData] = useState({});
   const [openSideBar, setOpenSideBar] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const [showSendMail, setShowSendMail] = useState(false);
   const [subActTypeData, setSubActTypeData] = useState([]);
   const [showPrintMenus, setShowPrintMenus] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState();
+  const [latestNotifications, setLatestNotifications] = useState();
   const [openActivityModal, setOpenActivityModal] = useState(false);
   const [shouldShowBookingDetails, setShouldShowBookingDetails] =
     useState(false);
@@ -178,7 +180,7 @@ const SideBar2 = () => {
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData.dashboard.project.projectId;
+  const projectId = reducerData.dashboard.project;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
   const [showList, setShowList] = React.useState(false);
@@ -210,9 +212,43 @@ const SideBar2 = () => {
     }
   }
 
-  const toggleList = () => {
-    setShowList((prev) => !prev);
+  function markAllAsUnread(notificationsArray) {
+    return unreadNotifications.map((notification) => {
+      return {
+        ...notification, // Spread existing properties
+        readInd: "", // Set readInd to an empty string
+      };
+    });
+  }
+
+  const updateNotifications = () => {
+    const formData = new FormData();
+    const entryData = markAllAsUnread(notifications);
+
+    formData.append("orderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/createNotification", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        getNotification();
+        console.log("#########notifications", data);
+      });
   };
+
+  const toggleList = () => {
+    console.log("###########showList", showList);
+    if (showList === false) {
+      updateNotifications();
+    }
+    setShowList(!showList);
+  };
+
   const handleClose = () => {
     setShowList(false);
   };
@@ -223,6 +259,27 @@ const SideBar2 = () => {
   );
   const customerMobileNumber = reducerData?.dashboard?.customerContactNo;
   const shouldShowMenus = reducerData?.searchBar?.orderId ? true : false;
+
+  const getNotification = () => {
+    const formData = new FormData();
+    formData.append("orderId", orderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/topBar/getNotification", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUnreadNotifications(data[0].unread);
+        setLatestNotifications(data[0].latest);
+      });
+  };
+
+  useEffect(() => {
+    getNotification();
+  }, []);
 
   useEffect(() => {
     dispatch(dashboardActions.setShouldShowCustDetails(false));
@@ -318,7 +375,7 @@ const SideBar2 = () => {
       });
   };
 
-  useEffect(() => {
+  const getTableDetails = () => {
     const formData = new FormData();
     formData.append("crmId", crmId);
     formData.append("orderId", orderId);
@@ -339,6 +396,10 @@ const SideBar2 = () => {
           data[0].dpdata && setDpdata(data[0].dpdata);
         }
       });
+  };
+
+  useEffect(() => {
+    getTableDetails();
     getCrmDetails();
   }, []);
 
@@ -535,6 +596,21 @@ const SideBar2 = () => {
     }
   };
 
+  const addIcon = (type) => {
+    if (type === "I") {
+      return <InfoIcon sx={{ color: "#0288d1" }} />;
+    }
+    if (type === "S") {
+      return <CheckCircleIcon sx={{ color: "#388e3c" }} />;
+    }
+    if (type === "W") {
+      return <WarningIcon color="secondary" sx={{ color: "#f57c00" }} />;
+    }
+    if (type === "E") {
+      return <CancelIcon sx={{ color: "#d32f2f" }} />;
+    }
+  };
+
   return (
     <>
       <Grid
@@ -612,11 +688,11 @@ const SideBar2 = () => {
               <DirectionsCarFilledIcon />
             </IconButton>
 
-            <Grid style={{ paddingRight: "0.8em" }}>
+            <Grid style={{ paddingRight: "0.8em", cursor: "pointer" }}>
               <Badge
-                onClick={toggleList}
                 color="secondary"
-                badgeContent={0}
+                onClick={toggleList}
+                badgeContent={unreadNotifications?.length}
                 showZero
               >
                 <NotificationsIcon />
@@ -654,6 +730,7 @@ const SideBar2 = () => {
                 disabled={!customerMobileNumber}
                 onClick={() => {
                   setOpenActivityModal(true);
+                  getTableDetails();
                   handleContinue();
                   if (!Sid) {
                     initiateOutgoingCall();
@@ -677,8 +754,8 @@ const SideBar2 = () => {
               <SettingsIcon />
             </IconButton>
             {showList && (
-              <div style={{}}>
-                {/* <IconButton
+              <div>
+                <IconButton
                   size="large"
                   aria-label="account of current user"
                   aria-controls="menu-appbar"
@@ -687,7 +764,7 @@ const SideBar2 = () => {
                   color="inherit"
                 >
                   <AccountCircle />
-                </IconButton> */}
+                </IconButton>
                 <Menu
                   style={{ marginTop: "50px" }}
                   id="menu-appbar"
@@ -704,48 +781,130 @@ const SideBar2 = () => {
                   open={Boolean(showList)}
                   onClose={handleClose}
                 >
-                  <MenuItem onClick={handleClose}>
-                    <Grid container>
-                      <Grid item
-                        md={2}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 50,
-                            height: 50,
-                            cursor: "pointer",
-                            marginRight: "1em",
-                            backgroundColor: "white",
-                            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
-                          }}
-                        >
-                          <img
-                            alt="chatImg"
-                            src={require("../../../assets/notification.webp")}
-                            style={{ width: "45px", height: "45px" }}
-                          // onClick={() => {
-                          //   setIsChatDrawerOpen(true);
-                          // }}
-                          />
-                        </Avatar>
+                  {/* {unreadNotifications?.map((notifications) => {
+                        return (
+                          <Grid item md={9}>
+                            {" "}
+                            <Grid
+                              sx={{
+                                display: "flex",
+                                wordBreak: "break-all",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <Typography
+                                sx={{ fontWeight: "bold", fontSize: "12px" }}
+                              >
+                                {notifications?.createdBy}{" "}
+                              </Typography>
+                              <small>
+                                <Typography sx={{ fontSize: "12px" }}>
+                                  {timeAgo(
+                                    notifications?.createdOn,
+                                    notifications?.uzeit
+                                  )}
+                                </Typography>
+                              </small>{" "}
+                            </Grid>
+                            <Typography
+                              sx={{
+                                width: "100%",
+                                wordBreak: "break-all",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {" "}
+                              {notifications?.message}
+                            </Typography>
+                          </Grid>
+                        );
+                      })} */}
+                  <Grid>
+                    {latestNotifications?.map((notifications) => {
+                      const icon = addIcon(notifications?.type);
+                      return (
+                        <Grid sx={{ width: "25vw" }}>
+                          <MenuItem onClick={handleClose}>
+                            <Grid key={notifications.id}>
+                              <Grid sx={{ display: "flex" }}>
+                                <Grid sx={{ marginRight: "0.2em" }}>
+                                  {icon}
+                                </Grid>
 
-                      </Grid>
-                      <Grid item md={10}>
-                        <Typography>
-                          <strong>Vishal Jaiswal </strong>
-                        </Typography>
-                        <Typography> Approved by CRM Manager <small>{timeAgo("2024-10-02", "10:30:00")}</small> </Typography>
-                      </Grid>
-                      <Grid item md={12}>
-                        {" "}
+                                <Grid
+                                  sx={{
+                                    width: "22vw",
+                                    display: "flex",
+                                    wordBreak: "break-all",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  <Grid>
+                                    <Typography
+                                      sx={{
+                                        fontWeight: "bold",
+                                        fontSize: "12px",
+                                      }}
+                                    >
+                                      {notifications?.createdBy}
+                                    </Typography>
+                                  </Grid>
+                                  <Grid>
+                                    <small>
+                                      <Typography sx={{ fontSize: "12px" }}>
+                                        {timeAgo(
+                                          notifications?.createdOn,
+                                          notifications?.uzeit
+                                        )}
+                                      </Typography>
+                                    </small>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                              <Typography
+                                sx={{
+                                  // width: "100%",
+                                  wordBreak: "break-word", // Changed to 'break-word' for proper wrapping
+                                  whiteSpace: "normal", // Ensures that long text wraps
+                                  fontSize: "12px",
+                                  padding: "0.2em",
+                                }}
+                              >
+                                {notifications?.message}
+                              </Typography>
+                            </Grid>
+                          </MenuItem>
+                          <br />
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
 
-                      </Grid>
-                    </Grid>
-
-                  </MenuItem>
-                  <MenuItem sx={{ width: "500px" }} onClick={handleClose}>
-                    My account
-                  </MenuItem>
+                  <Grid
+                    sx={{
+                      justifyContent: "center",
+                      display: "flex",
+                      width: "20vw",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "13px",
+                        color: "blue",
+                        padding: "0.5em",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                      onClick={() => {
+                        toggleList();
+                        updateNotifications();
+                        navigate("/crm/crm/notifications");
+                      }}
+                    >
+                      {" "}
+                      View All
+                    </Typography>
+                  </Grid>
                 </Menu>
               </div>
             )}
@@ -842,7 +1001,7 @@ const SideBar2 = () => {
                       : { padding: "5px 11px" }
                   }
                   activeclassname="active"
-                // isActive={() => route.path === "/dashboard" &&  }
+                  // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
                     style={{
@@ -930,6 +1089,7 @@ const SideBar2 = () => {
                 <Route path="callHistory" element={<CallHistory />} />
                 <Route path="invoices" element={<Invoices />} />
                 <Route path="activities" element={<Activities />} />
+                <Route path="notifications" element={<Notification />} />
 
                 <Route path="emailReport" element={<EmailReport />} />
                 <Route path="serviceRequest" element={<ServiceRequest />} />

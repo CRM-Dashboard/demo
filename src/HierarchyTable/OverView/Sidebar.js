@@ -23,6 +23,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { Route, Routes } from "react-router-dom";
 import DvrIcon from "@mui/icons-material/Dvr";
+import PaymentsIcon from "@mui/icons-material/Payments";
 import { NavLink, useNavigate } from "react-router-dom";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
@@ -33,6 +34,9 @@ import Changes from "../ChangeManagement/Changes";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import CoverPage from "../CoverPage/CoverPage";
+import ITExpensesAndBudget from "../ITExpensesAndBudget/ITExpensesAndBudget";
+import Usage from "../Usage/Usage";
+import DataUsageIcon from "@mui/icons-material/DataUsage";
 
 const drawerWidth = 240;
 
@@ -107,12 +111,12 @@ const routes = [
     name: "Dashboard",
     icon: <DashboardIcon />,
   },
-  // {
-  //   path: "coverPage",
-  //   to: "/coverPage",
-  //   name: "CoverPage",
-  //   icon: <ViewTimelineIcon />,
-  // },
+  {
+    path: "coverPage",
+    to: "/coverPage",
+    name: "CoverPage",
+    icon: <ViewTimelineIcon />,
+  },
   {
     path: "overView",
     to: "/tracker",
@@ -142,6 +146,18 @@ const routes = [
     to: "/tracker",
     name: "Changes",
     icon: <ChangeCircleIcon />,
+  },
+  {
+    path: "expenses",
+    to: "/tracker",
+    name: "IT Expenses and budget",
+    icon: <PaymentsIcon />,
+  },
+  {
+    path: "usage",
+    to: "/tracker",
+    name: "Usage",
+    icon: <DataUsageIcon />,
   },
 ];
 
@@ -257,8 +273,10 @@ export default function MiniDrawer() {
               <Route path="changes" element={<Changes />} />
               <Route path="project" element={<Projects />} />
               <Route path="overview" element={<HomePage />} />
+              <Route path="coverPage" element={<CoverPage />} />
+              <Route path="usage" element={<Usage />} />
+              <Route path="expenses" element={<ITExpensesAndBudget />} />
               <Route path="dashboard" element={<ITHierarchyDashboard />} />
-              {/* <Route path="coverPage" element={<CoverPage />} /> */}
             </Route>
           </Routes>
         </Grid>

@@ -1,9 +1,11 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-no-duplicate-props */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable array-callback-return */
 import React, { useState, useEffect, useRef } from "react";
 import "./Style.css";
+import axios from "axios";
 import PropTypes from "prop-types";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
@@ -14,13 +16,14 @@ import FileUploader from "./FileUploader";
 import { useSelector } from "react-redux";
 import "react-chat-elements/dist/main.css";
 import Stepper from "@mui/material/Stepper";
-import { Button, Paper } from "@mui/material";
 import Constants from "./../../utils/Constants";
 import StepLabel from "@mui/material/StepLabel";
 import Typography from "@mui/material/Typography";
 import StepContent from "@mui/material/StepContent";
+import { Button, Paper, MenuItem } from "@mui/material";
 import CrmModal from "../../components/crmModal/CrmModal";
 import GlobalFunctions from "../../utils/GlobalFunctions";
+import InputField from "../../components/inputField/InputField";
 import { Grid, Avatar, Drawer, ButtonGroup } from "@mui/material";
 import UseCustomSnackbar from "../../components/snackbar/UseCustomSnackBar";
 import styles from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
@@ -106,11 +109,32 @@ const checklistItems = [
   '"On Offer Letter" payment received',
 ];
 
+const rmChecklistItems = [
+  "Introducing yourself as the RM for the Onboarding process",
+  "Cross-checking /Confirmation - Applicants name, contact, email ID",
+  "Cross-checking /Confirmation on Unit specification details - Project, Tower, Unit, Carpet area, Total CV",
+  "Cross-checking /Confirmation of Alotted Parking Details",
+  "Confirmation on Total token amount received till date",
+  "Cross-checking /Confirmation Total CV, SDR, Registration Charges and Registration Facilitation, GST",
+  "Cross-checking /Confirmation Other charges incl. Maintainance of SCAM, FCAM and Township, Corpus Fund and Admin charges payable at possesion are not included in total CV",
+  "Information on Posession year of the Project",
+  "TDS to be paid within 30 days post Registration",
+  "Information and confirmation on Bank opted for Home Loan and Informing the current progress stage of project selected by customer",
+  "Informaing the initial Amount to be cleared as Earnest payment and the Stamp Duty and Charges",
+  "Explaining timelines provided for completing payment i.e 5 days for First Invoice, 10 days for the following Invoices",
+  "To be explain Total Cashback Amount for OTR and Cashback amount structure for OTP",
+  "To be explain Eligibility criteria for attaining OTR and OTP, timelines to be followed by both onboarder and customer to be explained",
+  "Confirming GCS Code to be mentioned in the Sanction Letter if opted for Loan with In-house Bank",
+  "Verifying the Customer Account details provided for cashback",
+  "Confirming Pre-Emi scheme/ assured rental validity if applicable",
+];
+
 export default function FileMovement() {
   const [value, setValue] = useState();
-  const [loading, setLoading] = useState(false);
+  const [crmData, setCRMData] = useState();
   const [response, setResponse] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [fileIndex, setFileIndex] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
@@ -118,7 +142,10 @@ export default function FileMovement() {
   const [checkedItems, setCheckedItems] = useState(
     Array(checklistItems?.length).fill(false)
   );
+  const [selectedRm, setSelectedRm] = useState("");
+  const [selectedCrm, setSelectedCrm] = useState("");
   const [checkListData, setCheckListData] = useState();
+  const [gateKeeperData, setGateKeeperData] = useState();
   const [currentOrderId, setCurrentOrderId] = useState();
   const [fileUploadType, setfileUploadType] = useState();
   const [currentStepData, setCurrentStepData] = useState([]);
@@ -145,11 +172,32 @@ export default function FileMovement() {
     CHECK_18: "",
     CHECK_19: "",
   });
+  const [rmChecks, setRmChecks] = useState({
+    RM_CHECK_1: "",
+    RM_CHECK_2: "",
+    RM_CHECK_3: "",
+    RM_CHECK_4: "",
+    RM_CHECK_5: "",
+    RM_CHECK_6: "",
+    RM_CHECK_7: "",
+    RM_CHECK_8: "",
+    RM_CHECK_9: "",
+    RM_CHECK_10: "",
+    RM_CHECK_11: "",
+    RM_CHECK_12: "",
+    RM_CHECK_13: "",
+    RM_CHECK_14: "",
+    RM_CHECK_15: "",
+    RM_CHECK_16: "",
+    RM_CHECK_17: "",
+  });
+  const [crmMgrData, setCRMMgrData] = useState();
   const [allChecked, setAllChecked] = useState(false);
+  const [confRecordSet, setConfRecords] = useState([]);
+  const [allRmChecked, setAllRmChecked] = useState(false);
+  const [nonConfRecordSet, setNonConfRecords] = useState([]);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [isFileDrawerOpen, setIsFileDrawerOpen] = useState(false);
-  const [nonConfRecordSet, setNonConfRecords] = useState([]);
-  const [confRecordSet, setConfRecords] = useState([]);
 
   // Toggle the drawer open/close state
   const toggleChatDrawer = (open) => (event) => {
@@ -184,6 +232,16 @@ export default function FileMovement() {
     updatedChecks[`CHECK_${index + 1}`] =
       updatedChecks[`CHECK_${index + 1}`] === "X" ? "" : "X";
     setChecks(updatedChecks);
+    // const updatedCheckedItems = [...checkedItems];
+    // updatedCheckedItems[index] = !updatedCheckedItems[index];
+    // setCheckedItems(updatedCheckedItems);
+  };
+
+  const handleRmCheckListChange = (index) => {
+    const updatedChecks = { ...rmChecks };
+    updatedChecks[`RM_CHECK_${index + 1}`] =
+      updatedChecks[`RM_CHECK_${index + 1}`] === "X" ? "" : "X";
+    setRmChecks(updatedChecks);
     // const updatedCheckedItems = [...checkedItems];
     // updatedCheckedItems[index] = !updatedCheckedItems[index];
     // setCheckedItems(updatedCheckedItems);
@@ -239,6 +297,9 @@ export default function FileMovement() {
       .then((data) => {
         if (data) {
           setCheckListData(data[0]);
+          setSelectedCrm(data[0]?.GATEID);
+          setSelectedRm(data[0]?.CRMID);
+          // setSelectedRm(data[0]?.);
         }
       });
   };
@@ -265,17 +326,40 @@ export default function FileMovement() {
       CHECK_18: checkListData?.CHECK_18,
       CHECK_19: checkListData?.CHECK_19,
     });
+    setRmChecks({
+      RM_CHECK_1: checkListData?.RM_CHECK_1,
+      RM_CHECK_2: checkListData?.RM_CHECK_2,
+      RM_CHECK_3: checkListData?.RM_CHECK_3,
+      RM_CHECK_4: checkListData?.RM_CHECK_4,
+      RM_CHECK_5: checkListData?.RM_CHECK_5,
+      RM_CHECK_6: checkListData?.RM_CHECK_6,
+      RM_CHECK_7: checkListData?.RM_CHECK_7,
+      RM_CHECK_8: checkListData?.RM_CHECK_8,
+      RM_CHECK_9: checkListData?.RM_CHECK_9,
+      RM_CHECK_10: checkListData?.RM_CHECK_10,
+      RM_CHECK_11: checkListData?.RM_CHECK_11,
+      RM_CHECK_12: checkListData?.RM_CHECK_12,
+      RM_CHECK_13: checkListData?.RM_CHECK_13,
+      RM_CHECK_14: checkListData?.RM_CHECK_14,
+      RM_CHECK_15: checkListData?.RM_CHECK_15,
+      RM_CHECK_16: checkListData?.RM_CHECK_16,
+      RM_CHECK_17: checkListData?.RM_CHECK_17,
+    });
   }, [checkListData]);
 
   useEffect(() => {
     setAllChecked(Object.values(checks).every((check) => check === "X"));
   }, [checks]);
+  useEffect(() => {
+    setAllRmChecked(Object.values(rmChecks).every((check) => check === "X"));
+  }, [rmChecks]);
 
   const handleSaveChecklist = () => {
     // Prepare data for API call
     const updatedData = [
       {
         ...checkListData,
+        ...rmChecks,
         ...checks,
       },
     ];
@@ -300,6 +384,49 @@ export default function FileMovement() {
       });
   };
 
+  const handleContinue = (step) => {
+    // Prepare data for API call
+    const updatedData = [
+      step == 0
+        ? {
+            ...checkListData,
+            ...rmChecks,
+            ...checks,
+            SALEID: userName.toUpperCase(),
+            GATEID: selectedCrm,
+            VBELN: currentOrderId,
+          }
+        : {
+            ...checkListData,
+            ...rmChecks,
+            ...checks,
+            SALEID: userName.toUpperCase(),
+            CRMID: selectedRm,
+            VBELN: currentOrderId,
+          },
+    ];
+    console.log("##########final data", updatedData);
+    const formData = new FormData();
+
+    formData.append("orderId", currentOrderId);
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(updatedData));
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/fileMovement/checkList", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          getCheckList();
+
+          // snackbar.showSuccess("CheckList Submitted SuccessFully");
+        }
+      });
+  };
+
   const handleNext = (index) => {
     //Handeled Continue Button
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -308,9 +435,19 @@ export default function FileMovement() {
       savCurrentStepByIdAndAction("CRM", "A");
       saveChats("Files have been Approved by CRM Manager!");
     } else if (index === 1) {
+      createNotification(
+        "Gate Keeper Transfered File To CRM manager.",
+        selectedRm
+      );
+      handleContinue(1);
       savCurrentStepByIdAndAction("CGK", "A");
       saveChats("Gate Keeper Transfered File To CRM manager.");
     } else if (index === 0) {
+      createNotification(
+        "Sales Team Transfered File to Gate Keeper.",
+        selectedCrm
+      );
+      handleContinue(0);
       savCurrentStepByIdAndAction("SM", "A");
       saveChats("Sales Team Transfered File to Gate Keeper.");
     } else if (index === 2) {
@@ -323,18 +460,33 @@ export default function FileMovement() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
     if (index === 1) {
       savCurrentStepByIdAndAction("CGK", "R");
-      saveChats("Gate Keeper Returned File To Sales Team.");
+      createNotification(
+        "Gate Keeper has Returned file to Sales Team!",
+        userName
+      );
+      saveChats("Gate Keeper has Returned File To Sales Team.");
     } else if (index === 2) {
       savCurrentStepByIdAndAction("CRM", "R");
+      createNotification(
+        "CRM Manager has Returned file to Gate Keeper!",
+        selectedRm
+      );
       saveChats("CRM Manager has Returned file to Gate Keeper!");
     }
   };
 
   const handleBackToSales = (index) => {
     setActiveStep((prevActiveStep) => prevActiveStep - 2);
-    saveChats("CRM Manager Returned file to Sales Team!");
 
     savCurrentStepByIdAndAction("CRM", "R1");
+    createNotification(
+      "CRM Manager has Returned file to Sales Team!",
+      userName
+    );
+    createNotification(
+      "CRM Manager has Returned file to Sales Team!",
+      selectedRm
+    );
     saveChats("CRM Manager has Returned file to Sales Team!");
   };
 
@@ -476,6 +628,38 @@ export default function FileMovement() {
           setMessages(updatedData);
         }
       });
+  };
+
+  const createNotification = async (message, assigned) => {
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("orderId", OrderId);
+
+    const entryData = {
+      type: "System",
+      assigned: assigned,
+      message: message,
+      category: 3,
+      categoryTxt: "System Generated",
+    };
+
+    formData.append("entryData", JSON.stringify(entryData));
+
+    try {
+      const res = (
+        await axios.post(
+          process.env.REACT_APP_SERVER_URL + "/api/topBar/createNotification",
+          formData
+        )
+      ).data;
+
+      if (res) {
+        console.log("sytem notificato created successfully", res);
+      }
+    } catch (error) {
+      console.log(error, "err");
+    }
   };
 
   const saveChats = (message) => {
@@ -739,15 +923,68 @@ export default function FileMovement() {
               </Button>
             </Grid>
           </Grid>
+          <InputField
+            select
+            id="crm"
+            name="crm"
+            label="Select CRM"
+            value={selectedCrm}
+            onChange={(e) => {
+              setSelectedCrm(e.target.value);
+            }}
+            required
+          >
+            {crmData?.map((data) => (
+              <MenuItem key={data.UNAME} value={data.UNAME}>
+                {data.UNAME}
+              </MenuItem>
+            ))}
+          </InputField>
         </Grid>
       );
     } else if (tabName === "CRM Gate Keeper") {
-      return checklistItems?.map((item, index) => (
+      return (
+        <>
+          {checklistItems?.map((item, index) => (
+            <div key={index} style={{ display: "flex" }}>
+              <LabelWithCheckbox
+                onChange={() => handleCheckListChange(index)}
+                value={checks[`CHECK_${index + 1}`] === "X"}
+              />
+              <Typography
+                sx={{ width: "100%", fontSize: "13px", marginTop: "1em" }}
+              >
+                {item}
+              </Typography>
+            </div>
+          ))}
+
+          <InputField
+            select
+            id="rm"
+            name="rm"
+            label="Select RM"
+            value={selectedRm}
+            onChange={(e) => {
+              setSelectedRm(e.target.value);
+            }}
+            required
+          >
+            {crmMgrData?.map((data) => (
+              <MenuItem key={data.UNAME} value={data.UNAME}>
+                {data.UNAME}
+              </MenuItem>
+            ))}
+          </InputField>
+        </>
+      );
+    } else if (tabName === "CRM Manager Confirmation") {
+      return rmChecklistItems?.map((item, index) => (
         <div key={index} style={{ display: "flex" }}>
           <LabelWithCheckbox
             // value={checkedItems[index]}
-            onChange={() => handleCheckListChange(index)}
-            value={checks[`CHECK_${index + 1}`] === "X"}
+            onChange={() => handleRmCheckListChange(index)}
+            value={rmChecks[`RM_CHECK_${index + 1}`] === "X"}
           />
           <Typography
             sx={{ width: "100%", fontSize: "13px", marginTop: "1em" }}
@@ -786,6 +1023,7 @@ export default function FileMovement() {
       // For index 1: If allChecked is true or the role check is false, button should not be disabled (return false).
       return (
         !allChecked ||
+        !selectedRm ||
         !GlobalFunctions.allowAccessByRoles(
           accessRoles,
           accessConstants.fileMovementGateKeeper
@@ -793,15 +1031,21 @@ export default function FileMovement() {
       );
     } else if (index === 0) {
       // For index 0: If role check is true, button should not be disabled (return false).
-      return !GlobalFunctions.allowAccessByRoles(
-        accessRoles,
-        accessConstants.fileMovementSales
+      return (
+        !selectedCrm ||
+        !GlobalFunctions.allowAccessByRoles(
+          accessRoles,
+          accessConstants.fileMovementSales
+        )
       );
     } else if (index === 2) {
       // For index 2: If role check is true, button should not be disabled (return false).
-      return !GlobalFunctions.allowAccessByRoles(
-        accessRoles,
-        accessConstants.fileMovementRelManager
+      return (
+        !allRmChecked ||
+        !GlobalFunctions.allowAccessByRoles(
+          accessRoles,
+          accessConstants.fileMovementRelManager
+        )
       );
     }
 
@@ -834,6 +1078,12 @@ export default function FileMovement() {
 
               setActiveStep(latestStep - 1);
             }
+            if (data?.[0]?.CURRENT_STEP == "") {
+              setActiveStep(3);
+            }
+            setCRMData(data?.[0]?.CRM);
+            setCRMMgrData(data?.[0]?.CRM_MGR);
+            setGateKeeperData(data?.[0]?.GATE);
             // snackbar.showSuccess(
             //   <Typography> Get Current step status Successfully!</Typography>
             // );
@@ -1164,15 +1414,26 @@ export default function FileMovement() {
                                     handleNext(index);
                                   }}
                                   sx={{ mt: 1, mr: 1 }}
-                                  disabled={shouldButtonDisable(index)}
+                                  disabled={
+                                    index === steps?.length - 1
+                                      ? shouldButtonDisable(2)
+                                      : index == 1
+                                      ? shouldButtonDisable(1)
+                                      : shouldButtonDisable(0)
+                                  }
                                 >
                                   {index === steps?.length - 1
                                     ? "Finish"
                                     : "Continue"}
                                 </Button>
-                                {index === 1 && (
+                                {index === steps?.length - 1 && (
                                   <Button
-                                    disabled={index === 2}
+                                    disabled={
+                                      !GlobalFunctions.allowAccessByRoles(
+                                        accessRoles,
+                                        accessConstants.fileMovementRelManager
+                                      )
+                                    }
                                     onClick={() => {
                                       handleSaveChecklist();
                                     }}
@@ -1181,25 +1442,70 @@ export default function FileMovement() {
                                     Save
                                   </Button>
                                 )}
-                                <Button
-                                  disabled={index === 0}
-                                  onClick={() => {
-                                    handleBack(index);
-                                  }}
-                                  // sx={{ mt: 1, mr: 1 }}
-                                >
-                                  Back
-                                </Button>
-                                {index === steps?.length - 1 && (
+
+                                {index === 1 && (
                                   <Button
-                                    disabled={index === 0}
+                                    disabled={
+                                      !GlobalFunctions.allowAccessByRoles(
+                                        accessRoles,
+                                        accessConstants.fileMovementGateKeeper
+                                      )
+                                    }
                                     onClick={() => {
-                                      handleBackToSales(index);
+                                      handleSaveChecklist();
                                     }}
                                     sx={{ mt: 1, mr: 1 }}
                                   >
-                                    Back To Sales
+                                    Save
                                   </Button>
+                                )}
+                                {index === 1 && (
+                                  <Button
+                                    disabled={
+                                      !GlobalFunctions.allowAccessByRoles(
+                                        accessRoles,
+                                        accessConstants.fileMovementGateKeeper
+                                      )
+                                    }
+                                    onClick={() => {
+                                      handleBack(index);
+                                    }}
+                                    // sx={{ mt: 1, mr: 1 }}
+                                  >
+                                    Back
+                                  </Button>
+                                )}
+
+                                {index === steps?.length - 1 && (
+                                  <>
+                                    <Button
+                                      disabled={
+                                        !GlobalFunctions.allowAccessByRoles(
+                                          accessRoles,
+                                          accessConstants.fileMovementRelManager
+                                        )
+                                      }
+                                      onClick={() => {
+                                        handleBack(2);
+                                      }}
+                                    >
+                                      Back
+                                    </Button>
+                                    <Button
+                                      disabled={
+                                        !GlobalFunctions.allowAccessByRoles(
+                                          accessRoles,
+                                          accessConstants.fileMovementRelManager
+                                        )
+                                      }
+                                      onClick={() => {
+                                        handleBackToSales(index);
+                                      }}
+                                      sx={{ mt: 1, mr: 1 }}
+                                    >
+                                      Back To Sales
+                                    </Button>
+                                  </>
                                 )}
                               </div>
                             </Box>
@@ -1214,9 +1520,9 @@ export default function FileMovement() {
                         <Typography>
                           All steps completed - you&apos;re finished
                         </Typography>
-                        <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
+                        {/* <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
                           Reset
-                        </Button>
+                        </Button> */}
                       </Paper>
                     )}
                   </Box>

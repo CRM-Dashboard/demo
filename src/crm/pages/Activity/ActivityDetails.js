@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Table from "mui-datatables";
 import {
+  Box,
   MenuItem,
   Select,
   Grid,
@@ -14,6 +15,7 @@ import {
 } from "@mui/material";
 import moment from "moment";
 import Updates from "./Updates";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 import CreateNewActivity from "./CreateNewActivity";
 import GlobalFunctions from "../../utils/GlobalFunctions";
@@ -25,11 +27,13 @@ import CircularScreenLoader from "../../components/circularScreenLoader/Circular
 
 export default function ActivityDetails() {
   const [dpData, setDpdata] = useState([]);
-  const [response, setResponse] = useState("");
+  const [response, setResponse] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
   const [actTypeData, setActTypeData] = useState([]);
   const [actModeData, setActModeData] = useState([]);
+  const [dataToDelete, setDataToDelete] = useState({});
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openUpdates, setOpenUpdates] = useState(false);
   const [selectedValues, setSelectedValues] = useState({});
@@ -42,7 +46,7 @@ export default function ActivityDetails() {
   const OrderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData?.dashboard?.project?.projectId;
+  const projectId = reducerData?.dashboard?.project;
 
   const snackbar = UseCustomSnackbar();
   const open = Boolean(anchorEl);
@@ -73,13 +77,17 @@ export default function ActivityDetails() {
     const handleChange = (event) => {
       const selectedValue = event.target.value;
       onChange(selectedValue);
+      console.log("#####tableMeta", tableMeta);
       const data = tableMeta.rowData;
-      const searchedString = `${data[0]}${OrderId}${data[6]}${data[4]}`;
+      const searchedString = `${data[10]}${data[11]}${data[8]}${data[6]}`;
 
       const updatedData = response?.filter((obj) => {
         const concatenatedString = `${obj.erdat}${OrderId}${obj.pltac}${obj.action}`; //${obj.pltac}
+        console.log("obj data#######", searchedString, concatenatedString);
         return concatenatedString === searchedString;
       });
+
+      console.log("##########data", updatedData);
 
       const updatedObject = {
         ...updatedData[0], // Copy existing properties
@@ -88,13 +96,19 @@ export default function ActivityDetails() {
 
       const finalData = { ...updatedObject };
       delete finalData["compInd"];
-      const entryData = {
-        ...finalData,
-        act_typ: finalData.actTyp,
-        werks: projectId,
-        // Omit the 'actTyp' key from the new object
-        ...(delete finalData.actTyp && { actTyp: finalData.actTyp }),
-      };
+      console.log("#########finalData", finalData);
+      const entryData = [
+        {
+          ...finalData,
+          act_typ: finalData.actTyp,
+          act_subtyp: finalData.actSubtyp,
+          dp_code: finalData.dpCode,
+          act_mode: finalData.actMode,
+          werks: projectId,
+          // Omit the 'actTyp' key from the new object
+          ...(delete finalData.actTyp && { actTyp: finalData.actTyp }),
+        },
+      ];
 
       setSelectedValues({
         ...selectedValues,
@@ -294,9 +308,63 @@ export default function ActivityDetails() {
       },
     });
 
+  const handleDelete = () => {
+    console.log("########calling handle delete", dataToDelete);
+    var data = dataToDelete;
+
+    const entryData = {
+      vbeln: data.vbeln,
+      act_typ: data.actTyp,
+      erdat: data.erdat,
+      pltac: data.pltac,
+    };
+
+    const formdata = new FormData();
+    formdata.append("userName", userName);
+    formdata.append("passWord", passWord);
+    formdata.append("entryData", JSON.stringify(entryData));
+
+    fetch(
+      process.env.REACT_APP_SERVER_URL + `/api/activity/deleteActivityDetails`,
+      {
+        method: "POST",
+        body: formdata,
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          snackbar.showSuccess("Activity deleted successfully!");
+          setOpenModal(false);
+          getTableData();
+        }
+      })
+      .catch((error) => {
+        if (error) {
+          snackbar.showError(
+            "Error while deleting activity Request. Please try again!"
+          );
+          setOpenModal(false);
+        }
+      });
+  };
+
   const options = {
-    selectableRows: "none",
+    onRowsSelect: (currentRowsSelected, allRowsSelected) => {
+      setDataToDelete(response[currentRowsSelected[0].dataIndex]);
+    },
+    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
+      <Button
+        color="secondary"
+        onClick={() => {
+          setOpenModal(true);
+        }}
+      >
+        <DeleteIcon />
+      </Button>
+    ),
     elevation: 0,
+    selectableRows: "single",
     print: false,
     download: false,
     search: false,
@@ -374,6 +442,18 @@ export default function ActivityDetails() {
         ),
       },
     },
+    {
+      name: "date",
+      options: {
+        display: false, // this column will be visible
+      },
+    },
+    {
+      name: "vbeln",
+      options: {
+        display: false, // this column will be visible
+      },
+    },
   ];
 
   const modifyResponse = (res) => {
@@ -389,6 +469,8 @@ export default function ActivityDetails() {
         item.remark,
         item.pltac,
         item.compInd == "X" ? "X" : "Open",
+        item.erdat,
+        item.vbeln,
       ];
     });
     return modifiedResponse;
@@ -420,6 +502,10 @@ export default function ActivityDetails() {
         }
       });
   };
+
+  useEffect(() => {
+    getTableData();
+  }, []);
 
   useEffect(() => {
     getTableData();
@@ -516,6 +602,28 @@ export default function ActivityDetails() {
               subActTypeData={subActTypeData}
               setDisabledCreateBtn={setDisabledCreateBtn}
             />
+          </CrmModal>
+          <CrmModal
+            maxWidth="sm"
+            show={openModal}
+            handleShow={() => {
+              setOpenModal(false);
+            }}
+            primaryBtnText="Yes"
+            SecondaryBtnText="No"
+            primarySave={() => {
+              handleDelete();
+            }}
+            secondarySave={() => {
+              setOpenModal(false);
+            }}
+          >
+            <Box>
+              {" "}
+              <Typography fontSize={20}>
+                {"Are you sure you want to delete this record?"}
+              </Typography>
+            </Box>
           </CrmModal>
         </div>
       ) : (

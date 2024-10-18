@@ -35,7 +35,7 @@ const CreateNewActivity = forwardRef((props, ref) => {
   const orderId = reducerData.searchBar.orderId;
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
-  const projectId = reducerData?.dashboard?.project?.projectId;
+  const projectId = reducerData?.dashboard?.project;
   const snackbar = UseCustomSnackbar();
 
   const saveLog = async (data) => {

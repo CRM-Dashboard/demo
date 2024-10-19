@@ -112,92 +112,94 @@ export default function CustomerDetails() {
     }
   };
 
-  const modifyResponse = (res) => {
-    const modifiedResponse = res?.map((item) => {
-      return [
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.head}
-          </Typography>
-        ) : (
-          item?.head
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.payable}
-          </Typography>
-        ) : (
-          item?.payable
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.invoiced}
-          </Typography>
-        ) : (
-          item?.invoiced
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.payment}
-          </Typography>
-        ) : (
-          item?.payment
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.tds}
-          </Typography>
-        ) : (
-          item?.tds
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.totalPayment}
-          </Typography>
-        ) : (
-          item?.totalPayment
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.credit}
-          </Typography>
-        ) : (
-          item?.credit
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.outstanding}
-          </Typography>
-        ) : (
-          item?.outstanding
-        ),
-        item?.head === "Sub Total 1" ||
-        item?.head === "Sub Total 2" ||
-        item?.head === "Grand Total" ? (
-          <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-            {item?.unbilled}
-          </Typography>
-        ) : (
-          item?.unbilled
-        ),
-      ];
-    });
+  const modifyResponse = (res = []) => {
+    const modifiedResponse =
+      res &&
+      res?.map((item) => {
+        return [
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.head}
+            </Typography>
+          ) : (
+            item?.head
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.payable}
+            </Typography>
+          ) : (
+            item?.payable
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.invoiced}
+            </Typography>
+          ) : (
+            item?.invoiced
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.payment}
+            </Typography>
+          ) : (
+            item?.payment
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.tds}
+            </Typography>
+          ) : (
+            item?.tds
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.totalPayment}
+            </Typography>
+          ) : (
+            item?.totalPayment
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.credit}
+            </Typography>
+          ) : (
+            item?.credit
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.outstanding}
+            </Typography>
+          ) : (
+            item?.outstanding
+          ),
+          item?.head === "Sub Total 1" ||
+          item?.head === "Sub Total 2" ||
+          item?.head === "Grand Total" ? (
+            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
+              {item?.unbilled}
+            </Typography>
+          ) : (
+            item?.unbilled
+          ),
+        ];
+      });
     return modifiedResponse;
   };
 
@@ -363,23 +365,39 @@ export default function CustomerDetails() {
   };
 
   const getNdcReportDetails = () => {
-    if (OrderId) {
-      const formData = new FormData();
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    if (OrderId && !crmId) {
       formData.append("orderId", OrderId);
-      formData.append("userName", userName);
-      formData.append("passWord", passWord);
-      crmId && formData.append("crmId", crmId);
-      fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getNdcData", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setTableResponse(data);
-          setNdcTableData(modifyResponse(data));
-          console.log("##########ndc data", data);
-        });
+      formData.append("crmId", "");
     }
+    if (!OrderId && crmId) {
+      formData.append("orderId", "");
+      formData.append("crmId", crmId);
+    }
+    if (OrderId && crmId) {
+      formData.append("orderId", OrderId);
+      formData.append("crmId", "");
+    }
+    if (!OrderId && !crmId) {
+      formData.append("orderId", "");
+      formData.append("crmId", userName?.toUpperCase());
+    }
+
+    // if (OrderId) {
+
+    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getNdcData", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setTableResponse(data);
+        setNdcTableData(modifyResponse(data));
+        console.log("##########ndc data", data);
+      });
+    // }
   };
 
   useEffect(() => {

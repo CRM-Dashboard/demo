@@ -63,6 +63,10 @@ export default function CustomerDetails() {
       formData.append("orderId", OrderId);
       formData.append("crmId", "");
     }
+    if (!OrderId && !crmId) {
+      formData.append("orderId", "");
+      formData.append("crmId", userName?.toUpperCase());
+    }
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     // !OrderId && formData.append("crmId", crmId);

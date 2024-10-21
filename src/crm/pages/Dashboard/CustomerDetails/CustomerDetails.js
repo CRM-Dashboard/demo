@@ -10,7 +10,7 @@ import TodayActivity from "./TodayActivity";
 import TodaysBirthday from "./TodaysBirthday";
 import { useNavigate } from "react-router-dom";
 import Accordion from "@mui/material/Accordion";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, CircularProgress, Box } from "@mui/material";
 import AcceptancePending from "./AcceptancePending";
 import RegistrationPending from "./RegistrationPending";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -23,6 +23,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
+import axios from "axios";
 
 export default function CustomerDetails() {
   const [unitData, setUnitData] = useState([]);
@@ -35,6 +36,7 @@ export default function CustomerDetails() {
   const [acceptancePendingData, setAcceptancePendingData] = useState([]);
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
   const [registrationPendingData, setReistrationPendingData] = useState([]);
+  const [isNdcLoading, setIsNdcLoading] = useState(true);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -364,7 +366,7 @@ export default function CustomerDetails() {
     filter: false,
   };
 
-  const getNdcReportDetails = () => {
+  const getNdcReportDetails = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
@@ -386,17 +388,22 @@ export default function CustomerDetails() {
     }
 
     // if (OrderId) {
+    try {
+      setIsNdcLoading(true);
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/dashboard/getNdcData`,
+        formData
+      );
+      const data = response.data;
+      setTableResponse(data);
+      setNdcTableData(modifyResponse(data));
 
-    fetch(process.env.REACT_APP_SERVER_URL + "/api/dashboard/getNdcData", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setTableResponse(data);
-        setNdcTableData(modifyResponse(data));
-        console.log("##########ndc data", data);
-      });
+      console.log("##########ndc data", data);
+    } catch (error) {
+      console.error("Error fetching NDC data:", error);
+    } finally {
+      setIsNdcLoading(false);
+    }
     // }
   };
 
@@ -1319,11 +1326,28 @@ export default function CustomerDetails() {
 
         <div style={{ marginTop: "1em", marginBottom: "1em" }}>
           <ThemeProvider theme={() => getMuiTheme()}>
-            <Table
-              data={ndcTableData}
-              columns={columns}
-              options={options}
-            ></Table>
+            {isNdcLoading ? (
+              <>
+                {" "}
+                <Box
+                  sx={{
+                    display: "flex",
+                    width: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Box>
+                    <CircularProgress />
+                  </Box>
+                </Box>
+              </>
+            ) : (
+              <Table
+                data={ndcTableData}
+                columns={columns}
+                options={options}
+              ></Table>
+            )}
           </ThemeProvider>
         </div>
 

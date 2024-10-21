@@ -116,7 +116,7 @@ const TaskTable = ({
       name: "Type",
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     {
       name: "Assigned To",
@@ -168,7 +168,13 @@ const TaskTable = ({
 
   useEffect(() => {
     const DataForTable = data?.map((item) => {
-      return [item.taskDesc, item.type, item.fsedd, item.assigned, item.remark];
+      return [
+        item.taskDesc,
+        item.typeTxt,
+        item.fsedd,
+        item.assigned,
+        item.remark,
+      ];
     });
     setTableData(DataForTable);
 

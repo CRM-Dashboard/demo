@@ -124,9 +124,9 @@ const ProjectSummary = forwardRef((props, ref) => {
     },
     { name: "Progress" },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
-    { name: "Remarks" },
+    // { name: "Remarks" },
   ];
 
   const getMuiTheme = () =>
@@ -235,7 +235,7 @@ const ProjectSummary = forwardRef((props, ref) => {
             }}
           >
             <MUIDataTable
-              title={"Project Summary"}
+              title={"Project Summary(Working on it)"}
               data={tableData}
               columns={columns}
               options={options}

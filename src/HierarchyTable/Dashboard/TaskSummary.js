@@ -57,7 +57,7 @@ const TaskSummary = forwardRef((props, ref) => {
       name: "Type",
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     {
       name: "Assigned To",
@@ -171,7 +171,7 @@ const TaskSummary = forwardRef((props, ref) => {
               }}
             >
               <MUIDataTable
-                title={"Task Summary"}
+                title={"Task Summary(Working on it)"}
                 data={tableData}
                 columns={columns}
                 options={options}

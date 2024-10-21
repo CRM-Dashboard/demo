@@ -440,7 +440,7 @@ const Projects = () => {
       },
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => (
           <CrmDatePicker
@@ -822,7 +822,19 @@ const Projects = () => {
       </div>
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
-          <MUIDataTable data={tableData} columns={columns} options={options} />
+          <div
+            style={{
+              height: "32rem",
+              overflowY: "auto", // Enable vertical scrolling
+            }}
+          >
+            <MUIDataTable
+              title={"Project"}
+              data={tableData}
+              columns={columns}
+              options={options}
+            />
+          </div>
         </ThemeProvider>
       ) : (
         <CircularScreenLoader />

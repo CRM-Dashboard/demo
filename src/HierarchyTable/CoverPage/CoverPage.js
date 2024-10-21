@@ -6,7 +6,7 @@ import {
 import "./Style.css";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
-import { TextField, Button, IconButton } from "@mui/material";
+import { TextField, Button, IconButton, Box, Typography } from "@mui/material";
 import { AcUnit, AccessTime, Edit, Save, Cancel } from "@mui/icons-material";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
 
@@ -16,7 +16,7 @@ const CoverPage = () => {
   const [editMode, setEditMode] = useState({});
   const [editFields, setEditFields] = useState({});
   const [addDataType, setAddDataType] = useState("");
-  const [lineColor, setLineColor] = useState("#FFA500");
+  const [lineColor] = useState("#FFA500");
 
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
@@ -44,6 +44,7 @@ const CoverPage = () => {
 
   useEffect(() => {
     getTableData();
+    // eslint-disable-next-line
   }, []);
 
   const handleInputChange = (type, index, value) => {
@@ -227,7 +228,7 @@ const CoverPage = () => {
           ))}
         </ul>
 
-        {addDataType == type && (
+        {addDataType === type && (
           <>
             <TextField
               label={`New-Entry`}
@@ -373,34 +374,39 @@ const CoverPage = () => {
   };
 
   return (
-    <div style={{ marginLeft: "-100px", width: "calc(100% + 50px)" }}>
-      <VerticalTimeline lineColor={lineColor}>
-        {renderEditableSection(
-          "Past Month Best",
-          "PAST_MTH_BEST",
-          <AcUnit />,
-          "rgb(16, 204, 82)"
-        )}
-        {renderEditableSection(
-          "Past Month Worst",
-          "PAST_MTH_WORST",
-          <AccessTime />,
-          "rgb(255, 69, 58)"
-        )}
-        {renderEditableSection(
-          "Next Month Excited About",
-          "NXT_MTH_BEST",
-          <AcUnit />,
-          "rgb(33, 150, 243)"
-        )}
-        {renderEditableSection(
-          "Next Month Concerned About",
-          "NXT_MTH_CONCERN",
-          <AccessTime />,
-          "rgb(255, 165, 0)"
-        )}
-      </VerticalTimeline>
-    </div>
+    <>
+      <Box>
+        <Typography variant="h5">Coverpage</Typography>
+      </Box>
+      <div style={{ marginLeft: "-100px", width: "calc(100% + 50px)" }}>
+        <VerticalTimeline lineColor={lineColor}>
+          {renderEditableSection(
+            "Past Month Best",
+            "PAST_MTH_BEST",
+            <AcUnit />,
+            "rgb(16, 204, 82)"
+          )}
+          {renderEditableSection(
+            "Past Month Worst",
+            "PAST_MTH_WORST",
+            <AccessTime />,
+            "rgb(255, 69, 58)"
+          )}
+          {renderEditableSection(
+            "Next Month Excited About",
+            "NXT_MTH_BEST",
+            <AcUnit />,
+            "rgb(33, 150, 243)"
+          )}
+          {renderEditableSection(
+            "Next Month Concerned About",
+            "NXT_MTH_CONCERN",
+            <AccessTime />,
+            "rgb(255, 165, 0)"
+          )}
+        </VerticalTimeline>
+      </div>
+    </>
   );
 };
 

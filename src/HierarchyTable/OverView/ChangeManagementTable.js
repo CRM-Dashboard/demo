@@ -68,7 +68,7 @@ const ChangeManagementTable = ({
       name: "Chanage Description",
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     { name: "Assigned" },
     { name: "Type" },

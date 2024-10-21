@@ -154,6 +154,8 @@ const ITExpensesAndBudget = () => {
           return accu + Number(item.data[5]?.replaceAll(",", ""));
         }, 0);
 
+      let sumConsumed = (sumCommittedCost / sumAmount) * 100;
+
       return (
         <>
           {tableData.length > 0 && (
@@ -239,6 +241,19 @@ const ITExpensesAndBudget = () => {
                           {GlobalFunctions.getFormatedNumber(sumProjected)}
                         </TableCell>
                       );
+                    } else if (col.name === "% Consumed") {
+                      return (
+                        <TableCell
+                          style={{
+                            color: txtColour,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                          }}
+                          key={index}
+                        >
+                          {GlobalFunctions.getFormatedNumber(sumConsumed)}
+                        </TableCell>
+                      );
                     }
                   }
                 })}
@@ -255,6 +270,7 @@ const ITExpensesAndBudget = () => {
       {tableData?.length > 0 && (
         <ThemeProvider theme={() => getMuiTheme()}>
           <MUIDataTable
+            title={"Expenses and Budget"}
             data={tableData}
             style={{ width: "100%" }}
             columns={columns}

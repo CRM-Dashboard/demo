@@ -157,7 +157,7 @@ const routes = [
   {
     path: "usage",
     to: "/tracker",
-    name: "Usage",
+    name: "Gerahub Usage",
     icon: <DataUsageIcon />,
   },
 ];
@@ -229,7 +229,7 @@ export default function MiniDrawer() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            IT Tracker
+            IT Project Management
           </Typography>
         </Toolbar>
       </AppBar>

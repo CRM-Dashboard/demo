@@ -516,7 +516,7 @@ const Tickets = ({ data }) => {
       },
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => (
           <CrmDatePicker
@@ -805,12 +805,20 @@ const Tickets = ({ data }) => {
       {tableData.length > 0 && (
         <Grid sx={{ padding: "0.8em" }}>
           <ThemeProvider theme={() => getMuiTheme()}>
-            <MUIDataTable
-              data={tableData}
-              style={{ width: "100%" }}
-              columns={columns}
-              options={options}
-            />
+            <div
+              style={{
+                height: "32rem",
+                overflowY: "auto", // Enable vertical scrolling
+              }}
+            >
+              <MUIDataTable
+                title={"Tickets"}
+                data={tableData}
+                style={{ width: "100%" }}
+                columns={columns}
+                options={options}
+              />
+            </div>
           </ThemeProvider>
         </Grid>
       )}

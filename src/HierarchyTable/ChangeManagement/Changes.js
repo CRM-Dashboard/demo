@@ -552,7 +552,7 @@ const Changes = ({ data }) => {
       },
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
       options: {
         customBodyRenderLite: (dataIndex, rowIndex) => (
           <CrmDatePicker
@@ -877,6 +877,7 @@ const Changes = ({ data }) => {
         <Grid sx={{ padding: "0.8em" }}>
           <ThemeProvider theme={() => getMuiTheme()}>
             <MUIDataTable
+              title={"Change"}
               data={tableData}
               style={{ width: "100%" }}
               columns={columns}

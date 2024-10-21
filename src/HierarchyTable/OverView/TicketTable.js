@@ -138,7 +138,7 @@ const TicketTable = ({ data, secondIteration, statuses, getTableData }) => {
       name: "Assigned To",
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     { name: "Remarks" },
   ];
@@ -191,7 +191,7 @@ const TicketTable = ({ data, secondIteration, statuses, getTableData }) => {
     const DataForTable = data?.map((item) => {
       return [
         item.ticketDesc,
-        item.category,
+        item.categTxt,
         <input
           value={item.priority}
           style={{

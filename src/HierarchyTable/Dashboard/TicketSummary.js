@@ -94,7 +94,7 @@ const TicketSummary = forwardRef((props, ref) => {
       name: "Assigned To",
     },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     { name: "Remarks" },
   ];
@@ -204,7 +204,7 @@ const TicketSummary = forwardRef((props, ref) => {
               }}
             >
               <MUIDataTable
-                title={"Ticket Summary"}
+                title={"Ticket Summary(Working on it)"}
                 data={tableData}
                 columns={columns}
                 options={options}

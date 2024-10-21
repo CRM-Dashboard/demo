@@ -78,7 +78,7 @@ const Usage = () => {
 
   const columnsHub = [
     {
-      name: "Object",
+      name: "Activity Perform",
     },
     {
       name: "Count",
@@ -87,7 +87,7 @@ const Usage = () => {
 
   const columnsTop = [
     {
-      name: "Name",
+      name: "Top Ten Users",
     },
     {
       name: "Count",
@@ -111,6 +111,7 @@ const Usage = () => {
         {hubData?.length > 0 && (
           <ThemeProvider theme={() => getMuiTheme()}>
             <MUIDataTable
+              title={"Gera Hub Usage"}
               data={hubData}
               style={{ width: "100%" }}
               columns={columnsHub}

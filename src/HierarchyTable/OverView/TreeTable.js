@@ -169,7 +169,7 @@ const TreeTable = ({
     },
     { name: "Progress" },
     {
-      name: "Plan End",
+      name: "Planned End Date",
     },
     { name: "Remarks" },
   ];
@@ -360,6 +360,7 @@ const TreeTable = ({
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
           <MUIDataTable
+            title={"Overview"}
             data={tableData}
             columns={
               secondIteration === "true"

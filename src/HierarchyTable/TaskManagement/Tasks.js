@@ -784,15 +784,29 @@ const Tasks = () => {
         MUIDataTableBodyCell: {
           styleOverrides: {
             root: {
+              paddingTop: "0.2em",
+              paddingBottom: "0.2em",
               fontSize: "0.7rem",
+            },
+          },
+        },
+        MUIDataTableSelectCell: {
+          styleOverrides: {
+            headerCell: {
+              backgroundColor: "#4D7AFF",
+              color: "white",
             },
           },
         },
         MUIDataTableHeadCell: {
           styleOverrides: {
             data: {
-              fontSize: "0.7rem",
+              fontSize: "0.8rem",
               fontWeight: "bold",
+            },
+            root: {
+              backgroundColor: "#4D7AFF",
+              color: "white",
             },
           },
         },
@@ -956,20 +970,20 @@ const Tasks = () => {
       <Grid>
         {tableData?.length > 0 && (
           <ThemeProvider theme={() => getMuiTheme()}>
-            <div
+            {/* <div
               style={{
                 height: "32rem",
                 overflowY: "auto", // Enable vertical scrolling
               }}
-            >
-              <MUIDataTable
-                title="Tasks"
-                data={tableData}
-                style={{ width: "100%" }}
-                columns={columns}
-                options={options}
-              />
-            </div>
+            > */}
+            <MUIDataTable
+              title="Tasks"
+              data={tableData}
+              style={{ width: "100%" }}
+              columns={columns}
+              options={options}
+            />
+            {/* </div> */}
           </ThemeProvider>
         )}
 

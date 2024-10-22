@@ -335,7 +335,7 @@ const TreeTable = ({
         MUIDataTableSelectCell: {
           styleOverrides: {
             headerCell: {
-              backgroundColor: "#0033CC",
+              backgroundColor: "#4D7AFF",
               color: "white",
             },
           },
@@ -347,7 +347,7 @@ const TreeTable = ({
               fontWeight: "bold",
             },
             root: {
-              backgroundColor: "#0033CC",
+              backgroundColor: "#4D7AFF",
               color: "white",
             },
           },

@@ -727,7 +727,17 @@ const Projects = () => {
         MUIDataTableBodyCell: {
           styleOverrides: {
             root: {
+              paddingTop: "0.2em",
+              paddingBottom: "0.2em",
               fontSize: "0.7rem",
+            },
+          },
+        },
+        MUIDataTableSelectCell: {
+          styleOverrides: {
+            headerCell: {
+              backgroundColor: "#4D7AFF",
+              color: "white",
             },
           },
         },
@@ -736,6 +746,10 @@ const Projects = () => {
             data: {
               fontSize: "0.8rem",
               fontWeight: "bold",
+            },
+            root: {
+              backgroundColor: "#4D7AFF",
+              color: "white",
             },
           },
         },
@@ -822,12 +836,7 @@ const Projects = () => {
       </div>
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
-          <div
-            style={{
-              height: "32rem",
-              overflowY: "auto", // Enable vertical scrolling
-            }}
-          >
+          <div>
             <MUIDataTable
               title={"Project"}
               data={tableData}

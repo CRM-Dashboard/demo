@@ -235,6 +235,32 @@ export default function MiniDrawer() {
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
+          <div
+            className="logo-container"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "10px 20px",
+              backgroundColor: "#f5f5f5",
+              borderBottom: "1px solid #e0e0e0",
+            }}
+          >
+            <img
+              alt="Gera"
+              className="logo"
+              src={require("../../assets/gera_logo.jpg")}
+              style={{
+                maxWidth: "150px",
+                height: "auto",
+                transition: "transform 0.3s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.transform = "scale(1.05)")
+              }
+              onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            />
+          </div>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />

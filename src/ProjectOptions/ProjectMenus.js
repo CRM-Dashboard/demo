@@ -102,6 +102,40 @@ export default function ProjectMenus() {
           <Grid
             style={{ cursor: "pointer" }}
             sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            className={
+              GlobalFunctions.allowAccessByRoles(
+                accessRoles,
+                roles.itServiceManagement
+              )
+                ? ""
+                : "non-clickable-grid"
+            }
+            onClick={() => {
+              navigate("/drawing/dashboard");
+            }}
+          >
+            <img
+              alt="Drawing Management"
+              className="imageStyles"
+              style={{ width: "80%", height: "220px" }} // Ensure height is consistent
+              src={require("./../../src/assets/drawing1.jpg")}
+            />
+            <Typography
+              sx={{ fontSize: "1rem", padding: "0.5em", paddingTop: "1.2em" }}
+            >
+              Drawing Management
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid item md={5} lg={5} sm={5} xs={5}>
+          <Grid
+            style={{ cursor: "pointer" }}
+            sx={{
               cursor: "pointer",
               display: "flex",
               flexDirection: "column",

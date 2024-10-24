@@ -28,6 +28,7 @@ import ServiceRequest from "../crm/pages/Reports/ServiceRequest/ServiceRequest";
 import CashbackReport from "../crm/pages/Reports/CashbackReport/CashbackReport";
 import CustomerDetails from "../crm/pages/Dashboard/CustomerDetails/CustomerDetails";
 import CancellationReport from "../crm/pages/Reports/CancellationReport/CancellationReport";
+import DrawingManagementLayout from "../drawingManagement/layouts/DrawingManagementLayout";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -81,6 +82,13 @@ export default function Navigation() {
                   <Route path="dashboard" element={<ITHierarchyDashboard />} />
                   <Route path="coverPage" element={<CoverPage />} />
                 </Route>
+
+                <Route
+                  path="/drawing/*"
+                  element={
+                    <ProtectedRoute element={<DrawingManagementLayout />} />
+                  }
+                ></Route>
                 {/* <Route path="/menus/table" element={<HierarchyTable />} /> */}
                 <Route
                   path="/menus/table"

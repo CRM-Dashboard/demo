@@ -37,6 +37,7 @@ export default function CustomerDetails() {
   const [searchValueAvailable, setSearchValueAvailable] = useState(false);
   const [registrationPendingData, setReistrationPendingData] = useState([]);
   const [isNdcLoading, setIsNdcLoading] = useState(true);
+  const [cardDataFromNdc, setCardDataFromNdc] = useState({});
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -48,6 +49,30 @@ export default function CustomerDetails() {
   const projectId = reducerData?.dashboard?.project?.projectId;
   const accountStatement = reducerData.searchBar.accountStatement;
   // const searchValueAvailable = reducerData.searchBar.searchKey ? true : false;
+
+  console.log(
+    "\n",
+    "*********",
+    "\n",
+    "accountStatement",
+    accountStatement,
+    "\n",
+    "searchValueAvailable",
+    searchValueAvailable,
+    "\n",
+    "customerDetails",
+    customerDetails,
+    "\n",
+    "ndcTableData",
+    ndcTableData,
+    "\n",
+    "************",
+    "\n"
+  );
+  // console.log("accountStatement",accountStatement)
+  // console.log("searchValueAvailable",searchValueAvailable)
+  // console.log("customerDetails",customerDetails)
+  // console.log("ndcTableData",ndcTableData)
 
   const getDetails = () => {
     // setLoading(true);
@@ -311,15 +336,8 @@ export default function CustomerDetails() {
         MUIDataTableHeadCell: {
           styleOverrides: {
             root: {
-              backgroundColor: GlobalFunctions.getThemeBasedMode(
-                reducerData.ThemeReducer.mode
-              ),
-              color: GlobalFunctions.getThemeBasedDatailsColour(
-                reducerData.ThemeReducer.mode
-              ),
-            },
-            data: {
-              fontWeight: "bold",
+              backgroundColor: "#62b4ff",
+              color: "white",
             },
           },
         },
@@ -397,6 +415,17 @@ export default function CustomerDetails() {
       const data = response.data;
       setTableResponse(data);
       setNdcTableData(modifyResponse(data));
+      const filterData = data?.filter(
+        (row) => row.head === "Consideration Value"
+      );
+      console.log("filterData", filterData[0]);
+      // if (
+      //   searchValueAvailable === false &&
+      //   filterData &&
+      //   filterData?.length > 0
+      // ) {
+      setCardDataFromNdc(filterData[0]);
+      // }
 
       console.log("##########ndc data", data);
     } catch (error) {
@@ -485,8 +514,8 @@ export default function CustomerDetails() {
   };
 
   const getInvoicePercentage = () => {
-    var invoiceAmount;
-    var considerationAmount;
+    let invoiceAmount;
+    let considerationAmount;
     if (searchValueAvailable) {
       considerationAmount = parseFloat(
         accountStatement.AgreementValue?.replace(/,/g, "")
@@ -495,18 +524,22 @@ export default function CustomerDetails() {
         accountStatement?.DueAmount?.replace(/,/g, "")
       );
     } else {
-      considerationAmount = parseFloat(
-        customerDetails?.AgreementValue?.replace(/,/g, "")
-      );
-      invoiceAmount = parseFloat(customerDetails?.DueAmount?.replace(/,/g, ""));
+      // considerationAmount = parseFloat(
+      //   cardDataFromNdc?.payable?.replace(/,/g, "")
+      // );
+
+      // invoiceAmount = parseFloat(cardDataFromNdc?.invoiced?.replace(/,/g, ""));
+      considerationAmount = cardDataFromNdc?.payable;
+      invoiceAmount = cardDataFromNdc?.invoiced;
     }
-    const percentage = ((invoiceAmount / considerationAmount) * 100).toFixed(1);
+    const percentage = ((invoiceAmount / considerationAmount) * 100).toFixed(0);
+
     return percentage;
   };
 
   const getPaidPercentage = () => {
-    var paidAmount;
-    var invoiceAmount;
+    let paidAmount;
+    let invoiceAmount;
     if (searchValueAvailable) {
       paidAmount = parseFloat(
         accountStatement?.AgreementValue?.replace(/,/g, "")
@@ -515,29 +548,37 @@ export default function CustomerDetails() {
         accountStatement?.DueAmount?.replace(/,/g, "")
       );
     } else {
-      paidAmount = getPaidAmt();
-      invoiceAmount = parseFloat(customerDetails?.DueAmount?.replace(/,/g, ""));
+      paidAmount = cardDataFromNdc?.totalPayment;
+      invoiceAmount = cardDataFromNdc?.payable;
     }
 
-    const percentage = ((paidAmount / invoiceAmount) * 100).toFixed(1);
+    const percentage = ((paidAmount / invoiceAmount) * 100).toFixed(0);
     return percentage;
   };
 
   const getOutstandingPercentage = () => {
-    if (customerDetails?.BalanceAmount && customerDetails?.DueAmount) {
-      const oustadingAmount = parseFloat(
-        customerDetails?.BalanceAmount?.replace(/,/g, "")
-      );
+    if (searchValueAvailable) {
+      if (customerDetails?.BalanceAmount && customerDetails?.DueAmount) {
+        const oustadingAmount = parseFloat(
+          customerDetails?.BalanceAmount?.replace(/,/g, "")
+        );
 
-      const invoiceAmount = parseFloat(
-        customerDetails?.DueAmount?.replace(/,/g, "")
-      );
+        const invoiceAmount = parseFloat(
+          customerDetails?.DueAmount?.replace(/,/g, "")
+        );
 
-      const percentage = ((oustadingAmount / invoiceAmount) * 100).toFixed(1);
+        const percentage = ((oustadingAmount / invoiceAmount) * 100).toFixed(0);
 
-      return percentage < 0 ? 0 : percentage;
+        return percentage < 0 ? 0 : percentage;
+      } else {
+        return 0;
+      }
     } else {
-      return 0;
+      let outstandingAmt = cardDataFromNdc?.outstanding;
+      let total = cardDataFromNdc?.payable;
+
+      let result = ((outstandingAmt / total) * 100).toFixed(1);
+      return result;
     }
   };
 
@@ -552,16 +593,13 @@ export default function CustomerDetails() {
         accountStatement.PossessionBalance?.replace(/,/g, "")
       );
     } else {
-      considerationAmount = parseFloat(
-        customerDetails?.AgreementValue?.replace(/,/g, "")
-      );
-      upcomingAmount = parseFloat(
-        customerDetails.PossessionBalance?.replace(/,/g, "")
-      );
+      considerationAmount = cardDataFromNdc?.payable;
+
+      upcomingAmount = cardDataFromNdc?.unbilled;
     }
 
     const percentage = ((upcomingAmount / considerationAmount) * 100).toFixed(
-      1
+      0
     );
 
     return percentage < 0 ? 0 : percentage;
@@ -569,13 +607,14 @@ export default function CustomerDetails() {
 
   const circleInvoice = {
     series: [
-      searchValueAvailable
-        ? getInvoicePercentage() !== undefined
-          ? getInvoicePercentage()
-          : 0
-        : customerDetails?.InvoicePercent !== undefined
-        ? customerDetails?.InvoicePercent
-        : 0,
+      getInvoicePercentage() ? getInvoicePercentage() : 0,
+      // searchValueAvailable
+      //   ? getInvoicePercentage() !== undefined
+      //     ? getInvoicePercentage()
+      //     : 0
+      // : // : customerDetails?.InvoicePercent !== undefined
+      // ? customerDetails?.InvoicePercent
+      // 0,
     ],
 
     options: {
@@ -609,13 +648,14 @@ export default function CustomerDetails() {
 
   const circlePaid = {
     series: [
-      searchValueAvailable
-        ? getPaidPercentage() !== undefined
-          ? getPaidPercentage()
-          : 0
-        : customerDetails?.PaidPercent !== undefined
-        ? customerDetails?.PaidPercent
-        : 0,
+      getPaidPercentage() ? getPaidPercentage() : 0,
+      // searchValueAvailable
+      //   ? getPaidPercentage() !== undefined
+      //     ? getPaidPercentage()
+      //     : 0
+      //   : customerDetails?.PaidPercent !== undefined
+      //   ? customerDetails?.PaidPercent
+      //   : 0,
     ],
 
     options: {
@@ -652,13 +692,14 @@ export default function CustomerDetails() {
 
   const circleOut = {
     series: [
-      searchValueAvailable
-        ? getOutstandingPercentage() !== undefined
-          ? getOutstandingPercentage()
-          : 0
-        : customerDetails?.BalancePercent !== undefined
-        ? customerDetails?.BalancePercent
-        : 0,
+      getOutstandingPercentage ? getOutstandingPercentage() : 0,
+      // searchValueAvailable
+      //   ? getOutstandingPercentage() !== undefined
+      //     ? getOutstandingPercentage()
+      //     : 0
+      //   : customerDetails?.BalancePercent !== undefined
+      //   ? customerDetails?.BalancePercent
+      //   : 0,
     ],
 
     options: {
@@ -696,13 +737,14 @@ export default function CustomerDetails() {
 
   const circleUp = {
     series: [
-      searchValueAvailable
-        ? getUpcomingPercentage() !== undefined
-          ? getUpcomingPercentage()
-          : 0
-        : customerDetails?.UpcomingPercent !== undefined
-        ? customerDetails?.UpcomingPercent
-        : 0,
+      getUpcomingPercentage() ? getUpcomingPercentage() : 0,
+      // searchValueAvailable
+      //   ? getUpcomingPercentage() !== undefined
+      //     ? getUpcomingPercentage()
+      //     : 0
+      //   : customerDetails?.UpcomingPercent !== undefined
+      //   ? customerDetails?.UpcomingPercent
+      //   : 0,
     ],
 
     options: {
@@ -1175,8 +1217,8 @@ export default function CustomerDetails() {
                             accountStatement.DueAmount
                           )
                         : "₹" + 0
-                      : customerDetails?.InvoiceAmount !== undefined
-                      ? "₹" + customerDetails?.InvoiceAmount + "Cr"
+                      : cardDataFromNdc?.invoiced !== undefined
+                      ? "₹" + cardDataFromNdc?.invoiced + " Cr"
                       : "₹" + 0
                   }
                   title="Invoiced Amount"
@@ -1219,12 +1261,8 @@ export default function CustomerDetails() {
                             getPaidAmt().toLocaleString()
                           )
                         : "₹" + 0
-                      : customerDetails?.PaidAmount !== undefined
-                      ? "₹" +
-                        GlobalFunctions.formatToIndianNumber(
-                          customerDetails?.PaidAmount
-                        ) +
-                        "Cr"
+                      : cardDataFromNdc?.totalPayment !== undefined
+                      ? "₹" + cardDataFromNdc?.totalPayment + " Cr"
                       : "₹" + 0
                   }
                   title="Paid Amount"
@@ -1267,12 +1305,8 @@ export default function CustomerDetails() {
                             accountStatement.BalanceAmount
                           )
                         : "₹" + 0
-                      : customerDetails?.BalanceAmount !== undefined
-                      ? "₹" +
-                        GlobalFunctions.formatToIndianNumber(
-                          customerDetails?.BalanceAmount
-                        ) +
-                        "Cr"
+                      : cardDataFromNdc?.outstanding !== undefined
+                      ? "₹" + cardDataFromNdc?.outstanding + " Cr"
                       : "₹" + 0
                   }
                   title="Outstanding Amount"
@@ -1313,8 +1347,8 @@ export default function CustomerDetails() {
                             accountStatement.PossessionBalance
                           )
                         : "₹" + 0
-                      : customerDetails?.UpcomingAmount !== undefined
-                      ? "₹" + customerDetails?.UpcomingAmount + "Cr"
+                      : cardDataFromNdc?.unbilled !== undefined
+                      ? "₹" + cardDataFromNdc?.unbilled + " Cr"
                       : "₹" + 0
                   }
                   title="Balance till possession"

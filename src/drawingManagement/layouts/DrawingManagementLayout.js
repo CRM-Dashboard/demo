@@ -7,6 +7,7 @@ import RFI from "../pages/RFI";
 import DrawingTransmittal from "../pages/DrawingTransmittal";
 import DrawingCertificate from "../pages/DrawingCertificate";
 import { routes } from "../constants/constants";
+import DrawingDetails from "../pages/DrawingDetails";
 
 const DrawingManagementLayout = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const DrawingManagementLayout = () => {
           <Routes>
             <Route path="/*">
               <Route index element={<DrawingDashboard />} />
-              <Route path="details/:id" element={<RFI />} />
+              <Route path="details/:id" element={<DrawingDetails />} />
               <Route path="register" element={<DrawingRegister />} />
               <Route path="rfi" element={<RFI />} />
               <Route path="transmittal" element={<DrawingTransmittal />} />

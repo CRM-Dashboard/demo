@@ -116,7 +116,7 @@ export default function ProjectMenus() {
                 : "non-clickable-grid"
             }
             onClick={() => {
-              navigate("/drawing/dashboard");
+              navigate("/drawing");
             }}
           >
             <img

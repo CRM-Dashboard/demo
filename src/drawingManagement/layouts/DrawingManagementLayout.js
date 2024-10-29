@@ -8,6 +8,7 @@ import DrawingTransmittal from "../pages/DrawingTransmittal";
 import DrawingCertificate from "../pages/DrawingCertificate";
 import { routes } from "../constants/constants";
 import DrawingDetails from "../pages/DrawingDetails";
+import UnitAnnexure from "../pages/UnitAnnexure";
 
 const DrawingManagementLayout = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const DrawingManagementLayout = () => {
               <Route path="rfi" element={<RFI />} />
               <Route path="transmittal" element={<DrawingTransmittal />} />
               <Route path="certificate" element={<DrawingCertificate />} />
+              <Route path="unit-annexure" element={<UnitAnnexure />} />
             </Route>
           </Routes>
         </CustomSidebar>

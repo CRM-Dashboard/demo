@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { memo, useEffect } from "react";
 import {
   Grid,
   TextField,
@@ -17,39 +17,39 @@ const CreateUpdateDrawing = () => {
   const selectedDrawing = useSelector(
     (state) => state?.drawing?.selectedDrawing
   );
+  const initialFormValues = {
+    drawUid: "",
+    name1: "",
+    drawNo: "",
+    version: "",
+    drawTxt: "",
+    stage: "",
+    location: "",
+    categ: "",
+    remarks: "",
+  };
+
+  const validationSchema = Yup.object({
+    drawUid: Yup.string()
+      .min(5, "Must be at least 5 characters")
+      .required("Drawing ID is required"),
+    name1: Yup.string()
+      .max(100, "Project name is too long")
+      .required("Project is required"),
+    drawNo: Yup.string().required("Drawing No is required"),
+    version: Yup.string()
+      .matches(/^[A-Z0-9]+$/, "Only uppercase letters and numbers are allowed")
+      .required("Version is required"),
+    drawTxt: Yup.string().required("Drawing Description is required"),
+    stage: Yup.string().required("Stage is required"),
+    location: Yup.string().required("Location is required"),
+    categ: Yup.string().required("Category is required"),
+    remarks: Yup.string().max(500, "Remarks cannot exceed 500 characters"),
+  });
 
   const formik = useFormik({
-    initialValues: {
-      drawUid: "",
-      name1: "",
-      drawNo: "",
-      version: "",
-      drawTxt: "",
-      stage: "",
-      location: "",
-      categ: "",
-      remarks: "",
-    },
-    validationSchema: Yup.object({
-      drawUid: Yup.string()
-        .min(5, "Must be at least 5 characters")
-        .required("Drawing ID is required"),
-      name1: Yup.string()
-        .max(100, "Project name is too long")
-        .required("Project is required"),
-      drawNo: Yup.string().required("Drawing No is required"),
-      version: Yup.string()
-        .matches(
-          /^[A-Z0-9]+$/,
-          "Only uppercase letters and numbers are allowed"
-        )
-        .required("Version is required"),
-      drawTxt: Yup.string().required("Drawing Description is required"),
-      stage: Yup.string().required("Stage is required"),
-      location: Yup.string().required("Location is required"),
-      categ: Yup.string().required("Category is required"),
-      remarks: Yup.string().max(500, "Remarks cannot exceed 500 characters"),
-    }),
+    initialValues: initialFormValues,
+    validationSchema: validationSchema,
     onSubmit: (values) => {
       console.log("Form values", values);
       // Handle form submission here (e.g., sending selectedDrawing to an API)
@@ -283,4 +283,4 @@ const CreateUpdateDrawing = () => {
   );
 };
 
-export default CreateUpdateDrawing;
+export default memo(CreateUpdateDrawing);

@@ -35,4 +35,10 @@ export const routes = [
     name: "Architect Certificate",
     icon: <ApprovalIcon />,
   },
+  {
+    path: "unit-annexure",
+    to: "/drawing",
+    name: "Unit Annexure",
+    icon: <ApprovalIcon />,
+  },
 ];

@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import api from "../../services/api";
 
-// "4403500"
-
 const useGetUnitUploadDrawing = () => {
   const passWord = useSelector((state) => state.LoginReducer.passWord);
   const userName = useSelector((state) => state.LoginReducer.userName);
@@ -27,7 +25,6 @@ const useGetUnitUploadDrawing = () => {
 
       // Extract the relevant data from the response
       const unitDataArray = response.data.UNIT_S3; // Array of unit data
-      console.log("unitDataArray:", unitDataArray);
 
       // Process each unit data into an array of processed objects
       const processedData = unitDataArray.map((unitData) => {
@@ -55,10 +52,9 @@ const useGetUnitUploadDrawing = () => {
           s3Bucket: unitData.s3Bucket,
           url: unitData.url,
           fileUrl: fileUrl, // Add the Blob URL for download
+          id: unitData.matnr,
         };
       });
-
-      console.log("Processed Data:", processedData);
 
       // If needed, store processed data in state
       setTableData(processedData); // Assuming setTableData is for storing additional data

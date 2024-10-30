@@ -10,6 +10,7 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import InputField from "../../crm/components/inputField/InputField";
 
@@ -17,6 +18,10 @@ const UnitAnnexureAccordion = ({
   projectData = [],
   selectedProjects = [],
   handleProjectSelection = () => {},
+
+  unitData = [],
+  selectedUnit = [],
+  handleUnitSelection = () => {},
 
   getTableData = () => {},
   loading = false,
@@ -60,7 +65,7 @@ const UnitAnnexureAccordion = ({
                     value={selectedProjects || []}
                     onChange={handleProjectSelection}
                     SelectProps={{
-                      multiple: true,
+                      multiple: false,
                       renderValue: (selected) =>
                         selected
                           .map(
@@ -95,35 +100,29 @@ const UnitAnnexureAccordion = ({
                   <InputField
                     select
                     label="Units"
-                    value={selectedProjects || []}
-                    onChange={handleProjectSelection}
+                    disabled={!selectedProjects}
+                    value={selectedUnit || []}
+                    onChange={handleUnitSelection}
                     SelectProps={{
-                      multiple: true,
+                      multiple: false,
                       renderValue: (selected) =>
                         selected
                           .map(
                             (id) =>
-                              projectData?.find(
-                                (project) => project.projectId === id
-                              )?.name
+                              unitData?.find((unit) => unit.matnr === id)?.maktx
                           )
                           .join(", "),
                     }}
                   >
                     <MenuItem value="">
-                      <em>Select Location</em>
+                      <em>Select Unit</em>
                     </MenuItem>
-                    {projectData?.map((project) => (
-                      <MenuItem
-                        key={project.projectId}
-                        value={project.projectId}
-                      >
+                    {unitData?.map((unit) => (
+                      <MenuItem key={unit.matnr} value={unit.matnr}>
                         <Checkbox
-                          checked={
-                            selectedProjects?.indexOf(project.projectId) > -1
-                          }
+                          checked={unitData?.indexOf(unit.matnr) > -1}
                         />
-                        {project.name}
+                        {unit.maktx}
                       </MenuItem>
                     ))}
                   </InputField>
@@ -138,7 +137,7 @@ const UnitAnnexureAccordion = ({
                     alignItems: "flex-end",
                   }}
                 >
-                  <Button
+                  {/* <Button
                     disabled={
                       selectedProjects?.toString()?.trim()?.length === 0 ||
                       loading
@@ -147,7 +146,26 @@ const UnitAnnexureAccordion = ({
                     onClick={getTableData}
                   >
                     Apply
-                  </Button>
+                  </Button> */}
+
+                  <LoadingButton
+                    onClick={getTableData}
+                    loading={loading}
+                    disabled={
+                      selectedProjects?.toString()?.trim()?.length === 0 ||
+                      loading
+                    }
+                    loadingPosition="start" // Position of loading spinner ('start', 'center', 'end')
+                    // startIcon={<FileUploadIcon //>}
+                    variant="contained"
+                    // loadingIndicator="Uploading..."
+                    style={{
+                      padding: "10px 20px",
+                      marginLeft: "10px", // Space between buttons
+                    }}
+                  >
+                    Apply
+                  </LoadingButton>
                 </Grid>
               </Grid>
             </Grid>

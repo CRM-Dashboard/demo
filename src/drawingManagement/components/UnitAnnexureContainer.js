@@ -1,6 +1,5 @@
-import React, { useMemo, useState, memo } from "react";
+import React, { useMemo, useState, memo, useCallback, useEffect } from "react";
 import UnitAnnexureAccordion from "./UnitAnnexureAccordion";
-import { Button } from "@mui/material";
 import withTable from "../../crm/components/TableFilter/withTable";
 import TableFilter from "../../crm/components/TableFilter/TableFilter";
 import Loading from "./Loading";
@@ -8,20 +7,44 @@ import useGetUnitUploadDrawing from "../hooks/useGetUnitUploadDrawing";
 import { appendTextToPDF } from "../utils/helpFunctions";
 import ErrorPage from "./ErrorPage";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import api from "../../services/api";
-import { useSelector } from "react-redux";
-
+import usePostUploadUrlToSap from "../hooks/usePostUploadUrlToSap";
+import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import LoadingButton from "@mui/lab/LoadingButton";
+import useProjectListDropdown from "../hooks/useProjectListDropDown";
+import useUnitListDropDown from "../hooks/useUnitListDropDown";
 const HOCTable = withTable(memo(TableFilter));
 
 const UnitAnnexureContainer = () => {
   const [selectedItems, setSelectedItems] = useState([]);
-  const passWord = useSelector((state) => state.LoginReducer.passWord);
-  const userName = useSelector((state) => state.LoginReducer.userName);
   //   const [role] = useState("admin");
   const [role] = useState("user");
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedProjects, setSelectedProjects] = useState("");
+  const [selectedUnit, setSelectedUnit] = useState("");
 
+  const { projecList } = useProjectListDropdown();
+  const { unitList, fetchUnit } = useUnitListDropDown();
   const { getTableData, tableData, isLoading, error } =
     useGetUnitUploadDrawing();
+  const { postToSap } = usePostUploadUrlToSap();
+  const snackbar = UseCustomSnackbar();
+
+  useEffect(() => {
+    if (selectedProjects) {
+      fetchUnit(selectedProjects);
+    }
+  }, [selectedProjects]);
+
+  const handleProjectSelection = useCallback((event) => {
+    const value = event.target.value;
+    setSelectedProjects(typeof value === "string" ? value.split(",") : value);
+  }, []);
+
+  const handleUnitSelection = useCallback((event) => {
+    const value = event.target.value;
+    setSelectedUnit(typeof value === "string" ? value.split(",") : value);
+  }, []);
 
   const column = useMemo(
     () => [
@@ -87,7 +110,6 @@ const UnitAnnexureContainer = () => {
         Header: "PDF",
         accessor: "url",
         Cell: ({ value }) => {
-          console.log("value", value);
           return (
             <a href={value} target="_blank" rel="noreferrer">
               <PictureAsPdfIcon />
@@ -101,23 +123,27 @@ const UnitAnnexureContainer = () => {
 
   const memoizedData = useMemo(() => tableData, [tableData]);
 
-  const handleModifiedPdfUploadtToS3 = async () => {
-    if (selectedItems && selectedItems.length > 0) {
-      selectedItems.forEach(async (doc) => {
-        const { fileUrl, unitNo, floor, project, building, name, type } = doc;
+  const handleModifiedPdfUploadToS3 = async () => {
+    if (!selectedItems || selectedItems.length === 0) {
+      return; // Early exit if there are no selected items
+    }
 
-        let unitX = 870;
-        let floorX = 780;
-        let floorY = 90;
-        let unitY = 740;
+    setIsUploading(true); // Start uploading before processing
 
-        console.log("doc", doc);
+    try {
+      // Create an array of promises for all uploads
+      const uploadPromises = selectedItems.map(async (doc) => {
+        const { fileUrl, unitNo, floor, project, building, name, type, matnr } =
+          doc;
+
+        const unitX = 870;
+        const floorX = 780;
+        const floorY = 90;
+        const unitY = 740;
 
         const folderName = `${project}/${building}/${floor}/${unitNo}/${name}.${type}`;
 
-        console.log("folderName", folderName);
-
-        const publicUrl = await appendTextToPDF(
+        const resp = await appendTextToPDF(
           fileUrl,
           "UNIT NO : " + unitNo,
           unitX,
@@ -126,21 +152,25 @@ const UnitAnnexureContainer = () => {
           floorX,
           floorY,
           folderName,
-          type
+          matnr
         );
+
+        const { publicUrl, matnr: parseMatnr } = resp;
+
         if (publicUrl) {
-          const url = "/api/drawing/upload-url-sap";
-          const formData = new FormData();
-          formData.append("userName", userName);
-          formData.append("passWord", passWord);
-          formData.append("matnr", "4403500");
-          formData.append("passUrl", publicUrl);
-          const res = await api.post(url, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-          console.log(publicUrl, "publicUrl", res);
+          const res = await postToSap(parseMatnr, publicUrl);
+          if (res.MESSAGE) {
+            snackbar.showSuccess(res.MESSAGE);
+          }
         }
       });
+
+      // Wait for all uploads to complete
+      await Promise.all(uploadPromises);
+    } catch (error) {
+      snackbar.showError("Error Occurred...");
+    } finally {
+      setIsUploading(false); // Stop uploading in all scenarios
     }
   };
 
@@ -149,9 +179,16 @@ const UnitAnnexureContainer = () => {
   }
 
   const handleGetTableData = () => {
-    // if (role === "admin") {
-    getTableData("4403500", "", true);
-    // }
+    const unit = selectedUnit[0] || ""; // Use the first selected unit or an empty string
+    const project = selectedProjects[0] || ""; // Use the first selected project or an empty string
+
+    if (selectedProjects.length > 0 && selectedUnit.length > 0) {
+      getTableData(unit, project, true); // Call with both parameters
+    } else if (selectedUnit.length > 0) {
+      getTableData(unit, "", true); // Call with only unit
+    } else if (selectedProjects.length > 0) {
+      getTableData("", project, true); // Call with only project
+    }
   };
 
   return (
@@ -175,31 +212,33 @@ const UnitAnnexureContainer = () => {
             paddingTop: 0,
           }}
         >
-          <Button
+          <LoadingButton
+            onClick={handleModifiedPdfUploadToS3}
+            loading={isUploading}
+            disabled={selectedItems?.length <= 0 || isUploading}
+            loadingPosition="start" // Position of loading spinner ('start', 'center', 'end')
+            startIcon={<FileUploadIcon />}
             variant="contained"
-            disabled={isLoading}
-            onClick={handleGetTableData}
-            style={{
-              padding: "10px 20px",
-            }}
-          >
-            Get Table
-          </Button>
-
-          <Button
-            onClick={handleModifiedPdfUploadtToS3}
-            disabled={selectedItems?.length <= 0}
-            variant="contained"
+            // loadingIndicator="Uploading..."
             style={{
               padding: "10px 20px",
               marginLeft: "10px", // Space between buttons
             }}
           >
             Upload PDF
-          </Button>
+          </LoadingButton>
         </div>
         {/* )} */}
-        <UnitAnnexureAccordion />
+        <UnitAnnexureAccordion
+          projectData={projecList || []}
+          selectedProjects={selectedProjects}
+          handleProjectSelection={handleProjectSelection}
+          unitData={unitList || []}
+          selectedUnit={selectedUnit}
+          handleUnitSelection={handleUnitSelection}
+          getTableData={handleGetTableData}
+          loading={isLoading}
+        />
         {/* Conditional rendering for loading state */}
         {isLoading ? (
           <Loading message={"Drawing is Loading..."} />

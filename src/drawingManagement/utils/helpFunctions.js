@@ -2,12 +2,12 @@ import axios from "axios";
 import api from "../../services/api";
 import { PDFDocument, rgb } from "pdf-lib";
 
-export const uploadDocToS3 = async (folder, contentType, file) => {
+export const uploadDocToS3 = async (folder, file, matnr) => {
   try {
     const url = `${process.env.REACT_APP_SERVER_URL}/api/drawing/generate-signed-url`;
     const formData = new FormData();
     formData.append("folder", folder);
-    formData.append("contentType", contentType);
+
     const uploadedUrl = (
       await api.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -20,7 +20,7 @@ export const uploadDocToS3 = async (folder, contentType, file) => {
 
     const publicUrl = uploadedUrl.split("?")[0];
     console.log("publicUrl", publicUrl);
-    return publicUrl;
+    return { publicUrl, matnr };
   } catch (error) {
     console.log(error);
     return error;
@@ -36,7 +36,7 @@ export const appendTextToPDF = async (
   floorX,
   floorY,
   folder,
-  contentType
+  matnr
 ) => {
   try {
     const response = await fetch(pdfUrl);
@@ -71,7 +71,7 @@ export const appendTextToPDF = async (
       }
     );
     // Upload the file to S3
-    const res = await uploadDocToS3(folder, contentType, modifiedPdfFile);
+    const res = await uploadDocToS3(folder, modifiedPdfFile, matnr);
     return res;
   } catch (error) {
     console.error("Error appending text to PDF:", error);

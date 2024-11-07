@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import Graph from "./Graph";
 import "./CustomerDetails.css";
 import Chart from "react-apexcharts";
@@ -24,6 +24,9 @@ import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 import axios from "axios";
+import withTable from "../../../components/TableFilter/withTable";
+import ZigzagTable from "../../../components/TableFilter/ZigzagTable";
+const HOCTable = withTable(memo(ZigzagTable));
 
 export default function CustomerDetails() {
   const [unitData, setUnitData] = useState([]);
@@ -139,126 +142,50 @@ export default function CustomerDetails() {
     }
   };
 
-  const modifyResponse = (res = []) => {
-    const modifiedResponse =
-      res &&
-      res?.map((item) => {
-        return [
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.head}
-            </Typography>
-          ) : (
-            item?.head
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.payable}
-            </Typography>
-          ) : (
-            item?.payable
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.invoiced}
-            </Typography>
-          ) : (
-            item?.invoiced
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.payment}
-            </Typography>
-          ) : (
-            item?.payment
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.tds}
-            </Typography>
-          ) : (
-            item?.tds
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.totalPayment}
-            </Typography>
-          ) : (
-            item?.totalPayment
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.credit}
-            </Typography>
-          ) : (
-            item?.credit
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.outstanding}
-            </Typography>
-          ) : (
-            item?.outstanding
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.unbilled}
-            </Typography>
-          ) : (
-            item?.unbilled
-          ),
-        ];
-      });
-    return modifiedResponse;
-  };
+  const memoizedData = useMemo(() => ndcTableData, [ndcTableData]);
 
-  const columns = [
-    {
-      name: "Heads",
-    },
-    {
-      name: "Total Value(A)",
-    },
-    {
-      name: "Invoiced Raised Till Date(B)",
-    },
-    {
-      name: "Amount Received Till Date",
-    },
-    {
-      name: "TDS Paid Till Date",
-    },
-    {
-      name: "Total (Payment Received + TDS ) (C)",
-    },
-    {
-      name: "Credit Notes / Discounts (D)",
-    },
-    {
-      name: "Current Due (B-C-D)",
-    },
-    {
-      name: "Balance Invoice To Be Raised (A-B) ",
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Heads",
+        accessor: "head",
+      },
+      {
+        Header: "Total Value(A)",
+        accessor: "payable",
+      },
+      {
+        Header: "Invoiced Raised Till Date(B)",
+        accessor: "invoiced",
+      },
+      {
+        Header: "Amount Received Till Date",
+        accessor: "payment",
+      },
+      {
+        Header: "TDS Paid Till Date",
+        accessor: "tds",
+      },
+      {
+        Header: "Total (Payment Received + TDS ) (C)",
+        accessor: "totalPayment",
+      },
+      {
+        Header: "Credit Notes / Discounts (D)",
+        accessor: "credit",
+      },
+      {
+        Header: "Current Due (B-C-D)",
+        accessor: "outstanding",
+      },
+      {
+        Header: "Balance Invoice To Be Raised (A-B) ",
+        accessor: "unbilled",
+      },
+    ],
+    []
+  );
+
   const getMuiTheme = () =>
     createTheme({
       components: {
@@ -372,18 +299,6 @@ export default function CustomerDetails() {
       },
     });
 
-  const options = {
-    selectableRows: "none",
-    rowsPerPage: ndcTableData?.length,
-    pagination: false,
-    elevation: 0,
-    print: false,
-    download: false,
-    search: false,
-    viewColumns: false,
-    filter: false,
-  };
-
   const getNdcReportDetails = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -414,7 +329,8 @@ export default function CustomerDetails() {
       );
       const data = response.data;
       setTableResponse(data);
-      setNdcTableData(modifyResponse(data));
+      setNdcTableData(data);
+      // setNdcTableData(modifyResponse(data));
       const filterData = data?.filter(
         (row) => row.head === "Consideration Value"
       );
@@ -1376,11 +1292,14 @@ export default function CustomerDetails() {
                 </Box>
               </>
             ) : (
-              <Table
-                data={ndcTableData}
+              <HOCTable
                 columns={columns}
-                options={options}
-              ></Table>
+                data={memoizedData}
+                select={false}
+                pagination={false}
+                showFilter={false}
+                pageSize={100}
+              />
             )}
           </ThemeProvider>
         </div>

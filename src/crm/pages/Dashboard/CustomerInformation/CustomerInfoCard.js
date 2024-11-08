@@ -5,8 +5,8 @@ import "./CustomerInfoCard.css";
 import { useSelector } from "react-redux";
 import CakeIcon from "@mui/icons-material/Cake";
 import MailIcon from "@mui/icons-material/Mail";
-import { Typography, Grid } from "@mui/material";
-import CRMInformation from "./CRM/CRMInformation";
+import WorkIcon from "@mui/icons-material/Work";
+import CallIcon from "@mui/icons-material/Call";
 import PersonIcon from "@mui/icons-material/Person";
 import BankInformation from "./Bank/BankInformation";
 import HappinessIndexDonut from "./HappinessIndexDonut";
@@ -14,9 +14,23 @@ import BasicInformation from "./Basic/BasicInformation";
 import ChildInformation from "./Child/ChildInformation";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
+import { Typography, Grid } from "@mui/material";
+
+import CRMInformation from "./CRM/CRMInformation";
+
 import CustomTabLayout from "../../../components/tabs/CustomTabLayout";
 import CustomisationDetails from "./Customisation/CustomisationDetails";
 import TransactionInformation from "./Transaction/TransactionInformation";
+import {
+  Card,
+  CardContent,
+  IconButton,
+  Divider,
+  ListItemAvatar,
+  ListItem,
+  List,
+  Avatar,
+} from "@mui/material";
 
 const CustomerInfoCard = ({
   customerInfo,
@@ -206,165 +220,139 @@ const CustomerInfoCard = ({
         }}
         className="bgImage"
       >
-        <Grid
-          item
-          xs={4}
-          sm={3}
-          md={3}
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "white",
-            paddingBottom: "2em",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "20%",
-            border: "1px solid white",
-            borderRadius: "18px",
-            position: "sticky",
-            top: "4em", // Adjust this value as needed
-            alignSelf: "flex-start",
-          }}
-        >
-          <Grid>
-            <div>
-              <div
-                style={{
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              backgroundColor: "#fff",
+              borderRadius: "18px",
+              boxShadow: 3,
+              position: "sticky",
+              top: "0em",
+            }}
+          >
+            <CardContent sx={{ textAlign: "center" }}>
+              {!loading && (
+                <HappinessIndexDonut
+                  circleUp={circleUp}
+                  customerDetails={customerDetails}
+                  searchValueAvailable={searchValueAvailable}
+                />
+              )}
+              <Typography variant="h6" fontWeight="bold" mt={1}>
+                {customerData?.customerName}
+              </Typography>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{
                   display: "flex",
-                  justifyContent: "center",
                   alignItems: "center",
+                  gap: 1,
+                  fontSize: "12px",
                 }}
               >
-                {" "}
-                {/* // className="circularImg" */}
-                {/* <Typography
-                    sx={{
-                      // paddingLeft: "22%",
-                      // paddingTop: "30%",
-                      height: "3.5em",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontSize: "22px",
-                      color: "white",
-                    }}
-                  >
-                    {getInitials(customerData?.customerName)}
-                  </Typography>{" "} */}
-                {!loading && (
-                  <HappinessIndexDonut
-                    circleUp={circleUp}
-                    customerDetails={customerDetails}
-                    searchValueAvailable={searchValueAvailable}
-                  />
+                <Avatar sx={{}}>
+                  <WorkIcon sx={{ color: "black" }} />
+                </Avatar>
+                {customerData?.Occupation}{" "}
+                {customerData?.industry && `(${customerData.industry})`}
+              </Typography>
+              <Typography
+                sx={{ fontSize: "12px" }}
+                variant="body2"
+                color="textSecondary"
+              >
+                {customerData?.Designation}
+              </Typography>
+              <Typography
+                sx={{ fontSize: "12px" }}
+                variant="body2"
+                color="textSecondary"
+              >
+                {customerData?.Company}, {customerData?.WorkPlace}
+              </Typography>
+            </CardContent>
+
+            <CardContent sx={{ width: "100%", paddingLeft: "1em" }}>
+              <List>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {" "}
+                      <CakeIcon sx={{ color: "black" }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {moment(customerData?.DOB).format("DD MMM YYYY")}
+                  </Typography>
+                </ListItem>
+                <Divider />
+
+                {customerData?.anniversary && (
+                  <>
+                    <ListItem>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <CelebrationIcon sx={{ color: "black" }} />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <Typography sx={{ fontSize: "12px" }}>
+                        {moment(customerData.anniversary).format("DD MMM YYYY")}
+                      </Typography>
+                    </ListItem>
+                    <Divider />
+                  </>
                 )}
-              </div>
-              <div className="showDataAtCenter">
-                <div
-                  style={{
-                    paddingTop: "1em",
-                  }}
+
+                <ListItem
+                  secondaryAction={
+                    <IconButton edge="end" aria-label="comments">
+                      <CallIcon sx={{ color: "black" }} />
+                    </IconButton>
+                  }
                 >
-                  <Typography
-                    fontSize="18px"
-                    sx={{ fontWeight: "bold", paddingLeft: "1em" }}
-                  >
-                    {customerData?.customerName}{" "}
+                  <ListItemAvatar>
+                    <Avatar>
+                      {" "}
+                      <PhoneAndroidIcon color="black" sx={{ color: "black" }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {customerData?.Mobile}
                   </Typography>
-                  <Typography fontSize="16px" className="showDataAtCenter">
-                    {customerData?.Occupation}{" "}
-                    {customerData?.industry &&
-                      "(" + customerData?.industry + ")"}
-                  </Typography>
-                  <Typography fontSize="16px" className="showDataAtCenter">
-                    {customerData?.Designation}
-                  </Typography>
-                  <Typography fontSize="16px" className="showDataAtCenter">
-                    {customerData?.Company}, {customerData.WorkPlace}
-                  </Typography>
-                </div>
-              </div>
-            </div>
-            {/* //personalDetails */}
-            <div>
-              <div
-                style={{
-                  paddingTop: "2em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <CakeIcon fontSize="small" />
-                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
-                  {" "}
-                  {moment(customerData?.DOB).format("DD MMM YYYY")}
-                </Typography>
-              </div>
+                </ListItem>
+                <Divider />
 
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <CelebrationIcon fontSize="small" />
-                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
-                  {" "}
-                  {customerData?.anniversary &&
-                    moment(customerData?.anniversary).format("DD MMM YYYY")}
-                </Typography>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <PhoneAndroidIcon fontSize="small" />
-                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
-                  {" "}
-                  {customerData?.Mobile}
-                </Typography>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <MailIcon fontSize="small" />
-                <Typography fontSize="16px" style={{ paddingLeft: "1em" }}>
-                  {" "}
-                  {customerData?.Email}
-                </Typography>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "1em",
-                  paddingLeft: "1em",
-                  display: "flex",
-                }}
-              >
-                <div>
-                  <PersonIcon fontSize="medium" />
-                </div>
-                <div>
-                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
-                    {customerData?.Age} Years
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {" "}
+                      <MailIcon sx={{ color: "black" }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {customerData?.Email}
                   </Typography>
-                  <Typography fontSize="16px" style={{ paddingLeft: "0.8em" }}>
-                    {customerData?.Gender}
+                </ListItem>
+                <Divider />
+
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar>
+                      {" "}
+                      <PersonIcon sx={{ color: "black" }} />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {customerData?.Age} Years, {customerData?.Gender}
                   </Typography>
-                </div>
-              </div>
-            </div>
-          </Grid>
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
         </Grid>
 
         <Grid item xs={7} sm={8} md={8}>

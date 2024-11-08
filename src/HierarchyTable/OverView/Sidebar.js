@@ -248,12 +248,12 @@ export default function MiniDrawer() {
           >
             <img
               alt="Gera"
-              className="logo"
+              // className="logo"
               src={require("../../assets/gera_logo.jpg")}
               style={{
                 maxWidth: "150px",
-                height: "auto",
-                transition: "transform 0.3s ease",
+                // height: "auto",
+                // transition: "transform 0.3s ease",
               }}
               onMouseOver={(e) =>
                 (e.currentTarget.style.transform = "scale(1.05)")

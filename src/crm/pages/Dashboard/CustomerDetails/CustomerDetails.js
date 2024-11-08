@@ -26,6 +26,8 @@ import CircularScreenLoader from "../../../components/circularScreenLoader/Circu
 import axios from "axios";
 import withTable from "../../../components/TableFilter/withTable";
 import ZigzagTable from "../../../components/TableFilter/ZigzagTable";
+import CustomerDetailCard from "../CustomerInformation/CustomerDetailCard";
+import UnitDetailsCard from "../../Reports/BookingReport/UnitDetailsCard";
 const HOCTable = withTable(memo(ZigzagTable));
 
 export default function CustomerDetails() {
@@ -41,6 +43,7 @@ export default function CustomerDetails() {
   const [registrationPendingData, setReistrationPendingData] = useState([]);
   const [isNdcLoading, setIsNdcLoading] = useState(true);
   const [cardDataFromNdc, setCardDataFromNdc] = useState({});
+  const [customerData, setCustomerData] = useState([]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -377,6 +380,12 @@ export default function CustomerDetails() {
     getDetails();
     getBookingDetails();
     getNdcReportDetails();
+    if (OrderId) {
+      getCustomerDetails();
+    }
+    if (!OrderId) {
+      setCustomerData([]);
+    }
   }, [OrderId]);
 
   useEffect(() => {
@@ -716,6 +725,40 @@ export default function CustomerDetails() {
   //   }, 5); // Interval duration set to 1 second
   // }
 
+  const getCustomerDetails = async () => {
+    // setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("orderId", OrderId);
+      // if (!OrderId) formData.append("crmId", crmId);
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/dashboard/getcustomer`,
+        formData
+      );
+
+      const data = response.data;
+      if (data) {
+        setCustomerData(data[0]?.customerdata);
+
+        // if (OrderId) {
+        //   const filteredArray = data[0]?.customerdata?.filter(
+        //     (obj) => obj.orderId === OrderId
+        //   );
+        //   setFilteredResponse(filteredArray);
+        //   setFilteredCustomers(modifyResponse(filteredArray));
+        // }
+      }
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
+
   const CardData = {
     column1: [
       {
@@ -1023,7 +1066,10 @@ export default function CustomerDetails() {
               container
               columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
               columns={14}
-              sx={{ display: "flex", paddingLeft: "1em" }}
+              sx={{
+                display: "flex",
+                paddingLeft: "1em",
+              }}
             >
               <Grid
                 xs={2}
@@ -1404,6 +1450,25 @@ export default function CustomerDetails() {
             </Accordion>
           </Grid>
         </Grid>
+
+        {OrderId && (
+          <>
+            <Grid sx={{}} mt={1} gap={1} md={12} container>
+              {customerData?.map((customer) => {
+                return (
+                  <Grid item xs={12} sm={6} md={3}>
+                    <CustomerDetailCard customerData={customer} />
+                  </Grid>
+                );
+              })}
+              <Grid item md={5.5} xs={12} sm={6}>
+                <UnitDetailsCard unitData={unitData} />
+              </Grid>
+            </Grid>
+
+            <Grid container gap={2} mt={2}></Grid>
+          </>
+        )}
 
         {/* <Grid sx={{ height: "20em" }}>
           {OrderId ? <BookingDetails unitData={unitData} /> : <BookingData />}

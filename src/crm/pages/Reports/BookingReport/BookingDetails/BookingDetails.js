@@ -6,7 +6,19 @@ import CostSheet from "./CostSheet/CostSheet";
 import LoanInfo from "./Loan/LoanInfo";
 import SchemeInfo from "./Scheme/SchemeInfo";
 import SellIcon from "@mui/icons-material/Sell";
-import { Typography, Grid } from "@mui/material";
+import {
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  List,
+  ListItem,
+  Avatar,
+  ListItemText,
+  Divider,
+  ListItemAvatar,
+  Box,
+} from "@mui/material";
 import Crop32Icon from "@mui/icons-material/Crop32";
 import Crop54Icon from "@mui/icons-material/Crop54";
 import GarageIcon from "@mui/icons-material/Garage";
@@ -23,6 +35,7 @@ import EmojiTransportationIcon from "@mui/icons-material/EmojiTransportation";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 const BookingDetails = forwardRef((props, ref) => {
+  const { unitData } = props;
   // const [unitData, setUnitData] = useState([]);
 
   // const reducerData = useSelector((state) => state);
@@ -51,11 +64,11 @@ const BookingDetails = forwardRef((props, ref) => {
   //   }
   // }, [OrderId]);
 
-  const TitleStyles = {
-    fontSize: "0.9rem",
-    paddingLeft: "0.5em",
-    paddingRight: "0.2em",
-  };
+  // const TitleStyles = {
+  //   fontSize: "0.9rem",
+  //   paddingLeft: "0.5em",
+  //   paddingRight: "0.2em",
+  // };
 
   const tabs = [
     {
@@ -97,312 +110,138 @@ const BookingDetails = forwardRef((props, ref) => {
         // }}
         className="bgImage"
       >
-        <Grid
-          item
-          xs={4}
-          sm={4}
-          md={4}
-          lg={4}
+        <Card
           sx={{
-            "&.MuiGrid-item": { paddingLeft: "0px" },
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "white",
-            paddingBottom: "2em",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "20%",
-            border: "1px solid white",
+            padding: "1em",
             borderRadius: "18px",
+            // border: "1px solid green",
             position: "sticky",
-            top: "4em", // Adjust this value as needed
-            alignSelf: "flex-start",
+            top: "4em",
           }}
         >
-          <Grid sx={{ margin: "1em" }}>
-            <div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <div className="circularImg">
-                  <Typography
-                    sx={{
-                      // paddingLeft: "22%",
-                      // paddingTop: "30%",
-                      height: "4.2em",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontSize: "20px",
-                      color: "white",
-                    }}
-                  >
-                    {props?.unitData?.flatno}
-                  </Typography>{" "}
+          <CardContent>
+            {/* Flat Number */}
+            <Typography
+              variant="h6"
+              align="center"
+              sx={{
+                fontSize: "20px",
+                color: "white",
+                backgroundColor: "gray",
+                borderRadius: "50%", // Makes it circular
+                padding: "0.5em", // Adjusts internal spacing
+                width: "4em", // Set width and height to same value to create circle
+                height: "4em",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center", // Centers content inside
+                margin: "0 auto", // Centers the component horizontally
+              }}
+            >
+              {unitData?.flatno}
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: "bold", marginTop: "1em", textAlign: "center" }}
+            >
+              {unitData?.property}
+            </Typography>
+
+            {/* List of details */}
+            <List sx={{ marginTop: "2em" }}>
+              {[
+                {
+                  icon: <ApartmentIcon sx={{ color: "black" }} />,
+                  label: "Building",
+                  value: unitData?.building,
+                },
+                {
+                  icon: <Crop32Icon sx={{ color: "black" }} />,
+                  label: "Carpet Area",
+                  value: `${unitData?.carea} ${
+                    unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."
+                  }`,
+                },
+                {
+                  icon: <Crop54Icon sx={{ color: "black" }} />,
+                  label: "Saleable Area",
+                  value: `${unitData?.area} ${
+                    unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."
+                  }`,
+                },
+                {
+                  icon: <BlindsClosedIcon sx={{ color: "black" }} />,
+                  label: "Floor",
+                  value: unitData?.floor?.split(" ")[0],
+                },
+                {
+                  icon: <SellIcon sx={{ color: "black" }} />,
+                  label: "Type",
+                  value: unitData?.class,
+                },
+                {
+                  icon: <LocalParkingIcon sx={{ color: "black" }} />,
+                  label: "Parking Type",
+                  value: unitData?.prkType,
+                },
+                {
+                  icon: <EmojiTransportationIcon sx={{ color: "black" }} />,
+                  label: "Parking Floor",
+                  value: unitData?.flrText,
+                },
+                {
+                  icon: <CarCrashIcon sx={{ color: "black" }} />,
+                  label: "Parking Location",
+                  value: unitData?.parkinglocation,
+                },
+                {
+                  icon: <CarRepairIcon sx={{ color: "black" }} />,
+                  label: "Parking Area",
+                  value: unitData?.parkingareatext,
+                },
+                {
+                  icon: <AccountBalanceWalletIcon sx={{ color: "black" }} />,
+                  label: "Parking Number",
+                  value: unitData?.parkno,
+                },
+                {
+                  icon: <GarageIcon sx={{ color: "black" }} />,
+                  label: "Parking in Sq.mt.",
+                  value: unitData?.parkaream2,
+                },
+                {
+                  icon: <HeightIcon sx={{ color: "black" }} />,
+                  label: "Parking Height",
+                  value: unitData?.parkheight,
+                },
+              ].map((item, index) => (
+                <div key={index}>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar>{item.icon}</Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: "flex", gap: "2", padding: "3px" }}>
+                          <Typography>{item.label} : </Typography>
+                          <Typography sx={{ paddingLeft: "5px" }}>
+                            {item.value}
+                          </Typography>
+                        </Box>
+                      }
+                      // secondary={item.value}
+                    />
+                    {/* <ListItemText primary={item.label} secondary={item.value} /> */}
+                  </ListItem>
+                  {index < 10 && <Divider />}
                 </div>
-              </div>
-              <div className="showDataAtCenter">
-                <div
-                  style={{
-                    paddingTop: "1em",
-                  }}
-                >
-                  <Typography
-                    fontSize="16px"
-                    sx={{ fontWeight: "bold", paddingLeft: "1em" }}
-                  >
-                    {props?.unitData?.property}{" "}
-                  </Typography>
-                </div>
-              </div>
-            </div>
-            {/* //personalDetails */}
-
-            <div>
-              <div
-                style={{
-                  paddingTop: "2em",
-                  display: "flex",
-                }}
-              >
-                <ApartmentIcon fontSize="small" />
-
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}> Building: </Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {" "}
-                      {props?.unitData?.building}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <Crop32Icon fontSize="small" />
-
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    {" "}
-                    <Typography sx={TitleStyles}>Carpet Area: </Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.carea}
-                      {props?.unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <Crop54Icon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Saleable Area:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.area}
-                      {props?.unitData?.meins === "FT2"
-                        ? "sq.ft."
-                        : "sq.mt."}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <BlindsClosedIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Floor:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.floor?.split(" ")[0]}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <SellIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Type:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.class}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <LocalParkingIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking Type:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.prkType}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <EmojiTransportationIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking floor:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.flrText}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <CarCrashIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking location:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.parkinglocation}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <CarRepairIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking Area:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.parkingareatext}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <AccountBalanceWalletIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking Number:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.parkno}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <GarageIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking in Sq.mt.:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.parkaream2}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-
-              <div
-                style={{
-                  paddingTop: "0.5em",
-                  display: "flex",
-                }}
-              >
-                <HeightIcon fontSize="small" />
-                <Grid container columns={12}>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>Parking height:</Typography>
-                  </Grid>
-                  <Grid item sm={6} md={6} lg={6}>
-                    <Typography sx={TitleStyles}>
-                      {props?.unitData?.parkheight}{" "}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </div>
-            </div>
-
-            <></>
-          </Grid>
-        </Grid>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
 
         <Grid item xs={8} sm={8} md={8} lg={8}>
           <div>

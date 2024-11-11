@@ -3,10 +3,14 @@ import { Grid } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import { useSelector } from "react-redux";
 import GlobalFunctions from "./../../crm/utils/GlobalFunctions";
-import { TableRow, TableCell, TableFooter } from "@mui/material";
+import { TableRow, TableCell, TableFooter, Button } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
+import dayjs from "dayjs";
+import Testing from "../components/Testing";
 
 const ITExpensesAndBudget = () => {
+  const [month, setMonth] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableData, setTableData] = useState([]);
@@ -266,19 +270,69 @@ const ITExpensesAndBudget = () => {
   };
 
   return (
-    <Grid>
-      {tableData?.length > 0 && (
-        <ThemeProvider theme={() => getMuiTheme()}>
-          <MUIDataTable
-            title={"Expenses and Budget"}
-            data={tableData}
-            style={{ width: "100%" }}
-            columns={columns}
-            options={options}
-          />
-        </ThemeProvider>
-      )}
-    </Grid>
+    <Testing />
+    // <Grid>
+    //   <Grid
+    //     container
+    //     spacing={1}
+    //     sx={{
+    //       marginTop: "0.5em",
+    //       marginBottom: "0.5em",
+    //     }}
+    //   >
+    //     <Grid item sm={2} md={2} lg={3}>
+    //       <CrmDatePicker
+    //         id="month"
+    //         name="month"
+    //         label="Month"
+    //         format="MMMM YYYY"
+    //         views={["month", "year"]}
+    //         value={dayjs(month)}
+    //         onChange={(value) => {
+    //           // const formattedDate = value
+    //           //   ? dayjs(value).format("YYYY-MM-DD")
+    //           //   : "";
+    //           setMonth(value);
+    //         }}
+    //       />
+    //     </Grid>
+    //     <Grid item sm={2} md={2} lg={2}>
+    //       <Button
+    //         style={{
+    //           backgroundColor: "#007FFF",
+    //           fontFamily: "futura",
+    //           borderRadius: "5px",
+    //           fontSize: "15px",
+    //           color: "white",
+    //           marginTop: "0.2em",
+    //           height: "2.2em",
+    //           width: "4.5em",
+    //         }}
+    //         // sx={ selectedProjects?.toString()?.trim()?.length === 0 ? {} : {}}
+    //         // disabled={
+    //         //   selectedProjects?.toString()?.trim()?.length === 0
+    //         // }
+    //         // onClick={() => {
+    //         //   getData();
+    //         // }}
+    //       >
+    //         Go
+    //       </Button>
+    //     </Grid>
+    //   </Grid>
+
+    //   {tableData?.length > 0 && (
+    //     <ThemeProvider theme={() => getMuiTheme()}>
+    //       <MUIDataTable
+    //         title={"Expenses and Budget"}
+    //         data={tableData}
+    //         style={{ width: "100%" }}
+    //         columns={columns}
+    //         options={options}
+    //       />
+    //     </ThemeProvider>
+    //   )}
+    // </Grid>
   );
 };
 

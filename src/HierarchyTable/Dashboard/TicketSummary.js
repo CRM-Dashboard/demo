@@ -31,7 +31,7 @@ const TicketSummary = forwardRef((props, ref) => {
     const modifiedResponse = res?.map((item) => {
       return [
         item.ticketDesc,
-        item.category,
+        item.categTxt,
         <input
           value={item.priority}
           style={{

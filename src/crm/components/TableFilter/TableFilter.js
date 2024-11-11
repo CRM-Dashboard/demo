@@ -23,6 +23,7 @@ const TableFilter = ({
   setSelectedRows, // Function to set selected rows in parent component
   setAllSelected,
   setSelectedItems,
+  maxHeight = "70vh",
 }) => {
   // Memoized "Select All" handler
   const handleSelectAll = useCallback(
@@ -43,7 +44,7 @@ const TableFilter = ({
   }, [selectedRows]);
   //   console.log(setSelectedItems, "setSelectedItems");
   return (
-    <TableContainer sx={{ maxHeight: "70vh" }}>
+    <TableContainer sx={{ maxHeight: maxHeight }}>
       <MuiTable
         stickyHeader
         {...getTableProps()}
@@ -114,7 +115,10 @@ const TableFilter = ({
                     sx={{
                       // backgroundColor: "#f5f5f5", // Custom background color
                       // color: "#333333",           // Custom text color
-                      padding: "10px 15px", // Custom padding for table cells
+                      padding: "5px 10px", // Custom padding for table cells
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {cell.render("Cell")}

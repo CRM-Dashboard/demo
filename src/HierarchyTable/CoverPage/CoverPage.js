@@ -6,11 +6,21 @@ import {
 import "./Style.css";
 import { useSelector } from "react-redux";
 import AddIcon from "@mui/icons-material/Add";
-import { TextField, Button, IconButton, Box, Typography } from "@mui/material";
+import {
+  TextField,
+  Button,
+  IconButton,
+  Box,
+  Typography,
+  Grid,
+} from "@mui/material";
 import { AcUnit, AccessTime, Edit, Save, Cancel } from "@mui/icons-material";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+import dayjs from "dayjs";
+import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 
 const CoverPage = () => {
+  const [month, setMonth] = useState("");
   const [events, setEvents] = useState([]);
   const [newEntry, setNewEntry] = useState({});
   const [editMode, setEditMode] = useState({});
@@ -378,6 +388,54 @@ const CoverPage = () => {
       <Box>
         <Typography variant="h5">Coverpage</Typography>
       </Box>
+      <Grid
+        container
+        spacing={1}
+        sx={{
+          marginTop: "0.5em",
+          marginBottom: "0.5em",
+        }}
+      >
+        <Grid item sm={2} md={2} lg={3}>
+          <CrmDatePicker
+            id="month"
+            name="month"
+            label="Month"
+            format="MMMM YYYY"
+            views={["month", "year"]}
+            value={dayjs(month)}
+            onChange={(value) => {
+              // const formattedDate = value
+              //   ? dayjs(value).format("YYYY-MM-DD")
+              //   : "";
+              setMonth(value);
+            }}
+          />
+        </Grid>
+        <Grid item sm={2} md={2} lg={2}>
+          <Button
+            style={{
+              backgroundColor: "#007FFF",
+              fontFamily: "futura",
+              borderRadius: "5px",
+              fontSize: "15px",
+              color: "white",
+              marginTop: "0.2em",
+              height: "2.2em",
+              width: "4.5em",
+            }}
+            // sx={ selectedProjects?.toString()?.trim()?.length === 0 ? {} : {}}
+            // disabled={
+            //   selectedProjects?.toString()?.trim()?.length === 0
+            // }
+            // onClick={() => {
+            //   getData();
+            // }}
+          >
+            Go
+          </Button>
+        </Grid>
+      </Grid>
       <div style={{ marginLeft: "-100px", width: "calc(100% + 50px)" }}>
         <VerticalTimeline lineColor={lineColor}>
           {renderEditableSection(

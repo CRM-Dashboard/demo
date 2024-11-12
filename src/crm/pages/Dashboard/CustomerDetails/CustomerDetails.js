@@ -28,6 +28,7 @@ import withTable from "../../../components/TableFilter/withTable";
 import ZigzagTable from "../../../components/TableFilter/ZigzagTable";
 import CustomerDetailCard from "../CustomerInformation/CustomerDetailCard";
 import UnitDetailsCard from "../../Reports/BookingReport/UnitDetailsCard";
+import ThreeDotLoading from "../../../../components/ThreeDot";
 const HOCTable = withTable(memo(ZigzagTable));
 
 export default function CustomerDetails() {
@@ -1320,35 +1321,58 @@ export default function CustomerDetails() {
           </Grid>
         </Grid>
 
-        <div style={{ marginTop: "1em", marginBottom: "1em" }}>
-          <ThemeProvider theme={() => getMuiTheme()}>
-            {isNdcLoading ? (
-              <>
-                {" "}
-                <Box
-                  sx={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Box>
-                    <CircularProgress />
-                  </Box>
-                </Box>
-              </>
-            ) : (
-              <HOCTable
-                columns={columns}
-                data={memoizedData}
-                select={false}
-                pagination={false}
-                showFilter={false}
-                pageSize={100}
-              />
-            )}
-          </ThemeProvider>
-        </div>
+        <Grid item sm={6} md={12} lg={6} xs={6} mb={2}>
+          <Accordion
+            sx={{
+              "&.MuiAccordionSummary-root": {
+                minHeight: "21px",
+                paddingTop: "0.1em",
+              },
+            }}
+            defaultExpanded
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                Quick Summery
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{ marginTop: "0.1em", marginBottom: "0.1em" }}>
+                <ThemeProvider theme={() => getMuiTheme()}>
+                  {isNdcLoading ? (
+                    <>
+                      {" "}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Box>
+                          <ThreeDotLoading size="medium" text="Loading..." />
+                        </Box>
+                      </Box>
+                    </>
+                  ) : (
+                    <HOCTable
+                      columns={columns}
+                      data={memoizedData}
+                      select={false}
+                      pagination={false}
+                      showFilter={false}
+                      pageSize={100}
+                    />
+                  )}
+                </ThemeProvider>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
 
         {/* Happiness meter and sentimental analysis */}
         {/* 
@@ -1528,7 +1552,7 @@ export default function CustomerDetails() {
         </Grid> */}
       </>
     ) : (
-      <CircularScreenLoader />
+      <ThreeDotLoading />
     );
   };
 

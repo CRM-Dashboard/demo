@@ -28,66 +28,66 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 const UnitDetailsCard = ({ unitData }) => {
   const details = [
     {
-      icon: <ApartmentIcon sx={{ color: "black" }} />,
+      icon: <ApartmentIcon sx={{ color: "white" }} />,
       label: "Building",
       value: unitData?.building + ` (${unitData?.flatno})`,
     },
     {
-      icon: <Crop32Icon sx={{ color: "black" }} />,
+      icon: <Crop32Icon sx={{ color: "white" }} />,
       label: "Carpet Area",
       value: `${unitData?.carea} ${
         unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."
       }`,
     },
     {
-      icon: <Crop54Icon sx={{ color: "black" }} />,
+      icon: <Crop54Icon sx={{ color: "white" }} />,
       label: "Saleable Area",
       value: `${unitData?.area} ${
         unitData?.meins === "FT2" ? "sq.ft." : "sq.mt."
       }`,
     },
     {
-      icon: <BlindsClosedIcon sx={{ color: "black" }} />,
+      icon: <BlindsClosedIcon sx={{ color: "white" }} />,
       label: "Floor",
       value: unitData?.floor?.split(" ")[0],
     },
     {
-      icon: <SellIcon sx={{ color: "black" }} />,
+      icon: <SellIcon sx={{ color: "white" }} />,
       label: "Type",
       value: unitData?.class + ` (${unitData?.property})`,
     },
     {
-      icon: <LocalParkingIcon sx={{ color: "black" }} />,
+      icon: <LocalParkingIcon sx={{ color: "white" }} />,
       label: "Parking Type",
       value: unitData?.prkType,
     },
     {
-      icon: <EmojiTransportationIcon sx={{ color: "black" }} />,
+      icon: <EmojiTransportationIcon sx={{ color: "white" }} />,
       label: "Parking Floor",
       value: unitData?.flrText,
     },
     {
-      icon: <CarCrashIcon sx={{ color: "black" }} />,
+      icon: <CarCrashIcon sx={{ color: "white" }} />,
       label: "Parking Location",
       value: unitData?.parkinglocation,
     },
     {
-      icon: <CarRepairIcon sx={{ color: "black" }} />,
+      icon: <CarRepairIcon sx={{ color: "white" }} />,
       label: "Parking Area",
       value: unitData?.parkingareatext,
     },
     {
-      icon: <AccountBalanceWalletIcon sx={{ color: "black" }} />,
+      icon: <AccountBalanceWalletIcon sx={{ color: "white" }} />,
       label: "Parking Number",
       value: unitData?.parkno,
     },
     {
-      icon: <GarageIcon sx={{ color: "black" }} />,
+      icon: <GarageIcon sx={{ color: "white" }} />,
       label: "Parking in Sq.mt.",
       value: unitData?.parkaream2,
     },
     {
-      icon: <HeightIcon sx={{ color: "black" }} />,
+      icon: <HeightIcon sx={{ color: "white" }} />,
       label: "Parking Height",
       value: unitData?.parkheight,
     },
@@ -97,10 +97,9 @@ const UnitDetailsCard = ({ unitData }) => {
     <Card
       sx={{
         display: "flex",
-        // padding: "1em",
         borderRadius: "18px",
         position: "sticky",
-        // top: "4em",
+        height: "500px",
       }}
     >
       <CardContent sx={{ flex: 1 }}>
@@ -115,7 +114,9 @@ const UnitDetailsCard = ({ unitData }) => {
                     <div key={index}>
                       <ListItem>
                         <ListItemAvatar>
-                          <Avatar>{item.icon}</Avatar>
+                          <Avatar sx={{ backgroundColor: "#62B4FF" }}>
+                            {item.icon}
+                          </Avatar>
                         </ListItemAvatar>
                         <ListItemText
                           primary={

@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, memo } from "react";
 import dayjs from "dayjs";
 import MUIDataTable from "mui-datatables";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -17,6 +17,7 @@ import {
   Typography,
   Box,
   IconButton,
+  Chip,
 } from "@mui/material";
 import "../OverView/Style.css";
 import { Grid } from "@mui/material";
@@ -24,6 +25,13 @@ import CreateNewTask from "./CreateNewTask";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+import withTable from "../../crm/components/TableFilter/withTable";
+import TableFilter from "../../crm/components/TableFilter/TableFilter";
+import CustomDialog from "../components/CustomDialog";
+import FormComponent from "../components/FormComponent";
+import axios from "axios";
+import CircularScreenLoader from "../../crm/components/circularScreenLoader/CircularScreenLoader";
+const HOCTable = withTable(memo(TableFilter));
 
 const Tasks = () => {
   const [treeData, setTreeData] = useState([]);
@@ -150,11 +158,19 @@ const Tasks = () => {
           setChangeType(data[0].changeTyp);
           setStatuses(data[0].taskChangeStatus);
           setPriorities(data[0].projectPriority);
-          setTableData(modifyResponse(data[0].task));
+
+          const addedId = data[0].task?.map((proj) => {
+            const obj = { ...proj };
+            obj.id = proj.taskId;
+            return obj;
+          });
+          setTableData(addedId);
           setLoading(false);
         }
       });
   };
+
+  console.log("***users***", users);
 
   const handleRowClick = (rowData, rowMeta) => {
     // rowData contains the data of the clicked row
@@ -268,413 +284,596 @@ const Tasks = () => {
     }
   };
 
-  const columns = [
-    {
-      name: "Task Description",
-      // options: {
-      //   customBodyRender: (value, tableMeta) => (
-      //     <input
-      //       type="text"
-      //       style={{ fontSize: "0.7rem" }}
-      //       value={value}
-      //       onChange={(e) => handleCellEdit(e, tableMeta?.rowIndex, 0)}
-      //     />
-      //   ),
-      // },
-    },
-    {
-      name: "Type",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                // backgroundColor: getStatusColor(tableData[dataIndex][4]),
-                // color: "white",
-                width: "8em",
-              },
-            }}
-            id="types"
-            name="types"
-            value={tableData[dataIndex][1]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.type = e.target.value;
-              console.log("##################rowon userupdate", row);
-              delete row.tickets;
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 1);
-            }}
-          >
-            {changeTypes.map((data) => {
-              return (
-                <MenuItem
-                  value={data.change}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.changeTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
-      name: "Assigned To",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                // backgroundColor: getStatusColor(tableData[dataIndex][4]),
-                // color: "white",
-                width: "8em",
-              },
-            }}
-            id="assigned"
-            name="assigned"
-            value={tableData[dataIndex][2]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.assigned = e.target.value;
-              console.log("##################rowon userupdate", row);
-              delete row.tickets;
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 2);
-            }}
-          >
-            {users.map((data) => {
-              return (
-                <MenuItem
-                  value={data.bname}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.name}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
-      name: "Module",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                width: "17em",
-              },
-            }}
-            id="module"
-            name="module"
-            value={tableData[dataIndex][3]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.module_sys = e.target.value;
-              delete row.tickets;
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 3);
-            }}
-          >
-            {modules.map((data) => {
-              return (
-                <MenuItem
-                  value={data.module}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.moduleTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
-      name: "Priority",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "6.5px 14px 5px 14px",
-                font: "-webkit-control",
-                color: "white",
-                backgroundColor: getPriorityColor(tableData[dataIndex][4]),
-                fontSize: "0.7rem",
-                width: "6em",
-              },
-            }}
-            id="priority"
-            name="priority"
-            value={tableData[dataIndex][4]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.priority = e.target.value;
-              delete row.ticket;
-              console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-              setRowToUpdate(row);
+  // const columns = [
+  //   {
+  //     name: "Task Description",
+  //     // options: {
+  //     //   customBodyRender: (value, tableMeta) => (
+  //     //     <input
+  //     //       type="text"
+  //     //       style={{ fontSize: "0.7rem" }}
+  //     //       value={value}
+  //     //       onChange={(e) => handleCellEdit(e, tableMeta?.rowIndex, 0)}
+  //     //     />
+  //     //   ),
+  //     // },
+  //   },
+  //   {
+  //     name: "Type",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "4.5px 14px",
+  //               fontSize: "0.7rem",
+  //               // backgroundColor: getStatusColor(tableData[dataIndex][4]),
+  //               // color: "white",
+  //               width: "8em",
+  //             },
+  //           }}
+  //           id="types"
+  //           name="types"
+  //           value={tableData[dataIndex][1]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.type = e.target.value;
+  //             console.log("##################rowon userupdate", row);
+  //             delete row.tickets;
+  //             setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 1);
+  //           }}
+  //         >
+  //           {changeTypes.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 value={data.change}
+  //                 sx={{
+  //                   fontSize: "0.7rem",
+  //                 }}
+  //               >
+  //                 {" "}
+  //                 {data.changeTxt}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     name: "Assigned To",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "4.5px 14px",
+  //               fontSize: "0.7rem",
+  //               // backgroundColor: getStatusColor(tableData[dataIndex][4]),
+  //               // color: "white",
+  //               width: "8em",
+  //             },
+  //           }}
+  //           id="assigned"
+  //           name="assigned"
+  //           value={tableData[dataIndex][2]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.assigned = e.target.value;
+  //             console.log("##################rowon userupdate", row);
+  //             delete row.tickets;
+  //             setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 2);
+  //           }}
+  //         >
+  //           {users.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 value={data.bname}
+  //                 sx={{
+  //                   fontSize: "0.7rem",
+  //                 }}
+  //               >
+  //                 {" "}
+  //                 {data.name}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     name: "Module",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "4.5px 14px",
+  //               fontSize: "0.7rem",
+  //               width: "17em",
+  //             },
+  //           }}
+  //           id="module"
+  //           name="module"
+  //           value={tableData[dataIndex][3]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.module_sys = e.target.value;
+  //             delete row.tickets;
+  //             setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 3);
+  //           }}
+  //         >
+  //           {modules.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 value={data.module}
+  //                 sx={{
+  //                   fontSize: "0.7rem",
+  //                 }}
+  //               >
+  //                 {" "}
+  //                 {data.moduleTxt}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     name: "Priority",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "6.5px 14px 5px 14px",
+  //               font: "-webkit-control",
+  //               color: "white",
+  //               backgroundColor: getPriorityColor(tableData[dataIndex][4]),
+  //               fontSize: "0.7rem",
+  //               width: "6em",
+  //             },
+  //           }}
+  //           id="priority"
+  //           name="priority"
+  //           value={tableData[dataIndex][4]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.priority = e.target.value;
+  //             delete row.ticket;
+  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
+  //             setRowToUpdate(row);
 
-              handleCellEdit(e, rowIndex, 4);
-            }}
-          >
-            {priorities.map((data) => {
-              return (
-                <MenuItem
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getPriorityColor(data.priority),
-                      color: "white",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  value={data.priority}
-                >
-                  {" "}
-                  {data.priority}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
-      name: "Status",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                backgroundColor: getStatusColor(tableData[dataIndex][5]),
-                color: "white",
-                width: "8em",
-                fontSize: "0.7rem",
-              },
-            }}
-            id="status"
-            name="status"
-            value={tableData[dataIndex][5]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.status = e.target.value;
-              delete row.tickets;
-              setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 4);
+  //           }}
+  //         >
+  //           {priorities.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 sx={{
+  //                   "&.MuiButtonBase-root": {
+  //                     backgroundColor: getPriorityColor(data.priority),
+  //                     color: "white",
+  //                     fontSize: "0.8rem",
+  //                   },
+  //                 }}
+  //                 value={data.priority}
+  //               >
+  //                 {" "}
+  //                 {data.priority}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     name: "Status",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "4.5px 14px",
+  //               backgroundColor: getStatusColor(tableData[dataIndex][5]),
+  //               color: "white",
+  //               width: "8em",
+  //               fontSize: "0.7rem",
+  //             },
+  //           }}
+  //           id="status"
+  //           name="status"
+  //           value={tableData[dataIndex][5]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.status = e.target.value;
+  //             delete row.tickets;
+  //             setRowToUpdate(row);
 
-              handleCellEdit(e, rowIndex, 5);
-            }}
-          >
-            {statuses.map((data) => {
-              return (
-                <MenuItem
-                  value={data.status}
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getStatusColor(data.status),
-                      color: "white",
-                      fontSize: "0.7rem",
-                    },
-                  }}
-                >
-                  {" "}
-                  {data.statusTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    {
-      name: "Plan Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planStart-${dataIndex}`}
-            name="planStart"
-            value={
-              tableData[dataIndex][6] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][6])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsavd = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 6);
-            }}
-          />
-        ),
-      },
-    },
-    {
-      name: "Planned End Date",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planEnd-${dataIndex}`}
-            name="planEnd"
-            value={
-              tableData[dataIndex][7] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][7])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsedd = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 7);
-            }}
-          />
-        ),
-      },
-    },
-    { name: "Plan Days" },
-    {
-      name: "Actual Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualStart-${dataIndex}`}
-            name="actualStart"
-            value={
-              tableData[dataIndex][9] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][9])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.startDt = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-              console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-              setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 5);
+  //           }}
+  //         >
+  //           {statuses.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 value={data.status}
+  //                 sx={{
+  //                   "&.MuiButtonBase-root": {
+  //                     backgroundColor: getStatusColor(data.status),
+  //                     color: "white",
+  //                     fontSize: "0.7rem",
+  //                   },
+  //                 }}
+  //               >
+  //                 {" "}
+  //                 {data.statusTxt}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   {
+  //     name: "Plan Start",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => (
+  //         <CrmDatePicker
+  //           height={28}
+  //           width={125}
+  //           iconHeight={"0.6em"}
+  //           iconWidth={"0.6em"}
+  //           fontSize={"0.7rem"}
+  //           buttonBase={"1em"}
+  //           id={`planStart-${dataIndex}`}
+  //           name="planStart"
+  //           value={
+  //             tableData[dataIndex][6] === "0000-00-00"
+  //               ? ""
+  //               : dayjs(tableData[dataIndex][6])
+  //           }
+  //           onChange={(date) => {
+  //             const row = projectData[dataIndex];
+  //             row.fsavd = dayjs(date).format("YYYYMMDD");
+  //             delete row.task;
+  //             delete row.ticket;
+  //             setRowToUpdate(row);
+  //             handleDateChange(date, rowIndex, 6);
+  //           }}
+  //         />
+  //       ),
+  //     },
+  //   },
+  //   {
+  //     name: "Planned End Date",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => (
+  //         <CrmDatePicker
+  //           height={28}
+  //           width={125}
+  //           iconHeight={"0.6em"}
+  //           iconWidth={"0.6em"}
+  //           fontSize={"0.7rem"}
+  //           buttonBase={"1em"}
+  //           id={`planEnd-${dataIndex}`}
+  //           name="planEnd"
+  //           value={
+  //             tableData[dataIndex][7] === "0000-00-00"
+  //               ? ""
+  //               : dayjs(tableData[dataIndex][7])
+  //           }
+  //           onChange={(date) => {
+  //             const row = projectData[dataIndex];
+  //             row.fsedd = dayjs(date).format("YYYYMMDD");
+  //             delete row.task;
+  //             delete row.ticket;
+  //             setRowToUpdate(row);
+  //             handleDateChange(date, rowIndex, 7);
+  //           }}
+  //         />
+  //       ),
+  //     },
+  //   },
+  //   { name: "Plan Days" },
+  //   {
+  //     name: "Actual Start",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => (
+  //         <CrmDatePicker
+  //           height={28}
+  //           width={125}
+  //           iconHeight={"0.6em"}
+  //           iconWidth={"0.6em"}
+  //           fontSize={"0.7rem"}
+  //           buttonBase={"1em"}
+  //           id={`actualStart-${dataIndex}`}
+  //           name="actualStart"
+  //           value={
+  //             tableData[dataIndex][9] === "0000-00-00"
+  //               ? ""
+  //               : dayjs(tableData[dataIndex][9])
+  //           }
+  //           onChange={(date) => {
+  //             const row = projectData[dataIndex];
+  //             row.startDt = dayjs(date).format("YYYYMMDD");
+  //             delete row.task;
+  //             delete row.ticket;
+  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
+  //             setRowToUpdate(row);
 
-              handleDateChange(date, rowIndex, 9);
-            }}
-          />
-        ),
+  //             handleDateChange(date, rowIndex, 9);
+  //           }}
+  //         />
+  //       ),
+  //     },
+  //   },
+  //   {
+  //     name: "Actual End",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => (
+  //         <CrmDatePicker
+  //           height={28}
+  //           width={125}
+  //           iconHeight={"0.6em"}
+  //           iconWidth={"0.6em"}
+  //           fontSize={"0.7rem"}
+  //           buttonBase={"1em"}
+  //           id={`actualEnd-${dataIndex}`}
+  //           name="actualEnd"
+  //           value={
+  //             tableData[dataIndex][10] === "0000-00-00"
+  //               ? ""
+  //               : dayjs(tableData[dataIndex][10])
+  //           }
+  //           onChange={(date) => {
+  //             const row = projectData[dataIndex];
+  //             row.endDt = dayjs(date).format("YYYYMMDD");
+  //             delete row.task;
+  //             delete row.ticket;
+  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
+  //             setRowToUpdate(row);
+  //             handleDateChange(date, rowIndex, 10);
+  //           }}
+  //         />
+  //       ),
+  //     },
+  //   },
+  //   { name: "Actual Days" },
+  //   {
+  //     name: "Tester",
+  //     options: {
+  //       customBodyRenderLite: (dataIndex, rowIndex) => [
+  //         <Select
+  //           sx={{
+  //             "& .MuiOutlinedInput-input": {
+  //               padding: "4.5px 14px",
+  //               fontSize: "0.7rem",
+  //               width: "8em",
+  //             },
+  //           }}
+  //           id="tester"
+  //           name="tester"
+  //           value={tableData[dataIndex][12]}
+  //           onChange={(e) => {
+  //             const row = projectData[dataIndex];
+  //             row.tester = e.target.value;
+  //             console.log("##################rowon userupdate", row);
+  //             delete row.ticket;
+  //             setRowToUpdate(row);
+  //             handleCellEdit(e, rowIndex, 12);
+  //           }}
+  //         >
+  //           {users.map((data) => {
+  //             return (
+  //               <MenuItem
+  //                 value={data.bname}
+  //                 sx={{
+  //                   fontSize: "0.7rem",
+  //                 }}
+  //               >
+  //                 {" "}
+  //                 {data.name}
+  //               </MenuItem>
+  //             );
+  //           })}
+  //         </Select>,
+  //       ],
+  //     },
+  //   },
+  //   { name: "Technical Objects" },
+  //   { name: "Remarks" },
+  //   { name: "Transport Request Number" },
+  //   { name: "Files" },
+  // ];
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Task Description",
+        accessor: "taskDesc",
       },
-    },
-    {
-      name: "Actual End",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualEnd-${dataIndex}`}
-            name="actualEnd"
-            value={
-              tableData[dataIndex][10] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][10])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.endDt = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-              console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 10);
-            }}
-          />
-        ),
+      {
+        Header: "Type",
+        accessor: "typeTxt",
       },
-    },
-    { name: "Actual Days" },
-    {
-      name: "Tester",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                width: "8em",
-              },
-            }}
-            id="tester"
-            name="tester"
-            value={tableData[dataIndex][12]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.tester = e.target.value;
-              console.log("##################rowon userupdate", row);
-              delete row.ticket;
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 12);
-            }}
-          >
-            {users.map((data) => {
-              return (
-                <MenuItem
-                  value={data.bname}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.name}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
+      {
+        Header: "Assigned To",
+        accessor: "assigned",
+        Cell: ({ value }) => {
+          const user = users?.find((user) => user.bname === value);
+          return <>{user ? user.name : ""}</>;
+        },
       },
-    },
-    { name: "Technical Objects" },
-    { name: "Remarks" },
-    { name: "Transport Request Number" },
-    { name: "Files" },
-  ];
+      {
+        Header: "Module",
+        accessor: "moduleTxt",
+      },
+
+      {
+        Header: "Priority",
+        accessor: "priority",
+        Cell: ({ value }) => {
+          return (
+            value && (
+              <Chip label={value} sx={{ color: getPriorityColor(value) }} />
+            )
+          );
+        },
+      },
+      {
+        Header: "Status",
+        accessor: "statusTxt",
+        Cell: ({ value, row }) => {
+          return (
+            value && (
+              <Chip
+                label={value}
+                sx={{ color: getStatusColor(row.original.status) }}
+              />
+            )
+          );
+        },
+      },
+
+      {
+        Header: "Plan Start",
+        accessor: "fsavd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`actualStart-${value}`}
+              name="actualStart"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+
+      {
+        Header: "Planned End Date",
+        accessor: "fsedd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Plan Days",
+        accessor: "planDays",
+      },
+      {
+        Header: "Actual Start",
+        accessor: "startDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual End",
+        accessor: "endDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual Days",
+        accessor: "actDays",
+      },
+      {
+        Header: "Tester",
+        accessor: "tester",
+        Cell: ({ value }) => {
+          const user = users?.find((user) => user.bname === value);
+          return <>{user ? user.name : ""}</>;
+        },
+      },
+      {
+        Header: "Technical Object",
+        accessor: "objects",
+      },
+      {
+        Header: "Remark",
+        accessor: "remark",
+      },
+      {
+        Header: "Transport Request Number",
+        accessor: "trkorr",
+      },
+      {
+        Header: "Files",
+        accessor: "projectId",
+        Cell: ({ value }) => {
+          return (
+            <IconButton
+              style={{ color: "blue" }}
+              onClick={() => {
+                setOpenShowFiles(true);
+                setFileUrlReqNo(value);
+              }}
+            >
+              <InsertDriveFileIcon />
+            </IconButton>
+          );
+        },
+      },
+    ],
+    [users]
+  );
+
+  const memoizedData = useMemo(() => tableData, [tableData]);
+
+  console.log("***memoizedData***", memoizedData);
 
   const updateTask = (updatedData) => {
     console.log("updatedData!!!!!!!!!!!", updatedData);
@@ -899,8 +1098,15 @@ const Tasks = () => {
           backgroundColor: "#fff",
           padding: "0.5em 0",
           boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
+        <div>
+          {" "}
+          <Typography variant="h4">Tasks</Typography>
+        </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             variant="contained"
@@ -968,23 +1174,21 @@ const Tasks = () => {
         </div>
       </div>
       <Grid>
-        {tableData?.length > 0 && (
+        {tableData.length > 0 ? (
           <ThemeProvider theme={() => getMuiTheme()}>
-            {/* <div
-              style={{
-                height: "32rem",
-                overflowY: "auto", // Enable vertical scrolling
-              }}
-            > */}
-            <MUIDataTable
-              title="Tasks"
-              data={tableData}
-              style={{ width: "100%" }}
+            <HOCTable
               columns={columns}
-              options={options}
+              data={memoizedData}
+              pageSize={100}
+              pagination={false}
+              // select={true}
+              showFilter={false}
+              // setSelectedItems={setSelectedItems}
+              maxHeight={"80vh"}
             />
-            {/* </div> */}
           </ThemeProvider>
+        ) : (
+          <CircularScreenLoader />
         )}
 
         <CrmModal

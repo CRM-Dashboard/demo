@@ -77,9 +77,9 @@ const CustomerDetailCard = ({ customerData }) => {
           <List>
             <ListItem>
               <ListItemAvatar>
-                <Avatar>
+                <Avatar sx={{ backgroundColor: "#62B4FF" }}>
                   {" "}
-                  <WorkIcon sx={{ color: "black" }} />
+                  <WorkIcon sx={{ color: "white" }} />
                 </Avatar>
               </ListItemAvatar>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -99,9 +99,9 @@ const CustomerDetailCard = ({ customerData }) => {
 
             <ListItem>
               <ListItemAvatar>
-                <Avatar>
+                <Avatar sx={{ backgroundColor: "#62B4FF" }}>
                   {" "}
-                  <CakeIcon sx={{ color: "black" }} />
+                  <CakeIcon sx={{ color: "white" }} />
                 </Avatar>
               </ListItemAvatar>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -119,8 +119,8 @@ const CustomerDetailCard = ({ customerData }) => {
               <>
                 <ListItem>
                   <ListItemAvatar>
-                    <Avatar>
-                      <CelebrationIcon sx={{ color: "black" }} />
+                    <Avatar sx={{ backgroundColor: "#62B4FF" }}>
+                      <CelebrationIcon sx={{ color: "white" }} />
                     </Avatar>
                   </ListItemAvatar>
                   <Box
@@ -140,15 +140,19 @@ const CustomerDetailCard = ({ customerData }) => {
 
             <ListItem
               secondaryAction={
-                <IconButton edge="end" aria-label="comments">
-                  <CallIcon sx={{ color: "black" }} />
+                <IconButton
+                  sx={{ backgroundColor: "green" }}
+                  edge="end"
+                  aria-label="comments"
+                >
+                  <CallIcon sx={{ color: "white" }} />
                 </IconButton>
               }
             >
               <ListItemAvatar>
-                <Avatar>
+                <Avatar sx={{ backgroundColor: "#62B4FF" }}>
                   {" "}
-                  <PhoneAndroidIcon color="black" sx={{ color: "black" }} />
+                  <PhoneAndroidIcon sx={{ color: "white" }} />
                 </Avatar>
               </ListItemAvatar>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -164,8 +168,8 @@ const CustomerDetailCard = ({ customerData }) => {
 
             <ListItem>
               <ListItemAvatar>
-                <Avatar>
-                  <MailIcon sx={{ color: "black" }} />
+                <Avatar sx={{ backgroundColor: "#62B4FF" }}>
+                  <MailIcon sx={{ color: "white" }} />
                 </Avatar>
               </ListItemAvatar>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -181,9 +185,9 @@ const CustomerDetailCard = ({ customerData }) => {
 
             <ListItem>
               <ListItemAvatar>
-                <Avatar>
+                <Avatar sx={{ backgroundColor: "#62B4FF" }}>
                   {" "}
-                  <PersonIcon sx={{ color: "black" }} />
+                  <PersonIcon sx={{ color: "white" }} />
                 </Avatar>
               </ListItemAvatar>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0 }}>

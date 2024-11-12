@@ -653,8 +653,15 @@ const Projects = () => {
           backgroundColor: "#fff",
           padding: "0.5em 0",
           boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
+        <div>
+          {" "}
+          <Typography variant="h4">Projects</Typography>
+        </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             variant="contained"

@@ -3,25 +3,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef, useMemo, memo } from "react";
 import dayjs from "dayjs";
-import MUIDataTable from "mui-datatables";
-import DeleteIcon from "@mui/icons-material/Delete";
 import FileDetails from "../FileOperations/FileDetails";
 import FileUploader from "../FileOperations/FileUploader";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import {
-  Select,
-  MenuItem,
-  Button,
-  Typography,
-  Box,
-  IconButton,
-  Chip,
-} from "@mui/material";
+import { Button, Typography, Box, IconButton, Chip } from "@mui/material";
 import "../OverView/Style.css";
 import { Grid } from "@mui/material";
-import CreateNewTask from "./CreateNewTask";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
@@ -34,12 +23,10 @@ import CircularScreenLoader from "../../crm/components/circularScreenLoader/Circ
 const HOCTable = withTable(memo(TableFilter));
 
 const Tasks = () => {
-  const [treeData, setTreeData] = useState([]);
   const [users, setUsers] = useState([]);
   const [taskId, setTaskId] = useState([]);
   const [modules, setModules] = useState([]);
   const [projects, setProjects] = useState([]);
-  const [response, setResponse] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [projectId, setProjectId] = useState();
   const [loading, setLoading] = useState(false);
@@ -48,28 +35,24 @@ const Tasks = () => {
   const [priorities, setPriorities] = useState([]);
   const [changeTypes, setChangeType] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [projectData, setProjectData] = useState([]);
-  const [rowToUpdate, setRowToUpdate] = useState([]);
-  const [selectedRows, setSelectedRows] = useState();
-  const [dataToDelete, setDataToDelete] = useState("");
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openCreateTask, setOpenCreateTask] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
-  const taskRef = useRef(null);
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
   const loggedInUser = reducerData.LoginReducer.loggedInUser;
 
-  const sendMail = () => {
+  const sendMail = async () => {
     const entryData = {
       PROJECT: [],
       TASK: [
         {
-          ...selectedRows,
+          ...selectedItems,
           mailInd: "X",
         },
       ],
@@ -81,177 +64,55 @@ const Tasks = () => {
     formData.append("passWord", passWord);
     formData.append("entryData", JSON.stringify(entryData));
 
-    // process.env.REACT_APP_SERVER_URL
-    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          snackbar.showSuccess("Send Mail successfully!");
-        }
-      })
-      .catch((error) => {
-        if (error) {
-          snackbar.showError("Error while Sending Mail. Please try again!");
-        }
-      });
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/createProject`,
+        formData
+      );
+
+      if (response.data) {
+        snackbar.showSuccess("Mail sent successfully!");
+      }
+    } catch (error) {
+      console.error("Error while sending mail:", error);
+      snackbar.showError("Error while sending mail. Please try again!");
+    }
   };
 
-  const modifyResponse = (taskData) => {
-    const DataForTable = taskData?.map((item) => {
-      return [
-        item.taskDesc,
-        item.type,
-        item.assigned,
-        item.module_sys,
-        item.priority,
-        item.status,
-        item?.fsavd,
-        item?.fsedd,
-        item?.planDays,
-        item?.startDt,
-        item?.endDt,
-        item?.actDays,
-        item?.tester,
-        item?.objects,
-        item?.remark,
-        item?.trkorr,
-        <IconButton
-          style={{ color: "blue" }}
-          onClick={() => {
-            setOpenShowFiles(true);
-            setTaskId(item?.taskId);
-            setProjectId(item?.projectId);
-            setFileUrlReqNo(item?.projectId);
-          }}
-        >
-          <InsertDriveFileIcon />
-        </IconButton>,
-        item.projectId,
-        item.taskId,
-      ];
-    });
-    return DataForTable;
-  };
-
-  const getTableData = () => {
+  const getTableData = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
+
     setLoading(true);
-    // process.env.REACT_APP_SERVER_URL +
-    fetch(
-      // `https://gera-crm-server.azurewebsites.net//api/activity/getProjectTracker`,
-      `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTracker`,
-      { method: "POST", body: formData }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.length > 0) {
-          setResponse(data[0]);
-          setUsers(data[0].user);
-          setModules(data[0].module);
-          setProjectData(data[0].task);
-          setProjects(data[0].project);
-          setChangeType(data[0].changeTyp);
-          setStatuses(data[0].taskChangeStatus);
-          setPriorities(data[0].projectPriority);
 
-          const addedId = data[0].task?.map((proj) => {
-            const obj = { ...proj };
-            obj.id = proj.taskId;
-            return obj;
-          });
-          setTableData(addedId);
-          setLoading(false);
-        }
-      });
-  };
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTracker`,
+        formData
+      );
 
-  console.log("***users***", users);
+      const data = response.data;
+      if (data?.length > 0) {
+        setUsers(data[0].user);
+        setModules(data[0].module);
+        setProjects(data[0].project);
+        setChangeType(data[0].changeTyp);
+        setStatuses(data[0].taskChangeStatus);
+        setPriorities(data[0].projectPriority);
 
-  const handleRowClick = (rowData, rowMeta) => {
-    // rowData contains the data of the clicked row
-    console.log(
-      "Clicked row data########:",
-      rowData,
-      rowMeta?.rowIndex,
-      tableData?.[rowMeta?.rowIndex]
-    );
-    console.log(
-      "###########tableData[rowMeta?.rowIndex]",
-      tableData?.[rowMeta?.rowIndex]
-    );
-    setSelectedRows(projectData?.[rowMeta?.rowIndex]);
-    setTaskId(tableData?.[rowMeta?.rowIndex]?.[18]);
-    setProjectId(tableData?.[rowMeta?.rowIndex]?.[17]);
-
-    const Id = tableData[rowMeta?.rowIndex]?.[16];
-
-    const selectedTasks = response?.tree?.filter((data) => {
-      if (data.projectId === projectId) {
-        return data;
+        const addedId = data[0].task?.map((proj) => {
+          const obj = { ...proj };
+          obj.id = proj.taskId;
+          return obj;
+        });
+        setTableData(addedId);
       }
-    });
-    console.log("#########selected Tasks", selectedTasks, response?.tree, Id);
-    setTreeData(selectedTasks?.tasks);
-    // You can perform any action with the row data here
-  };
-
-  const getRowStyle = (rowData, rowMeta) => {
-    // console.log("selectedRows!!!!!!!!", selectedRows, rowMeta);
-    const selected = selectedRows.includes(rowMeta.dataIndex);
-
-    return {
-      backgroundColor: selected ? "#b0e0e6" : "inherit", // You can change the color as per your preference
-    };
-  };
-
-  const options = {
-    // expandableRows: true,
-    pagination: false,
-    print: false,
-    download: false,
-    search: false,
-    filter: false,
-    viewColumns: false,
-    selectableRows: "single",
-    // renderExpandableRow,
-    hideToolbar: true,
-    columnOptions: {
-      display: "false",
-    },
-    rowStyle: getRowStyle,
-    selection: true,
-    // onRowClick: handleRowClick,
-    onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-      const lastRowIndex = allRowsSelected[allRowsSelected?.length - 1]?.index;
-      handleRowClick(tableData[lastRowIndex], { rowIndex: lastRowIndex });
-    },
-    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-      <Button
-        color="secondary"
-        onClick={() => {
-          console.log("############current task id", taskId);
-
-          const idsToDelete = response.task.filter((row) => {
-            if (row.taskId === taskId) {
-              return row;
-            }
-          });
-
-          console.log("#######idsToDelete", idsToDelete);
-
-          setDataToDelete(idsToDelete);
-          setOpenModal(true);
-          setSelectedRows([]);
-        }}
-      >
-        <DeleteIcon />
-      </Button>
-    ),
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -283,414 +144,6 @@ const Tasks = () => {
         return "inherit";
     }
   };
-
-  // const columns = [
-  //   {
-  //     name: "Task Description",
-  //     // options: {
-  //     //   customBodyRender: (value, tableMeta) => (
-  //     //     <input
-  //     //       type="text"
-  //     //       style={{ fontSize: "0.7rem" }}
-  //     //       value={value}
-  //     //       onChange={(e) => handleCellEdit(e, tableMeta?.rowIndex, 0)}
-  //     //     />
-  //     //   ),
-  //     // },
-  //   },
-  //   {
-  //     name: "Type",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "4.5px 14px",
-  //               fontSize: "0.7rem",
-  //               // backgroundColor: getStatusColor(tableData[dataIndex][4]),
-  //               // color: "white",
-  //               width: "8em",
-  //             },
-  //           }}
-  //           id="types"
-  //           name="types"
-  //           value={tableData[dataIndex][1]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.type = e.target.value;
-  //             console.log("##################rowon userupdate", row);
-  //             delete row.tickets;
-  //             setRowToUpdate(row);
-  //             handleCellEdit(e, rowIndex, 1);
-  //           }}
-  //         >
-  //           {changeTypes.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 value={data.change}
-  //                 sx={{
-  //                   fontSize: "0.7rem",
-  //                 }}
-  //               >
-  //                 {" "}
-  //                 {data.changeTxt}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     name: "Assigned To",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "4.5px 14px",
-  //               fontSize: "0.7rem",
-  //               // backgroundColor: getStatusColor(tableData[dataIndex][4]),
-  //               // color: "white",
-  //               width: "8em",
-  //             },
-  //           }}
-  //           id="assigned"
-  //           name="assigned"
-  //           value={tableData[dataIndex][2]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.assigned = e.target.value;
-  //             console.log("##################rowon userupdate", row);
-  //             delete row.tickets;
-  //             setRowToUpdate(row);
-  //             handleCellEdit(e, rowIndex, 2);
-  //           }}
-  //         >
-  //           {users.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 value={data.bname}
-  //                 sx={{
-  //                   fontSize: "0.7rem",
-  //                 }}
-  //               >
-  //                 {" "}
-  //                 {data.name}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     name: "Module",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "4.5px 14px",
-  //               fontSize: "0.7rem",
-  //               width: "17em",
-  //             },
-  //           }}
-  //           id="module"
-  //           name="module"
-  //           value={tableData[dataIndex][3]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.module_sys = e.target.value;
-  //             delete row.tickets;
-  //             setRowToUpdate(row);
-  //             handleCellEdit(e, rowIndex, 3);
-  //           }}
-  //         >
-  //           {modules.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 value={data.module}
-  //                 sx={{
-  //                   fontSize: "0.7rem",
-  //                 }}
-  //               >
-  //                 {" "}
-  //                 {data.moduleTxt}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     name: "Priority",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "6.5px 14px 5px 14px",
-  //               font: "-webkit-control",
-  //               color: "white",
-  //               backgroundColor: getPriorityColor(tableData[dataIndex][4]),
-  //               fontSize: "0.7rem",
-  //               width: "6em",
-  //             },
-  //           }}
-  //           id="priority"
-  //           name="priority"
-  //           value={tableData[dataIndex][4]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.priority = e.target.value;
-  //             delete row.ticket;
-  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-  //             setRowToUpdate(row);
-
-  //             handleCellEdit(e, rowIndex, 4);
-  //           }}
-  //         >
-  //           {priorities.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 sx={{
-  //                   "&.MuiButtonBase-root": {
-  //                     backgroundColor: getPriorityColor(data.priority),
-  //                     color: "white",
-  //                     fontSize: "0.8rem",
-  //                   },
-  //                 }}
-  //                 value={data.priority}
-  //               >
-  //                 {" "}
-  //                 {data.priority}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     name: "Status",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "4.5px 14px",
-  //               backgroundColor: getStatusColor(tableData[dataIndex][5]),
-  //               color: "white",
-  //               width: "8em",
-  //               fontSize: "0.7rem",
-  //             },
-  //           }}
-  //           id="status"
-  //           name="status"
-  //           value={tableData[dataIndex][5]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.status = e.target.value;
-  //             delete row.tickets;
-  //             setRowToUpdate(row);
-
-  //             handleCellEdit(e, rowIndex, 5);
-  //           }}
-  //         >
-  //           {statuses.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 value={data.status}
-  //                 sx={{
-  //                   "&.MuiButtonBase-root": {
-  //                     backgroundColor: getStatusColor(data.status),
-  //                     color: "white",
-  //                     fontSize: "0.7rem",
-  //                   },
-  //                 }}
-  //               >
-  //                 {" "}
-  //                 {data.statusTxt}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     name: "Plan Start",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => (
-  //         <CrmDatePicker
-  //           height={28}
-  //           width={125}
-  //           iconHeight={"0.6em"}
-  //           iconWidth={"0.6em"}
-  //           fontSize={"0.7rem"}
-  //           buttonBase={"1em"}
-  //           id={`planStart-${dataIndex}`}
-  //           name="planStart"
-  //           value={
-  //             tableData[dataIndex][6] === "0000-00-00"
-  //               ? ""
-  //               : dayjs(tableData[dataIndex][6])
-  //           }
-  //           onChange={(date) => {
-  //             const row = projectData[dataIndex];
-  //             row.fsavd = dayjs(date).format("YYYYMMDD");
-  //             delete row.task;
-  //             delete row.ticket;
-  //             setRowToUpdate(row);
-  //             handleDateChange(date, rowIndex, 6);
-  //           }}
-  //         />
-  //       ),
-  //     },
-  //   },
-  //   {
-  //     name: "Planned End Date",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => (
-  //         <CrmDatePicker
-  //           height={28}
-  //           width={125}
-  //           iconHeight={"0.6em"}
-  //           iconWidth={"0.6em"}
-  //           fontSize={"0.7rem"}
-  //           buttonBase={"1em"}
-  //           id={`planEnd-${dataIndex}`}
-  //           name="planEnd"
-  //           value={
-  //             tableData[dataIndex][7] === "0000-00-00"
-  //               ? ""
-  //               : dayjs(tableData[dataIndex][7])
-  //           }
-  //           onChange={(date) => {
-  //             const row = projectData[dataIndex];
-  //             row.fsedd = dayjs(date).format("YYYYMMDD");
-  //             delete row.task;
-  //             delete row.ticket;
-  //             setRowToUpdate(row);
-  //             handleDateChange(date, rowIndex, 7);
-  //           }}
-  //         />
-  //       ),
-  //     },
-  //   },
-  //   { name: "Plan Days" },
-  //   {
-  //     name: "Actual Start",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => (
-  //         <CrmDatePicker
-  //           height={28}
-  //           width={125}
-  //           iconHeight={"0.6em"}
-  //           iconWidth={"0.6em"}
-  //           fontSize={"0.7rem"}
-  //           buttonBase={"1em"}
-  //           id={`actualStart-${dataIndex}`}
-  //           name="actualStart"
-  //           value={
-  //             tableData[dataIndex][9] === "0000-00-00"
-  //               ? ""
-  //               : dayjs(tableData[dataIndex][9])
-  //           }
-  //           onChange={(date) => {
-  //             const row = projectData[dataIndex];
-  //             row.startDt = dayjs(date).format("YYYYMMDD");
-  //             delete row.task;
-  //             delete row.ticket;
-  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-  //             setRowToUpdate(row);
-
-  //             handleDateChange(date, rowIndex, 9);
-  //           }}
-  //         />
-  //       ),
-  //     },
-  //   },
-  //   {
-  //     name: "Actual End",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => (
-  //         <CrmDatePicker
-  //           height={28}
-  //           width={125}
-  //           iconHeight={"0.6em"}
-  //           iconWidth={"0.6em"}
-  //           fontSize={"0.7rem"}
-  //           buttonBase={"1em"}
-  //           id={`actualEnd-${dataIndex}`}
-  //           name="actualEnd"
-  //           value={
-  //             tableData[dataIndex][10] === "0000-00-00"
-  //               ? ""
-  //               : dayjs(tableData[dataIndex][10])
-  //           }
-  //           onChange={(date) => {
-  //             const row = projectData[dataIndex];
-  //             row.endDt = dayjs(date).format("YYYYMMDD");
-  //             delete row.task;
-  //             delete row.ticket;
-  //             console.log("rowToUpdate$$$$$$$$$$", row, rowIndex);
-  //             setRowToUpdate(row);
-  //             handleDateChange(date, rowIndex, 10);
-  //           }}
-  //         />
-  //       ),
-  //     },
-  //   },
-  //   { name: "Actual Days" },
-  //   {
-  //     name: "Tester",
-  //     options: {
-  //       customBodyRenderLite: (dataIndex, rowIndex) => [
-  //         <Select
-  //           sx={{
-  //             "& .MuiOutlinedInput-input": {
-  //               padding: "4.5px 14px",
-  //               fontSize: "0.7rem",
-  //               width: "8em",
-  //             },
-  //           }}
-  //           id="tester"
-  //           name="tester"
-  //           value={tableData[dataIndex][12]}
-  //           onChange={(e) => {
-  //             const row = projectData[dataIndex];
-  //             row.tester = e.target.value;
-  //             console.log("##################rowon userupdate", row);
-  //             delete row.ticket;
-  //             setRowToUpdate(row);
-  //             handleCellEdit(e, rowIndex, 12);
-  //           }}
-  //         >
-  //           {users.map((data) => {
-  //             return (
-  //               <MenuItem
-  //                 value={data.bname}
-  //                 sx={{
-  //                   fontSize: "0.7rem",
-  //                 }}
-  //               >
-  //                 {" "}
-  //                 {data.name}
-  //               </MenuItem>
-  //             );
-  //           })}
-  //         </Select>,
-  //       ],
-  //     },
-  //   },
-  //   { name: "Technical Objects" },
-  //   { name: "Remarks" },
-  //   { name: "Transport Request Number" },
-  //   { name: "Files" },
-  // ];
 
   const columns = useMemo(
     () => [
@@ -871,75 +324,114 @@ const Tasks = () => {
     [users]
   );
 
+  const formFields = [
+    {
+      label: "Task Description",
+      name: "taskDesc",
+      type: "text",
+      defaultValue: "",
+    },
+    {
+      label: "Type",
+      name: "type",
+      type: "select",
+      defaultValue: "",
+      options: changeTypes.map((data) => ({
+        value: data.change,
+        label: data.changeTxt,
+      })),
+    },
+
+    {
+      label: "AssignedTo",
+      name: "assigned",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
+    },
+    {
+      label: "Module",
+      name: "moduleSys",
+      type: "select",
+      defaultValue: "",
+      options: modules.map((data) => ({
+        value: data.module,
+        label: data.moduleTxt,
+      })),
+    },
+    {
+      label: "Priority",
+      name: "priority",
+      type: "select",
+      defaultValue: "",
+      options: priorities.map((data) => ({
+        value: data.priority,
+        label: data.priority,
+      })),
+    },
+    {
+      label: "Status",
+      name: "status",
+      type: "select",
+      defaultValue: "",
+      options: statuses.map((data) => ({
+        value: data.status,
+        label: data.statusTxt,
+      })),
+    },
+
+    // { label: "Progress", name: "progress", type: "number", defaultValue: 0 },
+    { label: "Plan Start", name: "fsavd", type: "date", defaultValue: null },
+    {
+      label: "Planned End Date",
+      name: "fsedd",
+      type: "date",
+      defaultValue: null,
+    },
+    // { label: "Plan Days", name: "planDays", type: "number", defaultValue: 0 },
+    {
+      label: "Actual Start",
+      name: "startDt",
+      type: "date",
+      defaultValue: null,
+    },
+    { label: "Actual End", name: "endDt", type: "date", defaultValue: null },
+    // { label: "Actual Days", name: "actDays", type: "number", defaultValue: 0 },
+    {
+      label: "Tester",
+      name: "tester",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
+    },
+    {
+      label: "Project",
+      name: "projectId",
+      type: "select",
+      defaultValue: "",
+      options: projects.map((data) => ({
+        value: data.projectId,
+        label: data.projectName,
+      })),
+    },
+    { label: "Remarks", name: "remark", type: "text", defaultValue: "" },
+    // { label: "Files", name: "projectId", type: "file", defaultValue: "" },
+  ];
+
   const memoizedData = useMemo(() => tableData, [tableData]);
-
-  console.log("***memoizedData***", memoizedData);
-
-  const updateTask = (updatedData) => {
-    console.log("updatedData!!!!!!!!!!!", updatedData);
-    const entryData = {
-      TASK: [updatedData],
-    };
-    const formData = new FormData();
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("entryData", JSON.stringify(entryData));
-
-    if (Object.keys(updatedData)?.length > 0) {
-      // process.env.REACT_APP_SERVER_URL
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            snackbar.showSuccess("Task updated successfully!");
-            setSelectedRows([]);
-            setRowToUpdate("");
-            getTableData();
-          }
-        })
-        .catch((error) => {
-          console.log("########error", error);
-          if (error) {
-            snackbar.showError("Error while updating task. Please try again!");
-          }
-        });
-    } else {
-      snackbar.showError("Something went wrong!");
-    }
-  };
-
-  useEffect(() => {
-    if (Object.keys(rowToUpdate)?.length > 1) {
-      updateTask(rowToUpdate);
-    }
-  }, [rowToUpdate]);
 
   useEffect(() => {
     getTableData();
   }, []);
 
-  const handleDateChange = (date, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    const formattedDate = dayjs(date).format("YYYY-MM-DD");
-    newData[rowIndex][colIndex] = formattedDate;
-    console.log("formattedDate$$$$$$$$$$", formattedDate);
-    console.log("newData$$$$$$$$$", newData);
-    setTableData(newData);
-  };
-
-  const handleCellEdit = (e, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    newData[rowIndex][colIndex] = e.target.value; // Update the Name field value
-    setTableData(newData);
-  };
-
-  const handleDelete = () => {
-    // eslint-disable-next-line no-use-before-define
-
-    var data = dataToDelete;
+  const handleDelete = async () => {
+    const data = selectedItems;
 
     const entryData = {
       PROJECT: [],
@@ -947,34 +439,30 @@ const Tasks = () => {
       TICKET: data?.tickets ? [data?.tickets] : [],
     };
 
-    console.log("tasks to delete@@@@@@@@", entryData);
-    console.log("ticket to delete@@@@@@@@", entryData);
-    const formdata = new FormData();
-    formdata.append("userName", userName);
-    formdata.append("passWord", passWord);
-    formdata.append("entryData", JSON.stringify(entryData));
+    console.log("Tasks to delete:", entryData);
+    console.log("Tickets to delete:", entryData);
 
-    fetch(
-      process.env.REACT_APP_SERVER_URL + `/api/activity/deleteProjectDetails`,
-      {
-        method: "POST",
-        body: formdata,
+    const formData = new FormData();
+    formData.append("userName", userName);
+    formData.append("passWord", passWord);
+    formData.append("entryData", JSON.stringify(entryData));
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/deleteProjectDetails`,
+        formData
+      );
+
+      if (response.data) {
+        snackbar.showSuccess("Task deleted successfully!");
+        setOpenModal(false);
+        getTableData();
       }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          snackbar.showSuccess("Task deleted successfully!");
-          setOpenModal(false);
-          getTableData();
-        }
-      })
-      .catch((error) => {
-        if (error) {
-          snackbar.showError("Error while deleting Task. Please try again!");
-          setOpenModal(false);
-        }
-      });
+    } catch (error) {
+      console.error("Error while deleting task:", error);
+      snackbar.showError("Error while deleting Task. Please try again!");
+      setOpenModal(false);
+    }
   };
 
   const getMuiTheme = () =>
@@ -1011,13 +499,6 @@ const Tasks = () => {
         },
       },
     });
-
-  const createNewTask = () => {
-    console.log("######createNewProject");
-    if (taskRef.current) {
-      taskRef.current.createTask();
-    }
-  };
 
   const getFilesCount = () => {
     const formData = new FormData();
@@ -1087,6 +568,82 @@ const Tasks = () => {
 
     console.log("data*************", entryData);
   };
+  function formatDate(dateString) {
+    // Create a new Date object from the input date string
+    const date = new Date(dateString);
+
+    // Get the full year (e.g., 2021)
+    const year = date.getFullYear();
+
+    // Get the month (0-based index, so we add 1)
+    // Pad the month with a leading zero if it's less than 10
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+
+    // Get the day of the month and pad with a leading zero if it's less than 10
+    const day = String(date.getDate()).padStart(2, "0");
+
+    // Combine year, month, and day to form the desired output
+    const formattedDate = `${year}${month}${day}`;
+    return formattedDate;
+  }
+  const createUpdateTask = async (data) => {
+    try {
+      const taskId =
+        selectedItems.length > 0
+          ? selectedItems[selectedItems.length - 1]?.taskId
+          : "";
+      const entryData = {
+        TASK: [
+          {
+            taskId,
+            endDt: formatDate(data.endDt),
+            fsavd: formatDate(data.fsavd),
+            fsedd: formatDate(data.fsedd),
+            startDt: formatDate(data.startDt),
+            projectId: data.projectId,
+            taskDesc: data.taskDesc,
+            type: data.type,
+            assigned: data.assigned,
+            moduleSys: data?.moduleSys,
+            priority: data.priority,
+            status: data.status,
+            tester: data.tester,
+            remark: data.remark,
+          },
+        ],
+        PROJECT: [],
+        TICKET: [],
+      };
+
+      // Create form data
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(entryData));
+
+      // Send POST request using axios
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/createProject`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      // Handle success response
+      snackbar.showSuccess("Task created successfully!");
+      setOpenCreateTask(false);
+      getTableData();
+      setSelectedItems([]);
+    } catch (error) {
+      // Handle errors
+      const errorMessage =
+        error.response?.data?.message ||
+        "Error while creating task. Please try again!";
+      snackbar.showError(errorMessage);
+      console.error("Error:", error);
+    }
+  };
 
   return (
     <>
@@ -1113,9 +670,11 @@ const Tasks = () => {
             disableElevation
             disableFocusRipple
             size="sm"
+            id="create"
             onClick={() => {
               setOpenCreateTask(true);
             }}
+            disabled={selectedItems.length > 0}
             sx={{
               margin: "0.2em",
               "&.MuiButton-root": {
@@ -1142,7 +701,7 @@ const Tasks = () => {
                 fontSize: "0.8rem",
               },
             }}
-            disabled={!projectId}
+            disabled={selectedItems.length === 0}
             onClick={() => {
               setOpenFileUpload(true);
               getFilesCount();
@@ -1164,12 +723,56 @@ const Tasks = () => {
                 fontSize: "0.8rem",
               },
             }}
-            disabled={!projectId}
+            disabled={selectedItems.length === 0}
             onClick={() => {
               sendMail();
             }}
           >
             Send Mail
+          </Button>
+
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            sx={{
+              margin: "0.2em",
+              "&.MuiButton-root": {
+                textTransform: "none",
+                backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
+              },
+            }}
+            disabled={selectedItems.length === 0}
+            onClick={() => setOpenModal(true)}
+          >
+            Delete
+          </Button>
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            id="edit"
+            // ref={buttonRef}
+            sx={{
+              margin: "0.2em",
+              "&.MuiButton-root": {
+                textTransform: "none",
+                backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
+              },
+            }}
+            disabled={selectedItems.length === 0}
+            onClick={() => {
+              // setOpenCreateForm(true);
+              setOpenCreateTask(true);
+            }}
+          >
+            Edit
           </Button>
         </div>
       </div>
@@ -1179,46 +782,31 @@ const Tasks = () => {
             <HOCTable
               columns={columns}
               data={memoizedData}
-              pageSize={100}
+              pageSize={1000}
               pagination={false}
-              // select={true}
+              select={true}
               showFilter={false}
-              // setSelectedItems={setSelectedItems}
+              setSelectedItems={setSelectedItems}
               maxHeight={"80vh"}
             />
           </ThemeProvider>
         ) : (
           <CircularScreenLoader />
         )}
-
-        <CrmModal
-          maxWidth="sm"
-          show={openCreateTask}
-          handleShow={() => {
-            setOpenCreateTask(false);
-          }}
-          primaryBtnText="Save"
-          primarySave={() => {
-            createNewTask();
-          }}
-          SecondaryBtnText="Close"
-          secondarySave={() => {
-            setOpenCreateTask(false);
-          }}
-        >
-          <CreateNewTask
-            // stages={stages}
-            statuses={statuses}
-            projects={projects}
-            // priorities={priorities}
-            ref={taskRef}
-            users={users}
-            selectedRows={selectedRows}
-            getTableData={getTableData}
-            setOpenCreateTask={setOpenCreateTask}
-          />
-        </CrmModal>
-
+        <CustomDialog
+          open={openCreateTask}
+          onClose={() => setOpenCreateTask(false)}
+          title={selectedItems.length > 0 ? "Upadte Task" : "Create New Task"}
+          content={
+            <FormComponent
+              formFields={formFields}
+              onCancel={() => setOpenCreateTask(false)}
+              onSubmit={createUpdateTask}
+              selectedValues={selectedItems[selectedItems.length - 1]}
+              // validationSchema={{}}
+            />
+          }
+        />
         <CrmModal
           maxWidth="sm"
           show={openModal}

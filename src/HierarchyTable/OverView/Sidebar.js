@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled, useTheme } from "@mui/material/styles";
-import { Grid } from "@mui/material";
+import { Grid, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import HomePage from "./HomePage";
 import Tasks from "../TaskManagement/Tasks";
@@ -37,6 +37,7 @@ import CoverPage from "../CoverPage/CoverPage";
 import ITExpensesAndBudget from "../ITExpensesAndBudget/ITExpensesAndBudget";
 import Usage from "../Usage/Usage";
 import DataUsageIcon from "@mui/icons-material/DataUsage";
+import HomeIcon from "@mui/icons-material/Home";
 // import CoverPage from "../CoverPage/CoverPage";
 
 const drawerWidth = 240;
@@ -228,6 +229,18 @@ export default function MiniDrawer() {
           >
             <MenuIcon />
           </IconButton>
+          <Tooltip title="Home">
+            <IconButton
+              // edge={"start"}
+              onClick={() => {
+                console.log("fdjsjdj");
+                navigate("/menus");
+              }}
+            >
+              <HomeIcon sx={{ color: "white" }} />
+            </IconButton>
+          </Tooltip>
+
           <Typography variant="h6" noWrap component="div">
             IT Project Management
           </Typography>
@@ -248,12 +261,12 @@ export default function MiniDrawer() {
           >
             <img
               alt="Gera"
-              className="logo"
+              // className="logo"
               src={require("../../assets/gera_logo.jpg")}
               style={{
                 maxWidth: "150px",
-                height: "auto",
-                transition: "transform 0.3s ease",
+                // height: "auto",
+                // transition: "transform 0.3s ease",
               }}
               onMouseOver={(e) =>
                 (e.currentTarget.style.transform = "scale(1.05)")

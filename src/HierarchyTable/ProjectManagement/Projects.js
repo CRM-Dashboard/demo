@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, memo, useMemo } from "react";
 import moment from "moment";
 import dayjs from "dayjs";
-import MUIDataTable from "mui-datatables";
 import { useSelector } from "react-redux";
-import CreateNewProject from "./CreateNewProject";
-import DeleteIcon from "@mui/icons-material/Delete";
 import FileDetails from "../FileOperations/FileDetails";
 import FileUploader from "../FileOperations/FileUploader";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
@@ -14,21 +11,19 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { DateRangePicker } from "@maxstudener/react-mui-daterange-picker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
-import {
-  MenuItem,
-  Select,
-  Button,
-  Box,
-  Typography,
-  IconButton,
-} from "@mui/material";
+import { Button, Typography, IconButton, Grid, Chip } from "@mui/material";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import CircularScreenLoader from "../../crm/components/circularScreenLoader/CircularScreenLoader";
 import CircularProgressWithLabel from "../../crm/components/CircularProgressWithLabel/circularProgressWithLabel";
+import withTable from "../../crm/components/TableFilter/withTable";
+import TableFilter from "../../crm/components/TableFilter/TableFilter";
+import CustomDialog from "../components/CustomDialog";
+import FormComponent from "../components/FormComponent";
+import axios from "axios";
+const HOCTable = withTable(memo(TableFilter));
 
 const Projects = () => {
   const [users, setUsers] = useState([]);
-  const [file, setFile] = useState(null);
   const [stages, setStages] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [projectId, setProjectId] = useState();
@@ -38,22 +33,17 @@ const Projects = () => {
   const [tableData, setTableData] = useState([]);
   const [priorities, setPriorities] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [projectData, setProjectData] = useState([]);
-  const [rowToUpdate, setRowToUpdate] = useState([]);
   const [dateRange, setDateRange] = useState("false");
-  const [dataToDelete, setDataToDelete] = useState("");
-  const [selectedRows, setSelectedRows] = useState("");
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openCreateForm, setOpenCreateForm] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [shouldShowDateRange, setShouldShowDateRange] = useState("");
+  const [selectedItems, setSelectedItems] = useState([]);
+  const buttonRef = useRef(null);
 
   const reducerData = useSelector((state) => state);
-  const ref = useRef(null);
-  const taskRef = useRef(null);
-  const ticketRef = useRef(null);
-  const fileInputRef = useRef(null);
+
   const snackbar = UseCustomSnackbar();
   const passWord = reducerData.LoginReducer.passWord;
   const userName = reducerData.LoginReducer.userName;
@@ -63,7 +53,7 @@ const Projects = () => {
     const entryData = {
       PROJECT: [
         {
-          ...selectedRows,
+          ...selectedItems,
           mailInd: "X",
         },
       ],
@@ -134,8 +124,8 @@ const Projects = () => {
 
   const getFilesCount = () => {
     const formData = new FormData();
-    formData.append("reqNo", projectId);
-    formData.append("orderId", projectId);
+    formData.append("reqNo", selectedItems[0]?.projectId);
+    formData.append("orderId", selectedItems[0]?.projectId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
     formData.append("process", "TRACKER");
@@ -158,29 +148,14 @@ const Projects = () => {
       });
   };
 
-  const handleRowClick = (rowData, rowMeta) => {
-    setProjectId(rowData?.[15]);
-    setSelectedRows(projectData[rowMeta?.rowIndex]);
-  };
-
-  const getRowStyle = (rowData, rowMeta) => {
-    const selected = selectedRows.includes(rowMeta?.dataIndex);
-
-    return {
-      backgroundColor: selected ? "#b0e0e6" : "inherit", // You can change the color as per your preference
-    };
-  };
-
   const handleDelete = () => {
-    // eslint-disable-next-line no-use-before-define
-    var data = dataToDelete;
+    var data = selectedItems;
 
     const entryData = {
-      PROJECT: [data],
-      TASK: [data?.tasks],
-      TICKET: [data?.tickets],
+      PROJECT: [data[0]],
+      TASK: [data[0]?.tasks],
+      TICKET: [data[0]?.tickets],
     };
-
     const formData = new FormData();
 
     formData.append("userName", userName);
@@ -209,333 +184,263 @@ const Projects = () => {
         }
       });
   };
-
-  const options = {
-    pagination: false,
-    print: false,
-    download: false,
-    search: false,
-    filter: false,
-    viewColumns: false,
-    selectableRows: "single",
-    hideToolbar: true,
-    columnOptions: {
-      display: "false",
-    },
-    rowStyle: getRowStyle,
-    selection: true,
-    textLabels: {
-      selectedRows: {
-        text: "",
-        delete: "Delete",
-        deleteAria: "Delete Selected Rows",
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Category",
+        accessor: "categTxt",
       },
-    },
-    onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-      const lastRowIndex = allRowsSelected[allRowsSelected.length - 1]?.index;
-      handleRowClick(tableData[lastRowIndex], { rowIndex: lastRowIndex });
-    },
-    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-      <Button
-        color="secondary"
-        onClick={() => {
-          const idsToDelete = selectedRows.data.map(
-            (row) => displayData[row.index].dataIndex
+      {
+        Header: "Name",
+        accessor: "projectName",
+      },
+      {
+        Header: "Description",
+        accessor: "projectDesc",
+      },
+      {
+        Header: "Project Manager",
+        accessor: "projectMgr",
+      },
+
+      {
+        Header: "Priority",
+        accessor: "priority",
+        Cell: ({ value }) => {
+          return (
+            value && (
+              <Chip label={value} sx={{ color: getPriorityColor(value) }} />
+            )
           );
-          setDataToDelete(projectData[idsToDelete]);
-          setOpenModal(true);
-          setSelectedRows([]);
-        }}
-      >
-        <DeleteIcon />
-      </Button>
-    ),
-  };
-
-  const columns = [
-    // { name: "Rank" },
-    {
-      name: "Category",
-    },
-    {
-      name: "Name",
-    },
-    "Description",
-    "Project Manager",
-    {
-      name: "Priority",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "6.5px 14px 5px 14px",
-                font: "-webkit-control",
-                color: "white",
-                backgroundColor: getPriorityColor(tableData[dataIndex][4]),
-                fontSize: "0.7rem",
-                width: "6em",
-              },
-            }}
-            id="priority"
-            name="priority"
-            value={tableData[dataIndex][4]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.priority = e.target.value;
-              delete row.task;
-              delete row.ticket;
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 4);
-            }}
-          >
-            {priorities.map((data) => {
-              return (
-                <MenuItem
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getPriorityColor(data.priority),
-                      color: "white",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  value={data.priority}
-                >
-                  {" "}
-                  {data.priority}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
+        },
       },
+      {
+        Header: "Status",
+        accessor: "statusTxt",
+        Cell: ({ value, row }) => {
+          return (
+            value && (
+              <Chip
+                label={value}
+                sx={{ color: getStatusColor(row.original.status) }}
+              />
+            )
+          );
+        },
+      },
+
+      {
+        Header: "Stage",
+        accessor: "stageTxt",
+        Cell: ({ value, row }) => {
+          return (
+            value && (
+              <Chip
+                label={value}
+                sx={{ color: getStageColor(row.original.stage) }}
+              />
+            )
+          );
+        },
+      },
+
+      {
+        Header: "Progress",
+        accessor: "progress",
+        Cell: ({ value }) => {
+          return <CircularProgressWithLabel value={value} />;
+        },
+      },
+      {
+        Header: "Plan Start",
+        accessor: "fsavd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`actualStart-${value}`}
+              name="actualStart"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+
+      {
+        Header: "Planned End Date",
+        accessor: "fsedd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Plan Days",
+        accessor: "planDays",
+      },
+      {
+        Header: "Actual Start",
+        accessor: "startDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual End",
+        accessor: "endDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual Days",
+        accessor: "actDays",
+      },
+      {
+        Header: "Files",
+        accessor: "projectId",
+        Cell: ({ value }) => {
+          return (
+            <IconButton
+              style={{ color: "blue" }}
+              onClick={() => {
+                setOpenShowFiles(true);
+                setFileUrlReqNo(value);
+              }}
+            >
+              <InsertDriveFileIcon />
+            </IconButton>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const formFields = [
+    {
+      label: "Category",
+      name: "category",
+      type: "select",
+      defaultValue: "",
+      options: categories.map((data) => ({
+        value: data.categ,
+        label: data.categTxt,
+      })),
+    },
+    { label: "Name", name: "projectName", type: "text", defaultValue: "" },
+    {
+      label: "Description",
+      name: "projectDesc",
+      type: "text",
+      defaultValue: "",
     },
     {
-      name: "Status",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "6.5px 14px 5px 14px",
-                font: "-webkit-control",
-                backgroundColor: getStatusColor(tableData[dataIndex][5]),
-                color: "white",
-                width: "7em",
-                fontSize: "0.7rem",
-              },
-            }}
-            id="status"
-            name="status"
-            value={tableData[dataIndex][5]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.status = e.target.value;
-              delete row.task;
-
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 5);
-            }}
-          >
-            {statuses.map((data) => {
-              return (
-                <MenuItem
-                  value={data.status}
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getStatusColor(data.status),
-                      color: "white",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                >
-                  {" "}
-                  {data.statusTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
+      label: "Project Manager",
+      name: "projectMgr",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
     },
     {
-      name: "Stage",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                backgroundColor: getStageColor(tableData[dataIndex][6]),
-                color: "white",
-                padding: "6.5px 14px 5px 14px",
-                font: "-webkit-control",
-                fontSize: "0.7rem",
-                width: "15.5em",
-              },
-            }}
-            id="stage"
-            name="stage"
-            value={tableData[dataIndex][6]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.stage = e.target.value;
-              delete row.task;
-              delete row.ticket;
-              setRowToUpdate(row);
-
-              handleCellEdit(e, rowIndex, 6);
-            }}
-          >
-            {stages.map((data) => {
-              return (
-                <MenuItem
-                  value={data.stage}
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getStageColor(data.stage),
-                      color: "white",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                >
-                  {" "}
-                  {data.stageTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    { name: "Progress" },
-    {
-      name: "Plan Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planStart-${dataIndex}`}
-            name="planStart"
-            value={
-              tableData[dataIndex][8] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][8])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsavd = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 8);
-            }}
-          />
-        ),
-      },
+      label: "Priority",
+      name: "priority",
+      type: "select",
+      defaultValue: "",
+      options: priorities.map((data) => ({
+        value: data.priority,
+        label: data.priority,
+      })),
     },
     {
-      name: "Planned End Date",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planEnd-${dataIndex}`}
-            name="planEnd"
-            value={
-              tableData[dataIndex][9] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][9])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsedd = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 9);
-            }}
-          />
-        ),
-      },
-    },
-    { name: "Plan Days" },
-    {
-      name: "Actual Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualStart-${dataIndex}`}
-            name="actualStart"
-            value={
-              tableData[dataIndex][11] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][11])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.startDt = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 11);
-            }}
-          />
-        ),
-      },
+      label: "Status",
+      name: "status",
+      type: "select",
+      defaultValue: "",
+      options: statuses.map((data) => ({
+        value: data.status,
+        label: data.statusTxt,
+      })),
     },
     {
-      name: "Actual End",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualEnd-${dataIndex}`}
-            name="actualEnd"
-            value={
-              tableData[dataIndex][12] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][12])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.endDt = dayjs(date).format("YYYYMMDD");
-              delete row.task;
-              delete row.ticket;
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 12);
-            }}
-          />
-        ),
-      },
+      label: "Stage",
+      name: "stage",
+      type: "select",
+      defaultValue: "",
+      options: stages.map((data) => ({
+        value: data.stage,
+        label: data.stageTxt,
+      })),
     },
-    { name: "Actual Days" },
-    { name: "Files" },
+    // { label: "Progress", name: "progress", type: "number", defaultValue: 0 },
+    { label: "Plan Start", name: "fsavd", type: "date", defaultValue: null },
+    {
+      label: "Planned End Date",
+      name: "fsedd",
+      type: "date",
+      defaultValue: null,
+    },
+    // { label: "Plan Days", name: "planDays", type: "number", defaultValue: 0 },
+    {
+      label: "Actual Start",
+      name: "startDt",
+      type: "date",
+      defaultValue: null,
+    },
+    { label: "Actual End", name: "endDt", type: "date", defaultValue: null },
+    // { label: "Actual Days", name: "actDays", type: "number", defaultValue: 0 },
+    { label: "Remarks", name: "remark", type: "text", defaultValue: "" },
+    // { label: "Files", name: "projectId", type: "file", defaultValue: "" },
   ];
+
+  const memoizedData = useMemo(() => tableData, [tableData]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -586,96 +491,6 @@ const Projects = () => {
     }
   };
 
-  useEffect(() => {
-    if (Object.keys(rowToUpdate).length > 1) {
-      updateProject(rowToUpdate);
-    }
-  }, [rowToUpdate]);
-
-  const updateProject = (updatedData) => {
-    const entryData = {
-      PROJECT: [updatedData],
-    };
-
-    const formData = new FormData();
-
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("entryData", JSON.stringify(entryData));
-
-    // process.env.REACT_APP_SERVER_URL
-    fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          snackbar.showSuccess("Project updated successfully!");
-          setOpenCreateForm(false);
-          setSelectedRows([]);
-          setRowToUpdate("");
-          getTableData();
-        }
-      })
-      .catch((error) => {
-        if (error) {
-          snackbar.showError(
-            "Error while updating activity. Please try again!"
-          );
-        }
-      });
-  };
-
-  const createNewProject = () => {
-    if (ref.current) {
-      ref.current.createProject();
-    }
-  };
-
-  const handleFileUpload = (project) => {};
-
-  const handleFileChange = (e) => {
-    // Uploaded file
-    const file = e.target.files[0];
-    // Changing file state
-    setFile(file);
-  };
-
-  const modifyResponse = (res) => {
-    const modifiedResponse = res?.map((item) => {
-      return [
-        // item.rank,
-        item.categTxt,
-        item.projectName,
-        item.projectDesc,
-        item.projectMgr,
-        item.priority,
-        item.status,
-        item.stage,
-        <CircularProgressWithLabel value={item?.progress} />,
-        item.fsavd,
-        item.fsedd,
-        item.planDays,
-        item.startDt,
-        item.endDt,
-        item.actDays,
-        <IconButton
-          style={{ color: "blue" }}
-          onClick={() => {
-            setOpenShowFiles(true);
-            setFileUrlReqNo(item?.projectId);
-          }}
-        >
-          <InsertDriveFileIcon />
-        </IconButton>,
-        item?.projectId,
-      ];
-    });
-
-    return modifiedResponse;
-  };
-
   const getTableData = () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -690,11 +505,17 @@ const Projects = () => {
       .then((data) => {
         if (data.length > 0) {
           setUsers(data[0].user);
-          setProjectData(data[0].project);
           setCategory(data[0].category);
           setStages(data[0].projectStage);
           setStatuses(data[0].projectStatus);
-          setTableData(modifyResponse(data[0].project));
+          // setTableData(modifyResponse(data[0].project));
+          const addedId = data[0].project?.map((proj) => {
+            const obj = { ...proj };
+            obj.id = proj.projectId;
+            return obj;
+          });
+          // setTableData(data[0].project);
+          setTableData(addedId);
           setPriorities(data[0].projectPriority);
           setLoading(false);
         }
@@ -704,22 +525,6 @@ const Projects = () => {
   useEffect(() => {
     getTableData();
   }, []);
-
-  const handleDateChange = (date, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    const formattedDate = dayjs(date).format("YYYY-MM-DD");
-    newData[rowIndex][colIndex] = formattedDate;
-    setTableData(newData);
-  };
-
-  const handleCellEdit = (e, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    newData[rowIndex][colIndex] = e.target.value; // Update the Name field value
-
-    setTableData(newData);
-    // if (colIndex == 4) {
-    // }
-  };
 
   const getMuiTheme = () =>
     createTheme({
@@ -756,6 +561,88 @@ const Projects = () => {
       },
     });
 
+  function formatDate(dateString) {
+    // Create a new Date object from the input date string
+    const date = new Date(dateString);
+
+    // Get the full year (e.g., 2021)
+    const year = date.getFullYear();
+
+    // Get the month (0-based index, so we add 1)
+    // Pad the month with a leading zero if it's less than 10
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+
+    // Get the day of the month and pad with a leading zero if it's less than 10
+    const day = String(date.getDate()).padStart(2, "0");
+
+    // Combine year, month, and day to form the desired output
+    const formattedDate = `${year}${month}${day}`;
+    return formattedDate;
+  }
+
+  const createProject = async (data) => {
+    try {
+      // Prepare project entry data
+      const projectId =
+        selectedItems.length > 0
+          ? selectedItems[selectedItems.length - 1]?.projectId
+          : "";
+      const entryData = {
+        PROJECT: [
+          {
+            projectId,
+            endDt: formatDate(data.endDt),
+            fsavd: formatDate(data.fsavd),
+            fsedd: formatDate(data.fsedd),
+            startDt: formatDate(data.startDt),
+            projectName: data.projectName,
+            projectDesc: data.projectDesc,
+            projectMgrId: data.projManager,
+            projectMgr: data.projectMgr,
+            priority: data.priority,
+            category: data.category,
+            remark: data.remark,
+            status: data.status,
+            stage: data.stage,
+            // progress: data.progress,
+            // planDays: data.planDays,
+            // actDays: data.actDays,
+          },
+        ],
+        TASK: [],
+        TICKET: [],
+      };
+
+      // Create form data
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(entryData));
+
+      // Send POST request using axios
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/createProject`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      // Handle success response
+      snackbar.showSuccess("Project created successfully!");
+      setOpenCreateForm(false);
+      getTableData();
+      setSelectedItems([]);
+    } catch (error) {
+      // Handle errors
+      const errorMessage =
+        error.response?.data?.message ||
+        "Error while creating project. Please try again!";
+      snackbar.showError(errorMessage);
+      console.error("Error:", error);
+    }
+  };
+
   return (
     <>
       <div
@@ -766,17 +653,30 @@ const Projects = () => {
           backgroundColor: "#fff",
           padding: "0.5em 0",
           boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
+        <div>
+          {" "}
+          <Typography variant="h4">Projects</Typography>
+        </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
             variant="contained"
             disableElevation
             disableFocusRipple
             size="sm"
+            id="create"
+            ref={buttonRef}
             onClick={() => {
+              if (selectedItems.length > 0) {
+                setSelectedItems([]);
+              }
               setOpenCreateForm(true);
             }}
+            disabled={selectedItems.length > 0}
             sx={{
               margin: "0.2em",
               "&.MuiButton-root": {
@@ -803,7 +703,7 @@ const Projects = () => {
                 fontSize: "0.8rem",
               },
             }}
-            disabled={!projectId}
+            disabled={selectedItems.length === 0}
             onClick={() => {
               setOpenFileUpload(true);
               getFilesCount();
@@ -825,25 +725,72 @@ const Projects = () => {
                 fontSize: "0.8rem",
               },
             }}
-            disabled={!projectId}
+            disabled={selectedItems.length === 0}
             onClick={() => {
               sendMail();
             }}
           >
             Send Mail
           </Button>
+
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            sx={{
+              margin: "0.2em",
+              "&.MuiButton-root": {
+                textTransform: "none",
+                backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
+              },
+            }}
+            disabled={selectedItems.length === 0}
+            onClick={() => {
+              setOpenModal(true);
+            }}
+          >
+            Delete
+          </Button>
+          <Button
+            variant="contained"
+            disableElevation
+            disableFocusRipple
+            size="small"
+            id="edit"
+            ref={buttonRef}
+            sx={{
+              margin: "0.2em",
+              "&.MuiButton-root": {
+                textTransform: "none",
+                backgroundColor: "#228B22",
+                height: "2em",
+                fontSize: "0.8rem",
+              },
+            }}
+            disabled={selectedItems.length === 0}
+            onClick={() => {
+              setOpenCreateForm(true);
+            }}
+          >
+            Edit
+          </Button>
         </div>
       </div>
       {!loading ? (
         <ThemeProvider theme={() => getMuiTheme()}>
-          <div>
-            <MUIDataTable
-              title={"Project"}
-              data={tableData}
-              columns={columns}
-              options={options}
-            />
-          </div>
+          <HOCTable
+            columns={columns}
+            data={memoizedData}
+            pageSize={100}
+            pagination={false}
+            select={true}
+            showFilter={false}
+            setSelectedItems={setSelectedItems}
+            maxHeight={"80vh"}
+          />
         </ThemeProvider>
       ) : (
         <CircularScreenLoader />
@@ -872,55 +819,42 @@ const Projects = () => {
         />
       </CrmModal>
 
-      <CrmModal
-        maxWidth="sm"
-        show={openCreateForm}
-        handleShow={() => {
-          setOpenCreateForm(false);
-        }}
-        primaryBtnText="Save"
-        primarySave={() => {
-          createNewProject();
-        }}
-        SecondaryBtnText="Close"
-        secondarySave={() => {
-          setOpenCreateForm(false);
-        }}
-      >
-        <CreateNewProject
-          ref={ref}
-          users={users}
-          stages={stages}
-          statuses={statuses}
-          categories={categories}
-          priorities={priorities}
-          getTableData={getTableData}
-          setOpenCreateForm={setOpenCreateForm}
-        />
-      </CrmModal>
+      <CustomDialog
+        open={openCreateForm}
+        onClose={() => setOpenCreateForm(false)}
+        title={
+          selectedItems.length > 0 ? "Upadte Project" : "Create New Project"
+        }
+        content={
+          <FormComponent
+            formFields={formFields}
+            onCancel={() => setOpenCreateForm(false)}
+            onSubmit={createProject}
+            selectedValues={selectedItems[selectedItems.length - 1]}
+            // validationSchema={{}}
+          />
+        }
+      />
 
-      <CrmModal
-        maxWidth="sm"
-        show={openModal}
-        handleShow={() => {
-          setOpenModal(false);
-        }}
-        primaryBtnText="Yes"
-        SecondaryBtnText="No"
-        primarySave={() => {
-          handleDelete();
-        }}
-        secondarySave={() => {
-          setOpenModal(false);
-        }}
-      >
-        <Box>
-          {" "}
-          <Typography fontSize={20}>
-            {"Are you sure you want to delete this record?"}
-          </Typography>
-        </Box>
-      </CrmModal>
+      <CustomDialog
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        title={"Delete Confirmation"}
+        content={
+          <>
+            <Grid>
+              <Typography fontSize={20}>
+                {"Are you sure you want to delete this record?"}
+              </Typography>
+              <Button variant="contained" onClick={handleDelete}>
+                {" "}
+                Delete
+              </Button>
+            </Grid>
+          </>
+        }
+      />
+
       <CrmModal
         maxWidth="sm"
         show={openFileUpload}

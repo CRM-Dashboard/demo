@@ -16,7 +16,13 @@ const TaskSummary = forwardRef((props, ref) => {
 
   const modifyResponse = (res) => {
     const modifiedResponse = res?.map((item) => {
-      return [item.taskDesc, item.type, item.fsedd, item.assigned, item.remark];
+      return [
+        item.taskDesc,
+        item.typeTxt,
+        item.fsedd,
+        item.assigned,
+        item.remark,
+      ];
     });
 
     return modifiedResponse;

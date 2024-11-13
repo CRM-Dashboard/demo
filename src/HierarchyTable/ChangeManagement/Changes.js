@@ -2,28 +2,25 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import dayjs from "dayjs";
-import MUIDataTable from "mui-datatables";
-import DeleteIcon from "@mui/icons-material/Delete";
 import CrmModal from "../../crm/components/crmModal/CrmModal";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import {
-  MenuItem,
-  Select,
-  IconButton,
-  Box,
-  Button,
-  Grid,
-  Typography,
-} from "@mui/material";
-import CreateNewChange from "./CreateNewChange";
+import { IconButton, Box, Button, Typography, Chip } from "@mui/material";
 import FileDetails from "../FileOperations/FileDetails";
 import FileUploader from "../FileOperations/FileUploader";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+
+import withTable from "../../crm/components/TableFilter/withTable";
+import TableFilter from "../../crm/components/TableFilter/TableFilter";
+import CustomDialog from "../components/CustomDialog";
+import FormComponent from "../components/FormComponent";
+import axios from "axios";
+import CircularScreenLoader from "../../crm/components/circularScreenLoader/CircularScreenLoader";
+const HOCTable = withTable(memo(TableFilter));
 
 const Changes = ({ data }) => {
   const [users, setUsers] = useState([]);
@@ -32,24 +29,18 @@ const Changes = ({ data }) => {
   const [modules, setModules] = useState([]);
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState();
-  const [response, setResponse] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [fileIndex, setFileIndex] = useState(0);
   const [tableData, setTableData] = useState([]);
   const [changeTypes, setChangeTypes] = useState([]);
   const [priorities, setPriorities] = useState([]);
-  const [categories, setCategories] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [projectData, setProjectData] = useState([]);
-  const [rowToUpdate, setRowToUpdate] = useState([]);
-  const [selectedRows, setSelectedRows] = useState();
-  const [dataToDelete, setDataToDelete] = useState("");
   const [fileUrlReqNo, setFileUrlReqNo] = useState("");
   const [openShowFiles, setOpenShowFiles] = useState(false);
   const [openFileUpload, setOpenFileUpload] = useState(false);
   const [openCreateChange, setOpenCreateChange] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
-  const changeRef = useRef();
   const snackbar = UseCustomSnackbar();
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -63,7 +54,7 @@ const Changes = ({ data }) => {
       TICKET: [],
       CHANGE: [
         {
-          ...selectedRows,
+          ...selectedItems,
           mailInd: "X",
         },
       ],
@@ -127,49 +118,6 @@ const Changes = ({ data }) => {
       },
     });
 
-  const modifyResponse = (data) => {
-    const DataForTable = data?.map((item) => {
-      return [
-        item?.ddtext,
-        item?.changeType,
-        item?.assigned,
-        item?.requester,
-        item?.module_sys,
-        item?.status,
-        item?.priority,
-        item?.fsavd,
-        item?.fsedd,
-        item?.planDays,
-        item?.startDt,
-        item?.endDt,
-        item?.actDays,
-        item?.tester,
-        item?.objects,
-        item?.notes,
-        <IconButton
-          style={{ color: "blue" }}
-          onClick={() => {
-            setOpenShowFiles(true);
-            setChangeNo(item?.changeNo);
-            setProjectId(item?.projectId);
-            setFileUrlReqNo(item?.projectId);
-          }}
-        >
-          <InsertDriveFileIcon />
-        </IconButton>,
-        item?.projectId,
-        item?.changeNo,
-      ];
-    });
-    return DataForTable;
-  };
-
-  const createNewChange = () => {
-    if (changeRef.current) {
-      changeRef.current.createChange();
-    }
-  };
-
   const getTableData = () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -184,17 +132,20 @@ const Changes = ({ data }) => {
       .then((response) => response.json())
       .then((data) => {
         if (data?.length > 0) {
-          setResponse(data[0]);
           setUsers(data[0].user);
           setModules(data[0].module);
           setProjects(data[0].project);
-          setProjectData(data[0].change);
-          setCategories(data[0].category);
           setChangeTypes(data[0].changeTyp);
           setStatuses(data[0].projectStatus);
-          setTableData(modifyResponse(data[0].change));
           setPriorities(data[0].projectPriority);
           setLoading(false);
+
+          const addedId = data[0].change?.map((proj) => {
+            const obj = { ...proj };
+            obj.id = proj.changeNo;
+            return obj;
+          });
+          setTableData(addedId);
         }
       });
   };
@@ -226,70 +177,6 @@ const Changes = ({ data }) => {
       });
   };
 
-  const handleRowClick = (rowData, rowMeta) => {
-    setSelectedRows(projectData?.[rowMeta?.rowIndex]);
-    setChangeNo(tableData?.[rowMeta?.rowIndex]?.[18]);
-    setProjectId(tableData?.[rowMeta?.rowIndex]?.[17]);
-
-    const Id = tableData[rowMeta?.rowIndex]?.[6];
-
-    const selectedChangeReq = response?.tree?.filter((data) => {
-      if (data.projectId === projectId) {
-        return data;
-      }
-    });
-  };
-
-  const options = {
-    pagination: false,
-    print: false,
-    download: false,
-    search: false,
-    filter: false,
-    viewColumns: false,
-    selectableRows: "single",
-    hideToolbar: true,
-    columnOptions: {
-      display: "false",
-    },
-    // onRowClick: handleRowClick,
-    onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-      const lastRowIndex = allRowsSelected[allRowsSelected?.length - 1]?.index;
-      handleRowClick(tableData[lastRowIndex], { rowIndex: lastRowIndex });
-    },
-    customToolbarSelect: (selectedRows, displayData, setSelectedRows) => (
-      <Button
-        color="secondary"
-        onClick={() => {
-          const idsToDelete = response.change.filter((row) => {
-            if (row.changeNo === changeNo) {
-              return row;
-            }
-          });
-
-          setDataToDelete(idsToDelete);
-          setOpenModal(true);
-          setSelectedRows([]);
-        }}
-      >
-        <DeleteIcon />
-      </Button>
-    ),
-  };
-
-  const handleDateChange = (date, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    const formattedDate = dayjs(date).format("YYYY-MM-DD");
-    newData[rowIndex][colIndex] = formattedDate;
-    setTableData(newData);
-  };
-
-  const handleCellEdit = (e, rowIndex, colIndex) => {
-    const newData = [...tableData];
-    newData[rowIndex][colIndex] = e.target.value; // Update the Name field value
-    setTableData(newData);
-  };
-
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "LOW":
@@ -316,428 +203,300 @@ const Changes = ({ data }) => {
     }
   };
 
-  const columns = [
-    {
-      name: "Change Description",
-    },
-    {
-      name: "Change Type",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                width: "8em",
-                fontSize: "0.7rem",
-              },
-            }}
-            id="changeTyp"
-            name="changeTyp"
-            value={tableData[dataIndex][1]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.changeType = e.target.value;
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Change Description",
+        accessor: "ddtext",
+      },
+      {
+        Header: "Type",
+        accessor: "typeTxt",
+      },
+      {
+        Header: "Assigned To",
+        accessor: "assigned",
+        Cell: ({ value }) => {
+          const user = users?.find((user) => user.bname === value);
+          return <>{user ? user.name : ""}</>;
+        },
+      },
+      {
+        Header: "Requster",
+        accessor: "requester",
+        Cell: ({ value }) => {
+          const user = users?.find((user) => user.bname === value);
+          return <>{user ? user.name : ""}</>;
+        },
+      },
+      {
+        Header: "Module",
+        accessor: "moduleTxt",
+      },
 
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 1);
-            }}
-          >
-            {changeTypes.map((data) => {
-              return (
-                <MenuItem
-                  value={data.change}
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      fontSize: "0.7rem",
-                    },
-                  }}
-                >
-                  {" "}
-                  {data.changeTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
+      {
+        Header: "Priority",
+        accessor: "priority",
+        Cell: ({ value }) => {
+          return (
+            value && (
+              <Chip label={value} sx={{ color: getPriorityColor(value) }} />
+            )
+          );
+        },
       },
-    },
-    {
-      name: "Assigned To",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                width: "8em",
-              },
-            }}
-            id="assigned"
-            name="assigned"
-            value={tableData[dataIndex][2]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.assigned = e.target.value;
+      {
+        Header: "Status",
+        accessor: "statusTxt",
+        Cell: ({ value, row }) => {
+          return (
+            value && (
+              <Chip
+                label={value}
+                sx={{ color: getStatusColor(row.original.status) }}
+              />
+            )
+          );
+        },
+      },
 
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 2);
-            }}
-          >
-            {users.map((data) => {
-              return (
-                <MenuItem
-                  value={data.bname}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.name}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
+      {
+        Header: "Plan Start",
+        accessor: "fsavd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`actualStart-${value}`}
+              name="actualStart"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
       },
-    },
-    { name: "Requester" },
-    {
-      name: "Module",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                width: "17em",
-              },
-            }}
-            id="module"
-            name="module"
-            value={tableData[dataIndex][4]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.module_sys = e.target.value;
 
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 4);
-            }}
-          >
-            {modules.map((data) => {
-              return (
-                <MenuItem
-                  value={data.module}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.moduleTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
+      {
+        Header: "Planned End Date",
+        accessor: "fsedd",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
       },
-    },
-    {
-      name: "Status",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                backgroundColor: getStatusColor(tableData[dataIndex][5]),
-                color: "white",
-                width: "8em",
-                fontSize: "0.7rem",
-              },
-            }}
-            id="status"
-            name="status"
-            value={tableData[dataIndex][5]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.status = e.target.value;
+      {
+        Header: "Plan Days",
+        accessor: "planDays",
+      },
+      {
+        Header: "Actual Start",
+        accessor: "startDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual End",
+        accessor: "endDt",
+        Cell: ({ value }) => {
+          return (
+            <CrmDatePicker
+              readOnly
+              height={28}
+              width={125}
+              iconHeight={"0.6em"}
+              iconWidth={"0.6em"}
+              fontSize={"0.7rem"}
+              buttonBase={"1em"}
+              id={`fsedd-${value}`}
+              name="fsedd"
+              value={value === "0000-00-00" ? "" : dayjs(value)}
+            />
+          );
+        },
+      },
+      {
+        Header: "Actual Days",
+        accessor: "actDays",
+      },
+      {
+        Header: "Tester",
+        accessor: "tester",
+        Cell: ({ value }) => {
+          const user = users?.find((user) => user.bname === value);
+          return <>{user ? user.name : ""}</>;
+        },
+      },
+      {
+        Header: "Technical Object",
+        accessor: "objects",
+      },
+      {
+        Header: "Notes",
+        accessor: "notes",
+      },
+      {
+        Header: "Files",
+        accessor: "projectId",
+        Cell: ({ value }) => {
+          return (
+            <IconButton
+              style={{ color: "blue" }}
+              onClick={() => {
+                setOpenShowFiles(true);
+                setFileUrlReqNo(value);
+              }}
+            >
+              <InsertDriveFileIcon />
+            </IconButton>
+          );
+        },
+      },
+    ],
+    [users]
+  );
 
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 5);
-            }}
-          >
-            {statuses.map((data) => {
-              return (
-                <MenuItem
-                  value={data.status}
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getStatusColor(data.status),
-                      color: "white",
-                      fontSize: "0.7rem",
-                    },
-                  }}
-                >
-                  {" "}
-                  {data.statusTxt}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
+  const formFields = [
+    {
+      label: "Change Description",
+      name: "ddtext",
+      type: "text",
+      defaultValue: "",
     },
     {
-      name: "Priority",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "6.5px 14px 5px 14px",
-                font: "-webkit-control",
-                color: "white",
-                backgroundColor: getPriorityColor(tableData[dataIndex][6]),
-                fontSize: "0.7rem",
-                width: "6em",
-              },
-            }}
-            id="priority"
-            name="priority"
-            value={tableData[dataIndex][6]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.priority = e.target.value;
+      label: "Type",
+      name: "changeType",
+      type: "select",
+      defaultValue: "",
+      options: changeTypes.map((data) => ({
+        value: data.change,
+        label: data.changeTxt,
+      })),
+    },
 
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 6);
-            }}
-          >
-            {priorities.map((data) => {
-              return (
-                <MenuItem
-                  sx={{
-                    "&.MuiButtonBase-root": {
-                      backgroundColor: getPriorityColor(data.priority),
-                      color: "white",
-                      fontSize: "0.8rem",
-                    },
-                  }}
-                  value={data.priority}
-                >
-                  {" "}
-                  {data.priority}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
+    {
+      label: "AssignedTo",
+      name: "assigned",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
     },
     {
-      name: "Plan Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planStart-${dataIndex}`}
-            name="planStart"
-            value={
-              tableData[dataIndex][7] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][7])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsavd = dayjs(date).format("YYYYMMDD");
+      label: "Module",
+      name: "moduleSys",
+      type: "select",
+      defaultValue: "",
+      options: modules.map((data) => ({
+        value: data.module,
+        label: data.moduleTxt,
+      })),
+    },
+    {
+      label: "Requster",
+      name: "requester",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
+    },
+    {
+      label: "Priority",
+      name: "priority",
+      type: "select",
+      defaultValue: "",
+      options: priorities.map((data) => ({
+        value: data.priority,
+        label: data.priority,
+      })),
+    },
+    {
+      label: "Status",
+      name: "status",
+      type: "select",
+      defaultValue: "",
+      options: statuses.map((data) => ({
+        value: data.status,
+        label: data.statusTxt,
+      })),
+    },
 
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 7);
-            }}
-          />
-        ),
-      },
+    // { label: "Progress", name: "progress", type: "number", defaultValue: 0 },
+    { label: "Plan Start", name: "fsavd", type: "date", defaultValue: null },
+    {
+      label: "Planned End Date",
+      name: "fsedd",
+      type: "date",
+      defaultValue: null,
+    },
+    // { label: "Plan Days", name: "planDays", type: "number", defaultValue: 0 },
+    {
+      label: "Actual Start",
+      name: "startDt",
+      type: "date",
+      defaultValue: null,
+    },
+    { label: "Actual End", name: "endDt", type: "date", defaultValue: null },
+    // { label: "Actual Days", name: "actDays", type: "number", defaultValue: 0 },
+    {
+      label: "Tester",
+      name: "tester",
+      type: "select",
+      defaultValue: "",
+      options: users.map((data) => ({
+        value: data.bname,
+        label: data.name,
+      })),
     },
     {
-      name: "Planned End Date",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`planEnd-${dataIndex}`}
-            name="planEnd"
-            value={
-              tableData[dataIndex][8] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][8])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.fsedd = dayjs(date).format("YYYYMMDD");
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 8);
-            }}
-          />
-        ),
-      },
+      label: "Project",
+      name: "projectId",
+      type: "select",
+      defaultValue: "",
+      options: projects.map((data) => ({
+        value: data.projectId,
+        label: data.projectName,
+      })),
     },
-    { name: "Plan Days" },
-    {
-      name: "Actual Start",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualStart-${dataIndex}`}
-            name="actualStart"
-            value={
-              tableData[dataIndex][10] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][10])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.startDt = dayjs(date).format("YYYYMMDD");
-
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 10);
-            }}
-          />
-        ),
-      },
-    },
-    {
-      name: "Actual End",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => (
-          <CrmDatePicker
-            height={28}
-            width={125}
-            iconHeight={"0.6em"}
-            iconWidth={"0.6em"}
-            fontSize={"0.7rem"}
-            buttonBase={"1em"}
-            id={`actualEnd-${dataIndex}`}
-            name="actualEnd"
-            value={
-              tableData[dataIndex][11] === "0000-00-00"
-                ? ""
-                : dayjs(tableData[dataIndex][11])
-            }
-            onChange={(date) => {
-              const row = projectData[dataIndex];
-              row.endDt = dayjs(date).format("YYYYMMDD");
-              setRowToUpdate(row);
-              handleDateChange(date, rowIndex, 11);
-            }}
-          />
-        ),
-      },
-    },
-    { name: "Actual Days" },
-    {
-      name: "Tester",
-      options: {
-        customBodyRenderLite: (dataIndex, rowIndex) => [
-          <Select
-            sx={{
-              "& .MuiOutlinedInput-input": {
-                padding: "4.5px 14px",
-                fontSize: "0.7rem",
-                width: "8em",
-              },
-            }}
-            id="tester"
-            name="tester"
-            value={tableData[dataIndex][13]}
-            onChange={(e) => {
-              const row = projectData[dataIndex];
-              row.tester = e.target.value;
-
-              setRowToUpdate(row);
-              handleCellEdit(e, rowIndex, 13);
-            }}
-          >
-            {users.map((data) => {
-              return (
-                <MenuItem
-                  value={data.bname}
-                  sx={{
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  {" "}
-                  {data.name}
-                </MenuItem>
-              );
-            })}
-          </Select>,
-        ],
-      },
-    },
-    { name: "Technical Objects" },
-    { name: "Notes" },
-    { name: "Files" },
+    { label: "Notes", name: "notes", type: "text", defaultValue: "" },
+    // { label: "Files", name: "projectId", type: "file", defaultValue: "" },
   ];
 
-  const updateChangeRequest = (updatedData) => {
-    const entryData = {
-      CHANGE: [updatedData],
-    };
-
-    const formData = new FormData();
-    formData.append("userName", userName);
-    formData.append("passWord", passWord);
-    formData.append("entryData", JSON.stringify(entryData));
-
-    if (Object.keys(updatedData).length > 0) {
-      fetch(process.env.REACT_APP_SERVER_URL + `/api/activity/createProject`, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            snackbar.showSuccess("Change updated successfully!");
-            setRowToUpdate("");
-            getTableData();
-          }
-        })
-        .catch((error) => {
-          if (error) {
-            snackbar.showError(
-              "Error while updating change. Please try again!"
-            );
-          }
-        });
-    } else {
-      snackbar.showError("Something went wrong!");
-    }
-  };
-
-  useEffect(() => {
-    if (Object.keys(rowToUpdate).length > 1) {
-      updateChangeRequest(rowToUpdate);
-    }
-  }, [rowToUpdate]);
+  const memoizedData = useMemo(() => tableData, [tableData]);
 
   useEffect(() => {
     getTableData();
@@ -783,7 +542,7 @@ const Changes = ({ data }) => {
   };
 
   const handleDelete = () => {
-    var data = dataToDelete;
+    var data = selectedItems;
 
     const entryData = {
       CHANGE: data,
@@ -819,6 +578,86 @@ const Changes = ({ data }) => {
       });
   };
 
+  function formatDate(dateString) {
+    // Create a new Date object from the input date string
+    const date = new Date(dateString);
+
+    // Get the full year (e.g., 2021)
+    const year = date.getFullYear();
+
+    // Get the month (0-based index, so we add 1)
+    // Pad the month with a leading zero if it's less than 10
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+
+    // Get the day of the month and pad with a leading zero if it's less than 10
+    const day = String(date.getDate()).padStart(2, "0");
+
+    // Combine year, month, and day to form the desired output
+    const formattedDate = `${year}${month}${day}`;
+    return formattedDate;
+  }
+
+  const createUpdateChange = async (data) => {
+    try {
+      const changeNo =
+        selectedItems.length > 0
+          ? selectedItems[selectedItems.length - 1]?.changeNo
+          : "";
+      const entryData = {
+        CHANGE: [
+          {
+            changeNo,
+            endDt: formatDate(data.endDt),
+            fsavd: formatDate(data.fsavd),
+            fsedd: formatDate(data.fsedd),
+            startDt: formatDate(data.startDt),
+            projectId: data.projectId,
+            ddtext: data.ddtext,
+            changeType: data.changeType,
+            assigned: data.assigned,
+            moduleSys: data?.moduleSys,
+            requester: data?.requester,
+            priority: data.priority,
+            status: data.status,
+            tester: data.tester,
+            notes: data.notes,
+          },
+        ],
+        PROJECT: [],
+        TICKET: [],
+        TASK: [],
+      };
+
+      // Create form data
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("entryData", JSON.stringify(entryData));
+
+      // Send POST request using axios
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/createProject`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      // Handle success response
+      snackbar.showSuccess("Change created successfully!");
+      setOpenCreateChange(false);
+      getTableData();
+      setSelectedItems([]);
+    } catch (error) {
+      // Handle errors
+      const errorMessage =
+        error.response?.data?.message ||
+        "Error while creating change. Please try again!";
+      snackbar.showError(errorMessage);
+      console.error("Error:", error);
+    }
+  };
+
   return (
     <>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -830,6 +669,8 @@ const Changes = ({ data }) => {
           onClick={() => {
             setOpenCreateChange(true);
           }}
+          disabled={selectedItems.length > 0}
+          id="create"
           sx={{
             margin: "0.2em",
             "&.MuiButton-root": {
@@ -856,7 +697,7 @@ const Changes = ({ data }) => {
               fontSize: "0.8rem",
             },
           }}
-          disabled={!projectId}
+          disabled={selectedItems.length === 0}
           onClick={() => {
             setOpenFileUpload(true);
             getFilesCount();
@@ -878,27 +719,74 @@ const Changes = ({ data }) => {
               fontSize: "0.8rem",
             },
           }}
-          disabled={!projectId}
+          disabled={selectedItems.length === 0}
           onClick={() => {
             sendMail();
           }}
         >
           Send Mail
         </Button>
+
+        <Button
+          variant="contained"
+          disableElevation
+          disableFocusRipple
+          size="small"
+          sx={{
+            margin: "0.2em",
+            "&.MuiButton-root": {
+              textTransform: "none",
+              backgroundColor: "#228B22",
+              height: "2em",
+              fontSize: "0.8rem",
+            },
+          }}
+          disabled={selectedItems.length === 0}
+          onClick={() => setOpenModal(true)}
+        >
+          Delete
+        </Button>
+        <Button
+          variant="contained"
+          disableElevation
+          disableFocusRipple
+          size="small"
+          id="edit"
+          // ref={buttonRef}
+          sx={{
+            margin: "0.2em",
+            "&.MuiButton-root": {
+              textTransform: "none",
+              backgroundColor: "#228B22",
+              height: "2em",
+              fontSize: "0.8rem",
+            },
+          }}
+          disabled={selectedItems.length === 0}
+          onClick={() => {
+            // setOpenCreateForm(true);
+            setOpenCreateChange(true);
+          }}
+        >
+          Edit
+        </Button>
       </div>
 
-      {tableData.length > 0 && (
-        <Grid sx={{ padding: "0.8em" }}>
-          <ThemeProvider theme={() => getMuiTheme()}>
-            <MUIDataTable
-              title={"Change"}
-              data={tableData}
-              style={{ width: "100%" }}
-              columns={columns}
-              options={options}
-            />
-          </ThemeProvider>
-        </Grid>
+      {tableData.length > 0 ? (
+        <ThemeProvider theme={() => getMuiTheme()}>
+          <HOCTable
+            columns={columns}
+            data={memoizedData}
+            pageSize={1000}
+            pagination={false}
+            select={true}
+            showFilter={false}
+            setSelectedItems={setSelectedItems}
+            maxHeight={"80vh"}
+          />
+        </ThemeProvider>
+      ) : (
+        <CircularScreenLoader />
       )}
       <CrmModal
         maxWidth="sm"
@@ -922,33 +810,21 @@ const Changes = ({ data }) => {
           </Typography>
         </Box>
       </CrmModal>
-      <CrmModal
-        maxWidth="sm"
-        show={openCreateChange}
-        handleShow={() => {
-          setOpenCreateChange(false);
-        }}
-        primaryBtnText="Save"
-        primarySave={() => {
-          createNewChange();
-        }}
-        SecondaryBtnText="Close"
-        secondarySave={() => {
-          setOpenCreateChange(false);
-        }}
-      >
-        <CreateNewChange
-          projects={projects}
-          users={users}
-          ref={changeRef}
-          // statuses={statuses}
-          // priorities={priorities}
-          categories={categories}
-          selectedRows={selectedRows}
-          getTableData={getTableData}
-          setOpenCreateChange={setOpenCreateChange}
-        />
-      </CrmModal>
+
+      <CustomDialog
+        open={openCreateChange}
+        onClose={() => setOpenCreateChange(false)}
+        title={selectedItems.length > 0 ? "Upadte Change" : "Create New Change"}
+        content={
+          <FormComponent
+            formFields={formFields}
+            onCancel={() => setOpenCreateChange(false)}
+            onSubmit={createUpdateChange}
+            selectedValues={selectedItems[selectedItems.length - 1]}
+            // validationSchema={{}}
+          />
+        }
+      />
       <CrmModal
         maxWidth="sm"
         show={openFileUpload}

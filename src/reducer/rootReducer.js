@@ -7,6 +7,7 @@ import DashboardReducer from "../crm/pages/Dashboard/DashboardReducer.js/Dashboa
 import FileUploadReducer from "../crm/pages/Activity/FileUploader/FileReducer/FileUploadReducer";
 import CustomerInfoReducer from "../crm/pages/Dashboard/CustomerInformation/CustomerInfoReducer/CustomerInfoReducer";
 import BookingReducer from "../crm/pages/Reports/BookingReport/BookingDetails/BookingData/BookingReducer/BookingReducer";
+import drawingDashboardReducer from "../drawingManagement/components/drawingDashboardReducer";
 
 const rootReducer = combineReducers({
   ThemeReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   BookingReducer: BookingReducer,
   fileReducer: FileUploadReducer,
   customerInfoReducer: CustomerInfoReducer,
+  drawing: drawingDashboardReducer,
 });
 
 export default rootReducer;

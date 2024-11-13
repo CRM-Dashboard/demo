@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import Graph from "./Graph";
 import "./CustomerDetails.css";
 import Chart from "react-apexcharts";
@@ -24,6 +24,12 @@ import StatusCard from "../../../components/statusCard/StatusCard";
 import dashboardActions from "../DashboardReducer.js/DashboardActions";
 import CircularScreenLoader from "../../../components/circularScreenLoader/CircularScreenLoader";
 import axios from "axios";
+import withTable from "../../../components/TableFilter/withTable";
+import ZigzagTable from "../../../components/TableFilter/ZigzagTable";
+import CustomerDetailCard from "../CustomerInformation/CustomerDetailCard";
+import UnitDetailsCard from "../../Reports/BookingReport/UnitDetailsCard";
+import ThreeDotLoading from "../../../../components/ThreeDot";
+const HOCTable = withTable(memo(ZigzagTable));
 
 export default function CustomerDetails() {
   const [unitData, setUnitData] = useState([]);
@@ -38,6 +44,7 @@ export default function CustomerDetails() {
   const [registrationPendingData, setReistrationPendingData] = useState([]);
   const [isNdcLoading, setIsNdcLoading] = useState(true);
   const [cardDataFromNdc, setCardDataFromNdc] = useState({});
+  const [customerData, setCustomerData] = useState([]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -139,126 +146,50 @@ export default function CustomerDetails() {
     }
   };
 
-  const modifyResponse = (res = []) => {
-    const modifiedResponse =
-      res &&
-      res?.map((item) => {
-        return [
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.head}
-            </Typography>
-          ) : (
-            item?.head
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.payable}
-            </Typography>
-          ) : (
-            item?.payable
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.invoiced}
-            </Typography>
-          ) : (
-            item?.invoiced
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.payment}
-            </Typography>
-          ) : (
-            item?.payment
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.tds}
-            </Typography>
-          ) : (
-            item?.tds
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.totalPayment}
-            </Typography>
-          ) : (
-            item?.totalPayment
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.credit}
-            </Typography>
-          ) : (
-            item?.credit
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.outstanding}
-            </Typography>
-          ) : (
-            item?.outstanding
-          ),
-          item?.head === "Sub Total 1" ||
-          item?.head === "Sub Total 2" ||
-          item?.head === "Grand Total" ? (
-            <Typography sx={{ fontWeight: "bold", fontSize: "13px" }}>
-              {item?.unbilled}
-            </Typography>
-          ) : (
-            item?.unbilled
-          ),
-        ];
-      });
-    return modifiedResponse;
-  };
+  const memoizedData = useMemo(() => ndcTableData, [ndcTableData]);
 
-  const columns = [
-    {
-      name: "Heads",
-    },
-    {
-      name: "Total Value(A)",
-    },
-    {
-      name: "Invoiced Raised Till Date(B)",
-    },
-    {
-      name: "Amount Received Till Date",
-    },
-    {
-      name: "TDS Paid Till Date",
-    },
-    {
-      name: "Total (Payment Received + TDS ) (C)",
-    },
-    {
-      name: "Credit Notes / Discounts (D)",
-    },
-    {
-      name: "Current Due (B-C-D)",
-    },
-    {
-      name: "Balance Invoice To Be Raised (A-B) ",
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Heads",
+        accessor: "head",
+      },
+      {
+        Header: "Total Value(A)",
+        accessor: "payable",
+      },
+      {
+        Header: "Invoiced Raised Till Date(B)",
+        accessor: "invoiced",
+      },
+      {
+        Header: "Amount Received Till Date",
+        accessor: "payment",
+      },
+      {
+        Header: "TDS Paid Till Date",
+        accessor: "tds",
+      },
+      {
+        Header: "Total (Payment Received + TDS ) (C)",
+        accessor: "totalPayment",
+      },
+      {
+        Header: "Credit Notes / Discounts (D)",
+        accessor: "credit",
+      },
+      {
+        Header: "Current Due (B-C-D)",
+        accessor: "outstanding",
+      },
+      {
+        Header: "Balance Invoice To Be Raised (A-B) ",
+        accessor: "unbilled",
+      },
+    ],
+    []
+  );
+
   const getMuiTheme = () =>
     createTheme({
       components: {
@@ -372,18 +303,6 @@ export default function CustomerDetails() {
       },
     });
 
-  const options = {
-    selectableRows: "none",
-    rowsPerPage: ndcTableData?.length,
-    pagination: false,
-    elevation: 0,
-    print: false,
-    download: false,
-    search: false,
-    viewColumns: false,
-    filter: false,
-  };
-
   const getNdcReportDetails = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
@@ -414,7 +333,8 @@ export default function CustomerDetails() {
       );
       const data = response.data;
       setTableResponse(data);
-      setNdcTableData(modifyResponse(data));
+      setNdcTableData(data);
+      // setNdcTableData(modifyResponse(data));
       const filterData = data?.filter(
         (row) => row.head === "Consideration Value"
       );
@@ -461,6 +381,12 @@ export default function CustomerDetails() {
     getDetails();
     getBookingDetails();
     getNdcReportDetails();
+    if (OrderId) {
+      getCustomerDetails();
+    }
+    if (!OrderId) {
+      setCustomerData([]);
+    }
   }, [OrderId]);
 
   useEffect(() => {
@@ -800,6 +726,40 @@ export default function CustomerDetails() {
   //   }, 5); // Interval duration set to 1 second
   // }
 
+  const getCustomerDetails = async () => {
+    // setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("orderId", OrderId);
+      // if (!OrderId) formData.append("crmId", crmId);
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER_URL}/api/dashboard/getcustomer`,
+        formData
+      );
+
+      const data = response.data;
+      if (data) {
+        setCustomerData(data[0]?.customerdata);
+
+        // if (OrderId) {
+        //   const filteredArray = data[0]?.customerdata?.filter(
+        //     (obj) => obj.orderId === OrderId
+        //   );
+        //   setFilteredResponse(filteredArray);
+        //   setFilteredCustomers(modifyResponse(filteredArray));
+        // }
+      }
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+    } finally {
+      // setIsLoading(false);
+    }
+  };
+
   const CardData = {
     column1: [
       {
@@ -1107,7 +1067,10 @@ export default function CustomerDetails() {
               container
               columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
               columns={14}
-              sx={{ display: "flex", paddingLeft: "1em" }}
+              sx={{
+                display: "flex",
+                paddingLeft: "1em",
+              }}
             >
               <Grid
                 xs={2}
@@ -1358,32 +1321,58 @@ export default function CustomerDetails() {
           </Grid>
         </Grid>
 
-        <div style={{ marginTop: "1em", marginBottom: "1em" }}>
-          <ThemeProvider theme={() => getMuiTheme()}>
-            {isNdcLoading ? (
-              <>
-                {" "}
-                <Box
-                  sx={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Box>
-                    <CircularProgress />
-                  </Box>
-                </Box>
-              </>
-            ) : (
-              <Table
-                data={ndcTableData}
-                columns={columns}
-                options={options}
-              ></Table>
-            )}
-          </ThemeProvider>
-        </div>
+        <Grid item sm={6} md={12} lg={6} xs={6} mb={2}>
+          <Accordion
+            sx={{
+              "&.MuiAccordionSummary-root": {
+                minHeight: "21px",
+                paddingTop: "0.1em",
+              },
+            }}
+            defaultExpanded
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+            >
+              <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                Quick Summery
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{ marginTop: "0.1em", marginBottom: "0.1em" }}>
+                <ThemeProvider theme={() => getMuiTheme()}>
+                  {isNdcLoading ? (
+                    <>
+                      {" "}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Box>
+                          <ThreeDotLoading size="medium" text="Loading..." />
+                        </Box>
+                      </Box>
+                    </>
+                  ) : (
+                    <HOCTable
+                      columns={columns}
+                      data={memoizedData}
+                      select={false}
+                      pagination={false}
+                      showFilter={false}
+                      pageSize={100}
+                    />
+                  )}
+                </ThemeProvider>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
 
         {/* Happiness meter and sentimental analysis */}
         {/* 
@@ -1486,6 +1475,25 @@ export default function CustomerDetails() {
           </Grid>
         </Grid>
 
+        {OrderId && (
+          <>
+            <Grid sx={{}} mt={1} gap={1} md={12} container>
+              {customerData?.map((customer) => {
+                return (
+                  <Grid item xs={12} sm={6} md={3}>
+                    <CustomerDetailCard customerData={customer} />
+                  </Grid>
+                );
+              })}
+              <Grid item md={5.5} xs={12} sm={6}>
+                <UnitDetailsCard unitData={unitData} />
+              </Grid>
+            </Grid>
+
+            <Grid container gap={2} mt={2}></Grid>
+          </>
+        )}
+
         {/* <Grid sx={{ height: "20em" }}>
           {OrderId ? <BookingDetails unitData={unitData} /> : <BookingData />}
         </Grid> */}
@@ -1544,7 +1552,7 @@ export default function CustomerDetails() {
         </Grid> */}
       </>
     ) : (
-      <CircularScreenLoader />
+      <ThreeDotLoading />
     );
   };
 

@@ -32,6 +32,8 @@ export default function WeeklyCollectionTarget() {
   const userName = reducerData.LoginReducer.userName;
   const projectId = reducerData.dashboard.project.projectId;
 
+  console.log("***month***", month);
+
   const inputStyle = {
     margin: "0.5em",
     padding: "0.3em",
@@ -200,6 +202,8 @@ export default function WeeklyCollectionTarget() {
     // Combine year and month to form the desired output
     const formattedDate = `${year}${month}`;
 
+    console.log("***formattedDate***", formattedDate);
+
     return formattedDate;
   }
 
@@ -222,6 +226,10 @@ export default function WeeklyCollectionTarget() {
   function convertDateToMonthYear(dateString) {
     const date = new Date(dateString);
     const options = { year: "numeric", month: "long" };
+    console.log(
+      "****convertDateToMonthYear**",
+      date.toLocaleDateString("en-US", options)
+    );
 
     return date.toLocaleDateString("en-US", options);
   }

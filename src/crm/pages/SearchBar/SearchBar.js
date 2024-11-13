@@ -23,7 +23,10 @@ export default function SearchBar() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const passWord = dashboardReducer.LoginReducer.passWord;
   const userName = dashboardReducer.LoginReducer.userName;
+  const crmId = useSelector((state) => state?.dashboard?.crmId);
   const dispatch = useDispatch();
+
+  console.log("selector", dashboardReducer);
 
   useEffect(() => {
     setSearchData(dashboardReducer?.searchBar?.searchKey);
@@ -45,7 +48,7 @@ export default function SearchBar() {
     }
 
     const formData = new FormData();
-    formData.append("projectId", userName);
+    formData.append("crmId", crmId);
     formData.append("userName", userName);
     formData.append("passWord", passWord);
 
@@ -145,9 +148,13 @@ export default function SearchBar() {
         size="small"
         value={searchData}
         onChange={(e) => setSearchData(e.target.value)} // Update search field but don't trigger API
-        placeholder="Search here..."
+        placeholder={
+          crmId
+            ? `Search ${crmId} Customers Here`
+            : `Search Global Customers Here`
+        }
         sx={{
-          width: "35em",
+          width: "43em",
           backgroundColor: "white",
           borderRadius: "12px",
         }}

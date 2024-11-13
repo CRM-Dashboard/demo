@@ -8,6 +8,7 @@ import {
   Typography,
   Divider,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
@@ -19,7 +20,8 @@ import ListItemText from "@mui/material/ListItemText";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import MenuIcon from "@mui/icons-material/Menu"; // Import menu icon
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import HomeIcon from "@mui/icons-material/Home";
 
 const drawerWidth = 240;
 
@@ -103,6 +105,7 @@ const CustomSidebar = ({
   const handleDrawerOpen = () => setOpen(true);
   const handleDrawerClose = () => setOpen(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const renderMenuItems = (route, index) => (
     <NavLink
@@ -163,9 +166,23 @@ const CustomSidebar = ({
           >
             <MenuIcon /> {/* Menu Icon */}
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Tooltip title="Home">
+            <IconButton
+              onClick={() => {
+                navigate("/menus");
+              }}
+            >
+              <HomeIcon sx={{ color: "white" }} />
+            </IconButton>
+          </Tooltip>
+          <Typography
+            sx={{ marginLeft: "5px" }}
+            variant="h6"
+            noWrap
+            component="div"
+          >
             {appBarTitle && appBarTitle}
-          </Typography>
+          </Typography>{" "}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open} drawerWidth={drawerWidth}>

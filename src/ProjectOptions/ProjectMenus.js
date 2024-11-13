@@ -142,10 +142,10 @@ export default function ProjectMenus() {
               justifyContent: "center",
               alignItems: "center",
             }}
-            className="non-clickable-grid"
-            // onClick={() => {
-            //   navigate("./table");
-            // }}
+            // className="non-clickable-grid"
+            onClick={() => {
+              navigate("/campaign");
+            }}
           >
             {" "}
             <img
@@ -157,7 +157,7 @@ export default function ProjectMenus() {
             <Typography
               sx={{ fontSize: "1rem", padding: "0.5em", paddingTop: "1.2em" }}
             >
-              Management Information System
+              Campaign
             </Typography>
           </Grid>
         </Grid>

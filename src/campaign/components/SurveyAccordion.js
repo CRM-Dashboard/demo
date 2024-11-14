@@ -13,14 +13,10 @@ import LoadingButton from "@mui/lab/LoadingButton";
 
 import InputField from "../../crm/components/inputField/InputField";
 
-const CampaignAccordion = ({
-  projectData = [],
-  selectedProjects = [],
-  handleProjectSelection = () => {},
-
-  crmData = [],
-  selectedCrm = [],
-  handleCrmSelection = () => {},
+const SurveyAccordion = ({
+  surveyData = [],
+  selectedSurvey = [],
+  handleSurveySelection = () => {},
 
   getTableData = () => {},
   loading = false,
@@ -60,68 +56,33 @@ const CampaignAccordion = ({
                 <Grid item xs={4}>
                   <InputField
                     select
-                    label="Project"
-                    value={selectedProjects || []}
-                    onChange={handleProjectSelection}
+                    label="Survey"
+                    value={selectedSurvey || []}
+                    onChange={handleSurveySelection}
                     SelectProps={{
                       multiple: false,
                       renderValue: (selected) =>
                         selected
                           .map(
                             (id) =>
-                              projectData?.find(
-                                (project) => project.projectId === id
-                              )?.name
+                              surveyData?.find(
+                                (survey) => survey.surveyId === id
+                              )?.surveyTitle
                           )
                           .join(", "),
                     }}
                   >
                     <MenuItem value="">
-                      <em>Select Project</em>
+                      <em>Select Survey</em>
                     </MenuItem>
-                    {projectData?.map((project) => (
-                      <MenuItem
-                        key={project.projectId}
-                        value={project.projectId}
-                      >
+                    {surveyData?.map((survey) => (
+                      <MenuItem key={survey.surveyId} value={survey.surveyId}>
                         <Checkbox
                           checked={
-                            selectedProjects?.indexOf(project.projectId) > -1
+                            selectedSurvey?.indexOf(survey.surveyId) > -1
                           }
                         />
-                        {project.name}
-                      </MenuItem>
-                    ))}
-                  </InputField>
-                </Grid>
-
-                <Grid item xs={4}>
-                  <InputField
-                    select
-                    label="CRM"
-                    // disabled={!selectedProjects}
-                    value={selectedCrm || []}
-                    onChange={handleCrmSelection}
-                    SelectProps={{
-                      multiple: false,
-                      renderValue: (selected) =>
-                        selected
-                          .map(
-                            (id) =>
-                              crmData?.find((crm) => crm.crmId === id)?.name
-                          )
-                          .join(", "),
-                    }}
-                  >
-                    <MenuItem value="">
-                      <em>Select CRM</em>
-                    </MenuItem>
-                    {crmData?.map((crm) => (
-                      <MenuItem key={crm.crmId} value={crm.crmId}>
-                        <Checkbox
-                          checked={selectedCrm?.indexOf(crm.crmId) > -1}
-                        />
-                        {crm.name}
+                        {survey.surveyTitle}
                       </MenuItem>
                     ))}
                   </InputField>
@@ -140,7 +101,7 @@ const CampaignAccordion = ({
                     onClick={getTableData}
                     loading={loading}
                     disabled={
-                      // selectedProjects?.toString()?.trim()?.length === 0 ||
+                      // selectedSurvey?.toString()?.trim()?.length === 0 ||
                       // selectedCrm?.toString()?.trim()?.length === 0 ||
                       loading
                     }
@@ -165,4 +126,4 @@ const CampaignAccordion = ({
   );
 };
 
-export default CampaignAccordion;
+export default SurveyAccordion;

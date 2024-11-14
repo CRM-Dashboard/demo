@@ -143,6 +143,11 @@ export default function ProjectMenus() {
               alignItems: "center",
             }}
             // className="non-clickable-grid"
+            // className={
+            //   GlobalFunctions.allowAccessByRoles(accessRoles, roles.campaign)
+            //     ? ""
+            //     : "non-clickable-grid"
+            // }
             onClick={() => {
               navigate("/campaign");
             }}

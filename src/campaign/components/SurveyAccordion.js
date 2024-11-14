@@ -24,7 +24,7 @@ const SurveyAccordion = ({
   return (
     <>
       <Grid sx={{ marginTop: "0.5em" }}>
-        <Accordion>
+        <Accordion defaultExpanded>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"

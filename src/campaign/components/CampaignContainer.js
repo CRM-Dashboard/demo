@@ -8,6 +8,7 @@ import ErrorPage from "../../drawingManagement/components/ErrorPage";
 import { Link, useNavigate } from "react-router-dom";
 import useGetCrmList from "../hooks/useGetCrmList";
 import useGetCampaignCustomerList from "../hooks/useGetCampaignCustmersList";
+import ThreeDot from "../../components/ThreeDot";
 import axios from "axios";
 
 import CallIcon from "@mui/icons-material/Call";
@@ -106,7 +107,7 @@ const CampaignContainer = () => {
               <Grid item md={5} sm={5} xs={5} xl={5}>
                 <Tooltip title="Call">
                   <IconButton onClick={() => initiateOutgoingCall(value)}>
-                    <CallIcon />
+                    <CallIcon sx={{ color: "green" }} />
                   </IconButton>
                 </Tooltip>
               </Grid>
@@ -114,8 +115,8 @@ const CampaignContainer = () => {
                 <Tooltip title="Survey">
                   <Link
                     to={path}
-                    target="_blank"
-                    rel="noreferrer"
+                    // target="_blank"
+                    // rel="noreferrer"
                     style={{
                       display: "block",
                       cursor: "pointer",
@@ -172,14 +173,6 @@ const CampaignContainer = () => {
   }
   return (
     <>
-      <Button
-        variant="contained"
-        onClick={() => {
-          navigate("survey/3");
-        }}
-      >
-        Survey
-      </Button>
       <Grid container gap={4}>
         <Grid item md={12} sm={12} xl={12} xs={12}>
           <CampaignAccordion
@@ -194,9 +187,8 @@ const CampaignContainer = () => {
           />
         </Grid>
         <Grid item md={12} sm={12} xl={12} xs={12}>
-          {false ? (
-            //   <Loading message={"Drawing is Loading..."} />
-            "sdjsj"
+          {isTableLoading ? (
+            <ThreeDot text="Data Is Loading...!!!" />
           ) : (
             <HOCTable
               columns={columns}

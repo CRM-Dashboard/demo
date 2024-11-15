@@ -1,4 +1,3 @@
-// src/components/Question.js
 import React, { memo } from "react";
 import {
   TextField,
@@ -41,26 +40,38 @@ const questionTheme = createTheme({
   },
 });
 
-const Question = ({ question, answer, onChange }) => {
+const Question = ({ question, answer, onChange, hasRequired }) => {
   const renderInput = () => {
     switch (question.type) {
       case "text":
         return (
-          <TextField
-            fullWidth
-            variant="outlined"
-            label="Your Answer"
-            value={answer || ""}
-            onChange={(e) => onChange(question.questionId, e.target.value)}
-            sx={{
-              my: 2,
-              backgroundColor: questionTheme.palette.background.paper,
-            }}
-          />
+          <>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Your Answer"
+              value={answer || ""}
+              onChange={(e) => onChange(question.questionId, e.target.value)}
+              sx={{
+                my: 2,
+                backgroundColor: questionTheme.palette.background.paper,
+              }}
+              required={question.required} // Adds required indicator to TextField
+            />
+            {hasRequired && (
+              <Typography color="error" variant="body2">
+                * This field is required.
+              </Typography>
+            )}
+          </>
         );
       case "radio":
         return (
-          <FormControl component="fieldset" sx={{ my: 2 }}>
+          <FormControl
+            component="fieldset"
+            sx={{ my: 2 }}
+            required={question.required}
+          >
             <RadioGroup
               value={answer || ""}
               onChange={(e) => onChange(question.questionId, e.target.value)}
@@ -81,11 +92,20 @@ const Question = ({ question, answer, onChange }) => {
                 />
               ))}
             </RadioGroup>
+            {hasRequired && (
+              <Typography color="error" variant="body2">
+                * This field is required.
+              </Typography>
+            )}
           </FormControl>
         );
       case "checkbox":
         return (
-          <FormControl component="fieldset" sx={{ my: 2 }}>
+          <FormControl
+            component="fieldset"
+            sx={{ my: 2 }}
+            required={question.required}
+          >
             {JSON.parse(question.options)?.map((option) => (
               <FormControlLabel
                 key={option}
@@ -93,9 +113,6 @@ const Question = ({ question, answer, onChange }) => {
                   <Checkbox
                     checked={answer?.includes(option) || false}
                     onChange={(e) => {
-                      // const newAnswer = e.target.checked
-                      //   ? [...answer, option] // Add option if checked
-                      //   : answer.filter((item) => item !== option); // Remove if unchecked
                       onChange(question.questionId, option);
                     }}
                     sx={{
@@ -110,6 +127,11 @@ const Question = ({ question, answer, onChange }) => {
                 label={option}
               />
             ))}
+            {hasRequired && (
+              <Typography color="error" variant="body2">
+                * This field is required.
+              </Typography>
+            )}
           </FormControl>
         );
       default:
@@ -118,33 +140,32 @@ const Question = ({ question, answer, onChange }) => {
   };
 
   return (
-    <>
-      <ThemeProvider theme={questionTheme}>
-        <Box
+    <ThemeProvider theme={questionTheme}>
+      <Box
+        sx={{
+          mb: 3,
+          p: 3,
+          boxShadow: questionTheme.shadows[1],
+          borderRadius: "10px",
+          border: `1px solid ${questionTheme.palette.divider}`,
+          ":hover": {
+            boxShadow: questionTheme.shadows[2],
+          },
+        }}
+      >
+        <Typography
+          variant="h6"
+          gutterBottom
           sx={{
-            mb: 3,
-            p: 3,
-            boxShadow: questionTheme.shadows[1],
-            borderRadius: "10px",
-            border: `1px solid ${questionTheme.palette.divider}`,
-            ":hover": {
-              boxShadow: questionTheme.shadows[2],
-            },
+            color: questionTheme.palette.text.primary,
           }}
         >
-          <Typography
-            variant="h6"
-            gutterBottom
-            sx={{
-              color: questionTheme.palette.text.primary,
-            }}
-          >
-            {question?.questionText}
-          </Typography>
-          {renderInput()}
-        </Box>
-      </ThemeProvider>
-    </>
+          {question?.questionText}
+          {question.required && <span style={{ color: "#d32f2f" }}> *</span>}
+        </Typography>
+        {renderInput()}
+      </Box>
+    </ThemeProvider>
   );
 };
 

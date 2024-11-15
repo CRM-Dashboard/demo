@@ -8,7 +8,6 @@ import { handleCheckboxChange, handleInputChange } from "../utils/utils";
 import { Grid } from "@mui/material";
 import SurveyAccordion from "./SurveyAccordion";
 import useSurveyList from "../hooks/useSurveyList";
-import ErrorPage from "../../drawingManagement/components/ErrorPage";
 import { ThreeDot } from "react-loading-indicators";
 import usePostAnswers from "../hooks/usePostAnswers";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -21,6 +20,7 @@ const Survey = () => {
   const { questions, loading, error, getQuestions } = useSurvey();
   const { surveyList } = useSurveyList();
   const { postAnswers, isLoading } = usePostAnswers();
+  const [errors, setErrors] = useState({});
 
   const [answers, setAnswers] = useState({});
   const [selectedSurvey, setSelectedSurvey] = useState("");
@@ -31,6 +31,10 @@ const Survey = () => {
   }, []);
 
   const handleChange = (questionId, value) => {
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [questionId]: false,
+    }));
     if (Array.isArray(value)) {
       setAnswers((prevAnswers) =>
         handleCheckboxChange(prevAnswers, questionId, value)
@@ -54,14 +58,26 @@ const Survey = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const transform = convertToResponseArray(answers);
+      const newErrors = {};
 
-      const res = await postAnswers(transform);
-      console.log("res", res);
+      questions.forEach((question) => {
+        if (question.required && !answers[question.questionId]) {
+          newErrors[question.questionId] = true;
+        }
+      });
 
-      if (res) {
-        snackbar.showSuccess("Answers Posted Successfully");
-        setAnswers({});
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+      } else {
+        const transform = convertToResponseArray(answers);
+
+        const res = await postAnswers(transform);
+        console.log("res", res);
+
+        if (res) {
+          snackbar.showSuccess("Answers Posted Successfully");
+          setAnswers({});
+        }
       }
     } catch (error) {
       snackbar.showError("Error Occured");
@@ -75,8 +91,6 @@ const Survey = () => {
 
     getQuestions(surveyId);
   };
-  // if (loading) return <ThreeDot />;
-  if (error) return <ErrorPage />;
 
   return (
     <Grid container gap={2} sx={{}}>
@@ -96,19 +110,17 @@ const Survey = () => {
         {questions.length > 0 && (
           <form onSubmit={handleSubmit}>
             {questions?.map((question) => (
-              <Question
-                key={question.questionId}
-                question={question}
-                answer={answers[question.questionId]}
-                onChange={handleChange}
-              />
+              <div key={question.questionId}>
+                <Question
+                  question={question}
+                  answer={answers[question.questionId]}
+                  onChange={handleChange}
+                  hasRequired={errors[question.questionId]}
+                />
+              </div>
             ))}
-            {/* <Button variant="contained" type="submit">
-              Submit
-            </Button> */}
 
             <LoadingButton
-              // onClick={getTableData}
               type="submit"
               loading={isLoading}
               // disabled={}

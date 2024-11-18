@@ -40,9 +40,9 @@ const closedMixin = (theme) => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
+  width: `calc(${theme.spacing(9)} + 15px)`,
   [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
+    width: `calc(${theme.spacing(10)} + 15px)`,
   },
 });
 
@@ -121,8 +121,10 @@ const CustomSidebar = ({
         <ListItemButton
           sx={{
             minHeight: 48,
+
             justifyContent: open ? "initial" : "center",
             px: 2.5,
+            flexDirection: open ? "row" : "column",
             backgroundColor: (theme) =>
               location.pathname === `${route.to}/${route.path}`
                 ? theme.palette.primary.main // Active color
@@ -140,13 +142,21 @@ const CustomSidebar = ({
           <ListItemIcon
             sx={{
               minWidth: 0,
-              mr: open ? 3 : "auto",
+              mr: open ? 3 : "",
               justifyContent: "center",
             }}
           >
             {route.icon}
           </ListItemIcon>
-          <ListItemText primary={route.name} sx={{ opacity: open ? 1 : 0 }} />
+          <ListItemText
+            primary={route.name}
+            sx={{
+              opacity: open ? 1 : 1, // Keep text visible
+              display: open ? "block" : "inline", // Adjust text visibility
+              // whiteSpace: "nowrap",
+              whiteSpace: "wrap",
+            }}
+          />
         </ListItemButton>
       </ListItem>
     </NavLink>

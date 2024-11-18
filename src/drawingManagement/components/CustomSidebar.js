@@ -130,7 +130,7 @@ const CustomSidebar = ({
             color: (theme) =>
               location.pathname === `${route.to}/${route.path}`
                 ? theme.palette.common.white // Active text color
-                : "inherit", // Default text color
+                : "black", // Default text color
             "&:hover": {
               backgroundColor: (theme) => theme.palette.grey[300], // Hover background color
               color: (theme) => theme.palette.common.black, // Hover text color

@@ -72,8 +72,6 @@ const Survey = () => {
         const transform = convertToResponseArray(answers);
 
         const res = await postAnswers(transform);
-        console.log("res", res);
-
         if (res) {
           snackbar.showSuccess("Answers Posted Successfully");
           setAnswers({});

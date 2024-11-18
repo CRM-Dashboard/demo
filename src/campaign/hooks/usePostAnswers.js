@@ -23,7 +23,6 @@ const usePostAnswers = () => {
         setIsSuccess(true);
       }
       return res;
-      console.log(res);
     } catch (error) {
       console.log("err", error);
       setError(error);

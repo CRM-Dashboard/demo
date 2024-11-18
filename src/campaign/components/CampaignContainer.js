@@ -47,7 +47,6 @@ const CampaignContainer = () => {
         const response = await axios.post(apiUrl, formData);
 
         if (response.data && response.data.Call) {
-          console.log("##########call API", response.data.Call);
           snackbar.showSuccess(`Connecting to... ${customerMobileNumber}`);
           // Uncomment and use these as needed
           // setCallAPI(true);
@@ -149,11 +148,9 @@ const CampaignContainer = () => {
 
   const handleCrmSelection = useCallback((event) => {
     const value = event.target.value;
-    console.log("value", value);
+
     setSelectedCrm(typeof value === "string" ? value.split(",") : value);
   }, []);
-
-  console.log("selected", selectedCrm);
 
   const handleGetTableData = () => {
     // Use the first selected project or an empty string

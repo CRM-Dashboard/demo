@@ -9,6 +9,8 @@ import { persistStore, persistReducer } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
 import { PersistGate } from "redux-persist/es/integration/react";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import rootReducer from "../src/reducer/rootReducer";
 import { legacy_createStore as createStore } from "redux";
 import "./crm/utils/GlobalCss.css";
@@ -38,11 +40,25 @@ const persistor = persistStore(store);
 // );
 document.title = "GeraHub";
 
+// Create a QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2, // Number of retry attempts on failure
+      staleTime: 1000 * 60 * 5, // 5 minutes cache time
+      cacheTime: 1000 * 60 * 10, // 10 minutes cache storage
+      refetchOnWindowFocus: false, // Prevent refetching when window regains focus
+    },
+  },
+});
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <App />{" "}
+      <QueryClientProvider client={queryClient}>
+        <App />{" "}
+      </QueryClientProvider>
     </PersistGate>
   </Provider>
 );

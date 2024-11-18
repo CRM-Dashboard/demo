@@ -4,6 +4,7 @@ import { useNavigate, Routes, Route } from "react-router-dom";
 import { routes } from "../constants/routes";
 import CampaignHome from "../pages/CampaignHome";
 import Survey from "../components/Survey";
+import Analysis from "../pages/Analysis";
 
 const CampaignLayout = () => {
   const navigate = useNavigate();
@@ -19,13 +20,13 @@ const CampaignLayout = () => {
           appBarTitle="Campaign"
           routes={routes}
           navigateHandler={handleNavigation}
-          //   headerContent={"headerContent"}
           logo={require("../../assets/gera_logo.jpg")}
         >
           <Routes>
             <Route path="/*">
               <Route index element={<CampaignHome />} />
               <Route path="survey/:id" element={<Survey />} />
+              <Route path="analysis" element={<Analysis />} />
             </Route>
           </Routes>
         </CustomSidebar>

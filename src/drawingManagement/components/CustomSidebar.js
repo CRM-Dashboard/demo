@@ -108,58 +108,60 @@ const CustomSidebar = ({
   const navigate = useNavigate();
 
   const renderMenuItems = (route, index) => (
-    <NavLink
-      key={index}
-      to={`${route.to}/${route.path}`}
-      onClick={() => {
-        const link = `${route.to}/${route.path}`;
-        navigateHandler(link);
-        console.log("renderMenuItems", link);
-      }}
-    >
-      <ListItem disablePadding>
-        <ListItemButton
-          sx={{
-            minHeight: 48,
-
-            justifyContent: open ? "initial" : "center",
-            px: 2.5,
-            flexDirection: open ? "row" : "column",
-            backgroundColor: (theme) =>
-              location.pathname === `${route.to}/${route.path}`
-                ? theme.palette.primary.main // Active color
-                : "transparent", // Default background
-            color: (theme) =>
-              location.pathname === `${route.to}/${route.path}`
-                ? theme.palette.common.white // Active text color
-                : "black", // Default text color
-            "&:hover": {
-              backgroundColor: (theme) => theme.palette.grey[300], // Hover background color
-              color: (theme) => theme.palette.common.black, // Hover text color
-            },
-          }}
-        >
-          <ListItemIcon
+    <Tooltip placement="right" title={route?.name} arrow>
+      <NavLink
+        key={index}
+        to={`${route.to}/${route.path}`}
+        onClick={() => {
+          const link = `${route.to}/${route.path}`;
+          navigateHandler(link);
+          console.log("renderMenuItems", link);
+        }}
+      >
+        <ListItem disablePadding>
+          <ListItemButton
             sx={{
-              minWidth: 0,
-              mr: open ? 3 : "",
-              justifyContent: "center",
+              minHeight: 48,
+
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+              flexDirection: open ? "row" : "column",
+              backgroundColor: (theme) =>
+                location.pathname === `${route.to}/${route.path}`
+                  ? theme.palette.primary.main // Active color
+                  : "transparent", // Default background
+              color: (theme) =>
+                location.pathname === `${route.to}/${route.path}`
+                  ? theme.palette.common.white // Active text color
+                  : "black", // Default text color
+              "&:hover": {
+                backgroundColor: (theme) => theme.palette.grey[300], // Hover background color
+                color: (theme) => theme.palette.common.black, // Hover text color
+              },
             }}
           >
-            {route.icon}
-          </ListItemIcon>
-          <ListItemText
-            primary={route.name}
-            sx={{
-              opacity: open ? 1 : 1, // Keep text visible
-              display: open ? "block" : "inline", // Adjust text visibility
-              // whiteSpace: "nowrap",
-              whiteSpace: "wrap",
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-    </NavLink>
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : "",
+                justifyContent: "center",
+              }}
+            >
+              {route.icon}
+            </ListItemIcon>
+            <ListItemText
+              primary={route.name}
+              sx={{
+                opacity: open ? 1 : 1, // Keep text visible
+                display: open ? "block" : "inline", // Adjust text visibility
+                // whiteSpace: "nowrap",
+                whiteSpace: "wrap",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </NavLink>
+    </Tooltip>
   );
 
   return (

@@ -1337,7 +1337,7 @@ export default function CustomerDetails() {
               id="panel1-header"
             >
               <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
-                Quick Summery
+                Booking Snapshot
               </Typography>
             </AccordionSummary>
             <AccordionDetails>

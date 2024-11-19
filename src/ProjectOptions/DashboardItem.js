@@ -18,6 +18,10 @@ const DashboardItem = ({
     }
   };
 
+  if (!isAccessible) {
+    return null;
+  }
+
   return (
     <Grid
       item
@@ -26,6 +30,7 @@ const DashboardItem = ({
         width: "250px",
         height: "320px",
         cursor: isAccessible ? "pointer" : "default",
+
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -41,7 +46,7 @@ const DashboardItem = ({
           transform: isAccessible ? "scale(0.9)" : "none",
         },
       }}
-      className={isAccessible ? "" : "non-clickable-grid"}
+      // className={isAccessible ? "" : "non-clickable-grid"}
     >
       <Box
         sx={{

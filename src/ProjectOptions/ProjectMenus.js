@@ -45,12 +45,19 @@ const ProjectMenus = () => {
     },
     {
       title: "Campaign",
-      imageSrc: require("../../src/assets/Management Info System.jpg"),
+      imageSrc: require("../../src/assets/campaign.jpg"),
       altText: "Campaign",
       navigateTo: "/campaign",
       isAccessible: true,
     },
 
+    {
+      title: "Key Management",
+      imageSrc: require("../../src/assets/key.webp"),
+      altText: "Key Management",
+      navigateTo: "/key-management",
+      isAccessible: true,
+    },
     {
       title: "Vendor Management",
       imageSrc: require("../../src/assets/Vendor Management.jpg"),

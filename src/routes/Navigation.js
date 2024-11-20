@@ -30,6 +30,7 @@ import CustomerDetails from "../crm/pages/Dashboard/CustomerDetails/CustomerDeta
 import CancellationReport from "../crm/pages/Reports/CancellationReport/CancellationReport";
 import DrawingManagementLayout from "../drawingManagement/layouts/DrawingManagementLayout";
 import CampaignLayout from "../campaign/layouts/CampaignLayout";
+import KeyManagementLayout from "../keyManagement/layout/KeyManagementLayout";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -94,6 +95,11 @@ export default function Navigation() {
                 <Route
                   path="/campaign/*"
                   element={<ProtectedRoute element={<CampaignLayout />} />}
+                ></Route>
+
+                <Route
+                  path="/key-management/*"
+                  element={<ProtectedRoute element={<KeyManagementLayout />} />}
                 ></Route>
 
                 {/* <Route path="/menus/table" element={<HierarchyTable />} /> */}

@@ -13,6 +13,8 @@ import usePostAnswers from "../hooks/usePostAnswers";
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import UseCustomSnackbar from "../../crm/components/snackbar/UseCustomSnackBar";
+import api from "../../services/api";
+import { useSelector } from "react-redux";
 
 const Survey = () => {
   const { id } = useParams();
@@ -21,6 +23,9 @@ const Survey = () => {
   const { surveyList } = useSurveyList();
   const { postAnswers, isLoading } = usePostAnswers();
   const [errors, setErrors] = useState({});
+  const passWord = useSelector((state) => state.LoginReducer.passWord);
+  const userName = useSelector((state) => state.LoginReducer.userName);
+  const [isSurveychecking, setIsSurveychecking] = useState(false);
 
   const [answers, setAnswers] = useState({});
   const [selectedSurvey, setSelectedSurvey] = useState("");
@@ -82,12 +87,37 @@ const Survey = () => {
     }
   };
 
-  const handleGetQuestionsList = () => {
+  const handleGetQuestionsList = async () => {
     const surveyId = selectedSurvey[0] || ""; // Use the first selected project or an empty string
 
     if (!surveyId) return;
 
+    const res = await checkSurveyIsCompleted();
+
+    if (res.length > 0) {
+      snackbar.showInfo("Survey is already completed...");
+      return;
+    }
+
     getQuestions(surveyId);
+  };
+
+  const checkSurveyIsCompleted = async () => {
+    try {
+      const url = "/api/campaign/check-survey-is-completed";
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("surveyId", selectedSurvey[0]);
+      formData.append("referenceId", id);
+      setIsSurveychecking(true);
+      const res = (await api.post(url, formData)).data;
+      return res;
+    } catch (error) {
+      return error;
+    } finally {
+      setIsSurveychecking(false);
+    }
   };
 
   return (
@@ -96,7 +126,7 @@ const Survey = () => {
         <SurveyAccordion
           selectedSurvey={selectedSurvey}
           surveyData={surveyList || []}
-          loading={loading}
+          loading={loading || isSurveychecking}
           getTableData={handleGetQuestionsList}
           handleSurveySelection={handleSurveySelection}
         />

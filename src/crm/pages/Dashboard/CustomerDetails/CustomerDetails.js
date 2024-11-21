@@ -662,16 +662,7 @@ export default function CustomerDetails() {
   };
 
   const circleUp = {
-    series: [
-      getUpcomingPercentage() ? getUpcomingPercentage() : 0,
-      // searchValueAvailable
-      //   ? getUpcomingPercentage() !== undefined
-      //     ? getUpcomingPercentage()
-      //     : 0
-      //   : customerDetails?.UpcomingPercent !== undefined
-      //   ? customerDetails?.UpcomingPercent
-      //   : 0,
-    ],
+    series: [getUpcomingPercentage() ? getUpcomingPercentage() : 0],
 
     options: {
       chart: {
@@ -990,79 +981,6 @@ export default function CustomerDetails() {
               },
             }}
           >
-            {/* <Grid xs={8} sm={8} lg={8} md={8}>
-              <Grid
-                container
-                columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-                columns={12}
-                sx={{ display: "flex" }}
-              >
-                <Grid
-                  xs={3}
-                  sm={3}
-                  lg={3}
-                  md={3}
-                  // sx={{ marginLeft: "1em" }}
-                  index
-                >
-                  {CardData?.column1?.map((card) => {
-                    const style = card.style;
-                    const handleClick = card.onClickHandle;
-                    const count = card.count;
-                    const title = card.title;
-                    return getDetailsWithCards(
-                      style,
-                      handleClick,
-                      count,
-                      title
-                    );
-                  })}
-                </Grid>
-                <Grid xs={3} sm={3} lg={3} md={3} index>
-                  {CardData?.column2?.map((card) => {
-                    const style = card.style;
-                    const handleClick = card.onClickHandle;
-                    const count = card.count;
-                    const title = card.title;
-                    return getDetailsWithCards(
-                      style,
-                      handleClick,
-                      count,
-                      title
-                    );
-                  })}
-                </Grid>
-                <Grid xs={3} sm={3} lg={3} md={3} index>
-                  {CardData?.column3?.map((card) => {
-                    const style = card.style;
-                    const handleClick = card.onClickHandle;
-                    const count = card.count;
-                    const title = card.title;
-                    return getDetailsWithCards(
-                      style,
-                      handleClick,
-                      count,
-                      title
-                    );
-                  })}
-                </Grid>
-                <Grid xs={3} sm={3} lg={3} md={3} index>
-                  {CardData?.column4?.map((card) => {
-                    const style = card.style;
-                    const handleClick = card.onClickHandle;
-                    const count = card.count;
-                    const title = card.title;
-                    return getDetailsWithCards(
-                      style,
-                      handleClick,
-                      count,
-                      title
-                    );
-                  })}
-                </Grid>
-              </Grid>
-            </Grid> */}
-
             <Grid
               container
               columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
@@ -1321,66 +1239,66 @@ export default function CustomerDetails() {
           </Grid>
         </Grid>
 
-        <Grid item sm={6} md={12} lg={6} xs={6} mb={2}>
-          <Accordion
-            sx={{
-              "&.MuiAccordionSummary-root": {
-                minHeight: "21px",
-                paddingTop: "0.1em",
-              },
-            }}
-            defaultExpanded
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-            >
-              <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
-                Booking Snapshot
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <div style={{ marginTop: "0.1em", marginBottom: "0.1em" }}>
-                <ThemeProvider theme={() => getMuiTheme()}>
-                  {isNdcLoading ? (
-                    <>
-                      {" "}
-                      <Box
-                        sx={{
-                          display: "flex",
-                          width: "100%",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Box>
-                          <ThreeDotLoading size="medium" text="Loading..." />
-                        </Box>
-                      </Box>
-                    </>
-                  ) : (
-                    <HOCTable
-                      columns={columns}
-                      data={memoizedData}
-                      select={false}
-                      pagination={false}
-                      showFilter={false}
-                      pageSize={100}
-                    />
-                  )}
-                </ThemeProvider>
-              </div>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+        {OrderId && (
+          <>
+            <Grid sx={{}} mt={1} gap={1} md={12} container>
+              {customerData?.map((customer) => {
+                return (
+                  <Grid item xs={12} sm={6} md={3}>
+                    <CustomerDetailCard customerData={customer} />
+                  </Grid>
+                );
+              })}
+              <Grid item md={5.5} xs={12} sm={6}>
+                <UnitDetailsCard unitData={unitData} />
+              </Grid>
+            </Grid>
 
-        {/* Happiness meter and sentimental analysis */}
-        {/* 
-        <HappinessIndexDonut
-          circleUp={circleUp}
-          customerDetails={customerDetails}
-          searchValueAvailable={searchValueAvailable}
-        /> */}
+            <Grid container gap={2} mt={2}></Grid>
+          </>
+        )}
+
+        <Grid
+          container
+          columns={12}
+          columnSpacing={1}
+          gap={2}
+          sx={{ marginBottom: "1em" }}
+        >
+          <Grid item sm={12} md={12} lg={12} xs={12}>
+            <Accordion defaultExpanded>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  Today's BirthDay / Anniversary
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <TodaysBirthday data={birthdayData} />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+          <Grid item sm={12} md={12} lg={12} xs={12}>
+            <Accordion defaultExpanded>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                  Today's Activity
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {" "}
+                <TodayActivity />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        </Grid>
 
         <Grid container columns={12} columnSpacing={1}>
           <Grid item sm={6} md={6} lg={6} xs={6}>
@@ -1434,122 +1352,65 @@ export default function CustomerDetails() {
         </Grid>
 
         <Grid
-          container
-          columns={12}
-          columnSpacing={1}
           sx={{ marginTop: "1em" }}
+          item
+          sm={6}
+          md={12}
+          lg={6}
+          xs={6}
+          mb={2}
         >
-          <Grid item sm={6} md={6} lg={6} xs={6}>
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
-                  Today's Activity
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                {" "}
-                <TodayActivity />
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-
-          <Grid item sm={6} md={6} lg={6} xs={6}>
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
-                  Today's BirthDay / Anniversary
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <TodaysBirthday data={birthdayData} />
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-        </Grid>
-
-        {OrderId && (
-          <>
-            <Grid sx={{}} mt={1} gap={1} md={12} container>
-              {customerData?.map((customer) => {
-                return (
-                  <Grid item xs={12} sm={6} md={3}>
-                    <CustomerDetailCard customerData={customer} />
-                  </Grid>
-                );
-              })}
-              <Grid item md={5.5} xs={12} sm={6}>
-                <UnitDetailsCard unitData={unitData} />
-              </Grid>
-            </Grid>
-
-            <Grid container gap={2} mt={2}></Grid>
-          </>
-        )}
-
-        {/* <Grid sx={{ height: "20em" }}>
-          {OrderId ? <BookingDetails unitData={unitData} /> : <BookingData />}
-        </Grid> */}
-
-        {/* Ageing Graph and Projectf3 Graph */}
-        {/* <Grid sx={{ marginLeft: "1%" }}>
-          <Grid
-            container
-            rowSpacing={1}
-            columnSpacing={{ xs: 2, sm: 2, md: 2, lg: 2 }}
-            columns={12}
+          <Accordion
             sx={{
-              display: "flex",
-              marginTop: "1%",
+              "&.MuiAccordionSummary-root": {
+                minHeight: "21px",
+                paddingTop: "0.1em",
+              },
             }}
+            defaultExpanded
           >
-            <Grid
-              item
-              xs={6}
-              sm={6}
-              lg={6}
-              md={6}
-              sx={{
-                // width: "48%",
-                backgroundColor:
-                  reducerData.ThemeReducer.mode === "theme-mode-light" ||
-                  reducerData.ThemeReducer.mode === null
-                    ? "#ffffff"
-                    : "#2d2d2d",
-                // backgroundColor: "white",
-                borderRadius: "0.8em",
-              }}
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
             >
-              <AgingGraph />
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sm={6}
-              lg={6}
-              md={6}
-              sx={{
-                paddingleft: "3em",
-                // width: "48%",
-                // height: "100%",
-                height: "10em",
-                borderRadius: "0.8em",
-                "&.MuiGrid-item": {
-                  paddingTop: "0px",
-                },
-              }}
-            >
-              <Graph />
-            </Grid>
-          </Grid>
-        </Grid> */}
+              <Typography sx={{ fontWeight: "bold", fontSize: "0.9em" }}>
+                Booking Snapshot
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div style={{ marginTop: "0.1em", marginBottom: "0.1em" }}>
+                <ThemeProvider theme={() => getMuiTheme()}>
+                  {isNdcLoading ? (
+                    <>
+                      {" "}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Box>
+                          <ThreeDotLoading size="medium" text="Loading..." />
+                        </Box>
+                      </Box>
+                    </>
+                  ) : (
+                    <HOCTable
+                      columns={columns}
+                      data={memoizedData}
+                      select={false}
+                      pagination={false}
+                      showFilter={false}
+                      pageSize={100}
+                    />
+                  )}
+                </ThemeProvider>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
       </>
     ) : (
       <ThreeDotLoading />

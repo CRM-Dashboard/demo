@@ -64,6 +64,15 @@ const CampaignContainer = () => {
 
   const columns = useMemo(
     () => [
+      // arktx
+      {
+        Header: "Project",
+        accessor: "arktx",
+      },
+      {
+        Header: "CRM",
+        accessor: "crmid",
+      },
       {
         Header: "Customer Name",
         accessor: "customerName",

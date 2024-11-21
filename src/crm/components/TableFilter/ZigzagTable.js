@@ -23,6 +23,7 @@ const ZigzagTable = ({
   setSelectedRows, // Function to set selected rows in parent component
   setAllSelected,
   setSelectedItems,
+  maxHeight,
 }) => {
   // Memoized "Select All" handler
   const handleSelectAll = useCallback(
@@ -43,7 +44,7 @@ const ZigzagTable = ({
   }, [selectedRows]);
   //   console.log(setSelectedItems, "setSelectedItems");
   return (
-    <TableContainer sx={{}}>
+    <TableContainer sx={{ maxHeight: maxHeight }}>
       <MuiTable
         stickyHeader
         {...getTableProps()}
@@ -135,6 +136,12 @@ const ZigzagTable = ({
                       {...cell.getCellProps()}
                       key={cell.column.id}
                       sx={rowStyle}
+                      style={{
+                        padding: "5px 10px", // Custom padding for table cells
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
                     >
                       {cell.render("Cell")}
                     </TableCell>

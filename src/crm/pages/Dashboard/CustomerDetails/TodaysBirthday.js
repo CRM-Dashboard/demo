@@ -1,223 +1,122 @@
-import React, { useState, forwardRef } from "react";
-import { Box, IconButton, Card, CardContent } from "@mui/material";
-import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import MUIDataTable from "mui-datatables";
+import React, { useMemo, memo } from "react";
+import { Box, Grid, Card, CardContent, Typography } from "@mui/material";
+import withTable from "../../../components/TableFilter/withTable";
+import ZigzagTable from "../../../components/TableFilter/ZigzagTable";
 
-const BirthdaySlider = forwardRef((props, ref) => {
-  const [index, setIndex] = useState(0);
+const HOCTable = withTable(memo(ZigzagTable));
 
+const BirthdayGrid = ({ data }) => {
+  // Define slides as an array of objects for cards
   const slides = [
-    { title: "Customer Birthdays", data: props?.data?.customerBirthday },
-    { title: "Child Birthdays", data: props?.data?.childBirthday },
-    { title: "Anniversaries", data: props?.data?.anniversary },
+    { title: "Customer Birthdays", data: data?.customerBirthday },
+    { title: "Child Birthdays", data: data?.childBirthday },
+    { title: "Anniversaries", data: data?.anniversary },
   ];
 
-  const handleNext = () => {
-    setIndex((prevIndex) => (prevIndex + 1) % slides.length);
-  };
-
-  const handlePrev = () => {
-    setIndex((prevIndex) => (prevIndex - 1 + slides.length) % slides.length);
-  };
-
-  // Define columns for different slides
-  const getColumns = () => {
+  // Define table columns dynamically for each slide
+  const getColumns = (index) => {
     if (index === 1) {
-      // Add "Customer Name" column for children's birthdays
+      // Columns for child birthdays
       return [
+        { Header: "Name", accessor: "childName" },
+        { Header: "Customer Name", accessor: "customerName" },
+        { Header: "Birthday", accessor: "birtdt" },
         {
-          name: "",
-          label: "",
-          options: {
-            customBodyRender: () => (
-              <img
-                src={require("../../../../assets/BaloonsImg.jfif")} // Replace this with your actual image source
-                alt="Avatar"
-                style={{ height: "30px", width: "30px", borderRadius: "50%" }}
-              />
-            ),
-          },
+          Header: "Age",
+          accessor: "age",
+          Cell: ({ value }) => (value ? `${value} years` : ""),
         },
+      ];
+    } else if (index === 2) {
+      // Columns for anniversaries
+      return [
+        { Header: "Name", accessor: "name" },
+        { Header: "Anniversary Date", accessor: "annivDt" },
         {
-          name: "name",
-          label: "Name",
-        },
-        {
-          name: "customerName",
-          label: "Customer Name",
-        },
-        {
-          name: "birtdt",
-          label: "Birthday / Anniversary Date",
-          options: {
-            customBodyRender: (value, tableMeta) => {
-              return value ? value : tableMeta.rowData[2]; // annivDt is assumed to be at index 2 if provided
-            },
-          },
-        },
-        {
-          name: "age",
-          label: "Age",
-          options: {
-            customBodyRender: (value) => (value ? `${value} years` : ""),
-          },
+          Header: "Age",
+          accessor: "age",
+          Cell: ({ value }) => (value ? `${value} years` : ""),
         },
       ];
     } else {
       // Default columns
       return [
+        { Header: "Name", accessor: "name" },
+        { Header: "Birthday Date", accessor: "birtdt" },
         {
-          name: "",
-          label: "",
-          options: {
-            customBodyRender: () => (
-              <img
-                src={require("../../../../assets/BaloonsImg.jfif")} // Replace this with your actual image source
-                alt="Avatar"
-                style={{ height: "30px", width: "30px", borderRadius: "50%" }}
-              />
-            ),
-          },
-        },
-        {
-          name: "name",
-          label: "Name",
-        },
-        {
-          name: "birtdt",
-          label: "Birthday / Anniversary Date",
-          options: {
-            customBodyRender: (value, tableMeta) => {
-              return value ? value : tableMeta.rowData[2]; // annivDt is assumed to be at index 2 if provided
-            },
-          },
-        },
-        {
-          name: "age",
-          label: "Age",
-          options: {
-            customBodyRender: (value) => (value ? `${value} years` : ""),
-          },
+          Header: "Age",
+          accessor: "age",
+          Cell: ({ value }) => (value ? `${value} years` : ""),
         },
       ];
     }
   };
 
-  // Define data processing for different slides
-  const getData = () => {
+  const getData = (index) => {
     if (index === 1) {
-      // Process data for children's birthdays
       return slides[index]?.data?.map((item) => ({
         ...item,
-        name: item.childName,
-        customerName: item.name || "N/A", // Assuming `customerName` exists for index 1
+        childName: item.childName,
+        customerName: item.name || "N/A",
       }));
     } else if (index === 2) {
-      // Process data for children's birthdays
       return slides[index]?.data?.map((item) => ({
         ...item,
-        birtdt: item.annivDt,
+        annivDt: item.annivDt,
       }));
     } else {
-      // Default data processing
       return slides[index]?.data;
     }
   };
 
-  const options = {
-    selectableRows: "none", // Disables row selection
-    responsive: "standard",
-    pagination: false,
-    print: false,
-    download: false,
-    search: false,
-    viewColumns: false,
-    filter: false,
-  };
-
-  const getMuiTheme = () =>
-    createTheme({
-      components: {
-        MuiToolbar: {
-          styleOverrides: {
-            root: {
-              minHeight: "32px",
-            },
-          },
-        },
-        MUIDataTableBodyCell: {
-          styleOverrides: {
-            root: {
-              paddingTop: "0.2em",
-              paddingBottom: "0.2em",
-              fontSize: "0.7rem",
-            },
-          },
-        },
-        MuiTypography: {
-          styleOverrides: {
-            root: {
-              fontSize: "1rem",
-            },
-          },
-        },
-        MuiTableCell: {
-          styleOverrides: {
-            root: {
-              padding: "2px",
-            },
-          },
-        },
-        MUIDataTableHeadCell: {
-          styleOverrides: {
-            data: {
-              fontSize: "0.8rem",
-              fontWeight: "bold",
-            },
-          },
-        },
-      },
-    });
-
   return (
-    <Box display="flex" alignItems="center" justifyContent="center">
-      {/* Left arrow */}
-      <IconButton onClick={handlePrev}>
-        <ArrowBackIos />
-      </IconButton>
+    <Grid container spacing={2}>
+      {slides.map((slide, index) => {
+        const columns = getColumns(index);
+        const tableData = getData(index);
 
-      {/* Slide content */}
-      <Card sx={{ width: "50em" }}>
-        <CardContent>
-          {/* Render Data Table */}
-          {slides[index].data?.length === 0 ? (
-            <Box display="flex" justifyContent="center" alignItems="center">
-              <img
-                alt="Gera"
-                style={{ height: "12em", width: "12em", borderRadius: "8em" }}
-                src={require("../../../../assets/BirthdayImage.jpg")}
-              />
-            </Box>
-          ) : (
-            <ThemeProvider theme={() => getMuiTheme()}>
-              <MUIDataTable
-                title={slides[index].title}
-                data={getData()}
-                columns={getColumns()}
-                options={options}
-              />
-            </ThemeProvider>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Right arrow */}
-      <IconButton onClick={handleNext}>
-        <ArrowForwardIos />
-      </IconButton>
-    </Box>
+        return (
+          <Grid item xs={12} md={4} key={index}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {slide.title}
+                </Typography>
+                {tableData?.length === 0 ? (
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    flexDirection="column"
+                    sx={{
+                      backgroundColor: "#f9f9f9",
+                      borderRadius: "1em",
+                      padding: "2em",
+                      textAlign: "center",
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: "#888" }}>
+                      No Data Available
+                    </Typography>
+                  </Box>
+                ) : (
+                  <HOCTable
+                    columns={columns || []}
+                    data={tableData || []}
+                    select={false}
+                    pagination={false}
+                    showFilter={false}
+                    pageSize={100}
+                    maxHeight={300}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        );
+      })}
+    </Grid>
   );
-});
+};
 
-export default BirthdaySlider;
+export default BirthdayGrid;

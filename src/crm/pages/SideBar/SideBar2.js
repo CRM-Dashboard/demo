@@ -30,6 +30,8 @@ import PrintIcon from "@mui/icons-material/Print";
 import AudioCallIcon from "@mui/icons-material/Call";
 import SettingsIcon from "@mui/icons-material/SettingsSharp";
 import MailIcon from "@mui/icons-material/Mail";
+import InboxIcon from "@mui/icons-material/Inbox";
+
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import "./SideBar2.css";
 import { useNavigate } from "react-router-dom";
@@ -77,7 +79,7 @@ import BookingReport from "../Reports/BookingReport/BookingReport";
 // import Avatar from "@mui/material/Avatar";
 // import Notification from "../Notification/Notification";
 import FileMovementReport from "../Reports/FileMovementReport/FileMovementReport";
-
+import Test from "../../components/inbox/Test";
 
 const routes = [
   {
@@ -152,6 +154,12 @@ const routes = [
     to: "/crm/activities",
     name: "Activity",
     icon: <AutoStoriesIcon />,
+  },
+  {
+    path: "/inbox",
+    to: "/crm/inbox",
+    name: "Inbox",
+    icon: <MailIcon />,
   },
 ];
 
@@ -1010,7 +1018,7 @@ const SideBar2 = () => {
                       : { padding: "5px 11px" }
                   }
                   activeclassname="active"
-                // isActive={() => route.path === "/dashboard" &&  }
+                  // isActive={() => route.path === "/dashboard" &&  }
                 >
                   <div
                     style={{
@@ -1109,7 +1117,11 @@ const SideBar2 = () => {
                   element={<CancellationReport />}
                 />
                 <Route path="bookingReport" element={<BookingReport />} />
-                <Route path="fileMovementReport" element={<FileMovementReport></FileMovementReport>} />
+                <Route
+                  path="fileMovementReport"
+                  element={<FileMovementReport></FileMovementReport>}
+                />
+                <Route path="inbox" element={<Test></Test>} />
               </Route>
             </Routes>
           </Grid>

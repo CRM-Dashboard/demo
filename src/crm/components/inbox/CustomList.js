@@ -20,7 +20,15 @@ function CustomList({
   emptyMessage = "No tickets available", // Message to display if the list is empty
 }) {
   return (
-    <Box sx={{ ...listWrapperStyle, padding: 0 }}>
+    <Box
+      sx={{
+        ...listWrapperStyle,
+        padding: 0,
+        marginLeft: "1rem",
+        marginTop: "1rem",
+        paddingTop: 0,
+      }}
+    >
       <List>
         {tickets.length > 0 ? (
           tickets.map((ticket, index) => (

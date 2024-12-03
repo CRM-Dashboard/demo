@@ -1,214 +1,229 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, memo } from "react";
+import { useFormik } from "formik";
 import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Box,
-  createTheme,
-  ThemeProvider,
+  TextField,
+  MenuItem,
+  Select,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
+  FormHelperText,
+  Grid,
+  Chip,
+  Paper,
+  Typography,
 } from "@mui/material";
-
-import StatusButton from "./StatusButton";
-import InfoRow from "./InfoRow";
-import TextArea from "./TextArea";
-
-const theme = createTheme({
-  typography: {
-    fontFamily: "'Roboto', 'Arial', sans-serif", // Set the desired font family
-    fontSize: 14, // Base font size (default for body text)
-    h1: {
-      fontSize: "0.8rem", // Titles or headers
-    },
-    h2: {
-      fontSize: "0.8rem",
-    },
-    body1: {
-      fontSize: "0.8rem", // Main body text
-    },
-    button: {
-      fontSize: "0.875rem", // Buttons
-    },
-  },
-});
+import LoadingButton from "@mui/lab/LoadingButton";
+import { DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import DoneIcon from "@mui/icons-material/Done";
+import PendingIcon from "@mui/icons-material/Pending";
+import dayjs from "dayjs";
 
 const TicketCart = ({
-  ticketDetails,
-  catLabel,
-  selectedCate,
-  handleCatChange,
-  catOption,
-  subCatOption,
-  subCatLabel,
-  selectedSubCat,
-  handleSubCatChange,
-  comment,
-  setComment,
-  handleComment,
-  description,
-  setDescription,
-  handleDescription,
+  ticketFields,
+  onSubmit,
+  onCancel,
+  validationSchema,
+  selectedTicket,
 }) => {
-  const {
-    subject,
-    priority,
-    statTxt,
-    createdDateTime,
-    maktx,
-    ernam,
-    description: resDesc,
-    comments: resComm,
-  } = ticketDetails;
+  const formik = useFormik({
+    initialValues: ticketFields.reduce((acc, field) => {
+      acc[field.name] =
+        field.defaultValue || (field.type === "date" ? null : "");
+      return acc;
+    }, {}),
+    validationSchema: validationSchema || null,
+    onSubmit: (values) => {
+      console.log("onSubmit called with values:", values);
+      if (onSubmit) onSubmit(values);
+    },
+  });
 
-  console.log(catLabel, selectedCate, handleCatChange, catOption);
+  const { setValues } = formik;
+
+  const updateSelectedTicketValues = () => {
+    const updatedValues = ticketFields.reduce((acc, field) => {
+      const value = selectedTicket[field.name];
+      if (field.type === "date" && value) {
+        acc[field.name] = dayjs(value); // Convert to dayjs object for date pickers
+      } else {
+        acc[field.name] = value ?? ""; // Default to empty string for undefined values
+      }
+      return acc;
+    }, {});
+    setValues(updatedValues);
+  };
 
   useEffect(() => {
-    if (resComm) {
-      setComment(resComm);
+    if (selectedTicket) {
+      updateSelectedTicketValues();
     }
-    if (resDesc) {
-      setDescription(resDesc);
-    }
-  }, [resComm, resDesc]);
-
-  // State variables
-
-  const [subcategory, setSubcategory] = useState("");
-  const [status, setStatus] = useState("");
+  }, [selectedTicket]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundColor: "#f0f4f8",
-          padding: 2,
-        }}
+    <Paper style={{ padding: "1rem", marginTop: "1rem", marginRight: "1rem" }}>
+      <form
+        onSubmit={formik.handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
       >
-        <Card
-          sx={{
-            maxWidth: 800,
-            width: "100%",
-            boxShadow: 6,
-            borderRadius: 3,
-            padding: 2,
-            backgroundColor: "#ffffff",
-          }}
+        <Grid container spacing={2}>
+          {ticketFields.map((field) => {
+            const isReadOnly = [
+              "createdDateTime",
+              "priority",
+              "statTxt",
+            ].includes(field.name);
+
+            return (
+              <Grid
+                item
+                xs={12}
+                sm={
+                  field.name === "comments" || field.name === "description"
+                    ? 12
+                    : 6
+                }
+                key={field.name}
+              >
+                {field.name === "subject" ||
+                field.name === "name" ||
+                field.name === "maktx" ? (
+                  <Typography
+                    variant="body1"
+                    // component="div"
+
+                    // style={{
+                    //   padding: "8px",
+                    //   backgroundColor: "#f9f9f9",
+                    //   color: "#555",
+                    // }}
+                  >
+                    {field.name === "subject" ? (
+                      <strong>{formik.values[field.name]}</strong>
+                    ) : (
+                      <>
+                        {" "}
+                        <strong>{field.label}: </strong>
+                        {formik.values[field.name]}
+                      </>
+                    )}
+                  </Typography>
+                ) : isReadOnly ? (
+                  <Chip
+                    label={`${formik.values[field.name]}`}
+                    variant="filled"
+                    color="primary"
+                  />
+                ) : field.type === "select" ? (
+                  <FormControl
+                    fullWidth
+                    error={
+                      formik.touched[field.name] &&
+                      Boolean(formik.errors[field.name])
+                    }
+                  >
+                    <InputLabel>{field.label}</InputLabel>
+                    <Select
+                      label={field.label}
+                      name={field.name}
+                      value={formik.values[field.name]}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    >
+                      {field.options.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formik.touched[field.name] &&
+                      formik.errors[field.name] && (
+                        <FormHelperText>
+                          {formik.errors[field.name]}
+                        </FormHelperText>
+                      )}
+                  </FormControl>
+                ) : field.type === "date" ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label={field.label}
+                      value={formik.values[field.name]}
+                      onChange={(date) =>
+                        formik.setFieldValue(field.name, date)
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          name={field.name}
+                          onBlur={formik.handleBlur}
+                          error={
+                            formik.touched[field.name] &&
+                            Boolean(formik.errors[field.name])
+                          }
+                          helperText={
+                            formik.touched[field.name] &&
+                            formik.errors[field.name]
+                          }
+                          fullWidth
+                        />
+                      )}
+                    />
+                  </LocalizationProvider>
+                ) : (
+                  <TextField
+                    label={field.label}
+                    name={field.name}
+                    type={field.type || "text"}
+                    value={formik.values[field.name]}
+                    onChange={formik.handleChange}
+                    placeholder={
+                      field.name === "comments"
+                        ? "Add Comments"
+                        : "Issue Description"
+                    }
+                    onBlur={formik.handleBlur}
+                    sx={{ width: "100%" }}
+                    fullWidth
+                    error={
+                      formik.touched[field.name] &&
+                      Boolean(formik.errors[field.name])
+                    }
+                    helperText={
+                      formik.touched[field.name] && formik.errors[field.name]
+                    }
+                  />
+                )}
+              </Grid>
+            );
+          })}
+        </Grid>
+        <div
+          style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}
         >
-          <CardContent>
-            <Grid container spacing={3}>
-              {/* Static Info */}
-              <Grid item xs={12}>
-                <InfoRow label="Title" value={subject} />
-                <InfoRow label="Assigned To" value={ernam} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <InfoRow label="Date" value={createdDateTime} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <InfoRow label="Project" value={maktx} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <InfoRow label="Priority" value={priority} />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
-                  <InputLabel>{catLabel}</InputLabel>
-                  <Select
-                    value={selectedCate}
-                    onChange={handleCatChange}
-                    label={catLabel}
-                  >
-                    {catOption?.length > 0 &&
-                      catOption?.map((option) => (
-                        <MenuItem key={option.typ} value={option.typ}>
-                          {option.typTxt}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>{subCatLabel}</InputLabel>
-                  <Select
-                    value={selectedSubCat}
-                    onChange={handleSubCatChange}
-                    label={subCatLabel}
-                  >
-                    {subCatOption?.length > 0 &&
-                      subCatOption?.map((option) => (
-                        <MenuItem
-                          key={option.actSubtyp}
-                          value={option.actSubtyp}
-                        >
-                          {option.actSubtypTxt}
-                        </MenuItem>
-                      ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextArea
-                  label="Description"
-                  value={description}
-                  onChange={handleDescription}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextArea
-                  label="Comments"
-                  value={comment}
-                  onChange={handleComment}
-                />
-              </Grid>
-
-              {/* Status */}
-              <Grid item xs={12}>
-                <Typography
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: 500,
-                    color: "#455A64",
-                    marginTop: 2,
-                  }}
-                >
-                  Current Status:{" "}
-                  <span style={{ color: "#1E88E5", fontWeight: 600 }}>
-                    {statTxt}
-                  </span>
-                </Typography>
-              </Grid>
-
-              {/* Action Buttons */}
-              <Grid item xs={6}>
-                <StatusButton
-                  label="Complete"
-                  variant="contained"
-                  color="success"
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <StatusButton
-                  label="Customer Action Pending"
-                  variant="outlined"
-                  color="warning"
-                />
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Box>
-    </ThemeProvider>
+          <LoadingButton
+            startIcon={<DoneIcon />}
+            type="submit"
+            color="primary"
+            variant="outlined"
+          >
+            Complete
+          </LoadingButton>
+          <LoadingButton
+            startIcon={<PendingIcon />}
+            type="submit"
+            color="primary"
+            variant="outlined"
+          >
+            Customer Action Pending
+          </LoadingButton>
+          <LoadingButton type="submit" color="primary" variant="contained">
+            Submit
+          </LoadingButton>
+        </div>
+      </form>
+    </Paper>
   );
 };
 
-export default TicketCart;
+export default memo(TicketCart);

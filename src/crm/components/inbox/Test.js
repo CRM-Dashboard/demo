@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import CustomTabs from "./CustomTabs";
 import { Grid } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import InfoIcon from "@mui/icons-material/Info";
-import ContactMailIcon from "@mui/icons-material/ContactMail";
 import CustomList from "./CustomList";
 import EmailCart from "./EmailCart";
 import axios from "axios";
 import api from "../../../services/api";
 import TicketCart from "./TicketCart";
 import { useSelector } from "react-redux";
-
+import { IoIosMailOpen } from "react-icons/io";
+import { FcProcess } from "react-icons/fc";
+import { RiMailCloseFill } from "react-icons/ri";
+import Badge from "@mui/material/Badge";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object({
@@ -62,7 +62,6 @@ const Test = () => {
       type: "text",
       defaultValue: "",
     },
-    // statTxt
     {
       label: "Category",
       name: "type",
@@ -82,11 +81,6 @@ const Test = () => {
         value: data.actSubtyp,
         label: data.actSubtypTxt,
       })),
-      // options: [
-      //   { value: "low", label: "Low" },
-      //   { value: "medium", label: "Medium" },
-      //   { value: "high", label: "High" },
-      // ],
     },
     {
       label: "Description",
@@ -95,6 +89,12 @@ const Test = () => {
       defaultValue: "",
     },
     { label: "Comments", name: "comments", type: "text", defaultValue: "" },
+    {
+      label: "Sender",
+      name: "sender",
+      type: "text",
+      defaultValue: "",
+    },
   ];
 
   const handleSubmit = (values) => {
@@ -208,7 +208,7 @@ const Test = () => {
       console.log(response.data);
 
       // Update state with fetched messages
-      setEmailCartData(response.data.value);
+      setEmailCartData(response?.data?.value?.reverse());
     } catch (err) {
       // Handle any errors
       //   setError(
@@ -222,9 +222,10 @@ const Test = () => {
 
   const handleTicketClick = async (ticket, index) => {
     // alert(`Clicked on ticket: ${JSON.stringify(ticket)}`);
-    const response = await fetchMessagesByConversation(ticket.conversationId);
-    const res = await getTicketDetails(ticket.ticketId);
-    console.log("response", response);
+    const [response, res] = await Promise.all([
+      fetchMessagesByConversation(ticket.conversationId),
+      getTicketDetails(ticket.ticketId),
+    ]);
     // first api call for sap
     //second api call for graph api for messages
     // set message for emailCartData
@@ -284,13 +285,18 @@ const Test = () => {
                     key={email.id}
                     content={email?.body?.content}
                     email={email}
+                    to={selectedTicket?.sender}
                   />
                 );
               })}
           </Grid>
         </Grid>
       ),
-      icon: <HomeIcon />,
+      icon: (
+        <Badge badgeContent={tickets?.open?.length} color="primary">
+          <IoIosMailOpen color="black" size={20} />
+        </Badge>
+      ),
     },
     {
       label: "In Progress",
@@ -344,13 +350,18 @@ const Test = () => {
                     key={email.id}
                     content={email?.body?.content}
                     email={email}
+                    to={selectedTicket?.sender}
                   />
                 );
               })}
           </Grid>
         </Grid>
       ),
-      icon: <InfoIcon />,
+      icon: (
+        <Badge badgeContent={tickets?.inprocess?.length} color="primary">
+          <FcProcess color="black" size={20} />
+        </Badge>
+      ),
     },
     {
       label: "Closed",
@@ -432,13 +443,18 @@ const Test = () => {
                     key={email.id}
                     content={email?.body?.content}
                     email={email}
+                    to={selectedTicket?.sender}
                   />
                 );
               })}
           </Grid>
         </Grid>
       ),
-      icon: <ContactMailIcon />,
+      icon: (
+        <Badge badgeContent={tickets?.closed?.length} color="primary">
+          <RiMailCloseFill color="black" size={20} />
+        </Badge>
+      ),
     },
   ];
 

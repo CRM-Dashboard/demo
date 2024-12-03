@@ -8,6 +8,7 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
+import { FaJira } from "react-icons/fa";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
 function CustomList({
@@ -50,7 +51,7 @@ function CustomList({
             >
               {/* Icon for Time/Date */}
               <ListItemIcon>
-                <AccessTimeIcon color="action" />
+                <FaJira color="black" size={20} />
               </ListItemIcon>
 
               {/* Ticket Title and Body Preview */}

@@ -23,18 +23,28 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import ReplyAllIcon from "@mui/icons-material/ReplyAll";
 import ForwardIcon from "@mui/icons-material/Forward";
 
-const EmailCart = ({ content, email }) => {
+const EmailCart = ({ content, email, to }) => {
+  console.log("to ", to);
+  const {
+    hasAttachments,
+    id,
+    sender: {
+      emailAddress: { address },
+    },
+  } = email;
   const [attachments, setAttachments] = useState([]);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [modalType, setModalType] = useState(""); // To distinguish between Reply, Reply All, and Forward
   const [emailDetails, setEmailDetails] = useState({
-    to: "",
+    to: to,
     cc: "",
     bcc: "",
     body: "",
     attachments: [],
   });
+
+  console.log("email", email);
 
   const getAccessToken = async () => {
     const url = `/api/ticket/get-token`;
@@ -45,8 +55,6 @@ const EmailCart = ({ content, email }) => {
       return error;
     }
   };
-
-  const { hasAttachments, id } = email;
 
   useEffect(() => {
     if (email && email.hasAttachments) {
@@ -95,8 +103,8 @@ const EmailCart = ({ content, email }) => {
   };
 
   const handleReply = () => {
-    // setModalType("reply");
-    setModalType("forward");
+    setModalType("reply");
+    // setModalType("forward");
     setOpenModal(true);
   };
 
@@ -141,12 +149,12 @@ const EmailCart = ({ content, email }) => {
 
       // Determine the endpoint based on modalType
       let url = `https://graph.microsoft.com/v1.0/users/c8fec0e4-c259-49c3-b4ff-64d31353a571/messages/${id}`;
-      // if (modalType === "reply") {
-      url += "/reply";
-      // }
-      // } else if (modalType === "replyAll") {
-      //   url += "/replyAll";
-      // } else if (modalType === "forward") {
+      if (modalType === "reply") {
+        url += "/reply";
+      } else if (modalType === "replyAll") {
+        url += "/replyAll";
+      }
+      //else if (modalType === "forward") {
       //   url += "/forward";
       // }
 
@@ -213,7 +221,7 @@ const EmailCart = ({ content, email }) => {
     <Box
       sx={{
         backgroundColor: "#f4f7fc",
-        minHeight: "100vh",
+        // minHeight: "100vh",
         fontFamily: "'Roboto', sans-serif",
         padding: "2rem",
       }}
@@ -246,6 +254,9 @@ const EmailCart = ({ content, email }) => {
           onMouseEnter={() => setHoveredCard(id)}
           onMouseLeave={() => setHoveredCard(null)}
         >
+          <Typography variant="body2" sx={{ color: "#1976d2" }}>
+            From: {address}
+          </Typography>
           {hasAttachments && attachments.length > 0 && (
             <Box
               sx={{
@@ -297,37 +308,44 @@ const EmailCart = ({ content, email }) => {
               <IconButton
                 color="primary"
                 sx={{ padding: "10px", fontSize: "1.5rem" }}
-                onClick={handleForward}
+                onClick={handleReply}
               >
                 <ReplyIcon />
               </IconButton>
             </Tooltip>
-
-            {/* <IconButton
-              color="primary"
-              sx={{ padding: "10px", fontSize: "1.5rem" }}
-              onClick={handleReplyAll}
-            >
-              <ReplyAllIcon />
-            </IconButton> */}
-            {/* <IconButton
-              color="primary"
-              sx={{ padding: "10px", fontSize: "1.5rem" }}
-              onClick={handleForward}
-            >
-              <ForwardIcon />
-            </IconButton> */}
+            {/* <Tooltip title="Reply">
+              <IconButton
+                color="primary"
+                sx={{ padding: "10px", fontSize: "1.5rem" }}
+                onClick={handleReplyAll}
+              >
+                <ReplyAllIcon />
+              </IconButton>
+            </Tooltip> */}
+            {/* <Tooltip title="Reply">
+              <IconButton
+                color="primary"
+                sx={{ padding: "10px", fontSize: "1.5rem" }}
+                onClick={handleForward}
+              >
+                <ForwardIcon />
+              </IconButton>
+            </Tooltip> */}
           </Box>
         </Card>
       </Box>
 
       {/* Modal */}
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle sx={{ backgroundColor: "#1976d2", color: "#fff" }}>
-          {modalType === "forward" ? "Forward Email" : `${modalType} Email`}
-        </DialogTitle>
+        {/* <DialogTitle
+          sx={{ backgroundColor: "#1976d2", color: "#fff", marginBottom: 1 }}
+        >
+          {modalType === "forward"
+            ? "Forward"
+            : `${modalType.charAt(0).toUpperCase()} Email`}
+        </DialogTitle> */}
         <DialogContent>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} padding={2}>
             <Grid item xs={12}>
               <TextField
                 label="To"
@@ -340,7 +358,7 @@ const EmailCart = ({ content, email }) => {
                 required
               />
             </Grid>
-            {modalType === "forward" && (
+            {(modalType === "reply" || modalType === "replyAll") && (
               <>
                 <Grid item xs={12}>
                   <TextField
@@ -379,7 +397,7 @@ const EmailCart = ({ content, email }) => {
                 }
               />
             </Grid>
-            {modalType === "forward" && (
+            {(modalType === "reply" || modalType === "replyAll") && (
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <InputLabel shrink>Attachments</InputLabel>

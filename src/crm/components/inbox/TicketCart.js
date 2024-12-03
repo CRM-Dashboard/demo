@@ -73,6 +73,7 @@ const TicketCart = ({
               "createdDateTime",
               "priority",
               "statTxt",
+              "sender",
             ].includes(field.name);
 
             return (

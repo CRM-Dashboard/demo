@@ -102,6 +102,48 @@ const EmailCart = ({ content, email, to }) => {
     }
   };
 
+  const autoReplay = async (content) => {
+    try {
+      const url = `https://api.openai.com/v1/chat/completions`;
+
+      const data = {
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "You are an email assistant.",
+          },
+          {
+            role: "user",
+            content: content, // content is passed as an argument to the function
+          },
+        ],
+      };
+
+      const apiKey = process.env.REACT_APP_OPENAPI_KEY;
+      console.log("apiKey", apiKey); // Check if apiKey is correctly logged
+
+      if (!apiKey) {
+        throw new Error(
+          "API key is missing. Please check the environment variable."
+        );
+      }
+
+      const res = (
+        await api.post(url, data, {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        })
+      ).data;
+
+      const reply = res?.choices[0]?.message?.content;
+      setEmailDetails({ ...emailDetails, body: reply });
+    } catch (error) {
+      console.error("Error occurred:", error);
+    }
+  };
+
   const handleReply = () => {
     setModalType("reply");
     // setModalType("forward");

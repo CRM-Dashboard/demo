@@ -121,7 +121,6 @@ const EmailCart = ({ content, email, to }) => {
       };
 
       const apiKey = process.env.REACT_APP_OPENAPI_KEY;
-      console.log("apiKey", apiKey); // Check if apiKey is correctly logged
 
       if (!apiKey) {
         throw new Error(
@@ -456,6 +455,9 @@ const EmailCart = ({ content, email, to }) => {
           <Button onClick={handleSubmit} color="primary">
             Send
           </Button>
+          {/* <Button onClick={() => autoReplay(content)} color="primary">
+            Generate Auto Reply
+          </Button> */}
         </DialogActions>
       </Dialog>
     </Box>

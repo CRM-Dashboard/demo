@@ -31,6 +31,7 @@ import CancellationReport from "../crm/pages/Reports/CancellationReport/Cancella
 import DrawingManagementLayout from "../drawingManagement/layouts/DrawingManagementLayout";
 import CampaignLayout from "../campaign/layouts/CampaignLayout";
 import KeyManagementLayout from "../keyManagement/layout/KeyManagementLayout";
+import MyActivityLayout from "../myActivity/layout/MyActivityLayout";
 
 export default function Navigation() {
   const themeReducer = useSelector((state) => state.ThemeReducer);
@@ -100,6 +101,11 @@ export default function Navigation() {
                 <Route
                   path="/key-management/*"
                   element={<ProtectedRoute element={<KeyManagementLayout />} />}
+                ></Route>
+
+                <Route
+                  path="/my-activity/*"
+                  element={<ProtectedRoute element={<MyActivityLayout />} />}
                 ></Route>
 
                 {/* <Route path="/menus/table" element={<HierarchyTable />} /> */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import api from "../../../services/api";
+import SendIcon from "@mui/icons-material/Send";
 import {
   Box,
   Button,
@@ -22,8 +23,9 @@ import {
 import ReplyIcon from "@mui/icons-material/Reply";
 import ReplyAllIcon from "@mui/icons-material/ReplyAll";
 import ForwardIcon from "@mui/icons-material/Forward";
+import LoadingButton from "@mui/lab/LoadingButton";
 
-const EmailCart = ({ content, email, to }) => {
+const EmailCart = ({ content, email, to, tabname }) => {
   console.log("to ", to);
   const {
     hasAttachments,
@@ -33,6 +35,7 @@ const EmailCart = ({ content, email, to }) => {
     },
   } = email;
   const [attachments, setAttachments] = useState([]);
+  const [isAutoReplying, setIsAutoReplying] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [modalType, setModalType] = useState(""); // To distinguish between Reply, Reply All, and Forward
@@ -111,7 +114,7 @@ const EmailCart = ({ content, email, to }) => {
         messages: [
           {
             role: "system",
-            content: "You are an email assistant.",
+            content: "Give us reply to following below email",
           },
           {
             role: "user",
@@ -128,6 +131,7 @@ const EmailCart = ({ content, email, to }) => {
         );
       }
 
+      setIsAutoReplying(true);
       const res = (
         await api.post(url, data, {
           headers: {
@@ -140,6 +144,8 @@ const EmailCart = ({ content, email, to }) => {
       setEmailDetails({ ...emailDetails, body: reply });
     } catch (error) {
       console.error("Error occurred:", error);
+    } finally {
+      setIsAutoReplying(false);
     }
   };
 
@@ -377,7 +383,7 @@ const EmailCart = ({ content, email, to }) => {
       </Box>
 
       {/* Modal */}
-      <Dialog open={openModal} onClose={handleCloseModal}>
+      <Dialog open={openModal} onClose={handleCloseModal} fullScreen fullWidth>
         {/* <DialogTitle
           sx={{ backgroundColor: "#1976d2", color: "#fff", marginBottom: 1 }}
         >
@@ -431,7 +437,7 @@ const EmailCart = ({ content, email, to }) => {
                 variant="outlined"
                 fullWidth
                 multiline
-                rows={6}
+                rows={12}
                 value={emailDetails.body}
                 onChange={(e) =>
                   setEmailDetails({ ...emailDetails, body: e.target.value })
@@ -449,15 +455,35 @@ const EmailCart = ({ content, email, to }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="secondary">
+          <Button
+            onClick={handleCloseModal}
+            variant="contained"
+            // color="secondary"
+            color="error"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} color="primary">
+
+          <LoadingButton
+            variant="contained"
+            color="success"
+            startIcon={<SendIcon />}
+            onClick={handleSubmit}
+          >
             Send
-          </Button>
-          {/* <Button onClick={() => autoReplay(content)} color="primary">
+          </LoadingButton>
+
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            // startIcon={<SendIcon />}
+            loading={isAutoReplying}
+            onClick={() => autoReplay(content)}
+          >
             Generate Auto Reply
-          </Button> */}
+          </LoadingButton>
+
+          {/*  */}
         </DialogActions>
       </Dialog>
     </Box>

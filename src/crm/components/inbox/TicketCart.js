@@ -20,12 +20,24 @@ import DoneIcon from "@mui/icons-material/Done";
 import PendingIcon from "@mui/icons-material/Pending";
 import dayjs from "dayjs";
 
+const colorsSchema = {
+  Open: "info",
+  Closed: "success",
+  "In Progress": "error",
+  "Customer Action Pending": "warning",
+  LOW: "secondary",
+  MEDIUM: "warning",
+  HIGH: "error",
+  Default: "primary",
+};
+
 const TicketCart = ({
   ticketFields,
   onSubmit,
   onCancel,
   validationSchema,
   selectedTicket,
+  tabname,
 }) => {
   const formik = useFormik({
     initialValues: ticketFields.reduce((acc, field) => {
@@ -69,6 +81,11 @@ const TicketCart = ({
       >
         <Grid container spacing={2}>
           {ticketFields.map((field) => {
+            console.log("color", formik.values[field.name]);
+            console.log(
+              "color generate",
+              colorsSchema[formik.values[field.name]]
+            );
             const isReadOnly = [
               "createdDateTime",
               "priority",
@@ -114,7 +131,10 @@ const TicketCart = ({
                   <Chip
                     label={`${formik.values[field.name]}`}
                     variant="filled"
-                    color="primary"
+                    color={
+                      colorsSchema[formik.values[field.name]] ||
+                      colorsSchema.Default
+                    }
                   />
                 ) : field.type === "select" ? (
                   <FormControl
@@ -199,6 +219,7 @@ const TicketCart = ({
             );
           })}
         </Grid>
+        {/* {tabname !== "closed" && ( */}
         <div
           style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}
         >
@@ -222,6 +243,7 @@ const TicketCart = ({
             Submit
           </LoadingButton>
         </div>
+        {/* // )} */}
       </form>
     </Paper>
   );

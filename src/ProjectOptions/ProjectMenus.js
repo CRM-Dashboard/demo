@@ -72,6 +72,13 @@ const ProjectMenus = () => {
       navigateTo: "/table",
       isAccessible: false,
     },
+    {
+      title: "My Activity",
+      imageSrc: require("../../src/assets/myactivity.jpg"),
+      altText: "My Activity",
+      navigateTo: "/my-activity",
+      isAccessible: true,
+    },
   ];
 
   return (

@@ -13,8 +13,6 @@ const CollaboratorsUI = () => {
   const handleCloseDialog = () => setIsDialogOpen(false);
 
   const handleAddCollaborator = (data) => {
-    console.log("Ddmskdusjdyhsyh", data);
-
     setCollaborators([...collaborators, data]);
   };
 

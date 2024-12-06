@@ -11,6 +11,7 @@ import {
   Chip,
   Paper,
   Typography,
+  Box,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -228,7 +229,16 @@ const TicketCart = ({
             gap: "1rem",
           }}
         >
-          <CollaboratorsUI />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "start",
+            }}
+          >
+            <Typography>Collaborators</Typography>
+            <CollaboratorsUI />
+          </Box>
 
           <LoadingButton
             startIcon={<DoneIcon />}

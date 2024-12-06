@@ -19,6 +19,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import DoneIcon from "@mui/icons-material/Done";
 import PendingIcon from "@mui/icons-material/Pending";
 import dayjs from "dayjs";
+import CollaboratorsUI from "../../../myActivity/components/CollaboratorsUI";
 
 const colorsSchema = {
   Open: "info",
@@ -221,8 +222,14 @@ const TicketCart = ({
         </Grid>
         {/* {tabname !== "closed" && ( */}
         <div
-          style={{ display: "flex", justifyContent: "flex-end", gap: "1rem" }}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
         >
+          <CollaboratorsUI />
+
           <LoadingButton
             startIcon={<DoneIcon />}
             type="submit"

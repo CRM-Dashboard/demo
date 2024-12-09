@@ -98,18 +98,22 @@ const UnitAnnexureContainer = () => {
       },
       //   maktx
       {
-        Header: "maktx",
+        Header: "Project/Unit",
         accessor: "maktx",
       },
       //   matnr
-      {
-        Header: "matnr",
-        accessor: "matnr",
-      },
+      // {
+      //   Header: "matnr",
+      //   accessor: "matnr",
+      // },
       {
         Header: "PDF",
         accessor: "url",
         Cell: ({ value }) => {
+          if (!value) {
+            return <span>No PDF Available ,Please upload </span>;
+          }
+
           return (
             <a href={value} target="_blank" rel="noreferrer">
               <PictureAsPdfIcon />
@@ -122,6 +126,8 @@ const UnitAnnexureContainer = () => {
   );
 
   const memoizedData = useMemo(() => tableData, [tableData]);
+
+  console.log("memoizedData", memoizedData);
 
   const handleModifiedPdfUploadToS3 = async () => {
     if (!selectedItems || selectedItems.length === 0) {
@@ -171,6 +177,8 @@ const UnitAnnexureContainer = () => {
       snackbar.showError("Error Occurred...");
     } finally {
       setIsUploading(false); // Stop uploading in all scenarios
+
+      setSelectedItems([]);
     }
   };
 
@@ -181,6 +189,7 @@ const UnitAnnexureContainer = () => {
   const handleGetTableData = () => {
     const unit = selectedUnit[0] || ""; // Use the first selected unit or an empty string
     const project = selectedProjects[0] || ""; // Use the first selected project or an empty string
+    setSelectedItems([]);
 
     if (selectedProjects.length > 0 && selectedUnit.length > 0) {
       getTableData(unit, project, true); // Call with both parameters
@@ -215,7 +224,7 @@ const UnitAnnexureContainer = () => {
           <LoadingButton
             onClick={handleModifiedPdfUploadToS3}
             loading={isUploading}
-            disabled={selectedItems?.length <= 0 || isUploading}
+            disabled={selectedItems?.length <= 0 || isUploading || isLoading}
             loadingPosition="start" // Position of loading spinner ('start', 'center', 'end')
             startIcon={<FileUploadIcon />}
             variant="contained"
@@ -237,6 +246,7 @@ const UnitAnnexureContainer = () => {
           selectedUnit={selectedUnit}
           handleUnitSelection={handleUnitSelection}
           getTableData={handleGetTableData}
+          isUploading={isUploading}
           loading={isLoading}
         />
         {/* Conditional rendering for loading state */}

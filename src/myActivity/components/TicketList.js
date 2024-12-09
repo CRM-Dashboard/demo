@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
-import CustomTabs from "./CustomTabs";
+
+import CustomTabs from "../../crm/components/inbox/CustomTabs";
+
 import { Grid } from "@mui/material";
-import CustomList from "./CustomList";
-import EmailCart from "./EmailCart";
+
 import axios from "axios";
-import api from "../../../services/api";
-import TicketCart from "./TicketCart";
+
+import api from "../../services/api";
+
+import TicketCart from "../../crm/components/inbox/TicketCart";
 import { useSelector } from "react-redux";
 import { IoIosMailOpen } from "react-icons/io";
 import { FcProcess } from "react-icons/fc";
 import { RiMailCloseFill } from "react-icons/ri";
 import Badge from "@mui/material/Badge";
+
 import * as Yup from "yup";
+import ListAcivity from "./ListAcivity";
 
 const statuses = {
   Open: "1",
@@ -26,16 +31,11 @@ const validationSchema = Yup.object({
   // assignee: Yup.string().required("Assignee is required"),
 });
 
-const Test = () => {
+const TicketList = () => {
   const passWord = useSelector((state) => state.LoginReducer.passWord);
   const userName = useSelector((state) => state.LoginReducer.userName);
-  const crmId = useSelector((state) => state?.dashboard?.crmId);
-  const [category, setCategory] = useState([]);
-  const [subcategory, setSubcategory] = useState([]);
-  const [emailCartData, setEmailCartData] = useState([]);
   const [dpData, setDpdata] = useState([]);
-  const [deptData, setDeptData] = useState([]);
-  const [assignData, setAssignData] = useState([]);
+
   const [ticketId, setTicketId] = useState("");
   const [tickets, setTicket] = useState({
     open: [],
@@ -43,29 +43,49 @@ const Test = () => {
     closed: [],
   });
 
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState({});
 
   const ticketFields = [
-    { label: "Subject", name: "subject", type: "text", defaultValue: "" },
     {
-      label: "Customer Name",
-      name: "name",
+      label: "Description",
+      name: "activityDes",
+      type: "typo",
+      defaultValue: "",
+      isDisabled: true,
+    },
+    {
+      label: "Due Date",
+      name: "dueDt",
       type: "text",
       defaultValue: "",
     },
     {
-      label: "Project",
-      name: "maktx",
+      label: "HOD Date",
+      name: "hodDt",
       type: "text",
       defaultValue: "",
     },
     {
-      label: "Date",
-      name: "createdDateTime",
+      label: "Due Days",
+      name: "dueDays",
       type: "text",
       defaultValue: "",
     },
 
+    {
+      label: "Department",
+      name: "dept",
+      type: "text",
+      defaultValue: "",
+      isDisabled: true,
+    },
+    {
+      label: "Comments",
+      name: "comments",
+      type: "text",
+      defaultValue: "",
+      isDisabled: true,
+    },
     {
       label: "Priority",
       name: "priority",
@@ -75,39 +95,6 @@ const Test = () => {
     {
       label: "Status",
       name: "statTxt",
-      type: "text",
-      defaultValue: "",
-    },
-    {
-      label: "Category",
-      name: "type",
-      type: "select",
-      defaultValue: "",
-      options: category?.map((data) => ({
-        value: data.typ,
-        label: data.typTxt,
-      })),
-    },
-    {
-      label: "SubCategory",
-      name: "subtyp",
-      type: "select",
-      defaultValue: "",
-      options: subcategory?.map((data) => ({
-        value: data.actSubtyp,
-        label: data.actSubtypTxt,
-      })),
-    },
-    {
-      label: "Description",
-      name: "description",
-      type: "text",
-      defaultValue: "",
-    },
-    { label: "Comments", name: "comments", type: "text", defaultValue: "" },
-    {
-      label: "Sender",
-      name: "sender",
       type: "text",
       defaultValue: "",
     },
@@ -165,20 +152,16 @@ const Test = () => {
 
   const getTicketList = async () => {
     try {
-      const url = `/api/ticket/get-ticket-list`;
+      const url = `/api/ticket/get-activity-list`;
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      if (!crmId) {
-        formData.append("crmId", userName?.toUpperCase());
-      } else if (crmId) {
-        formData.append("crmId", crmId);
-      }
+      formData.append("employeeId", userName?.toUpperCase());
 
       const response = (await api.post(url, formData)).data;
       console.log(response, "dfjedhfdyh");
 
-      setTicket(response.response[0]);
+      setTicket(response?.response[0]);
     } catch (error) {
       console.log("errr", error);
       return error;
@@ -187,78 +170,30 @@ const Test = () => {
 
   useEffect(() => {
     getTicketList();
-  }, [crmId]);
+  }, [userName]);
 
-  const getAccessToken = async () => {
-    const url = `/api/ticket/get-token`;
-
+  const getTicketDetails = async (activityId) => {
     try {
-      const tokenData = (await api.get(url)).data;
-      // console.log("###########access token:", tokenData.data.access_token);
-      return tokenData;
-    } catch (error) {
-      return error;
-    }
-  };
-
-  const getTicketDetails = async (ticketId) => {
-    try {
-      const url = `/api/ticket/get-ticket-details`;
+      const url = `/api/ticket/get-activity-details`;
 
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("ticketId", ticketId);
+      formData.append("activityId", activityId);
       const res = (await api.post(url, formData)).data;
-      console.log("resss", res);
-      setCategory(res?.response[0]?.typdata);
-      setSubcategory(res?.response[0]?.subtypdata);
-      setDpdata(res?.response[0]?.dpdata);
-      setSelectedTicket(res?.response[0]?.ticketdata[0]);
-      setDeptData(res?.response[0]?.deptdata);
-      setAssignData(res?.response[0]?.userdata);
+
+      setSelectedTicket(res?.response[0]);
+
       console.log("resese", res);
-      return res.response[0]?.ticketdata[0];
     } catch (error) {
       console.log("errsrd");
     }
   };
 
-  const fetchMessagesByConversation = async (conversationId) => {
-    try {
-      //   setLoading(true); // Set loading state to true while fetching data
-      //   setError(null); // Reset any previous errors
-
-      const token = await getAccessToken(); // Get the access token
-      console.log("token", token);
-      const encodedConversationId = encodeURIComponent(conversationId); // URL encode the conversationId
-      const url = `https://graph.microsoft.com/v1.0/users/c8fec0e4-c259-49c3-b4ff-64d31353a571/messages?$filter=conversationId eq '${encodedConversationId}'`;
-
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log(response.data);
-
-      // Update state with fetched messages
-      setEmailCartData(response?.data?.value?.reverse());
-    } catch (err) {
-      // Handle any errors
-      //   setError(
-      //     "Error fetching messages: " +
-      //       (err.response ? err.response.data.error.message : err.message)
-      //   );
-    } finally {
-      //   setLoading(false); // Set loading state to false when done
-    }
-  };
-
   const handleTicketClick = async (ticket, index) => {
-    setTicketId(ticket.ticketId);
-    const details = await getTicketDetails(ticket.ticketId);
-    await fetchMessagesByConversation(details?.conversationId);
+    console.log("tickete", ticket);
+    setTicketId(ticket.activityNo);
+    const details = await getTicketDetails(ticket.activityNo);
   };
 
   const tabData = [
@@ -268,7 +203,7 @@ const Test = () => {
         <Grid container spacing={3}>
           <Grid item md={4} sm={4} xl={4}>
             {" "}
-            <CustomList
+            <ListAcivity
               tickets={tickets?.open}
               onTicketClick={handleTicketClick}
               listWrapperStyle={{
@@ -292,35 +227,23 @@ const Test = () => {
                   color: "#777",
                 },
               }}
-              emptyMessage="No tickets to show."
+              emptyMessage="No activity to show."
             />
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
-            {emailCartData?.length > 0 && (
+            {Object.keys(selectedTicket)?.length === 0 && (
+              <h3>Please Select Activity</h3>
+            )}
+            {Object.keys(selectedTicket)?.length > 0 && (
               <TicketCart
                 ticketFields={ticketFields}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
                 validationSchema={validationSchema}
                 selectedTicket={selectedTicket}
-                deptData={deptData}
-                assignData={assignData}
                 tabname={"open"}
               />
             )}
-            {emailCartData?.length > 0 &&
-              emailCartData?.map((email) => {
-                return (
-                  <EmailCart
-                    key={email.id}
-                    content={email?.body?.content}
-                    email={email}
-                    to={selectedTicket?.sender}
-                    tabname={"open"}
-                  />
-                );
-              })}
           </Grid>
         </Grid>
       ),
@@ -336,7 +259,7 @@ const Test = () => {
         <Grid container spacing={3}>
           <Grid item md={4} sm={4} xl={4}>
             {" "}
-            <CustomList
+            <ListAcivity
               tickets={tickets?.inprocess}
               onTicketClick={handleTicketClick}
               listWrapperStyle={{
@@ -361,12 +284,14 @@ const Test = () => {
                   color: "#777",
                 },
               }}
-              emptyMessage="No tickets to show."
+              emptyMessage="No activity to show."
             />
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
-            {emailCartData?.length > 0 && (
+            {Object.keys(selectedTicket)?.length === 0 && (
+              <h3>Please Select Activity</h3>
+            )}
+            {Object.keys(selectedTicket)?.length > 0 && (
               <TicketCart
                 ticketFields={ticketFields}
                 onSubmit={handleSubmit}
@@ -374,22 +299,8 @@ const Test = () => {
                 validationSchema={validationSchema}
                 selectedTicket={selectedTicket}
                 tabname={"inprogress"}
-                deptData={deptData}
-                assignData={assignData}
               />
             )}
-            {emailCartData?.length > 0 &&
-              emailCartData?.map((email) => {
-                return (
-                  <EmailCart
-                    key={email.id}
-                    content={email?.body?.content}
-                    email={email}
-                    to={selectedTicket?.sender}
-                    tabname={"inprogress"}
-                  />
-                );
-              })}
           </Grid>
         </Grid>
       ),
@@ -405,34 +316,10 @@ const Test = () => {
         <Grid container spacing={3}>
           <Grid item md={4} sm={4} xl={4}>
             {" "}
-            <CustomList
+            <ListAcivity
               tickets={tickets?.closed}
               onTicketClick={handleTicketClick}
-              renderTicketAction={(ticket, index) => (
-                <></>
-                // <Box>
-                //   <IconButton
-                //     edge="end"
-                //     aria-label="delete"
-                //     onClick={(e) => {
-                //       e.stopPropagation(); // Prevent triggering ticket click
-                //       handleDelete(ticket, index);
-                //     }}
-                //   >
-                //     <DeleteIcon color="error" />
-                //   </IconButton>
-                //   <IconButton
-                //     edge="end"
-                //     aria-label="reply"
-                //     onClick={(e) => {
-                //       e.stopPropagation(); // Prevent triggering ticket click
-                //       handleReply(ticket, index);
-                //     }}
-                //   >
-                //     <ReplyIcon color="primary" />
-                //   </IconButton>
-                // </Box>
-              )}
+              renderTicketAction={(ticket, index) => <></>}
               listWrapperStyle={{
                 // maxWidth: "600px",
                 margin: "20px auto",
@@ -455,13 +342,13 @@ const Test = () => {
                   color: "#777",
                 },
               }}
-              emptyMessage="No tickets to show."
+              emptyMessage="No activity to show."
             />
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
             {/* <Grid item sx={5} md={5} xl={6}> */}
 
-            {emailCartData?.length > 0 && (
+            {Object.keys(selectedTicket)?.length > 0 && (
               <TicketCart
                 ticketFields={ticketFields}
                 onSubmit={handleSubmit}
@@ -469,24 +356,12 @@ const Test = () => {
                 validationSchema={validationSchema}
                 selectedTicket={selectedTicket}
                 tabname={"closed"}
-                deptData={deptData}
-                assignData={assignData}
               />
             )}
             {/* </Grid> */}
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
-            {emailCartData?.length > 0 &&
-              emailCartData?.map((email) => {
-                return (
-                  <EmailCart
-                    key={email.id}
-                    content={email?.body?.content}
-                    email={email}
-                    to={selectedTicket?.sender}
-                    tabname={"closed"}
-                  />
-                );
-              })}
+            {Object.keys(selectedTicket)?.length === 0 && (
+              <h3>Please Select Activity</h3>
+            )}
           </Grid>
         </Grid>
       ),
@@ -499,8 +374,6 @@ const Test = () => {
   ];
 
   const handleTabChange = (index) => {
-    setEmailCartData([]);
-
     setSelectedTicket({});
     console.log("Active tab index:", index);
   };
@@ -538,4 +411,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default TicketList;

@@ -11,7 +11,7 @@ import {
 import { FaJira } from "react-icons/fa";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
-function CustomList({
+function ListAcivity({
   tickets, // Array of tickets (email data)
   onTicketClick, // Function to handle ticket click
   renderTicketAction, // Optional function to render custom actions (like delete)
@@ -56,10 +56,8 @@ function CustomList({
 
               {/* Ticket Title and Body Preview */}
               <ListItemText
-                primary={ticket.subject}
-                secondary={
-                  `${ticket.bodyPreview}...` || `${ticket.activityDes}`
-                }
+                // primary={ticket.subject}
+                secondary={`${ticket.activityDes}`}
                 sx={{ ...itemTextStyle }}
               />
 
@@ -69,8 +67,7 @@ function CustomList({
                 color="textSecondary"
                 sx={{ ml: 2, fontSize: "0.875rem" }}
               >
-                {new Date(ticket.createdDateTime).toLocaleDateString() ||
-                  new Date(ticket?.erdat).toLocaleDateString()}
+                {new Date(ticket?.erdat).toLocaleDateString()}
               </Typography>
             </ListItem>
           ))
@@ -87,4 +84,4 @@ function CustomList({
   );
 }
 
-export default CustomList;
+export default ListAcivity;

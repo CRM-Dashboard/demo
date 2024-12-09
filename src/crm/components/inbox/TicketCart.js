@@ -40,6 +40,8 @@ const TicketCart = ({
   validationSchema,
   selectedTicket,
   tabname,
+  deptData,
+  assignData,
 }) => {
   const formik = useFormik({
     initialValues: ticketFields.reduce((acc, field) => {
@@ -75,6 +77,8 @@ const TicketCart = ({
     }
   }, [selectedTicket]);
 
+  console.log("selected", selectedTicket);
+
   return (
     <Paper style={{ padding: "1rem", marginTop: "1rem", marginRight: "1rem" }}>
       <form
@@ -100,30 +104,26 @@ const TicketCart = ({
                 item
                 xs={12}
                 sm={
-                  field.name === "comments" || field.name === "description"
+                  field.name === "comments" ||
+                  field.name === "description" ||
+                  field.type === "typo"
                     ? 12
                     : 6
                 }
                 key={field.name}
               >
-                {field.name === "subject" ||
-                field.name === "name" ||
-                field.name === "maktx" ? (
-                  <Typography
-                    variant="body1"
-                    // component="div"
-
-                    // style={{
-                    //   padding: "8px",
-                    //   backgroundColor: "#f9f9f9",
-                    //   color: "#555",
-                    // }}
-                  >
+                {field.type === "typo" ? (
+                  <Typography variant="body1" color="textSecondary">
+                    <strong> {formik.values[field.name] || field.label}</strong>
+                  </Typography>
+                ) : field.name === "subject" ||
+                  field.name === "name" ||
+                  field.name === "maktx" ? (
+                  <Typography variant="body1">
                     {field.name === "subject" ? (
                       <strong>{formik.values[field.name]}</strong>
                     ) : (
                       <>
-                        {" "}
                         <strong>{field.label}: </strong>
                         {formik.values[field.name]}
                       </>
@@ -196,10 +196,12 @@ const TicketCart = ({
                 ) : (
                   <TextField
                     label={field.label}
+                    multiline={true}
                     name={field.name}
                     type={field.type || "text"}
                     value={formik.values[field.name]}
                     onChange={formik.handleChange}
+                    inputProps={{ readOnly: field.isDisabled }}
                     placeholder={
                       field.name === "comments"
                         ? "Add Comments"
@@ -221,7 +223,6 @@ const TicketCart = ({
             );
           })}
         </Grid>
-        {/* {tabname !== "closed" && ( */}
         <div
           style={{
             display: "flex",
@@ -229,16 +230,22 @@ const TicketCart = ({
             gap: "1rem",
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "start",
-            }}
-          >
-            <Typography>Collaborators</Typography>
-            <CollaboratorsUI />
-          </Box>
+          {deptData && assignData && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "start",
+              }}
+            >
+              <Typography>Collaborators</Typography>
+              <CollaboratorsUI
+                deptData={deptData}
+                assignData={assignData}
+                selectedTicket={selectedTicket}
+              />
+            </Box>
+          )}
 
           <LoadingButton
             startIcon={<DoneIcon />}
@@ -260,7 +267,6 @@ const TicketCart = ({
             Submit
           </LoadingButton>
         </div>
-        {/* // )} */}
       </form>
     </Paper>
   );

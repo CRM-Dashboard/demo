@@ -17,21 +17,34 @@ import * as Yup from "yup";
 import { Formik, Field, Form } from "formik";
 import Autocomplete from "@mui/material/Autocomplete";
 import { LoadingButton } from "@mui/lab";
+import api from "../../services/api";
+import { useSelector } from "react-redux";
 
-const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
-  // Example departments and collaborators data
-  const departments = [
-    { label: "Engineering", value: "engineering" },
-    { label: "Marketing", value: "marketing" },
-    { label: "Human Resources", value: "hr" },
-    { label: "Finance", value: "finance" },
-  ];
-
-  const collaborators = [
-    { name: "Alice Johnson", id: "1" },
-    { name: "Bob Smith", id: "2" },
-    { name: "Charlie Brown", id: "3" },
-  ];
+const AddCollaboratorDialog = ({
+  open,
+  onClose,
+  onSubmit,
+  assignData,
+  deptData,
+  selectedTicket,
+}) => {
+  const passWord = useSelector((state) => state.LoginReducer.passWord);
+  const userName = useSelector((state) => state.LoginReducer.userName);
+  const addCollaborator = async (data) => {
+    try {
+      const url = `/api/ticket/add-collabrator`;
+      const formData = new FormData();
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("ticketId", selectedTicket?.ticketId);
+      formData.append("data", JSON.stringify(data));
+      console.log("data addd", data);
+      const res = (await api.post(url, formData)).data;
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // Validation schema for form validation
   const validationSchema = Yup.object({
@@ -39,9 +52,10 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
       .required("Description is required")
       .max(200, "Description must be at most 200 characters"),
     comment: Yup.string().required("Comment is required"),
-    department: Yup.string().required("Please select a department"),
+    dept: Yup.object().required("Please select a department"),
     assigned: Yup.object().nullable().required("Please select a collaborator"),
   });
+  // assigned
 
   return (
     <Dialog
@@ -68,13 +82,25 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
           initialValues={{
             description: "",
             comment: "",
-            department: "",
+            dept: "",
             assigned: null,
           }}
           validationSchema={validationSchema}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
             // Submit form data
             console.log("Form Submitted with values:", values);
+
+            const { description, comment, dept, assigned } = values;
+
+            const data = {
+              activity_des: description,
+              dept: dept.deptCode,
+              assigned: assigned.id,
+              comments: comment,
+            };
+            console.log("data", data);
+            const res = await addCollaborator(data);
+            console.log("dhsghdgh", res);
             onSubmit(values);
             onClose(); // Close dialog after submit
           }}
@@ -113,11 +139,11 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
                       fullWidth
                       error={touched.assigned && Boolean(errors.assigned)}
                     >
-                      <InputLabel>Assigned To</InputLabel>
                       <Autocomplete
-                        options={collaborators}
+                        options={assignData || []}
                         getOptionLabel={(option) => option.name || ""}
                         value={values.assigned}
+                        noOptionsText="No Options"
                         onChange={(_, newValue) => {
                           setFieldValue("assigned", newValue || null);
                         }}
@@ -126,7 +152,9 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
                             {...params}
                             label="Assigned To"
                             name="assigned"
+                            variant="outlined"
                             onBlur={handleBlur}
+                            InputLabelProps={{ shrink: true }}
                           />
                         )}
                       />
@@ -140,22 +168,18 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
                   <Grid item xs={12} sm={6}>
                     <FormControl
                       fullWidth
-                      error={touched.department && Boolean(errors.department)}
+                      error={touched.dept && Boolean(errors.dept)}
                     >
-                      <InputLabel>Department</InputLabel>
                       <Autocomplete
-                        options={departments}
-                        getOptionLabel={(option) => option.label || ""}
+                        options={deptData || []}
+                        noOptionsText="No Options"
+                        getOptionLabel={(option) => option.deptTxt || ""}
                         value={
-                          departments.find(
-                            (dept) => dept.value === values.department
-                          ) || null
+                          deptData.find((dept) => dept.value === values.dept) ||
+                          null
                         }
                         onChange={(_, newValue) => {
-                          setFieldValue(
-                            "department",
-                            newValue ? newValue.value : ""
-                          );
+                          setFieldValue("dept", newValue ? newValue : "");
                         }}
                         renderInput={(params) => (
                           <TextField
@@ -163,11 +187,12 @@ const AddCollaboratorDialog = ({ open, onClose, onSubmit }) => {
                             label="Department"
                             name="department"
                             onBlur={handleBlur}
+                            InputLabelProps={{ shrink: true }}
                           />
                         )}
                       />
-                      {touched.department && errors.department && (
-                        <FormHelperText>{errors.department}</FormHelperText>
+                      {touched.dept && errors.dept && (
+                        <FormHelperText>{errors.dept}</FormHelperText>
                       )}
                     </FormControl>
                   </Grid>

@@ -5,7 +5,8 @@ import CollaboratorAvatar from "./CollaboratorAvatar";
 import AddCollaboratorDialog from "./AddCollaboratorDialog";
 import CartDetails from "./CartDetail";
 
-const CollaboratorsUI = () => {
+const CollaboratorsUI = ({ deptData, assignData, selectedTicket }) => {
+  console.log("asbdgtdg", assignData);
   const [collaborators, setCollaborators] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -38,6 +39,9 @@ const CollaboratorsUI = () => {
         open={isDialogOpen}
         onClose={handleCloseDialog}
         onSubmit={handleAddCollaborator}
+        assignData={assignData}
+        deptData={deptData}
+        selectedTicket={selectedTicket}
       />
       {/* <CartDetails /> */}
     </div>

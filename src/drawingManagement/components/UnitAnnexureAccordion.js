@@ -25,6 +25,7 @@ const UnitAnnexureAccordion = ({
 
   getTableData = () => {},
   loading = false,
+  isUploading,
 }) => {
   return (
     <>
@@ -153,7 +154,8 @@ const UnitAnnexureAccordion = ({
                     loading={loading}
                     disabled={
                       selectedProjects?.toString()?.trim()?.length === 0 ||
-                      loading
+                      loading ||
+                      isUploading
                     }
                     loadingPosition="start" // Position of loading spinner ('start', 'center', 'end')
                     // startIcon={<FileUploadIcon //>}

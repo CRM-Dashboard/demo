@@ -89,6 +89,12 @@ const routes = [
     icon: <DashboardOutlinedIcon />,
   },
   {
+    path: "/inbox",
+    to: "/crm/inbox",
+    name: "Inbox",
+    icon: <MailIcon />,
+  },
+  {
     path: "/fileMovement",
     to: "/crm",
     name: "File Movement",
@@ -154,12 +160,6 @@ const routes = [
     to: "/crm/activities",
     name: "Activity",
     icon: <AutoStoriesIcon />,
-  },
-  {
-    path: "/inbox",
-    to: "/crm/inbox",
-    name: "Inbox",
-    icon: <MailIcon />,
   },
 ];
 

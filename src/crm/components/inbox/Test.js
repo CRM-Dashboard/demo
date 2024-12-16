@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import CustomTabs from "./CustomTabs";
 import { Grid } from "@mui/material";
 import CustomList from "./CustomList";
@@ -12,6 +12,8 @@ import { FcProcess } from "react-icons/fc";
 import { RiMailCloseFill } from "react-icons/ri";
 import Badge from "@mui/material/Badge";
 import * as Yup from "yup";
+import ActivityCard from "./ActivityCard";
+import ThreeDotLoading from "../../../components/ThreeDot";
 
 const statuses = {
   Open: "1",
@@ -37,6 +39,9 @@ const Test = () => {
   const [deptData, setDeptData] = useState([]);
   const [assignData, setAssignData] = useState([]);
   const [ticketId, setTicketId] = useState("");
+  const [activitydata, setActivitydata] = useState([]);
+  const [isTicketLoading, setIsTicketLoading] = useState(false);
+
   const [tickets, setTicket] = useState({
     open: [],
     inprocess: [],
@@ -44,90 +49,100 @@ const Test = () => {
   });
 
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [values, setValues] = useState({});
+  const getValuesFromForm = (value) => {
+    setValues(value);
+  };
 
-  const ticketFields = [
-    { label: "Subject", name: "subject", type: "text", defaultValue: "" },
-    {
-      label: "Customer Name",
-      name: "name",
-      type: "text",
-      defaultValue: "",
-    },
-    {
-      label: "Project",
-      name: "maktx",
-      type: "text",
-      defaultValue: "",
-    },
-    {
-      label: "Date",
-      name: "createdDateTime",
-      type: "text",
-      defaultValue: "",
-    },
+  const ticketFields = useMemo(
+    () => [
+      { label: "Subject", name: "subject", type: "text", defaultValue: "" },
+      {
+        label: "Customer Name",
+        name: "name",
+        type: "text",
+        defaultValue: "",
+      },
+      {
+        label: "Project",
+        name: "maktx",
+        type: "text",
+        defaultValue: "",
+      },
+      {
+        label: "Date",
+        name: "createdDateTime",
+        type: "text",
+        defaultValue: "",
+      },
+      {
+        label: "Priority",
+        name: "priority",
+        type: "text",
+        defaultValue: "",
+      },
+      {
+        label: "Status",
+        name: "statTxt",
+        type: "text",
+        defaultValue: "",
+      },
+      {
+        label: "Category",
+        name: "type",
+        type: "select",
+        defaultValue: "",
+        options: category?.map((data) => ({
+          value: data.typ,
+          label: data.typTxt,
+        })),
+      },
+      {
+        label: "SubCategory",
+        name: "subtyp",
+        type: "select",
+        defaultValue: "",
+        options: subcategory
+          ?.filter((opt) => opt?.actTyp === values?.type)
+          ?.map((data) => ({
+            value: data.actSubtyp,
+            label: data.actSubtypTxt,
+          })),
+      },
 
-    {
-      label: "Priority",
-      name: "priority",
-      type: "text",
-      defaultValue: "",
-    },
-    {
-      label: "Status",
-      name: "statTxt",
-      type: "text",
-      defaultValue: "",
-    },
-    {
-      label: "Category",
-      name: "type",
-      type: "select",
-      defaultValue: "",
-      options: category?.map((data) => ({
-        value: data.typ,
-        label: data.typTxt,
-      })),
-    },
-    {
-      label: "SubCategory",
-      name: "subtyp",
-      type: "select",
-      defaultValue: "",
-      options: subcategory?.map((data) => ({
-        value: data.actSubtyp,
-        label: data.actSubtypTxt,
-      })),
-    },
-    {
-      label: "Description",
-      name: "description",
-      type: "text",
-      defaultValue: "",
-    },
-    { label: "Comments", name: "comments", type: "text", defaultValue: "" },
-    {
-      label: "Sender",
-      name: "sender",
-      type: "text",
-      defaultValue: "",
-    },
-  ];
+      // dpCode
 
-  const handleSubmit = async (values) => {
+      {
+        label: "Description",
+        name: "description",
+        type: "text",
+        defaultValue: "",
+      },
+      { label: "Comments", name: "comments", type: "text", defaultValue: "" },
+      {
+        label: "Disposition",
+        name: "dpCode",
+        type: "select",
+        defaultValue: "",
+        options: dpData?.map((data) => ({
+          value: data.dpCode,
+          label: data.dpTxt,
+        })),
+      },
+      {
+        label: "Sender",
+        name: "sender",
+        type: "text",
+        defaultValue: "",
+      },
+    ],
+
+    [category, subcategory, values, dpData]
+  );
+
+  const handleSubmit = async (values, btnType, tabname) => {
     try {
-      const {
-        type,
-        subtyp,
-        comments,
-        // createdDateTime,
-        // description,
-        // maktx,
-        // name,
-        // priority,
-        // sender,
-        statTxt,
-        // subject,
-      } = values;
+      const { type, subtyp, comments, statTxt, dpCode, description } = values;
       // type        TYPE zcrm_ticket-type,
       //          subtyp      TYPE zcrm_ticket-subtyp,
       //          dp_code     TYPE zcrm_ticket-dp_code,
@@ -139,20 +154,51 @@ const Test = () => {
       formData.append("passWord", passWord);
       formData.append("ticketId", ticketId);
 
-      const data = {
-        type,
-        subtyp,
-        dp_code: "PD",
-        comments,
-        comp_ind: "",
-        status: statuses[statTxt],
-      };
-      formData.append("data", data);
+      let data = {};
+
+      if (btnType === "submit") {
+        data = {
+          type,
+          subtyp,
+          dp_code: dpCode,
+          comments,
+          comp_ind: "",
+          status: 2,
+          description: description,
+          init: tabname === "open" ? "X" : "",
+        };
+      } else if (btnType === "complete") {
+        data = {
+          type,
+          subtyp,
+          dp_code: dpCode,
+          comments,
+          comp_ind: "X",
+          status: 4,
+          description: description,
+        };
+      } else if (btnType === "customer") {
+        data = {
+          type,
+          subtyp,
+          dp_code: dpCode,
+          comments,
+          comp_ind: "",
+          status: 3,
+          description: description,
+        };
+      }
+
+      formData.append("data", JSON.stringify(data));
+
       const url = `/api/ticket/post-ticket`;
       const res = await api.post(url, formData);
+      if (res) {
+        getTicketList();
+        setEmailCartData([]);
 
-      console.log("res", res);
-      // console.log("Submitted Values: ", values);
+        setSelectedTicket({});
+      }
     } catch (error) {
       console.log("errrer", error);
     }
@@ -176,7 +222,6 @@ const Test = () => {
       }
 
       const response = (await api.post(url, formData)).data;
-      console.log(response, "dfjedhfdyh");
 
       setTicket(response.response[0]);
     } catch (error) {
@@ -194,7 +239,7 @@ const Test = () => {
 
     try {
       const tokenData = (await api.get(url)).data;
-      // console.log("###########access token:", tokenData.data.access_token);
+
       return tokenData;
     } catch (error) {
       return error;
@@ -209,18 +254,20 @@ const Test = () => {
       formData.append("userName", userName);
       formData.append("passWord", passWord);
       formData.append("ticketId", ticketId);
+
       const res = (await api.post(url, formData)).data;
-      console.log("resss", res);
+
       setCategory(res?.response[0]?.typdata);
       setSubcategory(res?.response[0]?.subtypdata);
       setDpdata(res?.response[0]?.dpdata);
       setSelectedTicket(res?.response[0]?.ticketdata[0]);
       setDeptData(res?.response[0]?.deptdata);
       setAssignData(res?.response[0]?.userdata);
-      console.log("resese", res);
+      setActivitydata(res?.response[0]?.activitydata);
+
       return res.response[0]?.ticketdata[0];
     } catch (error) {
-      console.log("errsrd");
+    } finally {
     }
   };
 
@@ -230,7 +277,7 @@ const Test = () => {
       //   setError(null); // Reset any previous errors
 
       const token = await getAccessToken(); // Get the access token
-      console.log("token", token);
+
       const encodedConversationId = encodeURIComponent(conversationId); // URL encode the conversationId
       const url = `https://graph.microsoft.com/v1.0/users/c8fec0e4-c259-49c3-b4ff-64d31353a571/messages?$filter=conversationId eq '${encodedConversationId}'`;
 
@@ -239,8 +286,6 @@ const Test = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log(response.data);
 
       // Update state with fetched messages
       setEmailCartData(response?.data?.value?.reverse());
@@ -256,9 +301,15 @@ const Test = () => {
   };
 
   const handleTicketClick = async (ticket, index) => {
-    setTicketId(ticket.ticketId);
-    const details = await getTicketDetails(ticket.ticketId);
-    await fetchMessagesByConversation(details?.conversationId);
+    try {
+      setTicketId(ticket.ticketId);
+      setIsTicketLoading(true);
+      const details = await getTicketDetails(ticket.ticketId);
+      await fetchMessagesByConversation(details?.conversationId);
+    } catch (error) {
+    } finally {
+      setIsTicketLoading(false);
+    }
   };
 
   const tabData = [
@@ -273,7 +324,7 @@ const Test = () => {
               onTicketClick={handleTicketClick}
               listWrapperStyle={{
                 margin: "20px auto",
-                backgroundColor: "#f9f9f9",
+                // backgroundColor: "#f9f9f9",
                 padding: "0px",
                 borderRadius: "12px",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -296,7 +347,14 @@ const Test = () => {
             />
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
+            {isTicketLoading && (
+              <>
+                <ThreeDotLoading />
+              </>
+            )}
+            {!isTicketLoading && emailCartData.length === 0 && (
+              <h3>Please Select Ticket</h3>
+            )}
             {emailCartData?.length > 0 && (
               <TicketCart
                 ticketFields={ticketFields}
@@ -307,8 +365,14 @@ const Test = () => {
                 deptData={deptData}
                 assignData={assignData}
                 tabname={"open"}
+                getValuesFromForm={getValuesFromForm}
               />
             )}
+            {activitydata?.length > 0 &&
+              emailCartData?.length > 0 &&
+              activitydata?.map((activity) => {
+                return <ActivityCard activitydata={activity} />;
+              })}
             {emailCartData?.length > 0 &&
               emailCartData?.map((email) => {
                 return (
@@ -342,7 +406,7 @@ const Test = () => {
               listWrapperStyle={{
                 // maxWidth: "600px",
                 margin: "20px auto",
-                backgroundColor: "#f9f9f9",
+                // backgroundColor: "#f9f9f9",
                 padding: "0px",
                 borderRadius: "12px",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -365,7 +429,14 @@ const Test = () => {
             />
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
+            {isTicketLoading && (
+              <>
+                <ThreeDotLoading />
+              </>
+            )}
+            {!isTicketLoading && emailCartData.length === 0 && (
+              <h3>Please Select Ticket</h3>
+            )}
             {emailCartData?.length > 0 && (
               <TicketCart
                 ticketFields={ticketFields}
@@ -376,8 +447,14 @@ const Test = () => {
                 tabname={"inprogress"}
                 deptData={deptData}
                 assignData={assignData}
+                getValuesFromForm={getValuesFromForm}
               />
             )}
+            {emailCartData.length > 0 &&
+              activitydata?.length > 0 &&
+              activitydata?.map((activity) => {
+                return <ActivityCard activitydata={activity} />;
+              })}
             {emailCartData?.length > 0 &&
               emailCartData?.map((email) => {
                 return (
@@ -436,7 +513,7 @@ const Test = () => {
               listWrapperStyle={{
                 // maxWidth: "600px",
                 margin: "20px auto",
-                backgroundColor: "#f9f9f9",
+                // backgroundColor: "#f9f9f9",
                 padding: "0px",
                 borderRadius: "12px",
                 boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -460,6 +537,11 @@ const Test = () => {
           </Grid>
           <Grid item md={8} sm={8} xl={8}>
             {/* <Grid item sx={5} md={5} xl={6}> */}
+            {isTicketLoading && (
+              <>
+                <ThreeDotLoading />
+              </>
+            )}
 
             {emailCartData?.length > 0 && (
               <TicketCart
@@ -471,10 +553,18 @@ const Test = () => {
                 tabname={"closed"}
                 deptData={deptData}
                 assignData={assignData}
+                getValuesFromForm={getValuesFromForm}
               />
             )}
+            {emailCartData.length > 0 &&
+              activitydata?.length > 0 &&
+              activitydata?.map((activity) => {
+                return <ActivityCard activitydata={activity} />;
+              })}
             {/* </Grid> */}
-            {emailCartData.length === 0 && <h3>Please Select Ticket</h3>}
+            {!isTicketLoading && emailCartData.length === 0 && (
+              <h3>Please Select Ticket</h3>
+            )}
             {emailCartData?.length > 0 &&
               emailCartData?.map((email) => {
                 return (
@@ -502,7 +592,6 @@ const Test = () => {
     setEmailCartData([]);
 
     setSelectedTicket({});
-    console.log("Active tab index:", index);
   };
 
   return (

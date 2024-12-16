@@ -37,6 +37,8 @@ const TicketList = () => {
   const [dpData, setDpdata] = useState([]);
 
   const [ticketId, setTicketId] = useState("");
+
+  console.log("ticket Id", ticketId);
   const [tickets, setTicket] = useState({
     open: [],
     inprocess: [],
@@ -44,6 +46,10 @@ const TicketList = () => {
   });
 
   const [selectedTicket, setSelectedTicket] = useState({});
+  const [values, setValues] = useState({});
+  const getValuesFromForm = (value) => {
+    setValues(value);
+  };
 
   const ticketFields = [
     {
@@ -101,15 +107,17 @@ const TicketList = () => {
   ];
 
   const handleSubmit = async (values) => {
+    console.log("values", values);
     try {
       const {
-        type,
-        subtyp,
+        activityDes,
+
         comments,
+        dueDays,
         // createdDateTime,
         // description,
         // maktx,
-        // name,
+        // name,,
         // priority,
         // sender,
         statTxt,
@@ -124,22 +132,28 @@ const TicketList = () => {
       const formData = new FormData();
       formData.append("userName", userName);
       formData.append("passWord", passWord);
-      formData.append("ticketId", ticketId);
+      formData.append("ticketId", selectedTicket?.ticketId);
+      formData.append("activityId", ticketId);
+
+      // activity_des ,comments ,due_days ,status ,comp_ind,  cust_pending,init
 
       const data = {
-        type,
-        subtyp,
-        dp_code: "PD",
+        activity_des: activityDes,
+
         comments,
+        due_days: dueDays,
+        cust_pending: "",
+        init: "",
+
         comp_ind: "",
         status: statuses[statTxt],
       };
       formData.append("data", data);
-      const url = `/api/ticket/post-ticket`;
+      const url = `/api/ticket/post-activity`;
       const res = await api.post(url, formData);
 
       console.log("res", res);
-      // console.log("Submitted Values: ", values);
+      console.log("Submitted Values: ", values);
     } catch (error) {
       console.log("errrer", error);
     }

@@ -50,9 +50,9 @@ function CustomList({
               }
             >
               {/* Icon for Time/Date */}
-              <ListItemIcon>
+              {/* <ListItemIcon>
                 <FaJira color="black" size={20} />
-              </ListItemIcon>
+              </ListItemIcon> */}
 
               {/* Ticket Title and Body Preview */}
               <ListItemText
@@ -67,7 +67,13 @@ function CustomList({
               <Typography
                 variant="body2"
                 color="textSecondary"
-                sx={{ ml: 2, fontSize: "0.875rem" }}
+                sx={{
+                  ml: 2,
+                  fontSize: "0.875rem",
+                  position: "absolute",
+                  top: 5,
+                  right: 5,
+                }}
               >
                 {new Date(ticket.createdDateTime).toLocaleDateString() ||
                   new Date(ticket?.erdat).toLocaleDateString()}

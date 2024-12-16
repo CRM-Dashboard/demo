@@ -45,6 +45,7 @@ const EmailCart = ({ content, email, to, tabname }) => {
     bcc: "",
     body: "",
     attachments: [],
+    subject: email.subject,
   });
 
   console.log("email", email);
@@ -103,6 +104,35 @@ const EmailCart = ({ content, email, to, tabname }) => {
     } catch (error) {
       console.log("Error downloading attachment", error);
     }
+  };
+
+  const convertTextToHTML = (text) => {
+    // Helper function to escape HTML special characters
+    const escapeHTML = (str) => {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    // Escape the text to prevent XSS or HTML injection
+    let escapedText = escapeHTML(text);
+
+    // Convert URLs to clickable links
+    escapedText = escapedText.replace(
+      /(https?:\/\/[^\s]+)/g,
+      (url) => `<a href="${url}" target="_blank">${url}</a>`
+    );
+
+    // Replace line breaks with paragraph tags
+    const htmlContent = escapedText
+      .split("\n")
+      .map((line) => `<p>${line.trim()}</p>`)
+      .join("");
+
+    return htmlContent;
   };
 
   const autoReplay = async (content) => {
@@ -208,10 +238,10 @@ const EmailCart = ({ content, email, to, tabname }) => {
       // Prepare the payload
       const payload = {
         message: {
-          subject: email.subject, // Original subject
+          subject: emailDetails.subject, // Original subject
           body: {
             contentType: "HTML",
-            content: emailDetails.body,
+            content: convertTextToHTML(emailDetails?.body),
           },
           toRecipients: emailDetails.to.split(",").map((address) => ({
             emailAddress: { address },
@@ -340,7 +370,16 @@ const EmailCart = ({ content, email, to, tabname }) => {
           <CardContent
             sx={{ color: "#555", fontSize: "1rem", lineHeight: "1.8" }}
           >
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: content
+                  ?.replace(
+                    /You don't often get email from [^<]+<a [^>]+>Learn why this is important<\/a>/g,
+                    ""
+                  )
+                  .trim(),
+              }}
+            />
           </CardContent>
 
           {/* Reply, Reply All, Forward Buttons */}
@@ -393,6 +432,18 @@ const EmailCart = ({ content, email, to, tabname }) => {
         </DialogTitle> */}
         <DialogContent>
           <Grid container spacing={2} padding={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Subject"
+                variant="outlined"
+                fullWidth
+                value={emailDetails.subject}
+                onChange={(e) =>
+                  setEmailDetails({ ...emailDetails, subject: e.target.value })
+                }
+                required
+              />
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="To"

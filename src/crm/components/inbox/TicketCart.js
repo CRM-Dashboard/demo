@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from "react";
+import React, { useEffect, memo, useRef, useState } from "react";
 import { useFormik } from "formik";
 import {
   TextField,
@@ -42,7 +42,14 @@ const TicketCart = ({
   tabname,
   deptData,
   assignData,
+  getValuesFromForm,
 }) => {
+  const completeRef = useRef(null);
+  const customerRef = useRef(null);
+  const submitRef = useRef(null);
+  const [btnClicked, setBtnClicked] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const formik = useFormik({
     initialValues: ticketFields.reduce((acc, field) => {
       acc[field.name] =
@@ -50,13 +57,48 @@ const TicketCart = ({
       return acc;
     }, {}),
     validationSchema: validationSchema || null,
-    onSubmit: (values) => {
-      console.log("onSubmit called with values:", values);
-      if (onSubmit) onSubmit(values);
+    onSubmit: async (values, action) => {
+      try {
+        setIsLoading(true);
+        let clickedButtonId = null;
+
+        // Check which button is clicked by inspecting the refs
+        if (
+          completeRef.current &&
+          completeRef.current === document.activeElement
+        ) {
+          clickedButtonId = completeRef.current.id; // Complete button clicked
+          setBtnClicked(completeRef.current.id);
+        } else if (
+          customerRef.current &&
+          customerRef.current === document.activeElement
+        ) {
+          clickedButtonId = customerRef.current.id; // Customer button clicked
+          setBtnClicked(customerRef.current.id);
+        } else if (
+          submitRef.current &&
+          submitRef.current === document.activeElement
+        ) {
+          clickedButtonId = submitRef.current.id; // Submit button clicked
+          setBtnClicked(submitRef.current.id);
+        }
+
+        if (onSubmit) await onSubmit(values, clickedButtonId, tabname);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
     },
   });
 
-  const { setValues } = formik;
+  const { setValues, values } = formik;
+
+  useEffect(() => {
+    if (typeof getValuesFromForm === "function") {
+      getValuesFromForm(values);
+    }
+  }, [values, getValuesFromForm]);
 
   const updateSelectedTicketValues = () => {
     const updatedValues = ticketFields.reduce((acc, field) => {
@@ -77,8 +119,6 @@ const TicketCart = ({
     }
   }, [selectedTicket]);
 
-  console.log("selected", selectedTicket);
-
   return (
     <Paper style={{ padding: "1rem", marginTop: "1rem", marginRight: "1rem" }}>
       <form
@@ -87,11 +127,6 @@ const TicketCart = ({
       >
         <Grid container spacing={2}>
           {ticketFields.map((field) => {
-            console.log("color", formik.values[field.name]);
-            console.log(
-              "color generate",
-              colorsSchema[formik.values[field.name]]
-            );
             const isReadOnly = [
               "createdDateTime",
               "priority",
@@ -131,7 +166,15 @@ const TicketCart = ({
                   </Typography>
                 ) : isReadOnly ? (
                   <Chip
-                    label={`${formik.values[field.name]}`}
+                    label={
+                      field.name === "createdDateTime"
+                        ? new Date(formik.values[field.name]).toLocaleString(
+                            "en-IN",
+                            { timeZone: "Asia/Kolkata" }
+                          )
+                        : `${formik.values[field.name]}`
+                    }
+                    //
                     variant="filled"
                     color={
                       colorsSchema[formik.values[field.name]] ||
@@ -230,42 +273,68 @@ const TicketCart = ({
             gap: "1rem",
           }}
         >
-          {deptData && assignData && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "start",
-              }}
-            >
-              <Typography>Collaborators</Typography>
-              <CollaboratorsUI
-                deptData={deptData}
-                assignData={assignData}
-                selectedTicket={selectedTicket}
-              />
-            </Box>
-          )}
+          {tabname !== "open" &&
+            tabname !== "closed" &&
+            deptData &&
+            assignData && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "start",
+                }}
+              >
+                <Typography>Collaborators</Typography>
+                <CollaboratorsUI
+                  deptData={deptData}
+                  assignData={assignData}
+                  selectedTicket={selectedTicket}
+                />
+              </Box>
+            )}
 
-          <LoadingButton
-            startIcon={<DoneIcon />}
-            type="submit"
-            color="primary"
-            variant="outlined"
-          >
-            Complete
-          </LoadingButton>
-          <LoadingButton
-            startIcon={<PendingIcon />}
-            type="submit"
-            color="primary"
-            variant="outlined"
-          >
-            Customer Action Pending
-          </LoadingButton>
-          <LoadingButton type="submit" color="primary" variant="contained">
-            Submit
-          </LoadingButton>
+          {tabname !== "closed" && (
+            <>
+              {tabname !== "open" && (
+                <LoadingButton
+                  startIcon={<PendingIcon />}
+                  type="submit"
+                  id="customer"
+                  ref={customerRef}
+                  color="primary"
+                  variant="outlined"
+                  disabled={isLoading && document.activeElement !== btnClicked}
+                  loading={isLoading && document.activeElement === btnClicked}
+                >
+                  Customer Action Pending
+                </LoadingButton>
+              )}
+
+              <LoadingButton
+                startIcon={<DoneIcon />}
+                type="submit"
+                ref={completeRef}
+                id="complete"
+                color="primary"
+                variant="outlined"
+                disabled={isLoading && document.activeElement !== btnClicked}
+                loading={isLoading && document.activeElement === btnClicked}
+              >
+                Complete
+              </LoadingButton>
+              <LoadingButton
+                ref={submitRef}
+                id="submit"
+                type="submit"
+                color="primary"
+                variant="contained"
+                disabled={isLoading && document.activeElement !== btnClicked}
+                loading={isLoading && document.activeElement === btnClicked}
+              >
+                Submit
+              </LoadingButton>
+            </>
+          )}
         </div>
       </form>
     </Paper>

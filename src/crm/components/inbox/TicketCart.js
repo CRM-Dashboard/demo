@@ -61,6 +61,7 @@ const TicketCart = ({
   deptData,
   assignData,
   getValuesFromForm,
+  isUpload = false,
 }) => {
   const completeRef = useRef(null);
   const customerRef = useRef(null);
@@ -140,6 +141,23 @@ const TicketCart = ({
   }, [selectedTicket]);
 
   console.log("selected ", selectedTicket);
+
+  const getDocsForTicket = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("reqNo", selectedTicket?.ticketId);
+      formData.append("orderId", selectedTicket?.activityNo);
+      formData.append("userName", userName);
+      formData.append("passWord", passWord);
+      formData.append("process", "EMAIL_TICKET");
+
+      const res = await api.post(
+        process.env.REACT_APP_SERVER_URL + "/api/activity/getFileUrlsByReqNo",
+        formData
+      );
+      console.log(res.data.data, "dhedhg");
+    } catch (error) {}
+  };
 
   const uploadDocToS3 = async (folder, file) => {
     try {
@@ -387,7 +405,7 @@ const TicketCart = ({
               </Box>
             )}
 
-          {
+          {isUpload && (
             <LoadingButton
               component="label"
               role={undefined}
@@ -403,7 +421,7 @@ const TicketCart = ({
                 multiple
               />
             </LoadingButton>
-          }
+          )}
 
           {tabname !== "closed" && (
             <>

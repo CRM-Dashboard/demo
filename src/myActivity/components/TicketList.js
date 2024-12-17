@@ -350,6 +350,7 @@ const TicketList = () => {
                 validationSchema={validationSchema}
                 selectedTicket={selectedTicket}
                 tabname={"inprogress"}
+                isUpload={true}
               />
             )}
           </Grid>

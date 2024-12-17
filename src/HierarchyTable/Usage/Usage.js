@@ -5,11 +5,13 @@ import { useSelector } from "react-redux";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import dayjs from "dayjs";
+import ThreeDot from "../../components/ThreeDot";
 
 const Usage = () => {
   const [month, setMonth] = useState("");
   const [hubData, setHubData] = useState([]);
   const [topData, setTopData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -50,6 +52,19 @@ const Usage = () => {
     return DataForTable;
   };
 
+  function formatDateToYearMonth(dateObj) {
+    if (
+      !dateObj ||
+      typeof dateObj.$y !== "number" ||
+      typeof dateObj.$M !== "number"
+    ) {
+      throw new Error("Invalid date object");
+    }
+
+    const year = dateObj.$y;
+    const month = String(dateObj.$M + 1).padStart(2, "0"); // Months are 0-indexed, so add 1 and pad with zero
+    return `${year}${month}`;
+  }
   const modifyTopResponse = (expenseData) => {
     const DataForTable = expenseData?.map((item) => {
       return [item?.username, item?.count];
@@ -57,27 +72,36 @@ const Usage = () => {
     return DataForTable;
   };
 
-  const getTableData = () => {
+  const getTableData = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch(
-      `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTracker`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setHubData(modifyHubResponse(data[0].hub));
-        setTopData(modifyTopResponse(data[0].top));
-      });
-  };
+    formData.append("month", formatDateToYearMonth(month));
 
-  useEffect(() => {
-    getTableData();
-  }, []);
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTrackerWithMonth`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      setHubData(modifyHubResponse(data[0].hub));
+      setTopData(modifyTopResponse(data[0].top));
+    } catch (error) {
+      console.error("Error fetching table data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const columnsHub = [
     {
@@ -108,6 +132,10 @@ const Usage = () => {
     selectableRows: "none",
   };
 
+  if (isLoading) {
+    return <ThreeDot />;
+  }
+
   return (
     <>
       <Grid
@@ -136,23 +164,12 @@ const Usage = () => {
         </Grid>
         <Grid item sm={2} md={2} lg={2}>
           <Button
-            style={{
-              backgroundColor: "#007FFF",
-              fontFamily: "futura",
-              borderRadius: "5px",
-              fontSize: "15px",
-              color: "white",
-              marginTop: "0.2em",
-              height: "2.2em",
-              width: "4.5em",
+            disabled={!month}
+            onClick={() => {
+              getTableData();
             }}
-            // sx={ selectedProjects?.toString()?.trim()?.length === 0 ? {} : {}}
-            // disabled={
-            //   selectedProjects?.toString()?.trim()?.length === 0
-            // }
-            // onClick={() => {
-            //   getData();
-            // }}
+            variant="contained"
+            size="large"
           >
             Go
           </Button>

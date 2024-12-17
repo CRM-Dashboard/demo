@@ -116,9 +116,10 @@ const TableFilter = ({
                       // backgroundColor: "#f5f5f5", // Custom background color
                       // color: "#333333",           // Custom text color
                       padding: "5px 10px", // Custom padding for table cells
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
+                      fontSize: "11.2px",
+                      // whiteSpace: "nowrap",
+                      // overflow: "hidden",
+                      // textOverflow: "ellipsis",
                     }}
                   >
                     {cell.render("Cell")}

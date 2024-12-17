@@ -7,12 +7,14 @@ import { TableRow, TableCell, TableFooter, Button } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import dayjs from "dayjs";
+import ThreeDot from "../../components/ThreeDot";
 
 const ITExpensesAndBudget = () => {
-  const [month, setMonth] = useState("");
+  const [month, setMonth] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableData, setTableData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const reducerData = useSelector((state) => state);
   const passWord = reducerData.LoginReducer.passWord;
@@ -64,28 +66,60 @@ const ITExpensesAndBudget = () => {
     return DataForTable;
   };
 
-  const getTableData = () => {
+  function formatDateToYearMonth(dateObj) {
+    if (
+      !dateObj ||
+      typeof dateObj.$y !== "number" ||
+      typeof dateObj.$M !== "number"
+    ) {
+      throw new Error("Invalid date object");
+    }
+
+    const year = dateObj.$y;
+    const month = String(dateObj.$M + 1).padStart(2, "0"); // Months are 0-indexed, so add 1 and pad with zero
+    return `${year}${month}`;
+  }
+
+  // console.log("months ", formatDateToYearMonth(month));
+
+  const getTableData = async () => {
     const formData = new FormData();
     formData.append("userName", userName);
     formData.append("passWord", passWord);
-    fetch(
-      `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTracker`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data[0].expense.length > 0) {
-          setTableData(modifyResponse(data[0].expense));
+    formData.append("month", formatDateToYearMonth(month));
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${process.env.REACT_APP_SERVER_URL}/api/activity/getProjectTrackerWithMonth`,
+        {
+          method: "POST",
+          body: formData,
         }
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data[0]?.expense.length > 0) {
+        setTableData(modifyResponse(data[0].expense));
+      } else {
+        setTableData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching table data:", error);
+      setTableData([]); // Handle gracefully by resetting the table data
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  useEffect(() => {
-    getTableData();
-  }, []);
+  // useEffect(() => {
+  //   getTableData();
+  // }, []);
 
   const columns = [
     {
@@ -268,6 +302,10 @@ const ITExpensesAndBudget = () => {
     },
   };
 
+  if (isLoading) {
+    return <ThreeDot />;
+  }
+
   return (
     <Grid>
       <Grid
@@ -296,23 +334,12 @@ const ITExpensesAndBudget = () => {
         </Grid>
         <Grid item sm={2} md={2} lg={2}>
           <Button
-            style={{
-              backgroundColor: "#007FFF",
-              fontFamily: "futura",
-              borderRadius: "5px",
-              fontSize: "15px",
-              color: "white",
-              marginTop: "0.2em",
-              height: "2.2em",
-              width: "4.5em",
+            disabled={!month}
+            onClick={() => {
+              getTableData();
             }}
-            // sx={ selectedProjects?.toString()?.trim()?.length === 0 ? {} : {}}
-            // disabled={
-            //   selectedProjects?.toString()?.trim()?.length === 0
-            // }
-            // onClick={() => {
-            //   getData();
-            // }}
+            variant="contained"
+            size="large"
           >
             Go
           </Button>

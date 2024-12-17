@@ -396,7 +396,7 @@ const CoverPage = () => {
           marginBottom: "0.5em",
         }}
       >
-        <Grid item sm={2} md={2} lg={3}>
+        {/* <Grid item sm={2} md={2} lg={3}>
           <CrmDatePicker
             id="month"
             name="month"
@@ -434,30 +434,30 @@ const CoverPage = () => {
           >
             Go
           </Button>
-        </Grid>
+        </Grid> */}
       </Grid>
       <div style={{ marginLeft: "-100px", width: "calc(100% + 50px)" }}>
         <VerticalTimeline lineColor={lineColor}>
           {renderEditableSection(
-            "Past Month Best",
+            "Best Things Happening",
             "PAST_MTH_BEST",
             <AcUnit />,
             "rgb(16, 204, 82)"
           )}
           {renderEditableSection(
-            "Past Month Worst",
+            "Challenges/Risks/Issues to Address",
             "PAST_MTH_WORST",
             <AccessTime />,
             "rgb(255, 69, 58)"
           )}
           {renderEditableSection(
-            "Next Month Excited About",
+            "Excited About",
             "NXT_MTH_BEST",
             <AcUnit />,
             "rgb(33, 150, 243)"
           )}
           {renderEditableSection(
-            "Next Month Concerned About",
+            "Concerned About",
             "NXT_MTH_CONCERN",
             <AccessTime />,
             "rgb(255, 165, 0)"

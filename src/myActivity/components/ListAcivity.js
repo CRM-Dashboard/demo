@@ -31,8 +31,8 @@ function ListAcivity({
       }}
     >
       <List>
-        {tickets.length > 0 ? (
-          tickets.map((ticket, index) => (
+        {tickets?.length > 0 ? (
+          tickets?.map((ticket, index) => (
             <ListItem
               key={index}
               sx={{

@@ -64,12 +64,14 @@ const TicketList = () => {
       name: "dueDt",
       type: "text",
       defaultValue: "",
+      isDisabled: true,
     },
     {
       label: "HOD Date",
       name: "hodDt",
       type: "text",
       defaultValue: "",
+      isDisabled: true,
     },
     {
       label: "Due Days",
@@ -90,7 +92,7 @@ const TicketList = () => {
       name: "comments",
       type: "text",
       defaultValue: "",
-      isDisabled: true,
+      isDisabled: false,
     },
     {
       label: "Priority",
@@ -106,8 +108,8 @@ const TicketList = () => {
     },
   ];
 
-  const handleSubmit = async (values) => {
-    console.log("values", values);
+  const handleSubmit = async (values, btnType, tabname) => {
+    console.log("values", values, btnType, tabname);
     try {
       const {
         activityDes,
@@ -137,23 +139,58 @@ const TicketList = () => {
 
       // activity_des ,comments ,due_days ,status ,comp_ind,  cust_pending,init
 
-      const data = {
-        activity_des: activityDes,
+      let data = {};
 
-        comments,
-        due_days: dueDays,
-        cust_pending: "",
-        init: "",
+      if (btnType === "submit") {
+        data = {
+          due_days: dueDays,
+          comments,
+          status: 2,
+          activity_des: activityDes,
+          cust_pending: "",
+          comp_ind: "",
+          init: tabname === "open" ? "X" : "",
+        };
+      } else if (btnType === "complete") {
+        data = {
+          due_days: dueDays,
+          comments,
+          comp_ind: "X",
+          status: 4,
+          cust_pending: "",
+          init: "",
 
-        comp_ind: "",
-        status: statuses[statTxt],
-      };
-      formData.append("data", data);
+          activity_des: activityDes,
+        };
+      } else if (btnType === "customer") {
+        data = {
+          due_days: dueDays,
+          comments,
+          status: 3,
+          activity_des: activityDes,
+          cust_pending: "X",
+          init: "",
+          comp_ind: "",
+        };
+      }
+
+      // const data = {
+      //   activity_des: activityDes,
+
+      //   comments,
+      //   due_days: dueDays,
+      //   cust_pending: "",
+      //   init: "",
+
+      //   comp_ind: "",
+      //   status: statuses[statTxt],
+      // };
+      formData.append("data", JSON.stringify(data));
       const url = `/api/ticket/post-activity`;
       const res = await api.post(url, formData);
-
-      console.log("res", res);
-      console.log("Submitted Values: ", values);
+      if (res) {
+        getTicketList();
+      }
     } catch (error) {
       console.log("errrer", error);
     }

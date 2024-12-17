@@ -58,11 +58,12 @@ const Test = () => {
     () => [
       { label: "Subject", name: "subject", type: "text", defaultValue: "" },
       {
-        label: "Customer Name",
-        name: "name",
+        label: "Priority",
+        name: "priority",
         type: "text",
         defaultValue: "",
       },
+
       {
         label: "Project",
         name: "maktx",
@@ -75,12 +76,14 @@ const Test = () => {
         type: "text",
         defaultValue: "",
       },
+
       {
-        label: "Priority",
-        name: "priority",
+        label: "Customer Name",
+        name: "name",
         type: "text",
         defaultValue: "",
       },
+
       {
         label: "Status",
         name: "statTxt",
@@ -302,6 +305,9 @@ const Test = () => {
 
   const handleTicketClick = async (ticket, index) => {
     try {
+      setEmailCartData([]);
+
+      setSelectedTicket({});
       setTicketId(ticket.ticketId);
       setIsTicketLoading(true);
       const details = await getTicketDetails(ticket.ticketId);

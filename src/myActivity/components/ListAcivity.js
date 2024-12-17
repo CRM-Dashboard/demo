@@ -50,14 +50,11 @@ function ListAcivity({
               }
             >
               {/* Icon for Time/Date */}
-              <ListItemIcon>
-                <FaJira color="black" size={20} />
-              </ListItemIcon>
 
               {/* Ticket Title and Body Preview */}
               <ListItemText
                 // primary={ticket.subject}
-                secondary={`${ticket.activityDes}`}
+                primary={`${ticket.activityDes}`}
                 sx={{ ...itemTextStyle }}
               />
 
@@ -65,7 +62,13 @@ function ListAcivity({
               <Typography
                 variant="body2"
                 color="textSecondary"
-                sx={{ ml: 2, fontSize: "0.875rem" }}
+                sx={{
+                  ml: 2,
+                  fontSize: "0.675rem",
+                  position: "absolute",
+                  top: 5,
+                  right: 5,
+                }}
               >
                 {new Date(ticket?.erdat).toLocaleDateString()}
               </Typography>

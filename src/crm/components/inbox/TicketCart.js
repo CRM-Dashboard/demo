@@ -21,6 +21,24 @@ import DoneIcon from "@mui/icons-material/Done";
 import PendingIcon from "@mui/icons-material/Pending";
 import dayjs from "dayjs";
 import CollaboratorsUI from "../../../myActivity/components/CollaboratorsUI";
+import { styled } from "@mui/material/styles";
+import Button from "@mui/material/Button";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import api from "../../../services/api";
+import axios from "axios";
+import { useSelector } from "react-redux";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const colorsSchema = {
   Open: "info",
@@ -49,6 +67,8 @@ const TicketCart = ({
   const submitRef = useRef(null);
   const [btnClicked, setBtnClicked] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const passWord = useSelector((state) => state.LoginReducer.passWord);
+  const userName = useSelector((state) => state.LoginReducer.userName);
 
   const formik = useFormik({
     initialValues: ticketFields.reduce((acc, field) => {
@@ -118,6 +138,80 @@ const TicketCart = ({
       updateSelectedTicketValues();
     }
   }, [selectedTicket]);
+
+  console.log("selected ", selectedTicket);
+
+  const uploadDocToS3 = async (folder, file) => {
+    try {
+      const url = `${process.env.REACT_APP_SERVER_URL}/api/drawing/generate-signed-url`;
+      const formData = new FormData();
+      formData.append("folder", folder);
+
+      const uploadedUrl = (
+        await api.post(url, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+      ).data;
+
+      await axios.put(uploadedUrl, file, {
+        headers: { "Content-Type": "application/pdf" },
+      });
+
+      const publicUrl = uploadedUrl.split("?")[0];
+      console.log("publicUrl", publicUrl);
+      return { publicUrl };
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  };
+
+  const handleFileUpload = async (event) => {
+    const files = event.target.files;
+    if (files) {
+      try {
+        const entryData = await Promise.all(
+          Array.from(files).map(async (file, index) => {
+            try {
+              console.log("Uploading file:", file.name);
+
+              const res = await uploadDocToS3(
+                `email/activity${file.name}`,
+                file
+              );
+              return {
+                DOKNR: selectedTicket?.ticketId,
+                REFERENCE: selectedTicket?.activityNo,
+                LO_INDEX: index + 1,
+                PROCESS: "EMAIL_TICKET",
+                URL: res.publicUrl,
+                FILENAME: file.name,
+              };
+            } catch (err) {
+              console.error(`Failed to upload ${file.name}:`, err);
+              return null; // Skip this file if upload fails
+            }
+          })
+        ); // Remove failed uploads
+
+        console.log("Resolved entryData:", entryData);
+
+        const formData = new FormData();
+        formData.append("entryData", JSON.stringify(entryData));
+        formData.append("userName", userName);
+        formData.append("passWord", passWord);
+
+        const res = await api.post(
+          process.env.REACT_APP_SERVER_URL + "/api/activity/saveUploadedFiles",
+          formData
+        );
+
+        console.log("resese", res);
+      } catch (error) {
+        console.error("Upload failed:", error);
+      }
+    }
+  };
 
   return (
     <Paper style={{ padding: "1rem", marginTop: "1rem", marginRight: "1rem" }}>
@@ -292,6 +386,24 @@ const TicketCart = ({
                 />
               </Box>
             )}
+
+          {
+            <LoadingButton
+              component="label"
+              role={undefined}
+              variant="contained"
+              // loading={true}
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload files
+              <VisuallyHiddenInput
+                type="file"
+                onChange={handleFileUpload}
+                multiple
+              />
+            </LoadingButton>
+          }
 
           {tabname !== "closed" && (
             <>

@@ -6,6 +6,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import CrmDatePicker from "../../crm/components/crmDatePicker/CrmDatePicker";
 import dayjs from "dayjs";
 import ThreeDot from "../../components/ThreeDot";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const Usage = () => {
   const [month, setMonth] = useState("");
@@ -47,7 +49,29 @@ const Usage = () => {
 
   const modifyHubResponse = (expenseData) => {
     const DataForTable = expenseData?.map((item) => {
-      return [item?.object, item?.count];
+      const isPositive = item?.percentChange > 0;
+
+      return [
+        item?.object,
+        item?.count,
+        item?.preCount,
+        <span
+          style={{
+            color: isPositive ? "green" : "red",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "2px",
+          }}
+        >
+          {item?.percentChange}
+          {isPositive ? (
+            <ArrowUpwardIcon fontSize="15px" />
+          ) : (
+            <ArrowDownwardIcon fontSize="15px" />
+          )}
+        </span>,
+      ];
     });
     return DataForTable;
   };
@@ -109,6 +133,12 @@ const Usage = () => {
     },
     {
       name: "Count",
+    },
+    {
+      name: "Previous Month",
+    },
+    {
+      name: "%Change",
     },
   ];
 

@@ -40,7 +40,7 @@ const ProjectMenus = () => {
       navigateTo: "/drawing",
       isAccessible: GlobalFunctions.allowAccessByRoles(
         accessRoles,
-        roles.itServiceManagement
+        roles.drawing
       ),
     },
     {
@@ -48,7 +48,10 @@ const ProjectMenus = () => {
       imageSrc: require("../../src/assets/campaign.jpg"),
       altText: "Campaign",
       navigateTo: "/campaign",
-      isAccessible: true,
+      isAccessible: GlobalFunctions.allowAccessByRoles(
+        accessRoles,
+        roles.campaign
+      ),
     },
 
     {
@@ -56,7 +59,7 @@ const ProjectMenus = () => {
       imageSrc: require("../../src/assets/key.webp"),
       altText: "Key Management",
       navigateTo: "/key-management",
-      isAccessible: true,
+      isAccessible: GlobalFunctions.allowAccessByRoles(accessRoles, roles.key),
     },
     {
       title: "Vendor Management",

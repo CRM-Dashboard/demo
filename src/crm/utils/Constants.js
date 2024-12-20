@@ -2,6 +2,8 @@ const roleConstants = {
   customer360: "Z_REACT_CRM",
   itServiceManagement: "Z_REACT_IT",
   campaign: "Z_REACT_SURVEY",
+  drawing: "Z_REACT_DESIGN",
+  key: "Z_REACT_KEY_MANAGEMENT",
 };
 
 const accessConstants = {
